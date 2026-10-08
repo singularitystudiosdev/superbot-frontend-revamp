@@ -175,10 +175,10 @@
    These are main's four files (assets/fonts/Inter-*.ttf, SIL OFL 1.1, the
    licence beside them in site/assets/fonts/LICENSE-Inter.txt), repacked to
    WOFF2 with no glyph or metric change. */
-@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../site/assets/fonts/Inter-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../site/assets/fonts/Inter-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../site/assets/fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../site/assets/fonts/Inter-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
 /* ---------- the frontend: superbot-desktop main's new chat screen (hero-wschat-frontend.js) ----------
    Main, measured live at a 1200 x 750 CSS viewport (.tmp/gui-sync-geo/
@@ -369,7 +369,7 @@
 #hub[data-hwf] .hwf-mk { flex: none; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 5.33px; overflow: hidden; }
 /* the Superbot cat: bare, in the muted ink, the head art 13.4px wide in its 16px box (the spec's chat-row-mark;
    the svg's art spans 72 of its 100 units, so the mask is 116% of the box) */
-#hub[data-hwf] .hwf-mk.sb { background: var(--hwf-muted); -webkit-mask: url(/site/assets/brand/mono-mark-white.svg) center / 116% no-repeat; mask: url(/site/assets/brand/mono-mark-white.svg) center / 116% no-repeat; }
+#hub[data-hwf] .hwf-mk.sb { background: var(--hwf-muted); -webkit-mask: url(../../site/assets/brand/mono-mark-white.svg) center / 116% no-repeat; mask: url(../../site/assets/brand/mono-mark-white.svg) center / 116% no-repeat; }
 #hub[data-hwf] .hwf-mk svg { width: 70%; height: 70%; }
 #hub[data-hwf] .hwf-mk.app-openai { background: var(--brand-openai); color: var(--brand-openai-ink); }
 #hub[data-hwf] .hwf-mk.app-openai svg { width: 86%; height: 86%; }

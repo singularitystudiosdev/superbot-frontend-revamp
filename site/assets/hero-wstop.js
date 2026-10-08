@@ -50,7 +50,7 @@ stage.dataset.wsHold = ''; // the clock waits for the reveal (hero-wschat.js rea
 
 // the poster's decode: warms the image the CSS paints. A poster that does not
 // arrive in POSTER_MS gives up (the stage shows without it, as before the arm)
-const posterUrl = window.sbWsPoster?.() ?? `/site/assets/hero-wstop-poster-${phone ? 'phone' : 'wide'}.webp?v=2`;
+const posterUrl = window.sbWsPoster?.() ?? `./site/assets/hero-wstop-poster-${phone ? 'phone' : 'wide'}.webp?v=2`;
 const posterReady = new Promise((resolve) => {
   const img = new Image();
   img.src = posterUrl;

@@ -334,7 +334,7 @@ const tourEls = TOUR.map((m) => {
   const av = m.own
     ? '<span class="avatar" style="--c:#fb7185">Y</span>'
     : (m.who === 'superbot'
-      ? '<span class="avatar sb"><img src="/site/assets/brand/mark-clean.svg" alt=""></span>'
+      ? '<span class="avatar sb"><img src="./site/assets/brand/mark-clean.svg" alt=""></span>'
       : `<span class="avatar sb">${m.who.slice(0, 2)}</span>`);
   const body = (m.text ? `<div class="m-text">${m.text}</div>` : '') +
     (m.code ? `<div class="card code${m.better ? ' better' : ''}"><div class="c-bar"><span class="cap">${m.file}</span></div><pre>${sql(m.code)}</pre></div>` : '');

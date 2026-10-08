@@ -1,6 +1,6 @@
 // The header's store retarget. An ES module the shared header (siteNav in
 // edge/src/site-nav.ts) loads on every page:
-//   <script type="module" src="/site/assets/nav-store.js?v=2"></script>
+//   <script type="module" src="./site/assets/nav-store.js?v=2"></script>
 //
 //   - On a phone or tablet (detectPlatform().os of ios/android) the header
 //     pill `.sb-nav .sb-btn[href$="/download"]` keeps its /download href and

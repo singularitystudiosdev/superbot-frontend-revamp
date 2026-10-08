@@ -12,7 +12,7 @@
 // in the sheet moves every other mount and the reverse: a reader who starts
 // in the sheet can finish in the hero. That sharing is per module instance,
 // so the import below MUST be the exact URL the pages import
-// (/site/assets/waitlist-form.js?v=13): a different ?v= is a second module
+// (./site/assets/waitlist-form.js?v=13): a different ?v= is a second module
 // with its own state.
 //
 // The bar is up while the reader is past the anchor, no other form's field

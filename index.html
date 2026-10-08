@@ -132,7 +132,7 @@ if (location.hash === '#get-superbot') {
   // which poster: the phone crop up to 560px wide. Before the viewport meta below is parsed a
   // phone's layout viewport is still the 980px default, so max-width would say wide: a phone is
   // judged by its screen then (the width its layout is about to take), after it by the query
-  window.sbWsPoster = () => '/site/assets/hero-wstop-poster-' + ((phone && !document.querySelector('meta[name="viewport"]') ? Math.min(screen.width, screen.height) <= 560 : matchMedia('(max-width: 560px)').matches) ? 'phone' : 'wide') + '.webp?v=2';
+  window.sbWsPoster = () => './site/assets/hero-wstop-poster-' + ((phone && !document.querySelector('meta[name="viewport"]') ? Math.min(screen.width, screen.height) <= 560 : matchMedia('(max-width: 560px)').matches) ? 'phone' : 'wide') + '.webp?v=2';
   if (wst) {
     de.dataset.heroArm = 'wstop';
     // the arm's layout is off for a phone on its side (hero-wstop.css), and so is its poster
@@ -142,7 +142,7 @@ if (location.hash === '#get-superbot') {
       document.head.appendChild(pre);
     }
     const arm = document.createElement('link');
-    arm.rel = 'stylesheet'; arm.href = 'site/assets/hero-wstop.css?v=2'; arm.setAttribute('blocking', 'render');
+    arm.rel = 'stylesheet'; arm.href = './site/assets/hero-wstop.css?v=2'; arm.setAttribute('blocking', 'render');
     document.head.appendChild(arm);
   }
   // subline is held at `what` (experiments.js rev 2): the module shows the
@@ -191,15 +191,15 @@ if (location.hash === '#get-superbot') {
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
 <meta name="theme-color" content="#000000"/>
-<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
-<link rel="manifest" href="site/assets/site.webmanifest"/>
+<link rel="apple-touch-icon" href="./site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="./site/assets/site.webmanifest"/>
 <title>the AI plans you pay for, in one app – superbot.gg</title>
 <link rel="icon" href="favicon.ico" sizes="32x32"/>
-<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="./site/assets/favicon.svg" type="image/svg+xml"/>
 <meta name="keywords" content="superbot, agent manager, AI agents, Claude Code, Codex, Cursor, AI coding agents, macOS app"/>
-<script type="module" src="site/assets/console-hi.js"></script>
-<link rel="stylesheet" href="site/assets/site.css?v=22"/>
-<link rel="stylesheet" href="site/assets/hero.css?v=55"/>
+<script type="module" src="./site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="./site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="./site/assets/hero.css?v=55"/>
 <!-- the stage's sheets (term, hub-boot, the four hero sheets, signin-sheet) are
      off the first paint's critical path (2026-10-01, GA mobile LCP pass): the
      print media type makes the browser fetch them without blocking render,
@@ -211,23 +211,23 @@ if (location.hash === '#get-superbot') {
      (the script at the foot, kept out of the head so the parser never waits on
      a sheet) resolves once every deferred sheet is in, which the hero mount
      waits on, so no hero module ever mounts on an unstyled stage. -->
-<link rel="stylesheet" href="site/assets/features/term.css?v=1" media="print" onload="this.media='all'"/>
-<link rel="stylesheet" href="site/assets/hub-boot.css?v=76" media="print" onload="this.media='all';document.documentElement.classList.add('hb-ready')" onerror="document.documentElement.classList.add('hb-ready')"/>
-<link rel="stylesheet" href="site/assets/mascot-mark.css?v=2"/>
-<link rel="stylesheet" href="site/assets/hero-chaos.css?v=7" media="print" onload="this.media='all'"/>
-<link rel="stylesheet" href="site/assets/hero-sphere.css?v=5" media="print" onload="this.media='all'"/>
-<link rel="stylesheet" href="site/assets/hero-realui.css?v=3" media="print" onload="this.media='all'"/>
-<link rel="stylesheet" href="site/assets/hero-workspace.css?v=11" media="print" onload="this.media='all'"/>
-<link rel="stylesheet" href="site/assets/waitlist.css?v=10"/>
-<link rel="stylesheet" href="site/assets/signin-sheet.css?v=2" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="./site/assets/features/term.css?v=1" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="./site/assets/hub-boot.css?v=76" media="print" onload="this.media='all';document.documentElement.classList.add('hb-ready')" onerror="document.documentElement.classList.add('hb-ready')"/>
+<link rel="stylesheet" href="./site/assets/mascot-mark.css?v=2"/>
+<link rel="stylesheet" href="./site/assets/hero-chaos.css?v=7" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="./site/assets/hero-sphere.css?v=5" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="./site/assets/hero-realui.css?v=3" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="./site/assets/hero-workspace.css?v=11" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="./site/assets/waitlist.css?v=10"/>
+<link rel="stylesheet" href="./site/assets/signin-sheet.css?v=2" media="print" onload="this.media='all'"/>
 <noscript>
-<link rel="stylesheet" href="site/assets/features/term.css?v=1"/>
-<link rel="stylesheet" href="site/assets/hub-boot.css?v=76"/>
-<link rel="stylesheet" href="site/assets/hero-chaos.css?v=7"/>
-<link rel="stylesheet" href="site/assets/hero-sphere.css?v=5"/>
-<link rel="stylesheet" href="site/assets/hero-realui.css?v=3"/>
-<link rel="stylesheet" href="site/assets/hero-workspace.css?v=11"/>
-<link rel="stylesheet" href="site/assets/signin-sheet.css?v=2"/>
+<link rel="stylesheet" href="./site/assets/features/term.css?v=1"/>
+<link rel="stylesheet" href="./site/assets/hub-boot.css?v=76"/>
+<link rel="stylesheet" href="./site/assets/hero-chaos.css?v=7"/>
+<link rel="stylesheet" href="./site/assets/hero-sphere.css?v=5"/>
+<link rel="stylesheet" href="./site/assets/hero-realui.css?v=3"/>
+<link rel="stylesheet" href="./site/assets/hero-workspace.css?v=11"/>
+<link rel="stylesheet" href="./site/assets/signin-sheet.css?v=2"/>
 </noscript>
 <style>
   /* ---- the continuation (#more) and the inline waitlist (.wl), 2026-09-25.
@@ -473,12 +473,12 @@ if (location.hash === '#get-superbot') {
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"superbot","url":"https://superbot.gg/","applicationCategory":"DeveloperApplication","operatingSystem":"macOS","description":"stop switching between AIs. superbot is an agent manager app for the AI plans you already pay for, like Claude Code, Codex, Cursor and ChatGPT, in one app, without wrapping them.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"free during the private beta, by invite"},"keywords":"agent manager, AI agent manager, Claude Code, Codex, Cursor, ChatGPT, manage multiple AI agents, sync AI chats across devices, MCP servers, one API for every model, Mac app, iPhone app","sameAs":["https://x.com/superbot_gg"],"publisher":{"@type":"Organization","name":"EZO Labs Inc","url":"https://ezolabs.io"}}
 </script>
-<link rel="alternate" type="text/markdown" href="https://superbot.gg/index.md">
+<link rel="alternate" type="text/markdown" href="/index.md">
 </head>
 <body>
   <a class="sb-skip" href="#main">skip to content</a>
   <canvas id="ascii-bg" aria-hidden="true"></canvas>
-  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg" aria-current="page"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="https://superbot.gg/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg" aria-current="page"><img class="sb-word-mark" src="./site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="./site/assets/nav-store.js?v=2"></script>
 
   <main id="main" tabindex="-1">
     <section class="hero" data-variant="desk" data-track-section="hero">
@@ -586,7 +586,7 @@ if (location.hash === '#get-superbot') {
             <div class="boot-mascot" id="mascot" aria-hidden="true"></div>
             <div class="bubble" id="bubble" aria-hidden="true"><span class="t"></span><span class="caret"></span></div>
             <div id="items" aria-hidden="true"></div>
-            <div class="badge" id="badge" aria-hidden="true"><img src="site/assets/brand/tile.svg" alt="" width="88" height="88" loading="lazy" decoding="async"/></div>
+            <div class="badge" id="badge" aria-hidden="true"><img src="./site/assets/brand/tile.svg" alt="" width="88" height="88" loading="lazy" decoding="async"/></div>
 
             <!-- the hub: the desktop app's current layout (superbot-desktop f2fbe329c,
                  2026-10-01). Three columns: the 72px lane rail, the sidebar, the main
@@ -631,12 +631,12 @@ if (location.hash === '#get-superbot') {
                      none and a vendor column's title draws none either. `sel` on a disc marks the OPEN
                      destination: hub-boot.js's `tabs` beat walks it (superbot,
                      then openai, then claude, then home) -->
-                <span class="hud-text"><span class="hud-title-line"><span class="hud-mark"><span class="face"><svg class="sb-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><mask id="sb-hud-face" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><g fill="#fff"><rect x="14" y="32" width="72" height="54" rx="15"/><path class="mark-ear mark-ear-l" d="M14 46V28Q14 20 21 21Q28 24 36 32Z"/><path class="mark-ear mark-ear-r" d="M86 46V28Q86 20 79 21Q72 24 64 32Z"/></g><g fill="#000"><ellipse class="mark-eye mark-eye-l" cx="35" cy="58" rx="8" ry="11"/><ellipse class="mark-eye mark-eye-r" cx="65" cy="58" rx="8" ry="11"/></g><g class="mark-happy" fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round"><path d="M27 61Q35 53.5 43 61"/><path d="M57 61Q65 53.5 73 61"/></g></mask></defs><g class="mark-body"><rect class="sb-mark-a" x="-30" y="-30" width="160" height="160" fill="#00e5c3" mask="url(#sb-hud-face)"/><rect class="sb-mark-b" x="-30" y="-30" width="160" height="160" fill="#c026d3" mask="url(#sb-hud-face)"/><rect x="-30" y="-30" width="160" height="160" fill="#ffffff" mask="url(#sb-hud-face)"/></g></svg></span></span><b class="hud-word">superbot</b></span><span class="hud-discs"><span class="hud-disc sb sel"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/></span><span class="hud-disc" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></span><span class="hud-disc" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></span><span class="hud-disc" data-app="cursor"><svg><use href="#sb-ic-cursor"/></svg></span><span class="hud-disc chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span><span class="hud-disc add">+</span></span></span>
+                <span class="hud-text"><span class="hud-title-line"><span class="hud-mark"><span class="face"><svg class="sb-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><mask id="sb-hud-face" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><g fill="#fff"><rect x="14" y="32" width="72" height="54" rx="15"/><path class="mark-ear mark-ear-l" d="M14 46V28Q14 20 21 21Q28 24 36 32Z"/><path class="mark-ear mark-ear-r" d="M86 46V28Q86 20 79 21Q72 24 64 32Z"/></g><g fill="#000"><ellipse class="mark-eye mark-eye-l" cx="35" cy="58" rx="8" ry="11"/><ellipse class="mark-eye mark-eye-r" cx="65" cy="58" rx="8" ry="11"/></g><g class="mark-happy" fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round"><path d="M27 61Q35 53.5 43 61"/><path d="M57 61Q65 53.5 73 61"/></g></mask></defs><g class="mark-body"><rect class="sb-mark-a" x="-30" y="-30" width="160" height="160" fill="#00e5c3" mask="url(#sb-hud-face)"/><rect class="sb-mark-b" x="-30" y="-30" width="160" height="160" fill="#c026d3" mask="url(#sb-hud-face)"/><rect x="-30" y="-30" width="160" height="160" fill="#ffffff" mask="url(#sb-hud-face)"/></g></svg></span></span><b class="hud-word">superbot</b></span><span class="hud-discs"><span class="hud-disc sb sel"><img src="./site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/></span><span class="hud-disc" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></span><span class="hud-disc" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></span><span class="hud-disc" data-app="cursor"><svg><use href="#sb-ic-cursor"/></svg></span><span class="hud-disc chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span><span class="hud-disc add">+</span></span></span>
                 <!-- the Servers menu the mark opens (ServerSwitcherMenu.tsx):
                      art, name, one short status in words, a hairline, + Add.
                      Hidden until .hud.menu-open -->
                 <div class="hud-menu">
-                  <span class="hud-menu-row on"><i class="hud-menu-art sb"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/></i><span class="hud-menu-tx"><b>Superbot</b><small>Current</small></span></span>
+                  <span class="hud-menu-row on"><i class="hud-menu-art sb"><img src="./site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/></i><span class="hud-menu-tx"><b>Superbot</b><small>Current</small></span></span>
                   <span class="hud-menu-row"><i class="hud-menu-art" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></i><span class="hud-menu-tx"><b>hi@ezo.dev</b><small>ChatGPT, Usage near the limit</small></span></span>
                   <span class="hud-menu-row"><i class="hud-menu-art" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></i><span class="hud-menu-tx"><b>hi@ezo.dev</b><small>Claude</small></span></span>
                   <span class="hud-menu-row"><i class="hud-menu-art" data-app="cursor"><svg><use href="#sb-ic-cursor"/></svg></i><span class="hud-menu-tx"><b>Cursor</b></span></span>
@@ -656,9 +656,9 @@ if (location.hash === '#get-superbot') {
                      account has no pinned chats, so there is no Pinned label and no
                      raised card above it. The open chat is the first Recent row. -->
                 <div class="today">Recent<i class="side-ic ic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg></i><i class="side-ic ic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg></i></div>
-                <span class="row chat on"><i class="sp"><img src="site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Release notes draft</span><em>3:27 PM</em></span>
-                <span class="row chat"><i class="sp"><img src="site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Codex lost its MCP servers</span><em>1:11 PM</em></span>
-                <span class="row chat"><i class="sp"><img src="site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Rules in Cursor and Claude Code</span><em>1:08 PM</em></span>
+                <span class="row chat on"><i class="sp"><img src="./site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Release notes draft</span><em>3:27 PM</em></span>
+                <span class="row chat"><i class="sp"><img src="./site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Codex lost its MCP servers</span><em>1:11 PM</em></span>
+                <span class="row chat"><i class="sp"><img src="./site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Rules in Cursor and Claude Code</span><em>1:08 PM</em></span>
                 <span class="row chat"><i class="sp app-claude"><svg><use href="#sb-ic-claude"/></svg></i><span class="t">Review the auth middleware</span><em>Sep 23</em></span>
                 <span class="row chat"><i class="sp app-claude"><svg><use href="#sb-ic-claude"/></svg></i><span class="t">Which agent used the most context?</span><em>Sep 23</em></span>
                 <!-- the footer user bar, ONE row (superbot-desktop v00-crisper
@@ -700,7 +700,7 @@ if (location.hash === '#get-superbot') {
                      the new-chat screen only. -->
                 <div class="composer" aria-hidden="true"><div class="pill">
                   <div class="line"><span class="ph">How can superbot help you today?</span></div>
-                  <div class="line foot"><span class="plus">+</span><span class="super" aria-label="Super: Off"><span class="super-cap"><svg class="super-spark" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></span><span class="super-tag">Off<svg class="super-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span><span class="mode" aria-label="Mode: Agent"><svg class="mode-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><svg class="mode-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="model"><span class="glitch"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="10" height="10" loading="lazy" decoding="async"/></span>Superbot<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="ctx" aria-label="Context: 31k of 1m"><i class="ring"></i></span><span class="computer" aria-label="Computer use: Off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></span><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span><span class="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></span></div>
+                  <div class="line foot"><span class="plus">+</span><span class="super" aria-label="Super: Off"><span class="super-cap"><svg class="super-spark" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></span><span class="super-tag">Off<svg class="super-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span><span class="mode" aria-label="Mode: Agent"><svg class="mode-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><svg class="mode-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="model"><span class="glitch"><img src="./site/assets/brand/mono-mark-white.svg" alt="" width="10" height="10" loading="lazy" decoding="async"/></span>Superbot<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="ctx" aria-label="Context: 31k of 1m"><i class="ring"></i></span><span class="computer" aria-label="Computer use: Off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></span><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span><span class="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></span></div>
                 </div></div>
               </div>
             </div>
@@ -755,7 +755,7 @@ if (location.hash === '#get-superbot') {
                 <div class="ph-canvas">
                   <div class="ph-hero">
                     <div class="ph-greet">
-                      <img class="ph-face" src="site/assets/brand/mono-mark-white.svg" alt="" width="48" height="48" loading="lazy" decoding="async"/>
+                      <img class="ph-face" src="./site/assets/brand/mono-mark-white.svg" alt="" width="48" height="48" loading="lazy" decoding="async"/>
                       <b class="ph-where">Good afternoon.<br/>Where do we go?</b>
                     </div>
                   </div>
@@ -765,7 +765,7 @@ if (location.hash === '#get-superbot') {
                     <div class="msg ph-reply" data-m="4"><p class="ph-act">Thought 3s<i class="ph-chev">&#8250;</i></p><p>Here&#8217;s a draft for the release notes:</p><ul><li><b>Context optimizer</b> trims tool output before it reaches the model.</li><li><b>Rate-limit banner</b> shows the cooldown and the vendor that raised it.</li></ul><p>Want me to open a PR with this?</p><p class="ph-worked">12s &#183; 5 steps</p></div>
                   </div>
                 </div>
-                <div class="ph-composer"><div class="ph-box"><span class="ph-place">How can superbot help you today?</span><span class="ph-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i><span class="ph-super" aria-label="Super: Off"><span class="ph-super-cap"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></span><span class="ph-super-tag">Off<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span><span class="ph-mode" aria-label="Mode: Agent"><svg class="ph-mode-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><svg class="ph-mode-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><b class="ph-chip"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/>superbot</b><i class="ph-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></i><i class="ph-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></i></span></div></div>
+                <div class="ph-composer"><div class="ph-box"><span class="ph-place">How can superbot help you today?</span><span class="ph-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i><span class="ph-super" aria-label="Super: Off"><span class="ph-super-cap"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></span><span class="ph-super-tag">Off<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span><span class="ph-mode" aria-label="Mode: Agent"><svg class="ph-mode-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><svg class="ph-mode-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><b class="ph-chip"><img src="./site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/>superbot</b><i class="ph-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></i><i class="ph-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></i></span></div></div>
                 <div class="ph-foot"><span class="ph-ctx"><span class="ph-ctx-l">Context</span><i><b></b></i>31k of 1m</span><span class="ph-ai">superbot is AI and can make mistakes.</span></div>
                 <div class="ph-home"></div>
               </div>
@@ -841,19 +841,19 @@ if (location.hash === '#get-superbot') {
         <li><a data-app="claude-desktop" href="install/claude-desktop.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-claude"/></svg><span>claude desktop</span></a></li>
         <li><a data-app="claude-ai" href="install/claude-ai.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-claude"/></svg><span>claude.ai</span></a></li>
         <li><a data-app="cline" href="install/cline.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-cline"/></svg><span>cline</span></a></li>
-        <li><a data-app="roo" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-roo"/></svg><span>roo code</span></a></li>
-        <li><a data-app="kilo" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-kilo"/></svg><span>kilo code</span></a></li>
+        <li><a data-app="roo" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-roo"/></svg><span>roo code</span></a></li>
+        <li><a data-app="kilo" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-kilo"/></svg><span>kilo code</span></a></li>
         <li><a data-app="continue" href="install/continue.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-continue"/></svg><span>continue</span></a></li>
-        <li><a data-app="copilot" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-copilot"/></svg><span>copilot cli</span></a></li>
-        <li><a data-app="opencode" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-opencode"/></svg><span>opencode</span></a></li>
-        <li><a data-app="openclaw" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-openclaw"/></svg><span>openclaw</span></a></li>
-        <li><a data-app="hermes" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-hermes"/></svg><span>hermes agent</span></a></li>
-        <li><a data-app="goose" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-goose"/></svg><span>goose</span></a></li>
-        <li><a data-app="devin" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-devin"/></svg><span>devin cli</span></a></li>
-        <li><a data-app="aider" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-aider"/></svg><span>aider</span></a></li>
-        <li><a data-app="qwen" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-qwen"/></svg><span>qwen code</span></a></li>
-        <li><a data-app="kiro" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-kiro"/></svg><span>kiro</span></a></li>
-        <li><a data-app="amazonq" href="https://superbot.gg/docs#clients"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-amazonq"/></svg><span>amazon q</span></a></li>
+        <li><a data-app="copilot" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-copilot"/></svg><span>copilot cli</span></a></li>
+        <li><a data-app="opencode" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-opencode"/></svg><span>opencode</span></a></li>
+        <li><a data-app="openclaw" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-openclaw"/></svg><span>openclaw</span></a></li>
+        <li><a data-app="hermes" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-hermes"/></svg><span>hermes agent</span></a></li>
+        <li><a data-app="goose" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-goose"/></svg><span>goose</span></a></li>
+        <li><a data-app="devin" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-devin"/></svg><span>devin cli</span></a></li>
+        <li><a data-app="aider" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-aider"/></svg><span>aider</span></a></li>
+        <li><a data-app="qwen" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-qwen"/></svg><span>qwen code</span></a></li>
+        <li><a data-app="kiro" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-kiro"/></svg><span>kiro</span></a></li>
+        <li><a data-app="amazonq" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-amazonq"/></svg><span>amazon q</span></a></li>
         </ul>
       </nav>
       </div>
@@ -903,7 +903,7 @@ if (location.hash === '#get-superbot') {
                the resolved release carries that installer (lander-platform.ts,
                card #60), so no chip links a 404. No availability line under
                the row (2026-09-24). -->
-          <li><a class="sb-btn ghost sm pill dl-chip" data-os="mac" href="https://superbot.gg/download/asset/mac-arm64">macOS</a></li>
+          <li><a class="sb-btn ghost sm pill dl-chip" data-os="mac" href="/download/asset/mac-arm64">macOS</a></li>
           <li><a class="sb-btn ghost sm pill dl-chip" href="download.html">every installer</a></li>
         </ul>
         <!-- the second path, after the app (2026-09-23: superbot is an agent
@@ -917,7 +917,7 @@ if (location.hash === '#get-superbot') {
              (landerWithFallback, app.ts) renders the same two lines and rows
              into the mount. -->
         <div class="dl-or"><span>or from a terminal</span></div>
-        <div id="oneliner" data-ascii-damp><p>macOS and Linux</p><pre tabindex="0" role="region" aria-label="Install line for macOS and Linux"><code>curl -fsSL https://superbot.gg/bootstrap.sh | sh</code></pre><p>Windows, in PowerShell</p><pre tabindex="0" role="region" aria-label="Install line for Windows PowerShell"><code>irm https://superbot.gg/bootstrap.ps1 | iex</code></pre><p>read it first: <a href="bootstrap.sh">bootstrap.sh</a>, <a href="bootstrap.ps1">bootstrap.ps1</a>.</p><p>use your own harness? <a href="https://superbot.gg/download#helper">superbot relay</a></p><p>connecting an agent directly? <a href="https://superbot.gg/docs#tool">MCP setup</a></p></div>
+        <div id="oneliner" data-ascii-damp><p>macOS and Linux</p><pre tabindex="0" role="region" aria-label="Install line for macOS and Linux"><code>curl -fsSL https://superbot.gg/bootstrap.sh | sh</code></pre><p>Windows, in PowerShell</p><pre tabindex="0" role="region" aria-label="Install line for Windows PowerShell"><code>irm https://superbot.gg/bootstrap.ps1 | iex</code></pre><p>read it first: <a href="bootstrap.sh">bootstrap.sh</a>, <a href="bootstrap.ps1">bootstrap.ps1</a>.</p><p>use your own harness? <a href="/download#helper">superbot relay</a></p><p>connecting an agent directly? <a href="docs">MCP setup</a></p></div>
       </div>
     </section>
 
@@ -946,7 +946,7 @@ if (location.hash === '#get-superbot') {
      data-* (document.currentScript.dataset), so they are set on the element
      before it is appended. The canvas and its fixed look are in the head style,
      so nothing moves when it starts. -->
-<script data-defer="ascii-bg">addEventListener("load", () => setTimeout(() => { const s = document.createElement("script"); s.src = "site/assets/ascii-bg.js?v=6"; s.dataset.bg = "stars"; s.dataset.color = "236,236,236"; s.dataset.fade = "0.32"; document.body.append(s); }, 300));</script>
+<script data-defer="ascii-bg">addEventListener("load", () => setTimeout(() => { const s = document.createElement("script"); s.src = "./site/assets/ascii-bg.js?v=6"; s.dataset.bg = "stars"; s.dataset.color = "236,236,236"; s.dataset.fade = "0.32"; document.body.append(s); }, 300));</script>
 <script data-defer="stage-css">window.sbStageCss = Promise.race([Promise.all([...document.querySelectorAll('link[rel=stylesheet][media=print]')].map((l) => new Promise((ok) => { if (l.media === 'all') return ok(); l.addEventListener('load', ok); l.addEventListener('error', ok); }))), new Promise((ok) => setTimeout(ok, 8000))]);</script>
 <script type="module">
   import { consoleEgg } from './site/assets/mascot.js?v=14';
@@ -1294,7 +1294,7 @@ if (location.hash === '#get-superbot') {
     const sheet = new Promise((ok, no) => {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = 'site/assets/caption-seq.css?v=1';
+      link.href = './site/assets/caption-seq.css?v=1';
       link.onload = ok;
       link.onerror = () => no(new Error('caption-seq.css'));
       document.head.append(link);
@@ -1565,16 +1565,16 @@ if (location.hash === '#get-superbot') {
   // they have loaded, which is the fork's own page: its sheets in place of ours.
   const HERO_DEFAULT = EXPERIMENTS.hero?.incumbent ?? 'workspace'; // the loop's incumbent (experiments.js)
   const HEROES = {
-    boot: 'site/assets/hub-boot.js?v=48',
-    chaos: 'site/assets/hero-chaos.js?v=14',
-    sphere: 'site/assets/hero-sphere.js?v=7',
-    realui: 'site/assets/hero-realui.js?v=7',
-    workspace: 'site/assets/hero-workspace.js?v=17',
-    wschat: 'site/assets/hero-wschat.js?v=24',
+    boot: './site/assets/hub-boot.js?v=48',
+    chaos: './site/assets/hero-chaos.js?v=14',
+    sphere: './site/assets/hero-sphere.js?v=7',
+    realui: './site/assets/hero-realui.js?v=7',
+    workspace: './site/assets/hero-workspace.js?v=17',
+    wschat: './site/assets/hero-wschat.js?v=24',
     // wstop (2026-10-01, experiments.js hero rev 12): the live stage on top. A
     // thin placement around the wschat module (hero-wstop.js imports it at the
     // same ?v=), so it adds the wschat sheets plus its own layout sheet
-    wstop: 'site/assets/hero-wstop.js?v=15',
+    wstop: './site/assets/hero-wstop.js?v=15',
     // live (2026-10-07, experiments.js hero rev 13): the owner's hero remake.
     // One module draws the whole surface: the desktop thinking bubble (mascot
     // avatar, raised bubble, "Thinking" and its clock over the newest thought's
@@ -1585,12 +1585,12 @@ if (location.hash === '#get-superbot') {
     // "Powering superbot." (site/assets/hero-live.js and hero-live.css). It
     // links no other arm's sheet, and #stage stays in the DOM but takes no box
     // (hero-live.css), so the arm is a one-attribute change to undo.
-    live: 'site/assets/hero-live.js?v=1',
+    live: './site/assets/hero-live.js?v=1',
   };
   const HERO_SHEETS = {
-    wschat: { add: ['site/assets/hero-wschat.css?v=13', 'site/assets/hero-wschat-chat.css?v=7', 'site/assets/hero-wschat-end.css?v=2'], off: 'site/assets/hero-workspace.css' },
-    wstop: { add: ['site/assets/hero-wschat.css?v=13', 'site/assets/hero-wschat-chat.css?v=7', 'site/assets/hero-wschat-end.css?v=2', 'site/assets/hero-wstop.css?v=2'], off: 'site/assets/hero-workspace.css' },
-    live: { add: ['site/assets/hero-live.css?v=2'], off: 'site/assets/hero-workspace.css' },
+    wschat: { add: ['./site/assets/hero-wschat.css?v=13', './site/assets/hero-wschat-chat.css?v=7', './site/assets/hero-wschat-end.css?v=2'], off: './site/assets/hero-workspace.css' },
+    wstop: { add: ['./site/assets/hero-wschat.css?v=13', './site/assets/hero-wschat-chat.css?v=7', './site/assets/hero-wschat-end.css?v=2', './site/assets/hero-wstop.css?v=2'], off: './site/assets/hero-workspace.css' },
+    live: { add: ['./site/assets/hero-live.css?v=2'], off: './site/assets/hero-workspace.css' },
   };
   const heroName = new URLSearchParams(location.search).get('hero');
   const stageEl = document.getElementById('stage');
@@ -1617,7 +1617,7 @@ if (location.hash === '#get-superbot') {
     const pre = document.createElement('link');
     pre.rel = 'preload'; pre.as = 'image'; pre.href = window.sbWsPoster(); pre.fetchPriority = 'high';
     document.head.append(pre);
-    for (const href of [HEROES.wstop, 'site/assets/hero-wstop-layout.js?v=1']) {
+    for (const href of [HEROES.wstop, './site/assets/hero-wstop-layout.js?v=1']) {
       const mp = document.createElement('link');
       mp.rel = 'modulepreload'; mp.href = href;
       document.head.append(mp);
@@ -1662,6 +1662,6 @@ if (location.hash === '#get-superbot') {
   });
   if (!heroNone) playHero();
 </script>
-<script src="site/assets/nav-drawer.js?v=3" defer></script>
+<script src="./site/assets/nav-drawer.js?v=3" defer></script>
 </body>
 </html>

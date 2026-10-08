@@ -358,7 +358,7 @@ const warmFonts = () => {
 // Hermes) after the ringed Superbot disc. Hermes is the app's own icon, so
 // its image fills the disc. The Servers menu (.hud-menu, shown only by
 // .hud.menu-open) gains the same Hermes row ahead of its Add divider.
-const HERMES_IMG = '<img src="/site/assets/brand/chaos/hermes.png" alt="" width="44" height="44"/>';
+const HERMES_IMG = '<img src="./site/assets/brand/chaos/hermes.png" alt="" width="44" height="44"/>';
 const AD_DISCS =
   '<span class="hud-disc" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></span>' +
   '<span class="hud-disc" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></span>' +

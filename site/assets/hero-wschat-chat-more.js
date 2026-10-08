@@ -19,7 +19,7 @@
 // geometry never changes and the scroll marks can be measured once.
 
 const asset = (f) => new URL('./hero-chat/' + f, import.meta.url).href;
-const SB_TILE = '/site/assets/brand/mono-mark-white.svg';
+const SB_TILE = './site/assets/brand/mono-mark-white.svg';
 export const TILES = {
   deepseek: asset('deepseek.svg?v=2'),      // DeepSeek's whale, @lobehub/icons-static-svg 1.95.1 deepseek-color.svg (MIT), on white
   doordash: asset('doordash-tile.webp'),    // packages/ui/src/marks/tiles/doordash.png

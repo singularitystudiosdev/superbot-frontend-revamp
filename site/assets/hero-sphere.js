@@ -89,8 +89,8 @@ const HS = {
   DROP_EASE: [0.34, 1.56, 0.64, 1], EASE_OUT: [0, 0, 0.58, 1],
 
   // the tiles: hero-chaos.js HC.BRANDS (local only), cycled to the referent's 40
-  BRAND: '/site/assets/brand/',
-  MARK_SRC: '/site/assets/brand/superbot-app-icon.png', // tabs.js:245: the mark's own tile art, its img.tile layer (the app icon since the desktop's 'No background' default skin, 2026-09-25)
+  BRAND: './site/assets/brand/',
+  MARK_SRC: './site/assets/brand/superbot-app-icon.png', // tabs.js:245: the mark's own tile art, its img.tile layer (the app icon since the desktop's 'No background' default skin, 2026-09-25)
   BRANDS: ['chaos/claude.png', 'chaos/gemini-app-icon.png', 'chaos/cursor.png', 'chaos/copilot.svg',
            'chaos/devin.png', 'chaos/hermes.png', 'chaos/kiro.png', 'chaos/vscode.png', 'chaos/chatgpt.png',
            'tiles/windsurf.svg', 'tiles/zed.svg', 'tiles/cline.svg', 'tiles/roo.svg', 'tiles/kilo.svg',

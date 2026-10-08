@@ -22,7 +22,7 @@
 // one moves every other, and an address typed into one is typed into every
 // other, so a reader who starts in the hero finishes in the sheet. That
 // sharing is per module instance: every page and signup-bar.js import this
-// file at ONE URL (/site/assets/waitlist-form.js?v=13). The GA client already reads these calls
+// file at ONE URL (./site/assets/waitlist-form.js?v=13). The GA client already reads these calls
 // (ga4.d4d15ea9.js: generate_lead on a join that is a new lead,
 // waitlist_verified on a list-only verify, both carrying {placement} from
 // window.sbWaitlistPlacement, set right before each POST, and sign_up / login

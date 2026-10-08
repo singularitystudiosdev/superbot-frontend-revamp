@@ -45,7 +45,7 @@ stage.setAttribute('data-hero-host', 'workspace');
 
 // the vendor discs in image-2 order (ChatGPT, Claude, Cursor, Hermes); Hermes
 // is the app's own icon, so its image fills the disc as the app's .hud-face does
-const HERMES_IMG = '<img src="/site/assets/brand/chaos/hermes.png" alt="" width="44" height="44"/>';
+const HERMES_IMG = '<img src="./site/assets/brand/chaos/hermes.png" alt="" width="44" height="44"/>';
 const AD_DISCS =
   '<span class="hud-disc" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></span>' +
   '<span class="hud-disc" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></span>' +
@@ -136,7 +136,7 @@ function newChat() {
   // one sentence per span: the line is sized to fit whole (hero-workspace.css),
   // and a seat narrower than that breaks between them, never inside one
   const [hello, ask] = greeting();
-  feed.innerHTML = '<div class="hw-nc-hero"><img class="hw-nc-mark" src="/site/assets/brand/mono-mark-white.svg" alt="" width="48" height="48"/>' +
+  feed.innerHTML = '<div class="hw-nc-hero"><img class="hw-nc-mark" src="./site/assets/brand/mono-mark-white.svg" alt="" width="48" height="48"/>' +
     `<p class="hw-nc-greet"><span>${hello}</span> <span>${ask}</span></p></div>`;
   // the empty chat's context reading: the ContextRing is the composer's only
   // seat for it now that the Superbot thread state draws no footer row, so the
@@ -191,7 +191,7 @@ function newChat() {
 // The HUD above the lanes is the same whole HUD on both (SidebarHud.tsx
 // carries no lane state: the quiet header of fa679ec97 is retired).
 const MARK = (app) => app === 'superbot'
-  ? '<i class="sp" aria-hidden="true"><img src="/site/assets/brand/mark-clean.svg" alt="" width="11" height="11"/></i>'
+  ? '<i class="sp" aria-hidden="true"><img src="./site/assets/brand/mark-clean.svg" alt="" width="11" height="11"/></i>'
   : app === 'git'
     ? `<i class="sp hw-git" aria-hidden="true">${SVG('<path d="M18 19a5 5 0 0 1-5-5v8"/><path d="M9 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v5"/><circle cx="13" cy="12" r="2"/><circle cx="20" cy="19" r="2"/>')}</i>`
     : `<i class="sp app-${app}" aria-hidden="true"><svg><use href="#sb-ic-${app}"/></svg></i>`;

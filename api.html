@@ -4,16 +4,16 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
 <meta name="theme-color" content="#000000"/>
-<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
-<link rel="manifest" href="site/assets/site.webmanifest"/>
+<link rel="apple-touch-icon" href="./site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="./site/assets/site.webmanifest"/>
 <title>one API for every model you pay for – superbot.gg</title>
 <link rel="icon" href="favicon.ico" sizes="32x32"/>
-<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="./site/assets/favicon.svg" type="image/svg+xml"/>
 <meta name="keywords" content="superbot API, OpenAI-compatible API, Anthropic-compatible API, caller keys, AI models"/>
-<script type="module" src="site/assets/console-hi.js"></script>
-<link rel="stylesheet" href="site/assets/site.css?v=22"/>
-<link rel="stylesheet" href="site/assets/bench.css?v=15"/>
-<link rel="stylesheet" href="site/assets/api.css?v=9"/>
+<script type="module" src="./site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="./site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="./site/assets/bench.css?v=15"/>
+<link rel="stylesheet" href="./site/assets/api.css?v=9"/>
 <meta name="description" content="every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="superbot.gg"/>
@@ -33,18 +33,18 @@
 <meta name="twitter:description" content="every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."/>
 <meta name="twitter:image" content="https://superbot.gg/site/assets/og/api.png?v=2"/>
 <meta name="twitter:image:alt" content="superbot.gg api card: every model on your account, from any client."/>
-<link rel="alternate" type="text/markdown" href="https://superbot.gg/api.md">
+<link rel="alternate" type="text/markdown" href="/api.md">
 </head>
 <body>
   <a class="sb-skip" href="#main">skip to content</a>
-  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="https://superbot.gg/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="./site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="./site/assets/nav-store.js?v=2"></script>
 
   <main class="bench api" id="main" tabindex="-1">
     <div class="crumb sb-reveal" style="--i:0"><a href="index.html">superbot<span class="gg">.gg</span></a> / api</div>
     <h1 class="sb-reveal" style="--i:1">One endpoint for every model on your account.</h1>
     <p class="lede sb-reveal" style="--i:2">Your subscriptions, API keys and custom endpoints answer at one URL.<br/>Call them in the OpenAI or Anthropic format.<br/>Mint and manage scoped keys from the API itself.</p>
     <div class="api-cta sb-reveal" style="--i:3">
-      <a class="sb-btn" href="https://superbot.gg/account/api#keys">Get an API key</a>
+      <a class="sb-btn" href="/account/api#keys">Get an API key</a>
       <a class="sb-btn ghost" href="#routes">Every route</a>
     </div>
 
@@ -78,13 +78,13 @@
       <h2 id="api-any-h">Any model on your account</h2>
       <p class="api-p">Connect a subscription, a provider API key or a custom endpoint once.<br/>Every model it carries answers at this URL.<br/>Name the model id and the call goes to the provider that holds it.</p>
       <p class="api-p"><code>GET /v1/models</code> lists every id your key can name.<br/>Answers come back in the dialect you called, OpenAI or Anthropic.</p>
-      <p class="api-cap">Add a provider in the app, or add an endpoint on the <a href="https://superbot.gg/account/api#providers">api console</a> or with <code>POST /v1/upstreams</code>.</p>
+      <p class="api-cap">Add a provider in the app, or add an endpoint on the <a href="/account/api#providers">api console</a> or with <code>POST /v1/upstreams</code>.</p>
     </section>
 
     <section class="api-sec" aria-labelledby="api-keys-h">
       <h2 id="api-keys-h">Keys you mint and manage</h2>
       <p class="api-p">Mint one scoped key per tool or teammate.<br/>Give each its own scopes, allowed models and daily or monthly cap.<br/>Revoke one and only that tool stops.</p>
-      <p class="api-p">Do it on the <a href="https://superbot.gg/account/api#keys">api console</a> or from the API itself.<br/><code>POST /v1/keys</code> mints, <code>GET /v1/keys</code> lists, <code>PATCH /v1/keys/{id}</code> edits, <code>DELETE /v1/keys/{id}</code> revokes.<br/>A key needs <code>keys:write</code> to do this, and never mints a key wider than itself.</p>
+      <p class="api-p">Do it on the <a href="/account/api#keys">api console</a> or from the API itself.<br/><code>POST /v1/keys</code> mints, <code>GET /v1/keys</code> lists, <code>PATCH /v1/keys/{id}</code> edits, <code>DELETE /v1/keys/{id}</code> revokes.<br/>A key needs <code>keys:write</code> to do this, and never mints a key wider than itself.</p>
       <h3 class="api-sub">Scopes</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 1">
         <table class="api-table">
@@ -114,99 +114,99 @@
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 2">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/gateway/createChatCompletion"><code>/v1/chat/completions</code></a></td><td class="api-role">Create a chat completion</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/gateway/createResponse"><code>/v1/responses</code></a></td><td class="api-role">Create a response</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/gateway/createMessage"><code>/v1/messages</code></a></td><td class="api-role">Create a message</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/gateway/countMessageTokens"><code>/v1/messages/count_tokens</code></a></td><td class="api-role">Estimate input tokens</td><td class="api-scopecell"><code>any key</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/gateway/listModels"><code>/v1/models</code></a></td><td class="api-role">List models</td><td class="api-scopecell"><code>any key</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/createChatCompletion"><code>/v1/chat/completions</code></a></td><td class="api-role">Create a chat completion</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/createResponse"><code>/v1/responses</code></a></td><td class="api-role">Create a response</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/createMessage"><code>/v1/messages</code></a></td><td class="api-role">Create a message</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/countMessageTokens"><code>/v1/messages/count_tokens</code></a></td><td class="api-role">Estimate input tokens</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/gateway/listModels"><code>/v1/models</code></a></td><td class="api-role">List models</td><td class="api-scopecell"><code>any key</code></td></tr></tbody>
         </table>
       </div>
       <h3 class="api-sub" id="routes-keys">Manage keys</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 3">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/keys/listKeys"><code>/v1/keys</code></a></td><td class="api-role">List caller keys</td><td class="api-scopecell"><code>keys:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/keys/createKey"><code>/v1/keys</code></a></td><td class="api-role">Create a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/keys/getCurrentKey"><code>/v1/keys/whoami</code></a></td><td class="api-role">Get the calling key</td><td class="api-scopecell"><code>any key</code></td></tr>
-            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="https://superbot.gg/developers/keys/updateKey"><code>/v1/keys/{id}</code></a></td><td class="api-role">Update a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/keys/revokeKey"><code>/v1/keys/{id}</code></a></td><td class="api-role">Revoke a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/keys/listKeys"><code>/v1/keys</code></a></td><td class="api-role">List caller keys</td><td class="api-scopecell"><code>keys:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/keys/createKey"><code>/v1/keys</code></a></td><td class="api-role">Create a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/keys/getCurrentKey"><code>/v1/keys/whoami</code></a></td><td class="api-role">Get the calling key</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/keys/updateKey"><code>/v1/keys/{id}</code></a></td><td class="api-role">Update a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/keys/revokeKey"><code>/v1/keys/{id}</code></a></td><td class="api-role">Revoke a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr></tbody>
         </table>
       </div>
       <h3 class="api-sub" id="routes-usage">Usage and spend</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 4">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/getUsage"><code>/v1/usage</code></a></td><td class="api-role">Get usage over a window</td><td class="api-scopecell"><code>usage:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/listUsageRequests"><code>/v1/usage/requests</code></a></td><td class="api-role">List usage per request</td><td class="api-scopecell"><code>usage:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/getUsageDaily"><code>/v1/usage/daily</code></a></td><td class="api-role">Get usage per UTC day</td><td class="api-scopecell"><code>usage:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/getUsageBreakdown"><code>/v1/usage/breakdown</code></a></td><td class="api-role">Get usage bucketed and grouped</td><td class="api-scopecell"><code>usage:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/exportUsage"><code>/v1/usage/export</code></a></td><td class="api-role">Export usage rows</td><td class="api-scopecell"><code>usage:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/getCredits"><code>/v1/credits</code></a></td><td class="api-role">Get the credit balance</td><td class="api-scopecell"><code>billing:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/getSpend"><code>/v1/spend</code></a></td><td class="api-role">Get AI spend across apps</td><td class="api-scopecell"><code>usage:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/usage/getUsageReport"><code>/v1/usage/report</code></a></td><td class="api-role">Get a usage report</td><td class="api-scopecell"><code>usage:read</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsage"><code>/v1/usage</code></a></td><td class="api-role">Get usage over a window</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/listUsageRequests"><code>/v1/usage/requests</code></a></td><td class="api-role">List usage per request</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsageDaily"><code>/v1/usage/daily</code></a></td><td class="api-role">Get usage per UTC day</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsageBreakdown"><code>/v1/usage/breakdown</code></a></td><td class="api-role">Get usage bucketed and grouped</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/exportUsage"><code>/v1/usage/export</code></a></td><td class="api-role">Export usage rows</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getCredits"><code>/v1/credits</code></a></td><td class="api-role">Get the credit balance</td><td class="api-scopecell"><code>billing:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getSpend"><code>/v1/spend</code></a></td><td class="api-role">Get AI spend across apps</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsageReport"><code>/v1/usage/report</code></a></td><td class="api-role">Get a usage report</td><td class="api-scopecell"><code>usage:read</code></td></tr></tbody>
         </table>
       </div>
       <h3 class="api-sub" id="routes-endpoints">Custom endpoints</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 5">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/listUpstreams"><code>/v1/upstreams</code></a></td><td class="api-role">List custom endpoints</td><td class="api-scopecell"><code>endpoints:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/createUpstream"><code>/v1/upstreams</code></a></td><td class="api-role">Add a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/updateUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="api-role">Update a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/deleteUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="api-role">Remove a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/probeUpstream"><code>/v1/upstreams/{slug}/probe</code></a></td><td class="api-role">Re-probe a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/listAliases"><code>/v1/aliases</code></a></td><td class="api-role">List @mention aliases</td><td class="api-scopecell"><code>endpoints:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="put">PUT</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/setAlias"><code>/v1/aliases/{token}</code></a></td><td class="api-role">Set an @mention alias</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/deleteAlias"><code>/v1/aliases/{token}</code></a></td><td class="api-role">Delete an @mention alias</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/endpoints/getServiceDocument"><code>/docs/services/{service_id}.json</code></a></td><td class="api-role">Get a service’s OpenAPI document</td><td class="api-scopecell"><code>no key</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/endpoints/listUpstreams"><code>/v1/upstreams</code></a></td><td class="api-role">List custom endpoints</td><td class="api-scopecell"><code>endpoints:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/endpoints/createUpstream"><code>/v1/upstreams</code></a></td><td class="api-role">Add a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/endpoints/updateUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="api-role">Update a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/endpoints/deleteUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="api-role">Remove a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/endpoints/probeUpstream"><code>/v1/upstreams/{slug}/probe</code></a></td><td class="api-role">Re-probe a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/endpoints/listAliases"><code>/v1/aliases</code></a></td><td class="api-role">List @mention aliases</td><td class="api-scopecell"><code>endpoints:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="put">PUT</td><td class="api-path"><a href="/developers/endpoints/setAlias"><code>/v1/aliases/{token}</code></a></td><td class="api-role">Set an @mention alias</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/endpoints/deleteAlias"><code>/v1/aliases/{token}</code></a></td><td class="api-role">Delete an @mention alias</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/endpoints/getServiceDocument"><code>/docs/services/{service_id}.json</code></a></td><td class="api-role">Get a service’s OpenAPI document</td><td class="api-scopecell"><code>no key</code></td></tr></tbody>
         </table>
       </div>
       <h3 class="api-sub" id="routes-teams">Teams</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 6">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/teams/exportTeamAuditLog"><code>/v1/org/{id}/audit</code></a></td><td class="api-role">Export a team’s audit log</td><td class="api-scopecell"><code>teams:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/teams/listTeams"><code>/v1/teams</code></a></td><td class="api-role">List teams</td><td class="api-scopecell"><code>teams:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/teams/createTeam"><code>/v1/teams</code></a></td><td class="api-role">Create a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/teams/getTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Get a team</td><td class="api-scopecell"><code>teams:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="https://superbot.gg/developers/teams/updateTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Update a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/teams/deleteTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Delete a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/teams/listTeamMembers"><code>/v1/teams/{team_id}/members</code></a></td><td class="api-role">List team members</td><td class="api-scopecell"><code>teams:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="https://superbot.gg/developers/teams/updateTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="api-role">Change a member’s role</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/teams/removeTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="api-role">Remove a team member</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/teams/listTeamInvites"><code>/v1/teams/{team_id}/invites</code></a></td><td class="api-role">List pending team invites</td><td class="api-scopecell"><code>teams:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/teams/createTeamInvite"><code>/v1/teams/{team_id}/invites</code></a></td><td class="api-role">Invite someone to a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/teams/revokeTeamInvite"><code>/v1/teams/{team_id}/invites/{code}</code></a></td><td class="api-role">Revoke a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/teams/resendTeamInvite"><code>/v1/teams/{team_id}/invites/{code}/resend</code></a></td><td class="api-role">Resend a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/teams/acceptTeamInvite"><code>/v1/team_invites/{code}/accept</code></a></td><td class="api-role">Accept a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/exportTeamAuditLog"><code>/v1/org/{id}/audit</code></a></td><td class="api-role">Export a team’s audit log</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/listTeams"><code>/v1/teams</code></a></td><td class="api-role">List teams</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/createTeam"><code>/v1/teams</code></a></td><td class="api-role">Create a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/getTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Get a team</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/teams/updateTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Update a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/teams/deleteTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Delete a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/listTeamMembers"><code>/v1/teams/{team_id}/members</code></a></td><td class="api-role">List team members</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/teams/updateTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="api-role">Change a member’s role</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/teams/removeTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="api-role">Remove a team member</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/listTeamInvites"><code>/v1/teams/{team_id}/invites</code></a></td><td class="api-role">List pending team invites</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/createTeamInvite"><code>/v1/teams/{team_id}/invites</code></a></td><td class="api-role">Invite someone to a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/teams/revokeTeamInvite"><code>/v1/teams/{team_id}/invites/{code}</code></a></td><td class="api-role">Revoke a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/resendTeamInvite"><code>/v1/teams/{team_id}/invites/{code}/resend</code></a></td><td class="api-role">Resend a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/acceptTeamInvite"><code>/v1/team_invites/{code}/accept</code></a></td><td class="api-role">Accept a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr></tbody>
         </table>
       </div>
       <h3 class="api-sub" id="routes-devices">Devices</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 7">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/devices/createAgentJob"><code>/v1/devices/{device_id}/jobs</code></a></td><td class="api-role">Run a job on an agent computer</td><td class="api-scopecell"><code>devices:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/devices/getAgentJob"><code>/v1/devices/{device_id}/jobs/{job_id}</code></a></td><td class="api-role">Read an agent computer job</td><td class="api-scopecell"><code>devices:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/devices/streamAgentTerminal"><code>/v1/devices/{device_id}/terminals/{terminal_id}/stream</code></a></td><td class="api-role">Stream an agent computer terminal</td><td class="api-scopecell"><code>devices:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/devices/previewAgentPair"><code>/v1/pair/{user_code}</code></a></td><td class="api-role">Preview an agent computer code</td><td class="api-scopecell"><code>any key</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/devices/approveAgentPair"><code>/v1/pair/{user_code}/approve</code></a></td><td class="api-role">Approve an agent computer code</td><td class="api-scopecell"><code>any key</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/devices/listDevices"><code>/v1/devices</code></a></td><td class="api-role">List devices</td><td class="api-scopecell"><code>devices:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/devices/getDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Get a device</td><td class="api-scopecell"><code>devices:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="https://superbot.gg/developers/devices/updateDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Rename a device</td><td class="api-scopecell"><code>devices:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="https://superbot.gg/developers/devices/deleteDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Unlink a device</td><td class="api-scopecell"><code>devices:write</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/devices/createAgentJob"><code>/v1/devices/{device_id}/jobs</code></a></td><td class="api-role">Run a job on an agent computer</td><td class="api-scopecell"><code>devices:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/getAgentJob"><code>/v1/devices/{device_id}/jobs/{job_id}</code></a></td><td class="api-role">Read an agent computer job</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/streamAgentTerminal"><code>/v1/devices/{device_id}/terminals/{terminal_id}/stream</code></a></td><td class="api-role">Stream an agent computer terminal</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/previewAgentPair"><code>/v1/pair/{user_code}</code></a></td><td class="api-role">Preview an agent computer code</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/devices/approveAgentPair"><code>/v1/pair/{user_code}/approve</code></a></td><td class="api-role">Approve an agent computer code</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/listDevices"><code>/v1/devices</code></a></td><td class="api-role">List devices</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/getDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Get a device</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/devices/updateDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Rename a device</td><td class="api-scopecell"><code>devices:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/devices/deleteDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Unlink a device</td><td class="api-scopecell"><code>devices:write</code></td></tr></tbody>
         </table>
       </div>
       <h3 class="api-sub" id="routes-runs">Runs</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 8">
         <table class="api-table api-routes">
           <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
-          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/runs/listRuns"><code>/v1/runs</code></a></td><td class="api-role">List cloud runs</td><td class="api-scopecell"><code>runs:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/runs/createRun"><code>/v1/runs</code></a></td><td class="api-role">Start a cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/runs/listRunProjects"><code>/v1/runs/projects</code></a></td><td class="api-role">Find the project for a repository</td><td class="api-scopecell"><code>runs:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/runs/getRun"><code>/v1/runs/{run_id}</code></a></td><td class="api-role">Get a cloud run</td><td class="api-scopecell"><code>runs:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="https://superbot.gg/developers/runs/listRunEvents"><code>/v1/runs/{run_id}/events</code></a></td><td class="api-role">Follow a run’s events</td><td class="api-scopecell"><code>runs:read</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/runs/cancelRun"><code>/v1/runs/{run_id}/cancel</code></a></td><td class="api-role">Cancel a cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr>
-            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="https://superbot.gg/developers/runs/sendRunMessage"><code>/v1/runs/{run_id}/messages</code></a></td><td class="api-role">Steer a running cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr></tbody>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/listRuns"><code>/v1/runs</code></a></td><td class="api-role">List cloud runs</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/runs/createRun"><code>/v1/runs</code></a></td><td class="api-role">Start a cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/listRunProjects"><code>/v1/runs/projects</code></a></td><td class="api-role">Find the project for a repository</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/getRun"><code>/v1/runs/{run_id}</code></a></td><td class="api-role">Get a cloud run</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/listRunEvents"><code>/v1/runs/{run_id}/events</code></a></td><td class="api-role">Follow a run’s events</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/runs/cancelRun"><code>/v1/runs/{run_id}/cancel</code></a></td><td class="api-role">Cancel a cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/runs/sendRunMessage"><code>/v1/runs/{run_id}/messages</code></a></td><td class="api-role">Steer a running cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr></tbody>
         </table>
       </div>
       <p class="api-cap">The whole reference lives at <a href="developers.html">/developers</a>.<br/>The machine-readable spec is <a href="docs/openapi.json">/docs/openapi.json</a>.</p>
@@ -247,7 +247,7 @@
       <p class="api-p">Start free, or try Pro free for 14 days.<br/>No card needed. Runs on your own accounts are never limited.</p>
       <div class="api-cta">
         <a class="sb-btn" href="download.html">Download</a>
-        <a class="sb-btn ghost" href="https://superbot.gg/download#helper">Helper and CLI</a>
+        <a class="sb-btn ghost" href="/download#helper">Helper and CLI</a>
       </div>
       <div class="api-period" role="group" aria-label="billing period">
               <button type="button" class="api-period-btn" data-period="month" aria-pressed="true">Monthly</button>
@@ -293,7 +293,7 @@
         <p class="api-plan-allow"><span class="api-fig">30,000</span> a seat, pooled</p>
         <dl class="api-plan-perks"><div><dt>Runs at once</dt><dd>6 per seat</dd></div><div><dt>Long runs</dt><dd>Yes</dd></div><div><dt>Scheduled runs</dt><dd>Yes</dd></div><div><dt>Queue</dt><dd>Priority</dd></div><div><dt>Support</dt><dd>Dedicated</dd></div><div><dt>Every model</dt><dd>Yes</dd></div></dl>
       </article></div>
-      <p class="api-cap api-trial-cap">The 14-day Superbot Pro trial starts with 20,000 trial credits that expire when it ends; one account gets one trial. Past an allowance, credits cost $1 per 1,000. Limits cover hosted cloud runs only. <a href="https://superbot.gg/docs/billing">How billing works</a>.</p>
+      <p class="api-cap api-trial-cap">The 14-day Superbot Pro trial starts with 20,000 trial credits that expire when it ends; one account gets one trial. Past an allowance, credits cost $1 per 1,000. Limits cover hosted cloud runs only. <a href="/docs/billing">How billing works</a>.</p>
       <h3 class="api-sub">Credit packs</h3>
       <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 9">
         <table class="api-table api-packs">
@@ -356,13 +356,13 @@
          product. The /relay cross-link retired with the relay page
          (2026-09-23); the local address lives at /account/api#local. -->
     <section class="api-sec">
-      <p class="api-cap api-handoff">Signed in? Mint a key on the <a href="https://superbot.gg/account/api">api console</a>.</p>
+      <p class="api-cap api-handoff">Signed in? Mint a key on the <a href="/account/api">api console</a>.</p>
       <p class="api-cap api-handoff">Third-party client? <a href="clients.html">Use superbot from Cursor, Continue, Claude Code and other clients</a>.</p>
     </section>
 
     <section class="api-sec">
       <div class="api-cta">
-        <a class="sb-btn" href="https://superbot.gg/account/api#keys">Get an API key</a>
+        <a class="sb-btn" href="/account/api#keys">Get an API key</a>
         <a class="sb-btn ghost" href="download.html">Download</a>
       </div>
     </section>
@@ -427,6 +427,6 @@
     setPeriod('month');
   }
 </script>
-<script src="site/assets/nav-drawer.js?v=3" defer></script>
+<script src="./site/assets/nav-drawer.js?v=3" defer></script>
 </body>
 </html>

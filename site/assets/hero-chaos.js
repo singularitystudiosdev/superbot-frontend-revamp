@@ -123,8 +123,8 @@ const HC = {
            'tiles/windsurf.svg', 'tiles/zed.svg', 'tiles/cline.svg', 'tiles/roo.svg', 'tiles/kilo.svg',
            'tiles/continue.svg', 'tiles/opencode.svg', 'tiles/openclaw.svg', 'tiles/qwen-code.svg',
            'tiles/amazon-q-cli.svg'],
-  BRAND: '/site/assets/brand/',              // local only, never external at runtime
-  SLAM_TILE: '/site/assets/brand/tile.svg',  // the slam tile, already local
+  BRAND: './site/assets/brand/',              // local only, never external at runtime
+  SLAM_TILE: './site/assets/brand/tile.svg',  // the slam tile, already local
 
   // cards: heading + rows (the spec's copy list; 2026-09-24 the ides card
   // names real editors instead of 'editor' and 'git', and tools gains cline

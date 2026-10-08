@@ -41,7 +41,7 @@ import { PHONE, prepStage, revealHub, revealInners, placeBeam, playPhoneFrame,
 
 // ---------- constants: retime a beat here, not in the render code ----------
 const HR = {
-  BRAND: '/site/assets/brand/',
+  BRAND: './site/assets/brand/',
   // the opening card
   CARD: 1.0, CARD_POP: 0.4, CARD_FROM: 1.06, DIP: 0.15,
   // beat 1: the app run, one tile per CUT s, each punching in from PUNCH
@@ -99,7 +99,7 @@ const TURNS = [
     who: 'superbot', mark: 'superbot',
     text: 'Done. The callback now carries the next url through the redirect, so sign in lands where it started. The login test passes.' },
   { pick: 'superbot', ask: 'Review the auth middleware',
-    who: 'superbot', mark: 'superbot', swarm: '/site/assets/features/agentic.png' },
+    who: 'superbot', mark: 'superbot', swarm: './site/assets/features/agentic.png' },
 ];
 
 // ---------- derived beats (s) ----------
@@ -200,7 +200,7 @@ const HOME_TITLE = chatName.textContent;
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const avatar = (mark) => mark === 'claude'
   ? `<span class="avatar sb" style="--tile-bg:var(--brand-claude);color:var(--brand-claude-ink)"><svg style="width:62%;height:62%" aria-hidden="true"><use href="#sb-ic-claude"/></svg></span>`
-  : `<span class="avatar sb"><img src="/site/assets/brand/mark-clean.svg" alt=""></span>`;
+  : `<span class="avatar sb"><img src="./site/assets/brand/mark-clean.svg" alt=""></span>`;
 const col = document.createElement('div');
 col.style.cssText = 'display:grid;gap:12px;align-content:start;will-change:transform';
 const rows = [];   // { el, at } in thread order

@@ -28,8 +28,8 @@
 const ICON = (id, size) =>
   `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true" focusable="false"><use href="#${id}"/></svg>`;
 
-const MONO_MARK = '/site/assets/brand/mono-mark-white.svg'; // the app's own superbot disc (hud-title-line, composer model chip)
-const AVATAR = '/site/assets/brand/mark-clean.svg';         // the mascot head beside the bubble (the desktop's thought row avatar)
+const MONO_MARK = './site/assets/brand/mono-mark-white.svg'; // the app's own superbot disc (hud-title-line, composer model chip)
+const AVATAR = './site/assets/brand/mark-clean.svg';         // the mascot head beside the bubble (the desktop's thought row avatar)
 
 // The composer's model rows: the built-in superbot lane first, then the
 // vendors, exactly the order ModelPicker.ts modelRows serves (/me.models).

@@ -12,7 +12,7 @@
    --stage, --window, --font-mono, --sp-*, --r-*, --dur-*, --ease-*) come from
    the host page. (A leaked `.hero h1 { max-width: 18ch }` from here is what
    capped the lander's headline to three lines.) */
-:root { --win: #0d0d0d; --side: #0d0d0d; --surface: #181818; --ink: #000000; --ui: var(--font-ui); --line-strong: #5c5c5c; --sb-icon: url(/site/assets/brand/superbot-app-icon.png); } /* the miniature's surfaces sit on the site ladder (site.css: canvas #000000, card #0d0d0d, raised #181818); --ink is the DARK ink the vendor avatar chips and the panel chips print with; --line-strong is Mobile's lineStrong (the filter and search buttons' hairline, the context bar's track); --sb-icon is the superbot tile's app icon, the one url the HUD mark's .ground layer and the <img class="tile"> both load */
+:root { --win: #0d0d0d; --side: #0d0d0d; --surface: #181818; --ink: #000000; --ui: var(--font-ui); --line-strong: #5c5c5c; --sb-icon: url(../../site/assets/brand/superbot-app-icon.png); } /* the miniature's surfaces sit on the site ladder (site.css: canvas #000000, card #0d0d0d, raised #181818); --ink is the DARK ink the vendor avatar chips and the panel chips print with; --line-strong is Mobile's lineStrong (the filter and search buttons' hairline, the context bar's track); --sb-icon is the superbot tile's app icon, the one url the HUD mark's .ground layer and the <img class="tile"> both load */
 /* vendor brand pairs, category coding only (vendor identity, the one place a
    hex off the site ladder is allowed): --brand-<vendor> is the tile ground,
    --brand-<vendor>-ink the mark on it. Dark-UI variants as the app shows them

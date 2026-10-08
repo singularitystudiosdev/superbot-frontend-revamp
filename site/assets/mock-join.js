@@ -19,7 +19,7 @@
 //                                      button. An arm made first waits for it, so
 //                                      the order of the pages' scripts is free.
 // The URL this module is imported by MUST be the same everywhere
-// (/site/assets/mock-join.js?v=2): a second URL is a second module with its own
+// (./site/assets/mock-join.js?v=2): a second URL is a second module with its own
 // opener, and the mocks it armed would never find the sheet.
 //
 // What arming does: the mock gets role=button, a tab stop, an accessible name
