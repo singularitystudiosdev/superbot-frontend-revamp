@@ -78,7 +78,7 @@ const sheetsIn = () => new Promise((resolve) => {
 // story mounts into the arm's layout, as it will stay
 await posterReady;
 const swap = applyLayout(true);
-await import('./hero-wschat.js?v=24');
+await import('./hero-wschat.js?v=25');
 await sheetsIn();
 await swap;
 html.dataset.wsReady = '';

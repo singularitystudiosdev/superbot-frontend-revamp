@@ -75,11 +75,7 @@ const SWITCHING = `Switching to ${VENDOR}`; // provider-switch.ts:390-399 switch
 const SWITCHED = `Switched to ${VENDOR}`;
 const THINK = 'Working on a muse meme';
 // the mascot's thought for this turn, streamed into the bubble word by word
-const THOUGHT = 'A meme about Muse, so this wants a picture, and Gemini draws these best. '
-  + 'The passed note in a lecture hall fits the joke: Muse slips a note over with a grin, '
-  + 'the note says you have 40 unread notifications from Muse, and the last panel is the long stare back. '
-  + 'Keep the words on the note big enough to read at a glance, put a red badge on the bell, '
-  + 'and let the stare land the punchline.';
+const THOUGHT = 'Can I do it? Ask here!';
 const WORDS = THOUGHT.split(' ');
 
 const asset = (f) => new URL('./hero-chat/' + f, import.meta.url).href;

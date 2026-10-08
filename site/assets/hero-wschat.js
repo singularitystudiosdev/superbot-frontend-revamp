@@ -47,7 +47,7 @@
 
 import { wireReplay } from './hub-handoff.js?v=7';
 import { buildFrontend } from './hero-wschat-frontend.js?v=14';
-import { createChat, CHAT_DUR } from './hero-wschat-chat.js?v=15';
+import { createChat, CHAT_DUR } from './hero-wschat-chat.js?v=16';
 import { createEnd, END_IN } from './hero-wschat-end.js?v=3';
 import { armMockJoin } from './mock-join.js?v=2';
 
