@@ -1421,7 +1421,7 @@ if (location.hash === '#get-superbot') {
     if (!more || more.dataset.state) return;
     more.dataset.state = 'loading';
     try {
-      const res = await fetch('/features', { credentials: 'same-origin', headers: { accept: 'text/html' } });
+      const res = await fetch('./features.html', { credentials: 'same-origin', headers: { accept: 'text/html' } });
       if (!res.ok) throw new Error(`/features answered ${res.status}`);
       const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
       const main = doc.querySelector('main.features');

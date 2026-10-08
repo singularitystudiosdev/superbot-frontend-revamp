@@ -75,12 +75,12 @@
         <input id="website" name="website" type="text" tabindex="-1" autocomplete="off"/>
       </div>
 
-      <!-- d0b32b16-2a11-4332-adbc-ff5b77a1fc22 is the idempotency token for THIS rendering of the form
+      <!-- 1206c805-1fb9-4adb-9eb3-ea08e7d9d9b1 is the idempotency token for THIS rendering of the form
            (edge/src/harness-requests.ts, one fresh token per render): the ask
            carries it back, so a second submit of this same page — a double
            click, a retry — replays the first answer instead of being stored as
            a second asker. -->
-      <input id="idem" name="idem" type="hidden" value="d0b32b16-2a11-4332-adbc-ff5b77a1fc22"/>
+      <input id="idem" name="idem" type="hidden" value="1206c805-1fb9-4adb-9eb3-ea08e7d9d9b1"/>
 
       <!-- the field's own sentence for the case the BROWSER refuses it:
            enter the client name (2-80 characters) / that does not look like a link (http:// or https://) are the same sentences the server
