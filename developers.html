@@ -1,0 +1,269 @@
+---
+title: "API reference for developers"
+canonical_url: "https://superbot.gg/developers"
+last_updated: "2026-10-08"
+summary: "build on the API behind the superbot app: the base URL, caller keys, scopes, errors and the full reference for OpenAI and Anthropic clients."
+---
+
+> Markdown twin of https://superbot.gg/developers (the HTML page is canonical).
+> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+
+# developers
+
+Point any OpenAI or Anthropic client at superbot and nothing else changes. Your program sends its normal requests, and superbot answers in the same dialect, from your own vendor keys, from credits, or from your full agent.
+
+Prices, plans and packs are on the [api page](https://superbot.gg/api); your local address is on the [api console](https://superbot.gg/account/api#local). To [use superbot from Cursor, Continue, Claude Code and other clients](https://superbot.gg/clients), paste the base URL and caller key into that client’s settings.
+
+[view .md](https://superbot.gg/developers.md) [openapi](https://superbot.gg/docs/openapi.json)
+
+## Base URL
+
+One URL serves every client. The dialect is read from each request.
+
+### Every client
+
+`https://superbot.gg/v1`
+
+```sh
+export OPENAI_BASE_URL="https://superbot.gg/v1"
+export OPENAI_API_KEY="sbc_…"
+export ANTHROPIC_BASE_URL="https://superbot.gg/v1"
+export ANTHROPIC_API_KEY="sbc_…"
+```
+
+## Auth and scopes
+
+Mint a caller key on the [account page](https://superbot.gg/account/api#keys). The format is GitHub’s: `sbc_`, then 32 base64url characters, `_` and 6 checksum characters, so a typo dies before the hash lookup. Send it as `Authorization: Bearer sbc_…` (any client’s default) or `x-api-key: sbc_…`. The API returns the plaintext once, at mint; the [api console](https://superbot.gg/account/api) can copy a key minted since 2026-10-05 again from its Endpoint card, so roll an older key.
+
+Every key carries a route (`byo`, `credits` or `auto`) and a mode (`model` or `agent`), and a request can override both:
+
+Headers
+
+```sh
+curl -H "x-superbot-route: byo" -H "x-superbot-mode: agent" \
+  -H "x-superbot-session: my-thread" -H "x-superbot-engine: omni" \
+  "$ANTHROPIC_BASE_URL/messages" …
+```
+
+Route `byo` is served by the account’s own linked provider logins, the ChatGPT, Claude or Grok subscription connected on the [account page](https://superbot.gg/account), and is not billed to the wallet. Those logins are the account holder’s personal vendor subscriptions, not a commercial API allocation. The vendor terms that govern them (OpenAI’s, Anthropic’s, xAI’s) cover personal use, not resale or serving third parties. A `byo` key handed to someone else spends the key owner’s subscription under terms that were not written for it. Point other people at `credits`, which serves the operator’s own metered allocation and bills per token, and keep `byo` for the account’s own clients and machines.
+
+Set `model: "superbot"` for the agent: your whole superbot (skills, rules, MCP entries, device tools) through a plain client. That is for when no Helper is running, so a phone gets the full agent too, and tool activity streams as status lines.
+
+Set `model: "superbot-omni"`: Superbot agent, run on your computer. Or keep the default model and send `x-superbot-engine: omni` on an agent call. Only `omni` is settable by a caller key: `claude-code` is operator-only, and a caller key that names it is ignored, not refused.
+
+### Scopes
+
+Each key holds scopes, and an operation names the ones it needs; a key without one answers 403 [insufficient_scope](https://superbot.gg/developers#errors-insufficient%5Fscope). Mint with one of three presets: Models, Read-only query or Full access. A key minted before scopes existed holds the Gateway preset, and a signed-in session is not narrowed by scopes.
+
+| Scope           | What it allows                            | Presets                              |
+| --------------- | ----------------------------------------- | ------------------------------------ |
+| gateway:invoke  | Call models through Superbot              | Models, Full access                  |
+| usage:read      | Read usage and spend                      | Models, Read-only query, Full access |
+| billing:read    | Read the credit balance                   | Models, Read-only query, Full access |
+| keys:read       | List caller keys                          | Read-only query, Full access         |
+| keys:write      | Mint, edit and revoke caller keys         | Full access                          |
+| endpoints:read  | Read custom endpoints and aliases         | Read-only query, Full access         |
+| endpoints:write | Change custom endpoints and aliases       | Full access                          |
+| teams:read      | Read teams and invites                    | Read-only query, Full access         |
+| teams:write     | Manage teams, members and invites         | Full access                          |
+| devices:read    | List devices                              | Read-only query, Full access         |
+| devices:write   | Remove devices                            | Full access                          |
+| runs:read       | List and read cloud runs and their events | Full access                          |
+| runs:write      | Start and cancel cloud runs               | Full access                          |
+
+## Pagination
+
+List routes take `limit` (1 to 100, default 20) with `after_id` or `before_id`. A page is `{"object": "list", "data", "has_more", "first_id", "last_id"}`. The `Link: rel="next"` header names the next page.
+
+## Errors
+
+Account routes refuse with one envelope: `error` (the code below), `message`, `doc_url` (this table’s row) and `request_id`, plus `param` when one field is at fault. The gateway routes refuse in _your_ dialect, OpenAI’s `error.type/message` envelope or Anthropic’s `type: error` one. They also answer 402 when the key’s budget or the wallet is spent (`byo_url` on the body). They answer 499 when the caller hung up (the agent turn keeps running). They answer 5xx with the upstream's own status, passed through in your dialect. When a status is your own vendor credential's answer (a BYO or custom-endpoint dial) the response also carries the header `x-superbot-error-origin: vendor` and `origin: "vendor"` with `vendor_status` inside the error object; a refusal without them is the gateway's own.
+
+| Code                     | Status | What to change                                                                       |
+| ------------------------ | ------ | ------------------------------------------------------------------------------------ |
+| invalid_request         | 400    | A parameter or body field is invalid; param names it and issues lists every problem. |
+| invalid_body            | 400    | The body is not the JSON object this route expects.                                  |
+| invalid_json            | 400    | The body is not valid JSON.                                                          |
+| invalid_field           | 400    | One field has the wrong type or value; param names it.                               |
+| missing_field           | 400    | A required field is absent; param names it.                                          |
+| invalid_cursor          | 400    | The page cursor is not one this route issued; start again without it.                |
+| invalid_name            | 400    | The name is empty or too long.                                                       |
+| invalid_role            | 400    | The role is not one of owner, admin, editor or member.                               |
+| invalid_window          | 400    | The time range is reversed, malformed or longer than the route allows.               |
+| key_required            | 400    | A session must name the key to read with key=<id>.                                   |
+| invalid_base            | 400    | The endpoint base URL is not an http(s) URL.                                         |
+| private_base            | 400    | The endpoint base URL resolves to a private address; use a public one.               |
+| invalid route            | 400    | The key route must be byo, credits or auto.                                          |
+| invalid mode             | 400    | The key mode must be model or agent.                                                 |
+| invalid_alias           | 400    | The alias body must be a JSON object describing the alias.                           |
+| invalid_vendor          | 400    | The alias vendor must be a known model provider.                                     |
+| invalid_model_id       | 400    | The alias model_id must be a non-empty string.                                      |
+| invalid_label           | 400    | The label must be a string of at most 120 characters.                                |
+| invalid_custody         | 400    | The alias custody must be 'envelope' or 'device-held'.                               |
+| invalid_token           | 400    | The alias token is empty or malformed.                                               |
+| unauthorized             | 401    | Send a live caller key or session as Authorization: Bearer … or x-api-key.           |
+| insufficient_scope      | 403    | The key lacks the scope in required_scopes; mint a key that holds it.               |
+| caller_key_forbidden   | 403    | No caller key may call this route; use a signed-in session.                          |
+| caller_key_required    | 403    | Only a caller key may call this route.                                               |
+| revoked_key             | 403    | The key was revoked; mint a new one.                                                 |
+| revoked                  | 409    | The key is already revoked and cannot be edited.                                     |
+| forbidden                | 403    | Your role on this team does not allow the change.                                    |
+| key_not_owned          | 403    | The key belongs to another account.                                                  |
+| not_found               | 404    | No such resource on this account; check the id.                                      |
+| unknown_team            | 404    | No team with this id that you belong to.                                             |
+| unknown_member          | 404    | That account is not a member of this team.                                           |
+| unknown_invite          | 404    | No invite with this code.                                                            |
+| unknown_org             | 404    | The team this invite names no longer exists.                                         |
+| unknown_service         | 404    | No shipped service document with this id.                                            |
+| method_not_allowed     | 405    | The route does not answer this HTTP method.                                          |
+| conflict                 | 409    | The resource is not in a state that allows this change.                              |
+| last_owner              | 409    | A team keeps at least one owner; promote another member first.                       |
+| not_usable              | 409    | The invite was already accepted, revoked or expired.                                 |
+| invite_not_usable      | 409    | The invite was already accepted, revoked or expired.                                 |
+| invite_email_mismatch  | 403    | The invite was sent to a different email address than this account’s.                |
+| already_member          | 409    | This account is already a member of the team.                                        |
+| org_full                | 409    | The team is at its member limit.                                                     |
+| own_device              | 409    | A bearer cannot remove the device it is calling from.                                |
+| body too large           | 413    | The body is over the route’s size cap.                                               |
+| body_too_large         | 413    | The body is over the route’s size cap.                                               |
+| unsupported_media_type | 415    | Send the request body as application/json.                                           |
+| rate_limited            | 429    | Over the per-key request bucket; retry after x-ratelimit-reset.                      |
+| internal_error          | 500    | The server failed; retry, and quote request_id if it persists.                      |
+| spend report failed      | 500    | The spend report could not be built; retry shortly.                                  |
+| unavailable              | 503    | A store behind the route is not ready; retry shortly.                                |
+
+## Rate limits
+
+1200 requests/min per key, in a fixed-minute bucket, with `x-ratelimit-remaining` and `x-ratelimit-reset` on the 429. A keyed request is not counted against any per-IP bucket. Each key also carries its own daily and monthly token budgets.
+
+Spend is metered per key on every dial, and the answer rows carry `key_id` and `key_label`. Incognito keys flag their rows (`properties: {"incognito": true}`) and skip the prompt and reply text.
+
+## Withheld
+
+A caller key does what its scopes allow and nothing more. Minting keys and editing endpoints, teams and devices each need their `write` scope. A team key never holds more than `gateway:invoke`, `usage:read`, `billing:read` and `teams:read`. No scope unlocks these:
+
+- Vault material: a secret only ever leaves through a dial to the vendor it belongs to.
+- Billing changes: no top-up, no auto-recharge settings, no plan changes.
+- Account and session management: no sign-in, no device pairing, no account deletion.
+- Adapter registry and miss-queue writes.
+- Control-socket methods and rooms administration.
+
+## Reference
+
+Every operation, generated from the [OpenAPI document](https://superbot.gg/docs/openapi.json). Each group has its own page, and every operation links its reference as markdown.
+
+### [Gateway](https://superbot.gg/developers/gateway)
+
+OpenAI- and Anthropic-shaped model calls, answered in the dialect you dialed. [Gateway as markdown](https://superbot.gg/developers/gateway.md)
+
+| Method | Path                       | Operation                                                                                                                                                                                                      |
+| ------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | /v1/chat/completions       | [Create a chat completion](https://superbot.gg/developers/gateway#createChatCompletion) Needs gateway:invoke, caller keys only. [markdown](https://superbot.gg/developers/gateway/createChatCompletion.md) |
+| POST   | /v1/responses              | [Create a response](https://superbot.gg/developers/gateway#createResponse) Needs gateway:invoke, caller keys only. [markdown](https://superbot.gg/developers/gateway/createResponse.md)                    |
+| POST   | /v1/messages               | [Create a message](https://superbot.gg/developers/gateway#createMessage) Needs gateway:invoke, caller keys only. [markdown](https://superbot.gg/developers/gateway/createMessage.md)                       |
+| POST   | /v1/messages/count_tokens | [Estimate input tokens](https://superbot.gg/developers/gateway#countMessageTokens) Any live key, caller keys only. [markdown](https://superbot.gg/developers/gateway/countMessageTokens.md)                |
+| GET    | /v1/models                 | [List models](https://superbot.gg/developers/gateway#listModels) Any live key, caller keys only. [markdown](https://superbot.gg/developers/gateway/listModels.md)                                          |
+
+### [Usage & spend](https://superbot.gg/developers/usage)
+
+What your keys and account spent: per request, per day, bucketed and across apps. [Usage & spend as markdown](https://superbot.gg/developers/usage.md)
+
+| Method | Path                | Operation                                                                                                                                                                                          |
+| ------ | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /v1/usage           | [Get usage over a window](https://superbot.gg/developers/usage#getUsage) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/getUsage.md)                          |
+| GET    | /v1/usage/requests  | [List usage per request](https://superbot.gg/developers/usage#listUsageRequests) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/listUsageRequests.md)         |
+| GET    | /v1/usage/daily     | [Get usage per UTC day](https://superbot.gg/developers/usage#getUsageDaily) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/getUsageDaily.md)                  |
+| GET    | /v1/usage/breakdown | [Get usage bucketed and grouped](https://superbot.gg/developers/usage#getUsageBreakdown) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/getUsageBreakdown.md) |
+| GET    | /v1/usage/export    | [Export usage rows](https://superbot.gg/developers/usage#exportUsage) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/exportUsage.md)                          |
+| GET    | /v1/credits         | [Get the credit balance](https://superbot.gg/developers/usage#getCredits) Needs billing:read, or a session. [markdown](https://superbot.gg/developers/usage/getCredits.md)                     |
+| GET    | /v1/spend           | [Get AI spend across apps](https://superbot.gg/developers/usage#getSpend) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/getSpend.md)                         |
+| GET    | /v1/usage/report    | [Get a usage report](https://superbot.gg/developers/usage#getUsageReport) Needs usage:read, or a session. [markdown](https://superbot.gg/developers/usage/getUsageReport.md)                   |
+
+### [Keys](https://superbot.gg/developers/keys)
+
+Mint, list, edit and revoke scoped caller keys. [Keys as markdown](https://superbot.gg/developers/keys.md)
+
+| Method | Path            | Operation                                                                                                                                                                     |
+| ------ | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /v1/keys        | [List caller keys](https://superbot.gg/developers/keys#listKeys) Needs keys:read, or a session. [markdown](https://superbot.gg/developers/keys/listKeys.md)               |
+| POST   | /v1/keys        | [Create a caller key](https://superbot.gg/developers/keys#createKey) Needs keys:write, or a session. [markdown](https://superbot.gg/developers/keys/createKey.md)         |
+| GET    | /v1/keys/whoami | [Get the calling key](https://superbot.gg/developers/keys#getCurrentKey) Any live key, caller keys only. [markdown](https://superbot.gg/developers/keys/getCurrentKey.md) |
+| PATCH  | /v1/keys/{id}   | [Update a caller key](https://superbot.gg/developers/keys#updateKey) Needs keys:write, or a session. [markdown](https://superbot.gg/developers/keys/updateKey.md)         |
+| DELETE | /v1/keys/{id}   | [Revoke a caller key](https://superbot.gg/developers/keys#revokeKey) Needs keys:write, or a session. [markdown](https://superbot.gg/developers/keys/revokeKey.md)         |
+
+### [Endpoints](https://superbot.gg/developers/endpoints)
+
+Custom OpenAI- or Anthropic-compatible endpoints and @mention aliases. [Endpoints as markdown](https://superbot.gg/developers/endpoints.md)
+
+| Method | Path                              | Operation                                                                                                                                                                                            |
+| ------ | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /v1/upstreams                     | [List custom endpoints](https://superbot.gg/developers/endpoints#listUpstreams) Needs endpoints:read, or a session. [markdown](https://superbot.gg/developers/endpoints/listUpstreams.md)        |
+| POST   | /v1/upstreams                     | [Add a custom endpoint](https://superbot.gg/developers/endpoints#createUpstream) Needs endpoints:write, or a session. [markdown](https://superbot.gg/developers/endpoints/createUpstream.md)     |
+| PATCH  | /v1/upstreams/{slug}              | [Update a custom endpoint](https://superbot.gg/developers/endpoints#updateUpstream) Needs endpoints:write, or a session. [markdown](https://superbot.gg/developers/endpoints/updateUpstream.md)  |
+| DELETE | /v1/upstreams/{slug}              | [Remove a custom endpoint](https://superbot.gg/developers/endpoints#deleteUpstream) Needs endpoints:write, or a session. [markdown](https://superbot.gg/developers/endpoints/deleteUpstream.md)  |
+| POST   | /v1/upstreams/{slug}/probe        | [Re-probe a custom endpoint](https://superbot.gg/developers/endpoints#probeUpstream) Needs endpoints:write, or a session. [markdown](https://superbot.gg/developers/endpoints/probeUpstream.md)  |
+| GET    | /v1/aliases                       | [List @mention aliases](https://superbot.gg/developers/endpoints#listAliases) Needs endpoints:read, or a session. [markdown](https://superbot.gg/developers/endpoints/listAliases.md)            |
+| PUT    | /v1/aliases/{token}               | [Set an @mention alias](https://superbot.gg/developers/endpoints#setAlias) Needs endpoints:write, or a session. [markdown](https://superbot.gg/developers/endpoints/setAlias.md)                 |
+| DELETE | /v1/aliases/{token}               | [Delete an @mention alias](https://superbot.gg/developers/endpoints#deleteAlias) Needs endpoints:write, or a session. [markdown](https://superbot.gg/developers/endpoints/deleteAlias.md)        |
+| GET    | /docs/services/{service_id}.json | [Get a service’s OpenAPI document](https://superbot.gg/developers/endpoints#getServiceDocument) No credential needed. [markdown](https://superbot.gg/developers/endpoints/getServiceDocument.md) |
+
+### [Teams](https://superbot.gg/developers/teams)
+
+Teams, their members and their invites. [Teams as markdown](https://superbot.gg/developers/teams.md)
+
+| Method | Path                                       | Operation                                                                                                                                                                                       |
+| ------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /v1/org/{id}/audit                         | [Export a team’s audit log](https://superbot.gg/developers/teams#exportTeamAuditLog) Needs teams:read, or a session. [markdown](https://superbot.gg/developers/teams/exportTeamAuditLog.md) |
+| GET    | /v1/teams                                  | [List teams](https://superbot.gg/developers/teams#listTeams) Needs teams:read, or a session. [markdown](https://superbot.gg/developers/teams/listTeams.md)                                  |
+| POST   | /v1/teams                                  | [Create a team](https://superbot.gg/developers/teams#createTeam) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/createTeam.md)                            |
+| GET    | /v1/teams/{team_id}                       | [Get a team](https://superbot.gg/developers/teams#getTeam) Needs teams:read, or a session. [markdown](https://superbot.gg/developers/teams/getTeam.md)                                      |
+| PATCH  | /v1/teams/{team_id}                       | [Update a team](https://superbot.gg/developers/teams#updateTeam) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/updateTeam.md)                            |
+| DELETE | /v1/teams/{team_id}                       | [Delete a team](https://superbot.gg/developers/teams#deleteTeam) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/deleteTeam.md)                            |
+| GET    | /v1/teams/{team_id}/members               | [List team members](https://superbot.gg/developers/teams#listTeamMembers) Needs teams:read, or a session. [markdown](https://superbot.gg/developers/teams/listTeamMembers.md)               |
+| PATCH  | /v1/teams/{team_id}/members/{user_id}    | [Change a member’s role](https://superbot.gg/developers/teams#updateTeamMember) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/updateTeamMember.md)       |
+| DELETE | /v1/teams/{team_id}/members/{user_id}    | [Remove a team member](https://superbot.gg/developers/teams#removeTeamMember) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/removeTeamMember.md)         |
+| GET    | /v1/teams/{team_id}/invites               | [List pending team invites](https://superbot.gg/developers/teams#listTeamInvites) Needs teams:read, or a session. [markdown](https://superbot.gg/developers/teams/listTeamInvites.md)       |
+| POST   | /v1/teams/{team_id}/invites               | [Invite someone to a team](https://superbot.gg/developers/teams#createTeamInvite) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/createTeamInvite.md)     |
+| DELETE | /v1/teams/{team_id}/invites/{code}        | [Revoke a team invite](https://superbot.gg/developers/teams#revokeTeamInvite) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/revokeTeamInvite.md)         |
+| POST   | /v1/teams/{team_id}/invites/{code}/resend | [Resend a team invite](https://superbot.gg/developers/teams#resendTeamInvite) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/resendTeamInvite.md)         |
+| POST   | /v1/team_invites/{code}/accept            | [Accept a team invite](https://superbot.gg/developers/teams#acceptTeamInvite) Needs teams:write, or a session. [markdown](https://superbot.gg/developers/teams/acceptTeamInvite.md)         |
+
+### [Devices](https://superbot.gg/developers/devices)
+
+The devices paired to your account. [Devices as markdown](https://superbot.gg/developers/devices.md)
+
+| Method | Path                                                     | Operation                                                                                                                                                                                                       |
+| ------ | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | /v1/devices/{device_id}/jobs                            | [Run a job on an agent computer](https://superbot.gg/developers/devices#createAgentJob) Needs devices:write, or a session. [markdown](https://superbot.gg/developers/devices/createAgentJob.md)             |
+| GET    | /v1/devices/{device_id}/jobs/{job_id}                  | [Read an agent computer job](https://superbot.gg/developers/devices#getAgentJob) Needs devices:read, or a session. [markdown](https://superbot.gg/developers/devices/getAgentJob.md)                        |
+| GET    | /v1/devices/{device_id}/terminals/{terminal_id}/stream | [Stream an agent computer terminal](https://superbot.gg/developers/devices#streamAgentTerminal) Needs devices:read, or a session. [markdown](https://superbot.gg/developers/devices/streamAgentTerminal.md) |
+| GET    | /v1/pair/{user_code}                                    | [Preview an agent computer code](https://superbot.gg/developers/devices#previewAgentPair) Any live key, or a session. [markdown](https://superbot.gg/developers/devices/previewAgentPair.md)                |
+| POST   | /v1/pair/{user_code}/approve                            | [Approve an agent computer code](https://superbot.gg/developers/devices#approveAgentPair) Any live key, or a session. [markdown](https://superbot.gg/developers/devices/approveAgentPair.md)                |
+| GET    | /v1/devices                                              | [List devices](https://superbot.gg/developers/devices#listDevices) Needs devices:read, or a session. [markdown](https://superbot.gg/developers/devices/listDevices.md)                                      |
+| GET    | /v1/devices/{device_id}                                 | [Get a device](https://superbot.gg/developers/devices#getDevice) Needs devices:read, or a session. [markdown](https://superbot.gg/developers/devices/getDevice.md)                                          |
+| PATCH  | /v1/devices/{device_id}                                 | [Rename a device](https://superbot.gg/developers/devices#updateDevice) Needs devices:write, or a session. [markdown](https://superbot.gg/developers/devices/updateDevice.md)                                |
+| DELETE | /v1/devices/{device_id}                                 | [Unlink a device](https://superbot.gg/developers/devices#deleteDevice) Needs devices:write, or a session. [markdown](https://superbot.gg/developers/devices/deleteDevice.md)                                |
+
+### [Runs](https://superbot.gg/developers/runs)
+
+Cloud agent runs: start one on a project, follow its events, cancel it, and get a signed webhook when it settles. [Runs as markdown](https://superbot.gg/developers/runs.md)
+
+| Method | Path                        | Operation                                                                                                                                                                                      |
+| ------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /v1/runs                    | [List cloud runs](https://superbot.gg/developers/runs#listRuns) Needs runs:read, or a session. [markdown](https://superbot.gg/developers/runs/listRuns.md)                                 |
+| POST   | /v1/runs                    | [Start a cloud run](https://superbot.gg/developers/runs#createRun) Needs runs:write, or a session. [markdown](https://superbot.gg/developers/runs/createRun.md)                            |
+| GET    | /v1/runs/projects           | [Find the project for a repository](https://superbot.gg/developers/runs#listRunProjects) Needs runs:read, or a session. [markdown](https://superbot.gg/developers/runs/listRunProjects.md) |
+| GET    | /v1/runs/{run_id}          | [Get a cloud run](https://superbot.gg/developers/runs#getRun) Needs runs:read, or a session. [markdown](https://superbot.gg/developers/runs/getRun.md)                                     |
+| GET    | /v1/runs/{run_id}/events   | [Follow a run’s events](https://superbot.gg/developers/runs#listRunEvents) Needs runs:read, or a session. [markdown](https://superbot.gg/developers/runs/listRunEvents.md)                 |
+| POST   | /v1/runs/{run_id}/cancel   | [Cancel a cloud run](https://superbot.gg/developers/runs#cancelRun) Needs runs:write, or a session. [markdown](https://superbot.gg/developers/runs/cancelRun.md)                           |
+| POST   | /v1/runs/{run_id}/messages | [Steer a running cloud run](https://superbot.gg/developers/runs#sendRunMessage) Needs runs:write, or a session. [markdown](https://superbot.gg/developers/runs/sendRunMessage.md)          |
+
+## Machine docs
+
+Every page here has a markdown twin: add `.md` to its path.
+
+- [/docs/openapi.json](https://superbot.gg/docs/openapi.json): OpenAPI 3.1, the canonical description.
+- [/docs/openapi-3.2.json](https://superbot.gg/docs/openapi-3.2.json): the same as OpenAPI 3.2.
+- [/docs/llms.txt](https://superbot.gg/docs/llms.txt): the API index for agents.
+- [/docs/llms-full.txt](https://superbot.gg/docs/llms-full.txt): every operation as one markdown file.
+- [/.well-known/api-catalog](https://superbot.gg/.well-known/api-catalog): the RFC 9727 catalog.

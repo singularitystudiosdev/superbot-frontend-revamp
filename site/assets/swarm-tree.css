@@ -1,0 +1,99 @@
+/* the swarm tree: the super mode root branching into a manager, which
+   branches into three workers, the orchestrator-workers topology (Anthropic,
+   "Building effective agents", 2024-12-19) drawn as a real org chart instead
+   of a screenshot, so the fan-out itself (not a caption) reads "one ask, a
+   team of agents". Shared between the lander's #pillar-agentic cell
+   (site/lander-agent.html, styled by hero.css's .pillar--tree hook) and
+   /features' article#super (site/features.html, .fig-tree). Tokens only:
+   every value below is a site.css var() or a calc() of them. No icon beyond
+   the one brand mark at the root, no arrowheads, no gradient, no motion: the
+   hierarchy is drawn with hairline connectors and position alone. (This sheet
+   declares nothing that moves at all; the prose avoids naming that class of
+   declaration because check-ui's ANIMATION_DECL regex reads the bare word
+   plus a colon as one, comments included; the page's one ambient animation
+   is declared in features.css.) */
+
+.swarm-tree { padding: var(--sp-6) var(--sp-5); }
+
+/* ---- the root: the mark + "super mode superbot", the same role-then-name
+   anatomy the manager and worker nodes use below, so the root reads as one
+   more node in the chain, just the one nothing reports to, but the one
+   node nothing reports to also sits on a plate a shade warmer than the plain
+   --raised plates below it, so superbot reads as the thing the org chart is
+   named after, not just its first line of text. (The storm-gradient ring this
+   plate wore, the .sb-storm-outline double-background trick, is retired
+   2026-10-06 with the tile ring: the brand draws no gradient stroke around the
+   mascot.) ---- */
+.swarm-root {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  width: fit-content; margin: 0 auto var(--sp-3); padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line); border-radius: var(--r-control);
+  background: color-mix(in srgb, var(--storm-1) 8%, var(--raised));
+}
+.swarm-mark { width: var(--sp-8); height: var(--sp-8); flex: none; }
+.swarm-root .swarm-role { color: var(--muted); font: var(--fs-sm) / var(--lh-sm) var(--font-ui); }
+.swarm-root-name { font: 650 var(--fs-lg) / var(--lh-lg) var(--font-ui); color: var(--fg); }
+
+/* ---- the trunk: a single hairline down from the root to the manager, and
+   again from the manager to the worker row ---- */
+.swarm-branch--trunk { width: 1px; height: var(--sp-6); background: var(--line); margin: 0 auto; }
+
+/* ---- the manager plate ---- */
+.swarm-node--manager {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4); background: var(--raised); border-radius: var(--r-control);
+}
+.swarm-node--manager .swarm-role { color: var(--muted); font: var(--fs-sm) / var(--lh-sm) var(--font-ui); }
+.swarm-node--manager .swarm-model { color: var(--fg); font: var(--fs-sm) / var(--lh-sm) var(--font-ui); margin-left: var(--sp-2); }
+.swarm-node--manager .swarm-figures { display: flex; gap: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-sm); }
+.swarm-tokens { color: var(--muted); }
+.swarm-cost { color: var(--fg); }
+
+/* ---- the fan-out: one hairline bar spanning the three worker centers, with
+   a drop to each plate. The bar's own left/right cannot be 100%/6, that
+   only holds for a gapless three-up grid. With column-gap var(--sp-3), each
+   of the 3 equal columns is (100% - 2*var(--sp-3)) / 3 wide, so the first
+   and last column centers sit (100% - 2*var(--sp-3))/6 = 100%/6 -
+   var(--sp-3)/3 in from each edge, the exact inset used below, not the
+   naive sixth. ---- */
+.swarm-row--workers { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--sp-3); padding-top: var(--sp-4); }
+.swarm-row--workers::after {
+  content: ""; position: absolute; top: calc(-1 * var(--sp-4));
+  left: calc(100% / 6 - var(--sp-3) / 3); right: calc(100% / 6 - var(--sp-3) / 3);
+  border-top: 1px solid var(--line);
+}
+.swarm-node--worker {
+  position: relative; display: flex; flex-direction: column; gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3); background: var(--raised); border-radius: var(--r-control);
+  min-width: 0;
+}
+.swarm-node--worker::before { content: ""; position: absolute; top: calc(-1 * var(--sp-4)); left: 50%; width: 1px; height: var(--sp-4); background: var(--line); }
+.swarm-node-top { display: flex; align-items: baseline; gap: var(--sp-1); font-size: var(--fs-xs); overflow: hidden; }
+.swarm-node-top .swarm-role { color: var(--muted); }
+.swarm-node-top .swarm-model { color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.swarm-node-figures { display: flex; gap: var(--sp-2); font-family: var(--font-mono); font-size: var(--fs-xs); }
+.swarm-baseline { color: var(--muted); text-decoration: line-through; }
+
+/* ---- the savings line: the one figure worth reading twice ---- */
+.swarm-savings { margin-top: var(--sp-5); padding-top: var(--sp-3); border-top: 1px solid var(--line); font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--muted); }
+.swarm-savings-num { color: var(--fg); font-family: var(--font-mono); }
+
+@media (max-width: 640px) {
+  .swarm-row--workers { grid-template-columns: 1fr; row-gap: var(--sp-3); padding-top: 0; }
+  .swarm-row--workers::after { content: none; }
+  .swarm-node--worker:first-child::before { height: var(--sp-4); top: calc(-1 * var(--sp-4)); }
+  .swarm-node--worker:not(:first-child)::before { height: var(--sp-3); top: calc(-1 * var(--sp-3)); }
+}
+
+/* vendor marks on the manager and worker nodes (owner, 2026-09-10): the
+   lander's own sb-ic-openai / sb-ic-claude symbols and the desktop's
+   hand-drawn xai stroke, painted in the node's ink via currentColor. */
+.swarm-vendor { width: var(--sp-4); height: var(--sp-4); flex: none; color: var(--fg); display: block; }
+.swarm-who { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+.swarm-node--manager .swarm-who .swarm-model { margin-left: 0; }
+.swarm-node-top { align-items: center; gap: var(--sp-2); }
+
+/* a worker plate is narrower beside the features index rail (2026-09-23):
+   its figures wrap, so the struck list price takes a second line instead of
+   running past the plate's edge */
+.swarm-node-figures { flex-wrap: wrap; row-gap: 0; min-width: 0; }

@@ -1,0 +1,189 @@
+<section class="doc-block" id="api-auth">
+  <h3>Keys and authentication</h3>
+  <p>A caller key starts with <code>{{KEY_PREFIX}}</code> and belongs to your account.</p>
+  <h4>Mint a key</h4>
+  <ol class="doc-steps">
+    <li>Open <strong>Account &gt; API</strong>, find <strong>Keys</strong> and select <strong>New key</strong>.</li>
+    <li>Enter a <strong>Name</strong> of up to 64 characters.</li>
+    <li>Set the fields you need.</li>
+    <li>Select <strong>Create key</strong>.</li>
+    <li>Copy the key. The page shows it in full only once.</li>
+  </ol>
+  <p>To revoke a key, select <strong>Revoke</strong> on its row under <strong>Keys</strong>. It stops working immediately.</p>
+  <h4>Key settings</h4>
+  <table class="doc-table">
+    <thead><tr><th>Field</th><th>Choice</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3"><strong>Access</strong></td><td><strong>Models</strong> (default)</td><td>calls models; reads usage and the credit balance</td></tr>
+      <tr><td><strong>Read-only query</strong></td><td>reads your account; calls no model</td></tr>
+      <tr><td><strong>Full access</strong></td><td>holds every scope listed under <strong>Scopes</strong></td></tr>
+      <tr><td rowspan="3"><strong>Spend from</strong></td><td><strong>Your providers</strong></td><td>uses your own vendor accounts; spends no credits</td></tr>
+      <tr><td><strong>Credits</strong></td><td>spends your credit balance</td></tr>
+      <tr><td><strong>Auto</strong> (default)</td><td>uses your providers first, then credits</td></tr>
+      <tr><td><strong>Daily limit</strong></td><td>credits</td><td>caps the key's spend over any 24 hours; empty means no cap</td></tr>
+      <tr><td><strong>Monthly limit</strong></td><td>credits</td><td>caps the key's spend in a calendar month (UTC); empty means no cap</td></tr>
+      <tr><td rowspan="2"><strong>More options</strong> &gt; <strong>Mode</strong></td><td><strong>Single model call</strong> (default)</td><td>calls the model id you send</td></tr>
+      <tr><td><strong>Full agent turn</strong></td><td>runs the full superbot agent</td></tr>
+      <tr><td><strong>More options</strong> &gt; <strong>Allowed models</strong></td><td>comma-separated ids</td><td><code>*</code> matches any run of characters and <code>?</code> one character; empty means all</td></tr>
+      <tr><td><strong>More options</strong> &gt; <strong>Incognito</strong></td><td>checkbox</td><td>keeps the key's turns out of your history</td></tr>
+      <tr><td><strong>Scopes</strong></td><td>one checkbox per scope</td><td>ticking any box replaces <strong>Access</strong>; a write scope includes its read</td></tr>
+    </tbody>
+  </table>
+  <h4>Send a key</h4>
+  <p>The key goes in the <code>Authorization: Bearer</code> header. <code>x-api-key</code> carries the same key for clients that expect it.</p>
+  <pre class="doc-code" data-lang="bash"><code>curl {{API_BASE}}/models \
+  -H "Authorization: Bearer {{KEY_PREFIX}}…"</code></pre>
+  <p>Related: <a href="clients.html">Set up your clients</a>, <a href="/account">Account</a></p>
+</section>
+
+<section class="doc-block" id="api-models">
+  <h3>Models</h3>
+  <p><code>GET /v1/models</code> lists every model id the account can call, whether or not the key's <strong>Allowed models</strong> names it.</p>
+  <h4>House models</h4>
+  <p>{{AGENT_ROLES}}</p>
+  {{HOUSE_MODELS_TABLE}}
+  <h4>Other models</h4>
+  <p>Vendor model ids run on your own accounts and keys, or on credits. An endpoint added with <strong>Add endpoint</strong> under <strong>Providers</strong> on <strong>Account &gt; API</strong> appears as <code>custom/&lt;endpoint&gt;/&lt;model&gt;</code>, for example <code>custom/example/llama-3.3-70b</code>.</p>
+  <p>Related: <a href="#external-apis">Custom endpoints</a>, <a href="#credits">Credits</a>, <a href="api.html">The API page</a></p>
+</section>
+
+<section class="doc-block" id="api-endpoints">
+  <h3>Endpoints</h3>
+  <p class="doc-lede">Each route links to its reference on <a href="developers.html">/developers</a>.</p>
+  <p>A scope names what the key must hold. <code>any key</code> takes any live key, and <code>no key</code> answers without one.</p>
+  {{ENDPOINTS_TABLE}}
+  <p>Related: <a href="developers.html">Full API reference</a>, <a href="docs/openapi.json">OpenAPI 3.1 spec</a></p>
+  <h4>Send a message</h4>
+  <p><code>POST /v1/chat/completions</code> takes an OpenAI Chat Completions body, <code>POST /v1/responses</code> an OpenAI Responses body and <code>POST /v1/messages</code> an Anthropic Messages body. Each answers in its own shape.</p>
+  <pre class="doc-code" data-lang="bash"><code>export OPENAI_BASE_URL={{API_BASE}}
+export OPENAI_API_KEY={{KEY_PREFIX}}…
+export ANTHROPIC_BASE_URL={{API_BASE}}
+export ANTHROPIC_API_KEY={{KEY_PREFIX}}…</code></pre>
+  <div class="doc-tabs" data-tabs>
+    <div class="doc-tablist" role="tablist" aria-label="Send a message">
+      <button type="button" role="tab" aria-selected="true">curl</button>
+      <button type="button" role="tab" aria-selected="false">OpenAI SDK</button>
+      <button type="button" role="tab" aria-selected="false">Anthropic SDK</button>
+    </div>
+    <div class="doc-tabpanel" role="tabpanel">
+      <pre class="doc-code" data-lang="bash"><code>curl {{API_BASE}}/chat/completions \
+  -H "Authorization: Bearer {{KEY_PREFIX}}…" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "{{SAMPLE_MODEL}}",
+    "messages": [{"role": "user", "content": "Summarize this thread."}]
+  }'</code></pre>
+    </div>
+    <div class="doc-tabpanel" role="tabpanel" hidden>
+      <pre class="doc-code" data-lang="python"><code>from openai import OpenAI
+
+client = OpenAI(base_url="{{API_BASE}}", api_key="{{KEY_PREFIX}}…")
+response = client.chat.completions.create(
+    model="{{SAMPLE_MODEL}}",
+    messages=[{"role": "user", "content": "Summarize this thread."}],
+)
+print(response.choices[0].message.content)</code></pre>
+    </div>
+    <div class="doc-tabpanel" role="tabpanel" hidden>
+      <pre class="doc-code" data-lang="python"><code>from anthropic import Anthropic
+
+client = Anthropic(base_url="{{API_BASE}}", api_key="{{KEY_PREFIX}}…")
+message = client.messages.create(
+    model="{{SAMPLE_MODEL}}",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Summarize this thread."}],
+)
+print(message.content[0].text)</code></pre>
+    </div>
+  </div>
+  <h4>Streaming</h4>
+  <p>Send <code>"stream": true</code> to any of the three routes to receive server-sent events in that route's own shape.</p>
+  <pre class="doc-code" data-lang="bash"><code>curl -N {{API_BASE}}/chat/completions \
+  -H "Authorization: Bearer {{KEY_PREFIX}}…" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "{{SAMPLE_MODEL}}", "stream": true, "messages": [{"role": "user", "content": "Summarize this thread."}]}'</code></pre>
+  <ul class="doc-list">
+    <li>Chat Completions sends <code>data: {"choices":[…]}</code> frames and ends with <code>data: [DONE]</code>.</li>
+    <li>Responses sends typed events such as <code>response.output_text.delta</code> and ends with <code>response.completed</code>.</li>
+    <li>Messages sends Anthropic's events, from <code>message_start</code> to <code>message_stop</code>.</li>
+  </ul>
+  <p>Usage and billing settle when the stream ends, and an aborted stream is billed for what it produced.</p>
+</section>
+
+<section class="doc-block" id="api-limits">
+  <h3>Limits and errors</h3>
+  <h4>Rate limit</h4>
+  <p>A caller key gets {{KEY_PER_MIN}} requests a minute. Over that, the route answers <code>429</code> before any model is called, with this body:</p>
+  <pre class="doc-code" data-lang="json"><code>{
+  "error": {
+    "type": "rate_limit_error",
+    "message": "per-key rate limit reached",
+    "retry_after": 12
+  }
+}</code></pre>
+  <p><code>retry_after</code> is in seconds. The <code>x-ratelimit-remaining</code> and <code>x-ratelimit-reset</code> headers carry the same window.</p>
+  <h4>Errors</h4>
+  <p>Model routes answer in the caller's dialect, and the Field column says where each code sits. A top-level <code>error</code> is a string code. Account routes answer in that form too, with <code>message</code>, <code>doc_url</code> and <code>request_id</code> beside it.</p>
+  <table class="doc-table">
+    <thead><tr><th>Status</th><th>Field</th><th>Code</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>400</td><td><code>error.type</code></td><td><code>invalid_request_error</code></td><td>the body is not valid JSON</td></tr>
+      <tr><td>400</td><td><code>error.code</code></td><td><code>unknown_model</code></td><td>no vendor claims the model id</td></tr>
+      <tr><td>401</td><td><code>error.type</code></td><td><code>authentication_error</code></td><td>the key is missing, malformed or unknown</td></tr>
+      <tr><td>402</td><td><code>error</code></td><td><code>insufficient_balance</code></td><td>the credit balance cannot cover the call; the 402 body follows</td></tr>
+      <tr><td>402</td><td><code>error.code</code></td><td><code>daily_limit</code>, <code>monthly_limit</code></td><td>the key reached its own limit</td></tr>
+      <tr><td>403</td><td><code>error.type</code></td><td><code>permission_error</code></td><td>the key is revoked</td></tr>
+      <tr><td>403</td><td><code>error</code></td><td><code>insufficient_scope</code></td><td>the key lacks the route's scope; <code>x-superbot-required-scopes</code> names it</td></tr>
+      <tr><td>403</td><td><code>error.code</code></td><td><code>model_not_allowed</code></td><td>the key's <strong>Allowed models</strong> does not include that model</td></tr>
+      <tr><td>403</td><td><code>error.code</code></td><td><code>agent_not_granted</code></td><td>the <code>n-agent</code> header names an agent with no live grant</td></tr>
+      <tr><td>403</td><td><code>error.code</code></td><td><code>no_vendor_credential</code></td><td>no usable sign-in or key for that model's vendor; <code>byo_url</code> links to where to add one</td></tr>
+      <tr><td>429</td><td><code>error.type</code></td><td><code>rate_limit_error</code></td><td>over the per-key rate</td></tr>
+      <tr><td>5xx</td><td><code>error.type</code></td><td><code>api_error</code></td><td>the model provider or the agent turn failed</td></tr>
+    </tbody>
+  </table>
+  <p>A provider's own error passes through with the provider's status, marked by the <code>x-superbot-error-origin: vendor</code> header.</p>
+  <!-- docs-402:start -->
+  <h4>The 402 body</h4>
+  <p>An empty balance answers HTTP 402 with this body, built from what billing reports for the account:</p>
+  <pre class="doc-code" data-lang="json"><code>{
+  "error": "insufficient_balance",
+  "topup_url": "https://billing.ezo.dev/topup?t=…",
+  "balance_tokens": 0,
+  "plan": "sub",
+  "reason": "allowance_exhausted",
+  "renews_at": "2026-10-01T00:00:00.000Z",
+  "plan_name": "superbot plus",
+  "plan_price_usd_month": {{SAMPLE_PLAN_PRICE}},
+  "plan_allowance_tokens": {{PLAN_ALLOWANCE_SAMPLE}},
+{{OVERAGE_SAMPLE_LINE}}
+  "auto_recharge": {
+    "enabled": true,
+    "threshold_mtok": 0,
+    "amount_usd": {{SAMPLE_RECHARGE_AMOUNT}},
+    "monthly_cap_usd": {{SAMPLE_RECHARGE_CAP}},
+    "spent_this_month_usd": {{SAMPLE_RECHARGE_AMOUNT}}
+  },
+  "subscribe_url": "https://billing.ezo.dev/topup?t=…",
+  "manage_url": "{{ORIGIN}}/account/billing",
+  "byo_url": "{{ORIGIN}}/account/api#keys",
+  "recharge_url": "https://billing.ezo.dev/topup?t=…",
+  "grants": [],
+  "ledger_balance_tokens": 0,
+  "plan_tier": "plus"
+}</code></pre>
+  <p><code>topup_url</code>, <code>subscribe_url</code> and <code>recharge_url</code> are signed links to the billing page, made for the account and expiring; when billing cannot make one, the field falls back to the account page. A caller key's body omits <code>topup_url</code>, <code>subscribe_url</code> and <code>recharge_url</code>. Amounts are credits, including the fields named <code>_tokens</code>. <code>overage_rate_usd_per_1k</code> appears when a rate is configured.</p>
+  <table class="doc-table">
+    <thead><tr><th><code>reason</code></th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>no_plan</code></td><td>the account is on the free plan and its balance is spent</td></tr>
+      <tr><td><code>topup_only</code></td><td>the account holds packs only and its balance is spent</td></tr>
+      <tr><td><code>allowance_exhausted</code></td><td>the plan's monthly allowance is spent</td></tr>
+      <tr><td><code>auto_recharge_off</code></td><td>the balance is spent and auto-recharge is off</td></tr>
+      <tr><td><code>recharge_cap_reached</code></td><td>the next auto-recharge would pass its monthly limit</td></tr>
+      <tr><td><code>recharge_failed</code></td><td>the auto-recharge charge failed</td></tr>
+      <tr><td><code>weekly_cap_reached</code></td><td>the plan's weekly pace limit is reached; it clears on its own</td></tr>
+    </tbody>
+  </table>
+  <!-- docs-402:end -->
+  <p>Related: <a href="#credits">Credits</a>, <a href="#plans">Plans and packs</a></p>
+</section>

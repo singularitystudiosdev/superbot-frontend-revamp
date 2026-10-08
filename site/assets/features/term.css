@@ -1,0 +1,52 @@
+/* term.css — the 16-colour palette scripts/ansi-to-html.mjs renders classes
+ * against (a-0..a-15 = SGR 30-37 then 90-97). This is DATA for the terminal
+ * captures in this directory (cli.html, mcp.html), not a site design-token
+ * file — the site's own tokens (site/assets/tokens.css or equivalent) are
+ * untouched by it. Values mirror PALETTE_16 in scripts/ansi-to-html.mjs;
+ * keep the two in sync if either changes.
+ *
+ * a-b/a-d/a-i/a-u are the weight/style classes (bold, dim, italic,
+ * underline). Background colour is never a class — see the contract at the
+ * top of scripts/ansi-to-html.mjs — so no bg-N rule exists here.
+ */
+
+.term-body {
+  --a-0: #1c1c1c;
+  --a-1: #ff3d9a;
+  --a-2: #0dbc79;
+  --a-3: #e5e510;
+  --a-4: #2b6bff;
+  --a-5: #c026d3;
+  --a-6: #00e5c3;
+  --a-7: #e5e5e5;
+  --a-8: #8a8a8a;
+  --a-9: #ff6fb0;
+  --a-10: #23d18b;
+  --a-11: #f5f543;
+  --a-12: #3b8eea;
+  --a-13: #d670d6;
+  --a-14: #29b8db;
+  --a-15: #ffffff;
+}
+
+.term-body .a-0 { color: var(--a-0); }
+.term-body .a-1 { color: var(--a-1); }
+.term-body .a-2 { color: var(--a-2); }
+.term-body .a-3 { color: var(--a-3); }
+.term-body .a-4 { color: var(--a-4); }
+.term-body .a-5 { color: var(--a-5); }
+.term-body .a-6 { color: var(--a-6); }
+.term-body .a-7 { color: var(--a-7); }
+.term-body .a-8 { color: var(--a-8); }
+.term-body .a-9 { color: var(--a-9); }
+.term-body .a-10 { color: var(--a-10); }
+.term-body .a-11 { color: var(--a-11); }
+.term-body .a-12 { color: var(--a-12); }
+.term-body .a-13 { color: var(--a-13); }
+.term-body .a-14 { color: var(--a-14); }
+.term-body .a-15 { color: var(--a-15); }
+
+.term-body .a-b { font-weight: 700; }
+.term-body .a-d { opacity: 0.7; }
+.term-body .a-i { font-style: italic; }
+.term-body .a-u { text-decoration: underline; }

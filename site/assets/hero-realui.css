@@ -1,0 +1,65 @@
+/* hero-realui: landing hero variant C, the real-UI cut of the ad gallery's
+   "I can do that too" spots. Styles for hero-realui.js's overlay root, which
+   mounts INSIDE #stage (into .body, above the hub) like hero-chaos and
+   hero-sphere. The hub beats move and fill the stage's REAL #hub (the module
+   writes its transform and its transcript inline), so this sheet holds only
+   the overlay's own layers: the ground, the app-tile run, the icon cloud,
+   the superbot tile, the opening card and the dip. Every selector starts
+   with .hero-realui; colours are site.css tokens (--bg, --card, --line,
+   --fg, --storm-gradient-x); one radius, --tile-radius (22.5%, the tiles).
+   Motion is the module's clock writing transform / opacity inline: no
+   keyframes here. */
+
+.hero-realui {
+  position: absolute; inset: 0; z-index: 20;
+  overflow: hidden; pointer-events: none;
+  /* the card sizes off the overlay's own box, so its line fits one row at
+     390 and at 1440 without a layout read */
+  container-type: size;
+  font-family: var(--font-ui);
+  color: var(--fg);
+}
+
+/* the stage's black while a scene is not the hub itself */
+.hero-realui .rr-ground,
+.hero-realui .rr-dip {
+  position: absolute; inset: 0;
+  background: var(--bg);
+  will-change: opacity;
+}
+.hero-realui .rr-dip { z-index: 9; opacity: 0; }
+
+/* beats 1-3: the app tiles (the run, then the cloud) and the superbot tile
+   that glides onto the real sidebar HUD's Superbot mark */
+.hero-realui .rr-tile,
+.hero-realui .rr-sb {
+  position: absolute; left: 0; top: 0;
+  border-radius: var(--tile-radius);
+  overflow: hidden; opacity: 0;
+  will-change: transform, opacity;
+}
+.hero-realui .rr-tile { background: var(--card); border: 1px solid var(--line); z-index: 2; }
+.hero-realui .rr-sb { z-index: 3; }
+.hero-realui .rr-tile img,
+.hero-realui .rr-sb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* the opening card: one line, heavy, one accented phrase (the referent's
+   "All in one app" card), sized to the overlay */
+.hero-realui .rr-card {
+  position: absolute; inset: 0; z-index: 6;
+  display: grid; place-items: center;
+  background: var(--bg); opacity: 0;
+  will-change: opacity;
+}
+.hero-realui .rr-line {
+  margin: 0;
+  font-size: min(6.4cqw, 15cqh); font-weight: 800;
+  letter-spacing: -.035em; line-height: 1.05;
+  white-space: nowrap; text-align: center;
+  will-change: transform, opacity;
+}
+.hero-realui .rr-grad {
+  background: var(--storm-gradient-x);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}

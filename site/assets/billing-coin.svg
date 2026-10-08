@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+  <!-- One coin, seen slightly from above: a thick teal rim over a darker edge, a blue face, a stamped star. -->
+  <g stroke="#0c0c0f" stroke-width="2" stroke-linejoin="round">
+    <circle cx="24" cy="27" r="18" fill="#009e86"/>
+    <circle cx="24" cy="23" r="18" fill="#00e5c3"/>
+    <circle cx="24" cy="23" r="12.5" fill="#2b6bff"/>
+  </g>
+  <circle cx="24" cy="23" r="10.5" fill="none" stroke="#1747c9" stroke-width="2"/>
+  <path d="M24 15.5 L26.2 20.8 L31.5 23 L26.2 25.2 L24 30.5 L21.8 25.2 L16.5 23 L21.8 20.8 Z" fill="#00e5c3" stroke="#0c0c0f" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M12.5 17.5 A13.5 13.5 0 0 1 18.5 10.5" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>
+</svg>

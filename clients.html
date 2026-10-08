@@ -1,0 +1,522 @@
+---
+title: "superbot clients"
+canonical_url: "https://superbot.gg/clients"
+last_updated: "2026-10-08"
+summary: "Point your client at superbot and keep using it. Every setup below is three values: a base URL, a key and a model id."
+---
+
+> Markdown twin of https://superbot.gg/clients (the HTML page is canonical).
+> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+
+# superbot clients
+
+Point your client at superbot and keep using it. Every setup below is three values: a base URL, a key and a model id.
+
+Mint a key on https://superbot.gg/account/api. Routes, limits and the error contract are on https://superbot.gg/developers.
+
+## What to paste
+
+| what | value |
+| --- | --- |
+| Base URL | `https://superbot.gg/v1` |
+| key header | `Authorization: Bearer sbc_…` or `x-api-key` |
+| model ids | `superbot`: Your Superbot agent. `superbot-omni`: Superbot agent, run on your computer. |
+
+routing: your client -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+## Jump to a client
+
+- Cursor (#cursor)
+- Devin (#devin)
+- Claude Code (#claude-code)
+- Codex CLI (#codex)
+- GitHub Copilot (VS Code) (#copilot)
+- Continue (#continue)
+- Cline (#cline)
+- Roo Code (#roo)
+- Zed (#zed)
+- Aider (#aider)
+- OpenCode (#opencode)
+- Any OpenAI or Anthropic SDK (#sdk)
+
+## Cursor (full)
+
+Cursor BYOK: key, base URL and custom model.
+
+routing: Cursor -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open `Cursor Settings`, then `Models`.
+2. Paste your `sbc_` key into the `OpenAI API key` box.
+3. Paste the base URL from the card above.
+4. Put it in `Override OpenAI Base URL`.
+5. Click `Add Custom Model` and name it `superbot`.
+6. Add `superbot-omni` as a second custom model if you want it.
+7. Select `superbot` in the model picker, then send one message.
+8. With the Helper: quit Cursor, run `superbot clients wire cursor`, skip 2-6.
+
+**what to paste**
+
+```
+Override OpenAI Base URL: https://superbot.gg/v1
+OpenAI API key: sbc_…
+Custom model: superbot
+```
+
+**route it with the helper**
+
+```
+# quit Cursor first: it rewrites its state store on quit
+superbot clients wire cursor
+
+# what it puts in place for you
+Override OpenAI Base URL: https://superbot.gg/v1
+OpenAI API key: sbc_…
+Custom models: superbot, superbot-omni
+
+# undo: restores the config it backed up
+superbot clients unwire cursor
+```
+
+**verify outside Cursor**
+
+```
+curl https://superbot.gg/v1/chat/completions \
+  -H "Authorization: Bearer sbc_…" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"superbot","messages":[{"role":"user","content":"ping"}]}'
+```
+
+traps:
+- The override captures every OpenAI-family request it sees. That includes Cursor's own picker models, not just yours. Turn it off to send a picker model to its own vendor.
+- No Anthropic base override exists, so an Anthropic key stays native. Claude keeps working, billed by Anthropic as before.
+- The override must be a public URL: the dial comes from their servers. A `localhost` URL never answers.
+- Already pointing the override at another gateway? Keep it working. Add it on `/account/api` as `your previous upstream`. Its models then keep answering through superbot, in one key.
+- `superbot clients wire cursor` needs Cursor quit first, then writes the rows. Undo it with `superbot clients unwire cursor`.
+- Cursor may probe with `gpt-4o-mini` when you save the override. If that probe fails, the custom model can still work once selected.
+- The key lives in Cursor's own state store, not `settings.json`.
+
+source: https://cursor.com/help/models-and-usage/api-keys, retrieved 2026-09-19
+
+## Devin (none)
+
+No custom endpoint, in the cloud or Desktop
+
+routing: Devin -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+Devin has no base URL to change, so it cannot be pointed at superbot.
+
+instead:
+1. Devin takes no custom base URL, in the cloud or in Devin Desktop.
+2. Use superbot's hosted MCP server instead. Devin connects to it as a remote MCP server.
+3. Setup for that lives at `/docs#clients`. If one appears later, paste the same three values as any other client.
+
+traps:
+- "Devin is a compound AI system and does not currently support third-party LLM API keys." No tier exception is documented.
+- The Devin Desktop docs are silent on BYOK and base URLs. Desktop models come from the built-in catalog.
+
+source: https://docs.devin.ai/enterprise/deployment/overview, retrieved 2026-09-19
+
+## Claude Code (full)
+
+Claude Code BYOK: base URL, key, model.
+
+routing: Claude Code -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Set `ANTHROPIC_BASE_URL` to the base URL above.
+2. Set `ANTHROPIC_API_KEY`, which is sent as `x-api-key`.
+3. Or set `ANTHROPIC_AUTH_TOKEN`, sent as `Authorization: Bearer`.
+4. Pick the model with `ANTHROPIC_MODEL` or `--model`.
+5. You can also set `model` in `settings.json`. Or put all of it in the `"env"` block there.
+6. Restart Claude Code, then send one message.
+
+**shell setup**
+
+```
+export ANTHROPIC_BASE_URL="https://superbot.gg/v1"
+export ANTHROPIC_API_KEY="sbc_…"
+export ANTHROPIC_MODEL="superbot"
+```
+
+**settings.json**
+
+```
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://superbot.gg/v1",
+    "ANTHROPIC_API_KEY": "sbc_…",
+    "ANTHROPIC_MODEL": "superbot"
+  }
+}
+```
+
+traps:
+- A non-first-party base URL turns MCP tool search off. Set `ENABLE_TOOL_SEARCH=true` to force it on.
+- Remote Control is disabled on a non-first-party base URL.
+- The base URL only changes where requests go. It does not choose the model.
+- Send `superbot` as the model id to get the agent.
+- `/model` beats `--model` and `ANTHROPIC_MODEL`. Both beat the `settings.json` model.
+
+source: https://code.claude.com/docs/en/llm-gateway, retrieved 2026-09-19
+
+## Codex CLI (full)
+
+Codex CLI: custom provider in config.toml.
+
+routing: Codex CLI -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open `~/.codex/config.toml`, and create it if it is missing.
+2. Add a `[model_providers.superbot]` table.
+3. Give it `base_url`, `env_key` and `wire_api`.
+4. Set `wire_api = "responses"`, the only value Codex still supports.
+5. Export `SUPERBOT_API_KEY` with a caller key. That is the name `env_key` points at.
+6. Set the top-level `model_provider` and `model` keys, then restart Codex.
+
+**config.toml**
+
+```
+[model_providers.superbot]
+name = "superbot"
+base_url = "https://superbot.gg/v1"
+env_key = "SUPERBOT_API_KEY"
+wire_api = "responses"
+
+model_provider = "superbot"
+model = "superbot"
+```
+
+**the env key**
+
+```
+export SUPERBOT_API_KEY="sbc_…"
+```
+
+traps:
+- `wire_api` only takes `responses`. The old `chat` value was removed.
+- These keys are ignored in a project-local `.codex/config.toml`. Write them in the user one.
+- A custom provider id cannot be `openai`, `ollama` or `lmstudio`. Keep the id `superbot`.
+- superbot serves `/v1/responses`, so the responses wire is what answers.
+- The provider `name` is only a label. The top-level `model_provider` is what selects it.
+
+source: https://learn.chatgpt.com/docs/config-file/config-reference, retrieved 2026-09-19
+
+## GitHub Copilot (VS Code) (partial)
+
+Chat works via a `Custom Endpoint` provider.
+
+routing: GitHub Copilot (VS Code) -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open the model picker in chat and select `Manage Language Models`.
+2. Select `Add Models`, then `Custom Endpoint`, and name the group.
+3. Enter your key from `/account/api`.
+4. Then choose the API type: `Chat Completions`, `Responses`, `Messages`.
+5. VS Code opens `chatLanguageModels.json`. Paste the snippet below into it and save.
+6. The snippet gives the full URL.
+7. Select the model in the picker. Restart VS Code if it does not show up.
+
+**chatLanguageModels.json**
+
+```
+[
+  {
+    "name": "superbot",
+    "vendor": "customendpoint",
+    "apiKey": "sbc_…",
+    "models": [
+      {
+        "id": "superbot",
+        "name": "superbot",
+        "url": "https://superbot.gg/v1/chat/completions",
+        "apiType": "chat-completions",
+        "toolCalling": true
+      }
+    ]
+  }
+]
+```
+
+traps:
+- BYOK covers chat only. Semantic search, inline suggestions and embeddings are not covered.
+- A Copilot Business or Enterprise admin controls this. It is the `Bring Your Own Language Model Key in VS Code` policy.
+- The server-side Enterprise BYOK preview needs the Completions API. A `responses` model will not work there.
+- A raw `apiKey` committed to the file is a leaked key. The docs use an `${input:myApiKey}` variable instead.
+
+source: https://code.visualstudio.com/docs/copilot/customization/language-models, retrieved 2026-09-19
+
+## Continue (full)
+
+One OpenAI provider entry in `config.yaml`.
+
+routing: Continue -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open `config.yaml`.
+2. Under `models:` add one entry, or edit the one already there.
+3. Set `provider: openai` and `apiBase` to the base URL above.
+4. Set `apiKey` to your `sbc_` caller key.
+5. Set `model` to `superbot`, and give the entry a `name`.
+6. Save, reload the extension, then send a chat message.
+
+**config.yaml**
+
+```
+models:
+  - name: superbot
+    provider: openai
+    apiBase: https://superbot.gg/v1
+    apiKey: sbc_…
+    model: superbot
+    useResponsesApi: false
+```
+
+**verify outside Continue**
+
+```
+curl https://superbot.gg/v1/chat/completions \
+  -H "Authorization: Bearer sbc_…" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"superbot","messages":[{"role":"user","content":"ping"}]}'
+```
+
+traps:
+- `config.json` is deprecated. Write `config.yaml` instead.
+- The Anthropic provider entry has no `apiBase` field. Use the openai provider with the same `apiBase`.
+- Without `useResponsesApi: false` Continue may call the Responses API.
+
+source: https://docs.continue.dev/customize/model-providers/top-level/openai, retrieved 2026-09-19
+
+## Cline (full)
+
+Either dialect, three fields to fill in.
+
+routing: Cline -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open Cline and click the settings gear.
+2. Set `API Provider` to `OpenAI Compatible`.
+3. Paste the base URL above into `Base URL`.
+4. Paste your `sbc_` caller key into `API Key`.
+5. Type your model id into `Model`, or pick it from the list.
+6. Send one message and confirm the reply arrives.
+
+**what to paste**
+
+```
+Base URL: https://superbot.gg/v1
+API Key: sbc_…
+Model: superbot
+```
+
+traps:
+- The base URL is not `https://api.openai.com/v1`. That holds even with the OpenAI Compatible provider selected.
+- A wrong model id answers `Model Not Found`.
+- For the Anthropic provider, tick `Use custom base URL`. Paste the same base URL into that field.
+- One caller key serves both providers.
+
+source: https://docs.cline.bot/provider-config/openai-compatible, retrieved 2026-09-19
+
+## Roo Code (partial)
+
+Two providers; tool calling unverified.
+
+routing: Roo Code -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open Roo Code settings.
+2. Set `API Provider` to `OpenAI Compatible`.
+3. Paste the base URL above into `Base URL`.
+4. Paste your `sbc_` caller key into `API Key`.
+5. Set `Model` to your model id, or pick it from the list.
+6. Send a message and read the reply.
+
+**what to paste**
+
+```
+Base URL: https://superbot.gg/v1
+API Key: sbc_…
+Model: superbot
+```
+
+traps:
+- Roo sends native tool calls on every request.
+- Not verified here: whether the agent lane answers those tool calls.
+- A wrong model id answers `Model Not Found`.
+- The base URL is not `https://api.openai.com/v1`.
+- For the Anthropic provider, tick `Use custom base URL`. Paste the same base URL into that field.
+
+source: https://docs.roocode.com/providers/openai-compatible, retrieved 2026-09-19
+
+## Zed (full)
+
+settings.json plus a key in the keychain.
+
+routing: Zed -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open `settings.json`.
+2. Add a `language_models.openai_compatible` block.
+3. Set its `api_url` to the base URL above.
+4. List the model in `available_models` with `name` and `max_tokens`.
+5. Store your `sbc_` key in Agent Settings, or set `SUPERBOT_API_KEY`.
+6. Pick the model in the assistant panel, then send a message.
+
+**settings.json**
+
+```
+{
+  "language_models": {
+    "openai_compatible": {
+      "superbot": {
+        "api_url": "https://superbot.gg/v1",
+        "available_models": [
+          {
+            "name": "superbot",
+            "display_name": "superbot",
+            "max_tokens": 200000
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+**api key**
+
+```
+export SUPERBOT_API_KEY="sbc_…"
+```
+
+traps:
+- `max_tokens` is required. The example uses `200000` as a placeholder.
+- The key never goes into `settings.json`. Use Agent Settings or the env var.
+- The env var is the provider id uppercased, plus `_API_KEY`.
+- `chat_completions` already defaults to `true`. No extra field is needed for that.
+- For the Anthropic dialect, use `anthropic_compatible`. Give it the same `api_url`.
+
+source: https://zed.dev/docs/ai/use-api-access, retrieved 2026-09-19
+
+## Aider (full)
+
+Aider via `openai/`: base URL and key.
+
+routing: Aider -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Export `OPENAI_API_BASE` with the base URL above.
+2. Export `OPENAI_API_KEY` with a caller key.
+3. Run `aider --model openai/superbot`.
+4. Use `--openai-api-base` instead of the env var if you prefer flags.
+5. Send one prompt to confirm the route.
+
+**shell setup**
+
+```
+export OPENAI_API_BASE="https://superbot.gg/v1"
+export OPENAI_API_KEY="sbc_…"
+aider --model openai/superbot
+```
+
+traps:
+- The `openai/` prefix on the model id is required. Without it, another provider is picked.
+- An unknown model id still runs, but Aider prints model warnings.
+- `OPENAI_API_BASE` and `--openai-api-base` carry the same value.
+- Aider speaks OpenAI chat, so it dials `/v1/chat/completions`.
+
+source: https://aider.chat/docs/llms/openai-compat.html, retrieved 2026-09-19
+
+## OpenCode (full)
+
+OpenCode: add superbot as a provider.
+
+routing: OpenCode -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Open your `opencode.json`.
+2. Add a `provider.superbot` entry.
+3. Set its `npm` to `@ai-sdk/openai-compatible`.
+4. Set `options.baseURL` to the base URL above, then give it an `options.apiKey`.
+5. List each model id under `models`, keyed by the id itself.
+6. Restart OpenCode and send one message.
+
+**opencode.json**
+
+```
+{
+  "provider": {
+    "superbot": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "superbot",
+      "options": {
+        "baseURL": "https://superbot.gg/v1",
+        "apiKey": "sbc_…"
+      },
+      "models": {
+        "superbot": { "name": "superbot" }
+      }
+    }
+  }
+}
+```
+
+traps:
+- Model ids must match an id from `GET /v1/models`. Use `superbot`.
+- The `apiKey` in the file is a plain secret. `/connect` keeps it out of the repo.
+- A provider needs `@ai-sdk/openai-compatible` for the OpenAI wire.
+- OpenCode reads providers at start, so restart after every edit.
+
+source: https://opencode.ai/docs/providers/, retrieved 2026-09-19
+
+## Any OpenAI or Anthropic SDK (full)
+
+Any OpenAI or Anthropic SDK, same base URL.
+
+routing: Any OpenAI or Anthropic SDK -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
+
+1. Install the `openai` or `anthropic` package for your language.
+2. Set `OPENAI_BASE_URL` or `ANTHROPIC_BASE_URL` in the environment.
+3. Pass a caller key as the API key, or put it in the matching env var.
+4. Send a normal request with the model id shown in the env comment.
+5. Swap that id for the omni one to run the agent on your computer.
+
+**env, both dialects**
+
+```
+export OPENAI_BASE_URL="https://superbot.gg/v1"
+export OPENAI_API_KEY="sbc_…"
+export ANTHROPIC_BASE_URL="https://superbot.gg/v1"
+export ANTHROPIC_API_KEY="sbc_…"
+# model: superbot for your agent, superbot-omni to run it on your computer
+```
+
+**python: openai**
+
+```
+from openai import OpenAI
+
+c = OpenAI(base_url="https://superbot.gg/v1", api_key="sbc_…")
+r = c.chat.completions.create(model="superbot", messages=[{"role": "user", "content": "ping"}])
+print(r.choices[0].message.content)
+```
+
+**python: anthropic**
+
+```
+from anthropic import Anthropic
+
+c = Anthropic(base_url="https://superbot.gg/v1", api_key="sbc_…")
+m = c.messages.create(model="superbot", max_tokens=256, messages=[{"role": "user", "content": "ping"}])
+print(m.content[0].text)
+```
+
+**curl**
+
+```
+curl https://superbot.gg/v1/chat/completions \
+  -H "Authorization: Bearer sbc_…" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "superbot", "messages": [{"role": "user", "content": "ping"}]}'
+```
+
+traps:
+- `ANTHROPIC_AUTH_TOKEN` is sent as `Authorization: Bearer`.
+- `ANTHROPIC_API_KEY` is sent as `x-api-key`.
+- One base URL for both SDKs. It ends in `/v1`.
+- Do not repeat `/v1` on the request path.
+- The Node OpenAI client reads `OPENAI_BASE_URL` by default. A `baseURL` you pass wins.
+- Pass `base_url=` to the Anthropic Python constructor.
+
+source: https://developers.openai.com/api/reference/python, retrieved 2026-09-19

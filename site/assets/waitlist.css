@@ -1,0 +1,378 @@
+/* The sign-in door's look (waitlist-form.js mounts: the hero, the download
+   band, the end of /features, and the phone's sign-in sheet, which holds an
+   ordinary mount), shared by / and /features (2026-09-26; it lived in
+   lander-agent.html's head style until /features got its own mounts).
+
+   Look plan (#61 / #54 / #57, 2026-09-27; /invite builds the same anatomy):
+   - palette: site.css tokens only. Canvas --bg #000000, card and field fill
+     --card #0d0d0d, raised and pressed --raised #181818, ink --fg #ececec,
+     hairline --line #262626, --muted for the quiet lines. The mark's echo
+     colours (markSvg's cyan #00e5c3 and magenta #c026d3) are brand chrome
+     only: the done state's mascot, never text, never a button. No storm ramp
+     anywhere on the door. Brand-mandated neutrals, not
+     accents: the Apple button is --apple-fill #ffffff with --apple-ink
+     #000000 (Apple HIG), the Google button is Google's dark theme,
+     --google-fill #131314, --google-line #8e918f, --google-ink #e3e3e3
+     (Google branding guidelines, 2026-07-07).
+   - accent: exactly one, --accent #4d8aff: the Continue fill (ink
+     --accent-ink), links, the focus ring (site.css :focus-visible), the
+     "Last used" pill and the stroke on the button it marks.
+   - type: --font-ui for everything, --font-mono on the code field; the
+     Google label alone is Google Sans Medium 14/20 (--font-google).
+   - radius: two. --r-control on buttons, fields and the pill; --r-surface on
+     the done card.
+   - the one bold thing: in the done state, the real mascot (mascot-mark.js,
+     happy eyes) as the bare echo mark, its cyan and magenta copies on the
+     superbot.gg landing's split loop and the mark on its slow float. The
+     sign-in stack itself carries no ornament.
+   Exemplars: Linear's login "Last used" pill (a small filled pill on the
+   method used before; nothing else moves) and Better Auth's
+   last-login-method plugin (a relative wrapper around the button, the badge
+   absolutely placed, so the button's own box never changes).
+   No numeric literal here but 0, 1px hairlines, 50% / 100% and unitless
+   counts named where they sit; every length is a site.css token.
+   Motion is always on (.cosmos/rules/motion-always-on.mdc): no guard. */
+.wl { display: grid; justify-items: center; gap: var(--sp-2); width: min(100%, var(--signin-w)); text-align: center; }
+/* a shrinkable track (reflow rule): the implicit auto track took the email
+   row's min-content, the field's intrinsic ~209px plus the button, so in a
+   331px landscape column the row ran 376px wide and the button onto the
+   stage (landscape pass, 2026-09-26) */
+.wl { grid-template-columns: minmax(0, 1fr); }
+.wl [hidden] { display: none; }
+
+/* ---- the email step: the field and its Continue ---- */
+/* relative: the "Last used" pill sits on this row when email was the method */
+.wl-row { position: relative; display: flex; gap: var(--sp-2); width: 100%; }
+.wl-in { flex: 1; min-width: 0; min-height: var(--control-h); padding: 0 var(--sp-4); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font: inherit; font-size: var(--fs-base); }
+.wl-in::placeholder { color: var(--muted); }
+.wl-code { font-family: var(--font-mono); }
+.wl-in[aria-invalid="true"] { border-color: var(--danger); }
+.sb-btn.wl-go { min-height: var(--control-h); padding: 0 var(--sp-6); font-size: var(--fs-base); }
+/* the door's Continue reads like /invite's (pages.c1bff7a8.ts .btn-primary):
+   one flat --accent fill with --accent-ink, no storm ramp and no aura, the
+   ink on hover; the site's focus ring (site.css :focus-visible) and the
+   .sb-btn press scale stay (2026-09-27, look plan: one accent) */
+.wl .sb-btn.wl-go { background-image: none; animation: none; }
+.wl .sb-btn.wl-go::before, .wl .sb-btn.wl-go::after { content: none; }
+.wl .sb-btn.wl-go:focus-visible:not([disabled]) { box-shadow: none; }
+@media (hover: hover) { .wl .sb-btn.wl-go:hover:not([disabled]) { background-color: var(--fg); box-shadow: none; } }
+@media (hover: none) { .wl .sb-btn.wl-go:active:not([disabled]) { box-shadow: none; } }
+@media (max-width: 600px) { .wl-row { flex-direction: column; } .sb-btn.wl-go { width: 100%; } }
+
+/* ---- the provider stack (#61) ----
+   Each button sits in its own .pv box (the grid item; the button fills it),
+   --control-h tall and full width, 12px apart so a "Last used" pill has room
+   to straddle a top edge. One alignment for all three, Google's own spec:
+   the mark left at --google-pad, --google-gap, then the label, left-aligned.
+   Left, not centred, because the hero's column runs 232 to 240px on a phone
+   and a centred label beside a left-anchored mark has no room there for
+   "Open in your browser". The icon column is the mark's size (--sp-5), so
+   every label starts at the same x. */
+.wl-pv { display: grid; gap: var(--sp-3); width: 100%; }
+.pv { position: relative; display: grid; }
+.wl .sb-btn.wl-pv-btn {
+  display: grid; grid-template-columns: var(--sp-5) auto; justify-content: start; align-items: center; column-gap: var(--google-gap);
+  width: 100%; min-height: var(--control-h); padding: 0 var(--google-pad); text-align: left;
+  font-size: var(--fs-base);
+  /* X (and the in-app escape): the quiet ghost, --card fill, --line border */
+  background: var(--card); color: var(--fg); border-color: var(--line);
+  /* no storm on a sign-in button: the ramp's breathe, the aura wheel, the
+     ghost's rotating rim and the storm glow all stay off */
+  background-image: none; animation: none; box-shadow: none;
+}
+.wl .sb-btn.wl-pv-btn::before, .wl .sb-btn.wl-pv-btn::after { content: none; }
+.wl .sb-btn.wl-pv-btn:is(:hover, :focus-visible, :active) { box-shadow: none; }
+.wl-pv-btn svg { width: var(--sp-5); height: var(--sp-5); flex: none; }
+/* Apple's own logo file (federated-providers APPLE_ICON, class bi-siwa)
+   carries its padding and is as tall as the button (HIG): out of the grid,
+   its glyph centred on the other marks' centre line, the label kept at the
+   same x by the padding the icon column would have given */
+.wl .sb-btn.wl-pv-btn:has(> .bi-siwa) { grid-template-columns: auto; padding-left: calc(var(--google-pad) + var(--sp-5) + var(--google-gap)); }
+.wl-pv-btn svg.bi-siwa { position: absolute; top: 50%; left: calc(var(--google-pad) + var(--sp-5) / 2); width: auto; height: var(--control-h); transform: translate(-50%, -50%); }
+/* Apple (HIG): white on a dark page, black ink (the mark is currentColor) */
+.wl .sb-btn.wl-pv-btn[data-provider="apple"] { background: var(--apple-fill); color: var(--apple-ink); border-color: var(--apple-fill); }
+/* Google (branding guidelines, dark theme; developers.google.com/identity/
+   branding-guidelines, last updated 2026-07-07, read 2026-09-27): its fill,
+   its 1px outline, its ink, and Google Sans Medium 14/20 on this label alone.
+   No OS ships Google Sans, and the fallbacks split: Roboto has a Medium
+   (Android), --font-ui draws SF Medium (Apple), but Windows' Segoe UI has
+   400 and 600 and no 500, so the label drew Regular there (#53), as Arial
+   (site.css :root's fallback) did everywhere before #20. So the label draws
+   Google Sans Medium itself, on every OS: "Google Sans Label" is its weight
+   500 subset to the labels' 17 glyphs, 1820 bytes of woff2 inline (OFL 1.1,
+   no reserved name; copyright and licence URL kept in the name table). Inline
+   as data: because the edge serves no woff2 and the site CSP's font-src admits
+   data:; the bytes, the pyftsubset line that made them and the unicode-range
+   are edge/src/beta/pages.c1bff7a8.ts GOOGLE_LABEL_*, which
+   test/beta-pages pins equal to these. A glyph outside the range falls to
+   "Google Label Medium" (local() only: a Roboto Medium, else Segoe UI
+   Semibold, Windows' nearest to Medium), then Roboto, then --font-ui. The
+   weight stays 500: Google's spec, set on purpose in 799a8ab7. */
+@font-face {
+  font-family: "Google Sans Label"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url(data:font/woff2;base64,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) format("woff2");
+  unicode-range: U+20, U+43, U+47, U+4C, U+53, U+65, U+67, U+68, U+69, U+6B, U+6C, U+6E, U+6F, U+70, U+74, U+75, U+77;
+}
+@font-face {
+  font-family: "Google Label Medium"; font-style: normal; font-weight: 500;
+  src: local("Roboto Medium"), local("Roboto-Medium"), local("Segoe UI Semibold"), local("SegoeUI-Semibold");
+}
+.wl-pv { --font-google: "Google Sans", "Google Sans Label", "Google Label Medium", Roboto, var(--font-ui); }
+.wl .sb-btn.wl-pv-btn[data-provider="google"] {
+  background: var(--google-fill); color: var(--google-ink); border-color: var(--google-line);
+  font-family: var(--font-google); font-weight: 500; font-size: var(--fs-sm); line-height: var(--lh-sm);
+}
+/* hover (a mouse only; a finger keeps .sb-btn's press scale): the fill steps
+   one rung, the ink and so every provider mark stay exactly as they are */
+@media (hover: hover) {
+  .wl .sb-btn.wl-pv-btn:hover:not([disabled]) { background: var(--raised); }
+  .wl .sb-btn.wl-pv-btn[data-provider="google"]:hover:not([disabled]) { background: var(--raised); }
+  .wl .sb-btn.wl-pv-btn[data-provider="apple"]:hover:not([disabled]) { background: var(--fg); border-color: var(--fg); }
+}
+
+/* the 'or' hairline (D8): only rendered under a provider stack. A muted 'or'
+   with a --line hairline either side, the rules as the row's own ::before and
+   ::after in a three-track grid */
+.wl-or {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; column-gap: var(--sp-3);
+  width: 100%; margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm);
+}
+.wl-or::before, .wl-or::after { content: ""; height: 1px; background: var(--line); }
+
+/* phone landscape (D10): the 343px-tall view drops every row to the touch
+   floor, never below it */
+@media (orientation: landscape) and (max-height: 500px) {
+  .wl .sb-btn.wl-pv-btn, .wl-in, .wl .sb-btn.wl-go { min-height: var(--target-touch); }
+  .wl-pv-btn svg.bi-siwa { height: var(--target-touch); }
+  /* the hero's copy column is 331px at 734px (the workspace arm): beside a
+     16px Continue the field kept 108px for its 115px placeholder. The button
+     takes the .sb-btn recipe's own 14px label and --sp-3 sides, the field the
+     difference. 0,4,0 so lander-agent.html's later .hero .sb-btn.wl-go
+     padding (0,3,0) does not undo it. */
+  .wl .wl-row .sb-btn.wl-go { padding: 0 var(--sp-3); font-size: var(--fs-sm); }
+  /* the hero's form only (ga-audit 2026-09-27, hero.css's landscape
+     comment has the numbers): the stack's gap drops to --sp-2 and the
+     form's to --sp-1, so the field clears the 402px fold with the subline
+     line on; the sheet and /features keep theirs */
+  .hero .wl { gap: var(--sp-1); }
+  .hero .wl-pv { gap: var(--sp-2); }
+}
+
+/* a SHORT phone on its side (#51, 2026-09-27): at 734x343 (an iPhone 15
+   with Safari's toolbars collapsed), 667x375 (an SE) and 844x390 (an iPhone
+   12-14) the block above still left the hero's email field under the fold,
+   with Apple, Google and X on: 347..391 with the subline line on every one
+   of them (fold 343, 375, 390), because the column is the sticky header
+   (56), the lockup (79), the subline (20) and a 148px provider stack
+   (3 x 44 + 2 gaps) before the 'or' row and the field. No gap or type step
+   takes 56px back, so here the stack turns into one row of three mark-only
+   buttons, the pattern both brands publish for a tight space (Apple HIG's
+   logo-only Sign in with Apple button, Google's icon-only sign-in button):
+   still first, still --target-touch (44px) tall and a third of the column
+   wide each (~105px at 734), each keeping its "Continue with ..." text as
+   its accessible name (font-size 0 draws none of it; the text node stays
+   in the tree). The form's gap goes back to --sp-2. Measured on the mobile
+   matrix's first-view test (every live caption, both subline arms): the
+   field and its Continue are 227..271 without the line and 251..295 with
+   it at every size in this tier (48px clear of the 343 fold; 874x280,
+   Safari's toolbars out, is in the tier too and still scrolls to it), and
+   each button is 44px tall. 390px takes in the 844x390
+   phones and leaves 874x402 (the block above, 11px clear with the line) as
+   it is. In an in-app browser (Google is dropped there) the "Open in your
+   browser" escape keeps its words on the same row: Apple and X become
+   --target-touch squares and the escape takes the rest (~227px at 734), so
+   the field stays where it is; on a row of its own it sat at 303..347. Its
+   paste hint, when shown, takes a line of its own. "Last used" centres on
+   the mark it names: at the stack's right inset it ran 4px past a 105px
+   button. The hero only: the sheet, /features and the download band keep
+   the labelled stack. */
+@media (orientation: landscape) and (max-height: 390px) {
+  .hero .wl { gap: var(--sp-2); }
+  .hero .wl-pv { display: flex; flex-wrap: wrap; }
+  .hero .wl-pv > .pv:has(> [data-provider]) { flex: 1 1 0; min-width: 0; }
+  .hero .wl-pv > .pv:has(> [data-escape]) { flex: 1 1 0; min-width: 0; }
+  .hero .wl-pv:has(> .pv > [data-escape]) > .pv:has(> [data-provider]) { flex: 0 0 var(--target-touch); }
+  .hero .wl-pv > [data-escape-hint] { flex: 1 1 100%; }
+  .hero .wl-pv .lu { right: 50%; transform: translate(50%, -50%); }
+  /* 0,5,0: over Google's own font rule and the Apple button's padding (0,4,0).
+     Flex, not the stack's grid: the label's text node is an anonymous item
+     that a grid gave a row of its own, which lifted the mark 7px off centre */
+  .hero .wl .sb-btn.wl-pv-btn[data-provider] {
+    display: flex; justify-content: center; align-items: center; gap: 0; padding: 0;
+    font-size: 0; line-height: 0; overflow: hidden;
+  }
+  .hero .wl .wl-pv-btn[data-provider] svg.bi-siwa { left: 50%; }
+}
+/* ... and narrower than 720px the email row stacks, as it does under 600px:
+   the copy column is about half the view less 36px, and beside the 14px
+   Continue (159px) the field kept 96px for its 114px placeholder at 667
+   ("you@email.cc", 83px at 640; 130px at 734, where it fits). Full width,
+   the field holds all of it and the Continue takes the form's own 16px
+   label back; stacked, the Continue ends at 347 at 667x375 (the matrix's
+   state, 28px clear with the subline line) and 346 at 640x360 (14px). */
+@media (orientation: landscape) and (max-height: 390px) and (max-width: 719px) {
+  .hero .wl-row { flex-direction: column; }
+  .hero .wl .wl-row .sb-btn.wl-go { width: 100%; font-size: var(--fs-base); }
+}
+
+/* a short phone held upright (ga-audit 2026-09-27; hero.css's portrait
+   block has the numbers and the reason for a max-height query): the hero's
+   sign-in rows go to the 44px touch floor, the provider stack's gap to
+   --sp-2, so the field and its Continue sit inside the first screen. The
+   "Last used" pill still straddles a top edge in an 8px gap: it is
+   --badge-h (20px) tall and sits over the button, never beside it. Only the
+   hero: the sheet, /features and the download band keep --control-h. */
+@media (orientation: portrait) and (max-height: 760px) {
+  .hero .wl .sb-btn.wl-pv-btn, .hero .wl .wl-in, .hero .wl .sb-btn.wl-go { min-height: var(--target-touch); }
+  .hero .wl-pv-btn svg.bi-siwa { height: var(--target-touch); }
+  .hero .wl-pv { gap: var(--sp-2); }
+}
+
+/* ---- "Last used" (#54) ----
+   Appended into the marked button's .pv (or the email .wl-row) and placed
+   absolutely: its centre on the button's top edge (top 0, -50%), so it rides
+   the 12px stack gap and the stack measures the same with it and without it.
+   The tiny mascot sits inside the pill at its start: a white face reads on
+   the blue pill (beside it, over the white Apple button, it would vanish). */
+.lu {
+  position: absolute; top: 0; right: var(--sp-3); z-index: 1; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  height: var(--badge-h); padding: 0 var(--sp-2); border-radius: var(--r-control);
+  background: var(--accent); color: var(--accent-ink);
+  font: 600 var(--fs-xs) / var(--badge-h) var(--font-ui);
+  pointer-events: none; white-space: nowrap;
+}
+.lu .sb-mark { width: var(--mark-tiny); height: var(--mark-tiny); flex: none; }
+/* the marked control takes the pill's accent as its stroke (owner,
+   2026-09-27: "highlight the selected button in superbot blue stroke to make
+   it more clear what it's attached to"): its border plus a 1px outer ring,
+   2px of --accent the pill sits on like a tab. The box never changes size,
+   so the stack measures the same marked or not. For email the field is the
+   marked control; wider than a phone its row runs side by side, so the pill
+   moves to the field's end of the row. :has() needs no script change: the
+   pill is already appended into the marked button's .pv (or the .wl-row). */
+.wl .pv:has(> .lu) > .sb-btn.wl-pv-btn[data-provider],
+.wl .wl-row:has(> .lu) > .wl-in { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+@media (min-width: 601px) { .wl .wl-row > .lu { right: auto; left: var(--sp-3); } }
+
+/* ---- the passive terms notice (termsNoticeHtml, the /invite join step's
+   words): ONE quiet row right under the Continue it names, "Terms · Privacy
+   · 13+" (owner, 2026-09-28: "shrink the terms and tos text like how we did
+   on the Superbot Desktop login page, too cluttered"; before that, three
+   lines, 2026-09-27: "way smaller, more transparent and less prominent").
+   The caption step (--fs-xs 12/16, the text floor), --legal-ink (4.9:1 on
+   --card, 5.3:1 on --bg), and links in the same ink told apart by a thin
+   low-contrast underline, not by colour; hover and focus bring the ink up.
+   nowrap: the row is one label (the desktop LegalRow's whitespace-nowrap),
+   so it never breaks between "Privacy" and "13+"; at ~120px it fits the
+   320px column many times over ---- */
+.wl-terms { width: 100%; }
+.wl .terms-notice { margin: 0; color: var(--legal-ink); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+.wl .terms-notice a { color: inherit; text-decoration: underline 1px var(--legal-line); text-underline-offset: var(--sp-1); }
+.wl .terms-notice a:is(:hover, :focus-visible) { color: var(--fg); text-decoration-color: currentColor; }
+/* "have an invite code? enter it" under the email step (owner, same day: "a
+   bit bigger"): body size, and the link a 44px-tall target. The done card's
+   twin is a button (.wl-cta-code, #95). */
+.wl .wl-alt.wl-code-alt { font-size: var(--fs-base); line-height: var(--lh-base); }
+.wl .wl-code-alt a { display: inline-flex; align-items: center; min-height: var(--target-touch); }
+/* a failed copy shows the raw page link: it breaks anywhere, never overflows */
+.wl [data-escape-hint] { overflow-wrap: anywhere; }
+.wl-hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.wl-title { margin: 0; color: var(--fg); font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 600; }
+/* the step titles take focus so a screen reader hears the new step
+   (tabindex -1, never in the tab order); they are not controls, so no ring,
+   as site.css does for main[tabindex="-1"] */
+.wl-title[tabindex="-1"]:focus-visible { outline: none; outline-offset: 0; }
+.wl-sub, .wl-alt, .wl-msg { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.wl-msg:empty { display: none; }
+/* the verify step's "code sent to <address>": the address is one unit. An
+   inline-block as wide as its one line (up to the column) drops whole to the
+   next line when the sentence cannot hold it, instead of breaking at its
+   hyphen; only an address wider than the column breaks, anywhere, as a last
+   resort (#20, 2026-09-27) */
+.wl [data-wl-to] { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+.wl-msg.is-err { color: var(--fg); }
+.wl-alt a, .wl-link { color: var(--accent); }
+.wl-link { display: inline-flex; align-items: center; min-height: var(--target-sm); padding: 0; background: none; border: 0; font: inherit; text-decoration: underline; cursor: pointer; }
+.wl-link[disabled] { color: var(--muted); cursor: default; }
+
+/* ---- the done state (#57): "you're in." / "you're on the list." ----
+   One card (--card, a 1px --line hairline, --r-surface; the only card where
+   it sits), rising in once on the quick band. Inside, centred: the mascot,
+   happy, as the bare echo mark; the headline; the queue slot (.wl-pos, empty and
+   hidden until a position exists); the outcome's lines and actions. */
+.wl-done {
+  display: grid; justify-items: center; gap: var(--sp-2);
+  width: 100%; padding: var(--sp-6);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface);
+  animation: wl-done-in var(--dur-4) var(--ease-out) both;
+}
+@keyframes wl-done-in { from { opacity: 0; transform: translateY(var(--sp-2)); } }
+/* the mark: the bare echo mark (2026-09-27, the desktop beta gate's and the
+   mobile ListHero's echo restyle): no ring, no disc, no shimmer. It keeps the
+   old ring's box, --mark-done plus one --sp-3 of air on each side and the
+   --sp-2 under it, so the card does not change size. */
+.wl-done .sb-mark {
+  width: var(--mark-done); height: var(--mark-done);
+  margin: var(--sp-3) var(--sp-3) calc(var(--sp-3) + var(--sp-2));
+  animation: wl-echo-float var(--echo-float-dur) ease-in-out infinite; /* deliberate ambient loop: the landing's float while the done state shows */
+}
+/* the mark floats on `translate`, so the click's happy bob (mascot-mark.css,
+   a `transform`) still plays on top of it; one lift at a time otherwise, the
+   float replacing the idle bob */
+.wl-done .sb-mark.is-happy { animation: sb-mark-happy-bob 600ms ease-out, wl-echo-float var(--echo-float-dur) ease-in-out infinite; } /* deliberate */ /* mascot-mark.css's own happy beat (HAPPY_MS in mascot-mark.js), then the float */
+@keyframes wl-echo-float { 50% { translate: 0 var(--echo-float-y); } }
+/* the echoes: markSvg's cyan (.sb-mark-a, #00e5c3) up-left and magenta
+   (.sb-mark-b, #c026d3) down-right of the white face, on the superbot.gg
+   landing hero's `split` loop (deploy/superbot-router/src/pages.ts .mark .c /
+   .m and @keyframes split): at rest most of the lap, one burst at 64-68% and
+   a second throw at 86%. --echo-d is the landing's `--d`, the direction (-1
+   cyan, +1 magenta); every offset is a site.css --echo-* token. */
+.wl-done .sb-mark .sb-mark-a { --echo-d: -1; }
+.wl-done .sb-mark .sb-mark-b { --echo-d: 1; }
+.wl-done .sb-mark :is(.sb-mark-a, .sb-mark-b) {
+  transform: translate(calc(var(--echo-d) * var(--echo-rest-x)), calc(var(--echo-d) * var(--echo-rest-y)));
+  animation: wl-echo-split var(--echo-split-dur) infinite; /* deliberate ambient loop: the landing's split while the done state shows */
+}
+@keyframes wl-echo-split {
+  0%, 62%, 70%, 84%, 88%, 100% { transform: translate(calc(var(--echo-d) * var(--echo-rest-x)), calc(var(--echo-d) * var(--echo-rest-y))); }
+  64%, 68%, 86% { transform: translate(calc(var(--echo-d) * var(--echo-jump-x)), calc(var(--echo-d) * var(--echo-rest-y))); }
+  66% { transform: translate(calc(var(--echo-d) * var(--echo-kick-x)), calc(var(--echo-d) * var(--echo-kick-y))); }
+}
+/* happy for good: the ^_^ arcs whether or not the click's 600ms happy beat
+   (mountMascotMark) has since taken .is-happy off */
+.wl-done .sb-mark .mark-happy { opacity: 1; }
+.wl-done .sb-mark .mark-eye { opacity: 0; }
+.wl-done .wl-title { font-size: var(--fs-h2); line-height: var(--lh-xl); letter-spacing: var(--tracking-tight); }
+.wl-done .wl-dl { width: 100%; margin-top: var(--sp-2); }
+/* the list outcome's two actions (#95): a stack of full-width buttons,
+   --sp-2 apart, --sp-4 under the line above (the card's --sp-2 gap plus this
+   --sp-2). Follow @superbot_gg is X's own monochrome, the white fill and black
+   ink (--apple-fill / --apple-ink, the brand-neutral pair the Apple button
+   uses): the card's one filled control. "Have an invite code?" is the quiet
+   outline, its ticket in --muted. The accent stays off both (the echo
+   mark is the card's colour moment); the site's focus ring (site.css
+   :focus-visible) is the only blue on them. Hover (a mouse only) and press
+   step each fill one rung. */
+.wl-ctas { display: grid; gap: var(--sp-2); width: 100%; margin-top: var(--sp-2); }
+/* A block, not a flex row, so the label may wrap at larger text sizes instead
+   of pushing the button past the card: one line at the default size, balanced
+   lines when enlarged. Centred by .wl's text-align; align-content centres the
+   line box in the --control-h minimum. */
+.wl-cta {
+  display: block; align-content: center;
+  min-height: var(--control-h); padding: var(--sp-2) var(--sp-3); border: 1px solid transparent; border-radius: var(--r-control);
+  font: 600 var(--fs-base) / var(--lh-base) var(--font-ui); text-wrap: balance; text-decoration: none;
+  transition: background-color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+/* inline with the label so it wraps with "Follow"; top + --sp-1 = (--lh-base 24 - --sp-4 16) / 2, the flex centre */
+.wl-cta-ic { display: inline-block; vertical-align: top; width: var(--sp-4); height: var(--sp-4); margin: var(--sp-1) var(--sp-2) 0 0; }
+.wl-cta-x { background: var(--apple-fill); color: var(--apple-ink); border-color: var(--apple-fill); }
+.wl-cta-code { background: var(--card); color: var(--fg); border-color: var(--line); }
+.wl-cta-code .wl-cta-ic { color: var(--muted); }
+@media (hover: hover) {
+  .wl-cta-x:hover { background: var(--fg); border-color: var(--fg); }
+  .wl-cta-code:hover { background: var(--raised); }
+}
+.wl-cta-x:active { background: var(--fg); border-color: var(--fg); }
+.wl-cta-code:active { background: var(--raised); }

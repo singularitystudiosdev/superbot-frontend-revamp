@@ -1,0 +1,10 @@
+{
+  "_comment": "The ONE GA4 URL allow-list (K4, harness-notes/legal-t4/MERGE.md). A query parameter not named in params (and not starting with a prefixes entry) is dropped from page_location, page_referrer, link_url and the Measurement Protocol page_location. A path segment matching seg (a credential prefix) is templated to :token. A whole path matching a paths entry is templated to that entry's as (T4-G5: the rooms invite link /rooms/join/<code> to /rooms/join/:code). Read by edge/src/ga4.d4d15ea9.ts (ga4AllowSpec) and substituted into the inline client for __SB_GA4_ALLOW__, so the client and the server scrubber share this one definition. Adding a link parameter or a path here is the only way to make it reach GA.",
+  "params": ["cta_id", "placement", "step", "plan", "pack", "harness", "supported", "measurement_id", "api_secret", "gclid", "gbraid", "wbraid", "dclid", "msclkid", "fbclid", "twclid", "ttclid", "li_fat_id", "rdt_cid"],
+  "prefixes": ["utm_"],
+  "clicks": ["gclid", "gbraid", "wbraid", "dclid", "msclkid", "fbclid", "twclid", "ttclid", "li_fat_id", "rdt_cid"],
+  "seg": "^(?:sbk_|sbc_|jn_|vc_|sh_|usr_|rec_)",
+  "paths": [
+    { "re": "^/rooms/join/[^/]+/?$", "as": "/rooms/join/:code" }
+  ]
+}

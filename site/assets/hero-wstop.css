@@ -1,0 +1,215 @@
+/* hero arm `wstop`: the live stage on top (experiments.js hero rev 12).
+
+   Why. GA 2026-09-30: 98% of mobile exits are on the first screen, and the
+   wschat stage starts below it (phone y966 of 844, desktop y994 of 900), so
+   most visitors leave before it plays, and the mean mobile session is ~1.6 s.
+   This arm lifts the SAME wschat stage into the first screen, and a visitor
+   who leaves at once still sees the product: a poster (a WebP of the stage's
+   own render, .ws-poster) fills the clip box from the first paint, the live
+   stage mounts under the same pixels and the poster fades out over it.
+   Nothing here edits hero.css, hub-boot.css or the hero-wschat sheets: every
+   rule is scoped to html[data-hero-arm="wstop"], which the page's pre-paint
+   script (a returning or forced visitor) or hero-wstop-layout.js (a fresh
+   draw) sets, so the wschat arm is untouched.
+
+   The crop. The module lays the stage out at its own native size, so a 560 px
+   window scaled onto a phone set its text at 7 px. Here the stage is laid out
+   at one native width (a phone: 320 px, so its pane is 348 px, a phone's chat
+   column), scaled up to the clip's width (a 390 px phone: 358/320 = 1.12) and
+   shifted up by --ws-top, so the box shows the chat column only: the thread
+   over the composer. The pane's own 13 px text lands at 13 x 0.92 x 1.12 =
+   13.4 px, the answer line at 22.6 px, from a 360 px phone up. The title bar,
+   the thread header and the composer's context line are cropped (the clip
+   box's own hairline frame stands for the window); --ws-bot keeps 8 px under
+   the composer. One native width at every viewport is what lets the poster
+   match the live frame at every width.
+
+   Look plan. Palette: --bg canvas, --stage the window's ground, --line the
+   hairline frame, --fg ink, --muted, and one accent (--accent) on the focus
+   ring only. Type: --font-ui, as the page. Radii: --r-surface on the clip
+   box, --r-control on controls. The one bold thing: the live stage itself,
+   first on the page, the product playing before the sign-in buttons.
+
+   Zero layout shift. The clip box is sized from the first paint (width and
+   aspect ratio, never from its contents). The stage inside it is out of sight
+   until the module has mounted and sets html[data-ws-ready], so nothing inside
+   can shift; the poster holds the box meanwhile. On a phone and a tablet the
+   hero copy keeps its own box (.hero-copy), so its widths and x positions are
+   the incumbent's and only y moves; a fresh draw's swap is a transform-
+   compensated FLIP (hero-wstop-layout.js), and in two columns, where the copy
+   is re-aligned, its block fades through the swap.
+   Motion is always on (motion-always-on.mdc) and moves transform and opacity
+   only. A phone on its side keeps the incumbent's two-column hero. */
+
+@media not all and (orientation: landscape) and (max-height: 500px) {
+  html[data-hero-arm="wstop"] {
+    --ws-w: 400px;                                /* the clip box's cap (a phone) */
+    --ws-n: 320px;                                /* the stage's native width: the pane lays out at 320/0.92 = 348px, a phone's chat column */
+    --ws-kfb: 1.1;                                /* the scale where typed arithmetic is missing (a 390px phone's) */
+    --ws-aw: 4; --ws-ah: 3;                       /* the clip box's aspect: 4:3, the tallest a 390x664 phone allows with its sign-in buttons above the fold */
+    --ws-top: 88px;                               /* cropped above: title bar 28 + thread header 44 + the feed's 16 of padding */
+    --ws-bot: 34px;                               /* cropped below: the composer's context line (8px of margin stay under the box) */
+    --ws-mark: 56px;
+  }
+  /* a tablet and up: the wide crop. The stage is laid out at 554px, so its pane is 602px wide,
+     over the 592px that keeps the composer's model name; the clip is 560px at most */
+  @media (min-width: 561px) { html[data-hero-arm="wstop"] { --ws-w: 560px; --ws-n: 554px; --ws-kfb: 1; --ws-aw: 8; --ws-ah: 5; } }
+  @media (max-width: 360px) { html[data-hero-arm="wstop"] { --ws-mark: 44px; } }
+  @media (min-width: 1100px) { html[data-hero-arm="wstop"] { --ws-mark: 72px; } }
+
+  /* the desk dissolves into the hero grid: the stage's clip box, the copy
+     block and the rail become ordered items of .hero. The wrapper's base
+     display is `contents` (inline, so every other arm lays out as before) */
+  html[data-hero-arm="wstop"] .desk { display: contents; }
+  html[data-hero-arm="wstop"] .hero { row-gap: 0; }
+  html[data-hero-arm="wstop"] .hero .stage-clip { order: 1; }
+  html[data-hero-arm="wstop"] .hero .hero-copy { order: 2; }
+  html[data-hero-arm="wstop"] .hero #dock { order: 3; margin-top: var(--sp-6); background: none; border: 0; border-radius: 0; }
+
+  /* the clip box: a fixed-aspect window, a container so the stage can be sized to it */
+  html[data-hero-arm="wstop"] .hero .stage-clip {
+    display: block !important; /* wins over the wrapper's inline display: contents */
+    position: relative; width: min(100%, var(--ws-w)); aspect-ratio: var(--ws-aw) / var(--ws-ah); margin-bottom: var(--sp-3);
+    container-type: inline-size; overflow: hidden; border-radius: var(--r-surface); background: var(--stage);
+    transition: opacity var(--dur-4) var(--ease-out);
+  }
+  /* the hairline frame paints over the scaled stage, so its own 1px border
+     (scaled to a fraction of a pixel) never decides the edge */
+  html[data-hero-arm="wstop"] .hero .stage-clip::after {
+    content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line);
+  }
+  /* the poster: the stage's own render at the beat the story opens on (a WebP
+     of this very crop, tools: .tmp/ga-first-65d3cf7b/fix/b1/make-poster.mjs),
+     under the live stage from the first paint. hidden outside the arm (the page
+     markup carries the attribute, so the wrapper's display: contents row keeps
+     no extra child); the arm shows it. The live stage fades in over it (opacity
+     only, so the poster under it holds the frame: a crossfade of two near
+     identical frames has no dip), then the poster leaves the paint */
+  html[data-hero-arm="wstop"] .hero .stage-clip > .ws-poster {
+    display: block; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: var(--stage) center / 100% 100% no-repeat;
+  }
+  @media (max-width: 560px) { html[data-hero-arm="wstop"] .hero .stage-clip > .ws-poster { background-image: url(hero-wstop-poster-phone.webp?v=2); } }
+  @media (min-width: 561px) { html[data-hero-arm="wstop"] .hero .stage-clip > .ws-poster { background-image: url(hero-wstop-poster-wide.webp?v=2); } }
+  html[data-hero-arm="wstop"][data-ws-ready] .hero .stage-clip > .ws-poster { visibility: hidden; transition: visibility 0s linear var(--dur-4); }
+
+  /* the stage is laid out at ONE native size (--ws-n wide, as tall as the window
+     plus what is cropped), at every viewport, so the poster, a still of that
+     layout, and the live stage are the same picture at any clip width; it is
+     scaled from its corner to the clip's width (100cqw / --ws-n, a unitless
+     number: tan(atan2(a, b)) = a / b) and moved up by --ws-top (the crop).
+     Transform only: nothing animates a layout property */
+  html[data-hero-arm="wstop"] .hero .stage-clip > #stage {
+    position: absolute; left: 0; top: 0; z-index: 1;
+    width: var(--ws-n);
+    height: calc(var(--ws-n) * var(--ws-ah) / var(--ws-aw) + var(--ws-top) + var(--ws-bot));
+    max-width: none; max-height: none; min-height: 0; aspect-ratio: auto;
+    border: 0; border-radius: 0; box-shadow: none;
+    transform-origin: 0 0;
+    transform: scale(var(--ws-kfb)) translateY(calc(-1 * var(--ws-top)));
+    transform: scale(tan(atan2(100cqw, var(--ws-n)))) translateY(calc(-1 * var(--ws-top)));
+    opacity: 0; transition: opacity var(--dur-4) var(--ease-out);
+  }
+  /* until the wschat module has mounted the stage is out of sight (the poster
+     shows in its place): its children (the hub's unstyled markup, the bar)
+     cannot shift anything visible while sheets and the module arrive. A module
+     that fails leaves the poster and the notice over it */
+  html[data-hero-arm="wstop"]:not([data-ws-ready]) .hero #stage:not(.hero-failed) > * { visibility: hidden; }
+  html[data-hero-arm="wstop"][data-ws-ready] .hero .stage-clip > #stage { opacity: 1; }
+  html[data-hero-arm="wstop"] .hero .stage-clip > #stage.hero-failed { opacity: 1; background: transparent; }
+  html[data-hero-arm="wstop"] .hero #stage.hero-failed > :not(.hero-fallback) { visibility: hidden; }
+  /* the fresh draw's swap frame: the clip box is out of sight while the layout
+     changes around it, then it rises in with the poster already painted */
+  html[data-hero-arm="wstop"][data-ws-swap] .hero .stage-clip { opacity: 0; }
+
+  /* the failed-module notice sits inside the scaled stage: it is placed on the
+     visible window (the crop is above and below it), as a scrim over the poster,
+     and its retry button is drawn in the stage's own px so it lands at the touch floor */
+  html[data-hero-arm="wstop"] .hero .stage-clip > #stage .hero-fallback { inset: var(--ws-top) 0 var(--ws-bot) 0; background: color-mix(in srgb, var(--stage) 93%, transparent); }
+  html[data-hero-arm="wstop"] .hero-fallback-retry { min-height: calc(var(--target-touch) / var(--ws-kfb)); padding-inline: var(--sp-6); }
+
+  /* a drawn caption arm holds the headline back until its copy is in (the page's
+     cap-wait), and the mark beside it is centred with it, so it waits too: the
+     headline's width decides where the pair sits, and the mark would otherwise
+     jump when the copy lands */
+  html[data-hero-arm="wstop"].cap-wait .hero .sb-lockup .sb-glitch { visibility: hidden; }
+
+  /* exactly one mascot in the first screen: the lockup's mark is the page's one.
+     The end card (the story's last beat) draws its own large mark beside the
+     'superbot' word, so in this arm the word stands alone over its replay
+     control. Product UI glyphs stay (the composer's 16px model chip) */
+  html[data-hero-arm="wstop"] .hero #stage .hwe-mark { display: none; }
+  /* the story opens on a later beat, so these never show in it; a held second (?t=) or a
+     future opening that reaches them draws the page's one mark, not a second */
+  html[data-hero-arm="wstop"] .hero #stage :is(.hs-mark, .hwf-hero-mark) { visibility: hidden !important; /* over the sphere's inline visibility */ }
+
+  /* the tab frame's app name changes text on every tab (Claude, Gemini, ...) and
+     sat centred in a shrink-to-fit box, so its start edge moved with each one: a
+     layout shift once the stage is on screen. It fills its column instead, and
+     the centred text moves inside a box that holds still */
+  html[data-hero-arm="wstop"] .hero-sphere .hw-app-name { align-self: stretch; text-align: center; }
+
+  /* the lockup: the mark beside the headline, small, so the stage owns the top.
+     width 0 + min-width 100% keeps the lockup from widening .hero-copy (the
+     headline plus the mark can outrun the subline), so the form below keeps the
+     incumbent's width and x; a wide caption overflows both sides evenly */
+  html[data-hero-arm="wstop"] .hero .sb-lockup { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--sp-3); width: 0; min-width: 100%; }
+  /* in one column the lockup is as wide as the page's content, not as the copy block
+     (centred on it with negative margins), so the mark and a headline fit one row at
+     every caption; at a large text size they no longer fit, and the mark wraps above
+     the headline, as in the incumbent, instead of pushing the page sideways */
+  @media (max-width: 1099px) {
+    html[data-hero-arm="wstop"] .hero .sb-lockup { min-width: calc(100vw - var(--gutter-l) - var(--gutter-r)); margin-inline: calc(50% - 50vw + var(--gutter-l)); }
+  }
+  html[data-hero-arm="wstop"] .hero .sb-lockup .sb-glitch { flex: none; width: var(--ws-mark); height: var(--ws-mark); font-size: var(--ws-mark); }
+  /* every caption breaks its own lines (<br>), so the headline never soft-wraps: in a
+     row it would otherwise shrink to what the mark leaves it and wrap a 16-letter line */
+  html[data-hero-arm="wstop"] .hero .sb-lockup h1 { flex: none; white-space: nowrap; }
+
+  /* the rail runs in its `live` look (marks only, a name opens on hover) from
+     the first paint, so the script adding .live later moves no mark: in this
+     arm the rail sits at the edge of the first screen, where a shift counts */
+  html[data-hero-arm="wstop"] .dock:not(.live) a { grid-template-columns: 20px 0fr; column-gap: 0; }
+  html[data-hero-arm="wstop"] .dock:not(.live) a span { opacity: 0; }
+
+  /* the sign-in form mounts into .hero-cta after the module runs, so the row is
+     reserved at the height it grows to (measured mounted with Apple, Google and
+     X on): mounting moves nothing below it. A phone held upright is reserved by
+     the page's own rule (the head style, 340px and 304px) */
+  @media (min-width: 561px) {
+    html[data-hero-arm="wstop"] body[data-access="anon"] .hero-cta { min-height: 21.5rem; align-content: start; }
+  }
+
+  /* a tablet: the copy block holds the width its sign-in form mounts at, so the
+     mount (the form is wider than the button it replaces) widens nothing */
+  @media (min-width: 561px) and (max-width: 1099px) { html[data-hero-arm="wstop"] .hero .hero-copy { width: min(100%, 26rem); } }
+
+  /* wide screens: the copy beside the stage, the rail across the foot */
+  @media (min-width: 1100px) {
+    html[data-hero-arm="wstop"] .hero {
+      /* the copy takes up to 30rem and gives the stage its full 560px first: from 1100px
+         the stage's column is its own width (the pane's text 12px and up), the copy's
+         is what is left, 444px at the narrowest, wide enough for the sign-in stack */
+      grid-template-columns: minmax(0, min(30rem, calc(100% - var(--ws-w) - var(--sp-12)))) minmax(0, var(--ws-w)); justify-content: center;
+      column-gap: var(--sp-12); align-items: start; justify-items: stretch;
+    }
+    html[data-hero-arm="wstop"] .hero .stage-clip { grid-column: 2; grid-row: 1; margin-bottom: 0; }
+    html[data-hero-arm="wstop"] .hero .hero-copy { grid-column: 1; grid-row: 1; width: 100%; max-width: none; justify-self: center; }
+    html[data-hero-arm="wstop"] .hero #dock { grid-column: 1 / -1; grid-row: 2; }
+    /* one axis: the copy column is left-aligned top to bottom, so the mark, the
+       headline, the subline, the sign-in stack, its field and its legal row
+       all start on the column's one left edge (a centred lockup over a
+       full-width column of buttons put the mark 73px in and the stack at the
+       edge); the headline's lines start beside the mark, as the lockup is one unit. A phone and a tablet keep their centred column: everything in it
+       is centred on the one axis there */
+    html[data-hero-arm="wstop"] .hero .hero-copy { text-align: left; }
+    html[data-hero-arm="wstop"] .hero .sb-lockup { justify-content: flex-start; }
+    /* the mark's art spans 14..86 of its 100-unit box, so the box's own edge sits
+       14% short of the column's: pulled left by that much, the drawn face starts
+       exactly where the buttons and the lines of text do */
+    html[data-hero-arm="wstop"] .hero .sb-lockup .sb-glitch { margin-left: calc(var(--ws-mark) * -0.14); }
+    html[data-hero-arm="wstop"] .hero .hero-cta { justify-items: start; }
+    html[data-hero-arm="wstop"] .hero .hero-cta .wl { justify-items: start; text-align: left; justify-self: start; }
+  }
+}

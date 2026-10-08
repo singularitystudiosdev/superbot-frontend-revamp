@@ -1,0 +1,91 @@
+/* The sequenced caption arms (experiments.js caption.fx, 2026-09-30): the h1
+   plays two or three of the winning captions one after another, one
+   transition per arm. Loaded by lander-agent.html only when the drawn arm
+   names an fx, next to caption-seq.js, so no other visitor pays for it.
+
+   The stack is the rotating arms' (lander-agent.html .cap-rot): every caption
+   sits in one grid cell, so the slot is as wide and as tall as its biggest
+   caption and the h1, the form and the CTA never move on a swap. Each caption
+   is rows (one per <br/>) of words. The script only flips a caption's class
+   (is-on shown, is-in landing, is-out leaving); everything that moves here is
+   a CSS animation on transform, opacity or filter. Colour, size and weight
+   are the h1's own. Durations, easings and spacing are site.css tokens.
+   Motion is always on (motion-always-on.mdc): nothing here is guarded.
+
+   roll  s1  a masked vertical reel: the caption is one strip in a slot, the
+             old caption rolls up out of the window while the next rolls up
+             in behind it, a clear gap between them. Crisp, no blur.
+   rise  s2  a pour: the old caption sinks and fades at once, then the new
+             words climb a whole line out of a blur, one word at a time.
+   zoom  s3  a lens pull: the old caption pushes toward the viewer and
+             dissolves while the new one settles in from behind it,
+             overlapped, as one piece. */
+
+.cap-seq { display: grid; }
+.cap-seq > .cap-line {
+  grid-area: 1 / 1;
+  visibility: hidden;                     /* a caption that is neither shown nor moving */
+}
+.cap-seq > .is-on, .cap-seq > .is-in, .cap-seq > .is-out { visibility: visible; }
+.cap-seq .cap-row { display: block; }
+
+/* ── roll ── */
+.cap-seq[data-fx="roll"] {
+  --cap-dwell: 3000ms;                     /* a caption's hold after it lands, read by the script */
+  --cap-gap: 0.3em;                        /* the clear space between the leaving caption and the arriving one, about an interline */
+  --cap-reel: calc(100% + var(--cap-gap)); /* one caption plus the gap: the new one starts below the window, the old one ends above it */
+  --cap-pad: 0.06em;                       /* the window's room under the last row for descenders */
+  --cap-bleed: 0.2em;                      /* and at the sides for the widest row's side bearings */
+  clip-path: inset(0 calc(-1 * var(--cap-bleed)) calc(-1 * var(--cap-pad))); /* the mask: static, only its child moves */
+}
+/* the whole caption is one reel, old and new on one duration and curve, so the pair moves as a rigid strip */
+.cap-seq[data-fx="roll"] .is-in { animation: cap-roll-in var(--dur-5) var(--ease-std) both; } /* deliberate */
+.cap-seq[data-fx="roll"] .is-out { animation: cap-roll-out var(--dur-5) var(--ease-std) both; } /* deliberate */
+@keyframes cap-roll-in {
+  from { transform: translateY(var(--cap-reel)); }
+  to { transform: none; }
+}
+@keyframes cap-roll-out {
+  from { transform: none; }
+  to { transform: translateY(calc(-1 * var(--cap-reel))); }
+}
+
+/* ── rise ── */
+.cap-seq[data-fx="rise"] {
+  --cap-dwell: 3000ms;
+  --cap-lag: var(--dur-2);                 /* the new words start this far into the old caption's sink */
+  --cap-step: var(--dur-1);                /* one word per --dur-1, twice the blur-rise arms' stagger */
+  --cap-travel: var(--sp-8);               /* about one line of climb; the blur-rise arms lift --sp-3 */
+  --cap-blur: var(--sp-3);
+  --cap-sink: var(--sp-4);
+}
+.cap-seq[data-fx="rise"] .cap-w { display: inline-block; }
+.cap-seq[data-fx="rise"] .is-in .cap-w { animation: cap-rise-in var(--dur-5) var(--ease-out) calc(var(--cap-lag) + var(--i) * var(--cap-step)) both; } /* deliberate */
+.cap-seq[data-fx="rise"] .is-out .cap-w { animation: cap-rise-out var(--dur-2) var(--ease-in) both; }
+@keyframes cap-rise-in {
+  from { opacity: 0; filter: blur(var(--cap-blur)); transform: translateY(var(--cap-travel)); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+@keyframes cap-rise-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(var(--cap-sink)); }
+}
+
+/* ── zoom ── */
+.cap-seq[data-fx="zoom"] {
+  --cap-dwell: 3000ms;
+  --cap-lag: var(--dur-1);                 /* the new caption starts this far into the old one's push */
+  --cap-blur: var(--sp-2);
+  --cap-push: 1.06;                        /* the old caption's scale on its way out, toward the viewer */
+  --cap-pull: 0.94;                        /* the new caption's scale on its way in, from behind */
+}
+.cap-seq[data-fx="zoom"] .is-in { animation: cap-zoom-in var(--dur-5) var(--ease-out) var(--cap-lag) both; } /* deliberate */
+.cap-seq[data-fx="zoom"] .is-out { animation: cap-zoom-out var(--dur-4) var(--ease-in) both; }
+@keyframes cap-zoom-in {
+  from { opacity: 0; filter: blur(var(--cap-blur)); transform: scale(var(--cap-pull)); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+@keyframes cap-zoom-out {
+  from { opacity: 1; filter: blur(0); transform: none; }
+  to { opacity: 0; filter: blur(var(--cap-blur)); transform: scale(var(--cap-push)); }
+}

@@ -1,0 +1,59 @@
+{
+  "note": "approved exceptions and why: site/check-ui.config.json (ga-audit 2026-10-05, J)",
+  "allow": ["missing-reduced-motion"],
+  "reasons": {
+    "missing-reduced-motion": "Everywhere, because superbot's motion is always on: .cosmos/rules/motion-always-on.mdc (\"superbot never honours ... a platform Reduce Motion setting ... Operator order, 2026-09-19. Every animation in superbot runs unconditionally\"), AGENTS.md, and `npm run audit:motion` fails test:all on any reduced-motion guard. A guard is the defect here. The policy is declared in `.cosmos/rules/motion-always-on.mdc` and AGENTS.md, which check-ui reads per file, climbing to the repo boundary; this allow stays as a belt-and-braces declaration."
+  },
+  "overrides": [
+    {
+      "files": ["assets/waitlist-form.js"],
+      "allow": ["middle-dot-meta"],
+      "reason": "The muted legal row `Terms · Privacy · 13+` is the user's chosen design: ~/.cosmos/rules/one-line-sentences.mdc (Say less) \"sign-in's three-line legal notice became desktop's one muted row `Terms · Privacy · 13+`\"; deploy/s6-deploy.md 2026-09-28 U18 shipped it on the lander and /invite."
+    },
+    {
+      "files": ["assets/context-spans.js"],
+      "allow": ["middle-dot-meta"],
+      "reason": "A port of superbot-desktop packages/core/src/vendor/context-spans.ts whose semantics and strings are IDENTICAL by contract (its header: \"Change the desktop file first, then this one\"; the file is byte-identical in two places): the fold summaries `Workspace map · N files` and `Context · N lines` are the app's own strings (the desktop e2e asserts them)."
+    },
+    {
+      "files": ["assets/hero-realui.js"],
+      "allow": ["middle-dot-meta"],
+      "reason": "The hero's mock of the app's outcome chip (`worked: '1s · 2 steps'`): the desktop's OUTCOME_SEPARATOR is the user-approved ' · ' (agent-status.ts: \"the user-approved ' · ' ... Worked for 27s · 14 steps · 1 denied\"). hero-realui.js's header: every surface in frame is the real app's."
+    },
+    {
+      "files": ["assets/hero-stage.js"],
+      "allow": ["middle-dot-meta"],
+      "reason": "The retired V0 hero's own footer (`waited for you 1.4s · nag me`). .cosmos/rules/learned-hero-variants.mdc: V0 retired 2026-09-06, kept for archive/site/lander-agent-v0.html; no live site page loads hero-stage.js."
+    },
+    {
+      "files": ["assets/ascii-bg.js"],
+      "allow": ["middle-dot-meta"],
+      "reason": "Not a meta separator: the `·` is a glyph of the textmode background's character ramp ('#', 'o', '·', STATIC_CHARS), drawn onto an aria-hidden canvas."
+    },
+    {
+      "files": ["assets/hero-workspace.js", "assets/hero-wschat.js"],
+      "allow": ["trailing-arrow-link"],
+      "reason": "Not link text: `&#8592; &#8594; &#8635;` are the back, forward and reload buttons of the mock browser toolbar (.hw-bar .hw-nav) inside the aria-hidden #hub. ~/.cosmos/rules/mobile-web-design.mdc: \"11px window chrome is decoration only\"."
+    },
+    {
+      "files": ["assets/features/cli.html", "assets/hero.css", "assets/hub-boot.css", "assets/race.css"],
+      "allow": ["emoji-bullet"],
+      "reason": "`✓` (U+2713, a text-presentation dingbat that the checker's U+2600-27BF range sweeps in) is the status tick the product's own terminal prints: cli.html is a captured render of the real CLI (assets/features/manifest.json, cli.ansi), and hero.css `.card .fix`, hub-boot.css `.margin .ln.done` and race.css `.term .ok` draw that transcript in the site's mocks. Not an authored bullet. race.css's real emoji marker (`⚡` before the /superbot badge) was dropped instead."
+    },
+    {
+      "files": ["assets/mascot.js"],
+      "allow": ["emoji-bullet"],
+      "reason": "Not bullets: PLAY_MORPHS and Mascot.emojis are the mascot's own morph glyphs (the ASCII character becomes one on the let's-play beat, design-brief.md Mascot), and `copied ✓` is a copy button's transient confirmation label. A module under ?v= with 20+ importers; changing it buys nothing the check is after."
+    },
+    {
+      "files": ["assets/console-hi.js"],
+      "allow": ["emoji-bullet"],
+      "reason": "False positive: the 👀 ends a sentence of the developer-console easter egg (`hey, you opened the console 👀`), printed with console.log to devtools, never rendered in the page and not a list marker. console-hi.js is imported by every page, so an edit would cascade a ?v= bump through all of them."
+    },
+    {
+      "files": ["assets/hero-wschat-chat.css"],
+      "allow": ["font-size-under-12px"],
+      "reason": "11px text INSIDE the product mock's window chrome (dropdown tag, quantity, meta, caption, who-sub: .hwc-dd-*, .hwc-who-sub, .hwc-cap), the desktop's own CSS px in a 1200px design box the hero scales down, aria-hidden. ~/.cosmos/rules/mobile-web-design.mdc Text: \"nothing under 12px ... 11px window chrome is decoration only\". No page copy lives in this sheet."
+    }
+  ]
+}

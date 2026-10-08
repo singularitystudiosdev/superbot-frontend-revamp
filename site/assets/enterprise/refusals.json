@@ -1,0 +1,42 @@
+[
+  {
+    "request": "POST /v1/chat/completions  n-agent: agt_0000000000000000",
+    "status": 403,
+    "body": {
+      "error": {
+        "message": "agent agt_0000000000000000 is not granted",
+        "type": "permission_error",
+        "param": null,
+        "code": "agent_not_granted",
+        "agent_id": "agt_0000000000000000"
+      }
+    }
+  },
+  {
+    "request": "POST /v1/chat/completions  model: gpt-5  n-agent: agt_1c07eb4e3fa53617",
+    "status": 403,
+    "body": {
+      "error": {
+        "message": "model 'gpt-5' is not allowed by org policy rev 2 (allowed: claude-sonnet-5, gpt-5-mini)",
+        "type": "permission_error",
+        "param": null,
+        "code": "model_not_allowed",
+        "allowed_models": [
+          "claude-sonnet-5",
+          "gpt-5-mini"
+        ]
+      }
+    }
+  },
+  {
+    "request": "superbot-helper install: building the MCP relay's aggregate (src/relay/mcpaggregate.ts)",
+    "ledger_row": {
+      "name": "shell",
+      "transport": "stdio",
+      "decision": "org_policy_denied",
+      "client": "cursor",
+      "file": "~/.cursor/mcp.json"
+    },
+    "summary": "2 servers aggregated, 1 dropped by org policy"
+  }
+]

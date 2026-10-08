@@ -1,0 +1,302 @@
+/* /account/usage: the usage dashboard (edge/src/account/usage.ts).
+   Every value is a site.css / duostorm.css token (--sp-*, --fs-*, --lh-*,
+   --dur-*, --ease-std, the --storm-* ramp, --canvas/--elevated/--line/--ink/
+   --muted) or account.css's --acct-r-* radii; nothing here invents a number.
+   Two radii only: --acct-r-surface (cards) and --acct-r-control (the tip,
+   fields), plus the pill for round marks.
+   The chart is the one bold element: stacked bars in the storm ramp, requests
+   as a thin ink line on its own right-hand scale.
+   Motion is always on (.cosmos/rules/motion-always-on.mdc): the bars rise
+   once per render, and hover transitions ride controls only. */
+
+.usage-dash{background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);padding:var(--sp-5);margin:0 0 var(--sp-4);min-width:0}
+.usage-dash{position:relative}
+/* loading (2026-09-23): any view change (All AI, a range, a date pick, a
+   picker) marks the dash aria-busy the moment it is clicked (usage-chart.js).
+   The All AI report takes seconds to compute, so the wait is shown, not
+   frozen: a storm bar runs along the card's top edge, the KPI figures and the
+   chart shimmer, and the body stops taking clicks until the new view lands. */
+.usage-dash[aria-busy="true"] .usage-body{opacity:.55;pointer-events:none;transition:opacity var(--dur-3) var(--ease-std)}
+.usage-dash[aria-busy="true"]::before{content:"";position:absolute;top:-1px;left:var(--acct-r-surface);right:var(--acct-r-surface);height:2px;border-radius:9999px;background:var(--storm-gradient-x);background-size:200% 100%;animation:ud-load 1.1s linear infinite /* deliberate */;z-index:4}
+@keyframes ud-load{from{background-position:200% 0}to{background-position:0 0}}
+.usage-dash[aria-busy="true"] .ud-kpi-v,.usage-dash[aria-busy="true"] .ud-plot{background:linear-gradient(90deg,transparent 0,color-mix(in oklab,var(--ink) 8%,transparent) 50%,transparent 100%) 0 0/200% 100% no-repeat;animation:ud-shimmer 1.2s var(--ease-std) infinite /* deliberate */}
+.usage-dash[aria-busy="true"] .ud-kpi .ud-kpi-v{color:transparent;border-radius:var(--acct-r-control);background-color:var(--line)}
+@keyframes ud-shimmer{from{background-position:150% 0}to{background-position:-50% 0}}
+.ud-busy-note{position:absolute;top:var(--sp-3);right:var(--sp-5);z-index:4;display:none;align-items:center;gap:var(--sp-2);font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.usage-dash[aria-busy="true"] .ud-busy-note{display:inline-flex}
+.ud-busy-note i{width:10px;height:10px;border-radius:9999px;border:2px solid var(--line);border-top-color:var(--storm-0);animation:ud-spin .8s linear infinite /* deliberate */}
+@keyframes ud-spin{to{transform:rotate(360deg)}}
+.usage-body{min-width:0}
+
+/* ---- pickers: four .sb-seg wells (account.css + seg.js), wrapping ------- */
+.ud-toolbar{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;margin:0 0 var(--sp-4)}
+.ud-toolbar .sb-seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+.ud-toolbar .sb-seg::-webkit-scrollbar{display:none}
+.ud-toolbar .ud-group{margin-left:auto}
+
+/* ---- the window line + custom dates ------------------------------------- */
+.ud-head{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;justify-content:space-between;margin:0 0 var(--sp-4)}
+.ud-when{margin:0;display:flex;flex-direction:column;gap:var(--sp-1)}
+.ud-when b{font-size:var(--fs-lg);line-height:var(--lh-lg);color:var(--ink);font-weight:600;letter-spacing:-0.01em}
+.ud-when span{font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.ud-dates{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end;margin:0}
+.ud-field,.acct-page label.ud-field{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-1);margin:0;min-width:0}
+.ud-field span{font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.acct-page .ud-field input,.acct-page .ud-field select{margin:0;width:auto;max-width:100%;min-height:var(--target-sm);border-radius:var(--acct-r-control);font-size:var(--fs-sm)}
+.acct-page .ud-dates button.ghost,.acct-page .ud-filters button.ghost{margin:0}
+
+/* ---- KPI strip: one ruled row, not a row of cards ----------------------- */
+.ud-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin:0 0 var(--sp-5);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ud-kpi{padding:var(--sp-3) var(--sp-4);border-left:1px solid var(--line);min-width:0}
+.ud-kpi:first-child{border-left:0;padding-left:0}
+.ud-kpi dt{font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted);margin:0 0 var(--sp-1)}
+.ud-kpi dd{margin:0;display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+.ud-kpi-v{font-size:var(--fs-xl);line-height:var(--lh-xl);color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ud-kpi.is-lead .ud-kpi-v{color:var(--storm-0)}
+.ud-kpi-s{font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- chart ----------------------------------------------------------------- */
+/* the chart and its legend side by side, Grafana style: the plot takes the
+   room, the legend table (name, Last, Sum) sits in a fixed column on the right.
+   Under 760px the legend drops under the x axis at full width. */
+.ud-chart{margin:0;display:grid;container-type:inline-size;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--sp-6);align-items:start}
+.ud-chart>*{grid-column:1;min-width:0}
+.ud-chart>.ud-legend{grid-column:2;grid-row:1 / span 3}
+.ud-ltab{border-collapse:collapse;font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted);font-variant-numeric:tabular-nums}
+.acct-page .ud-ltab th,.acct-page .ud-ltab td{padding:var(--sp-1) 0 var(--sp-1) var(--sp-4);text-align:left;font-weight:400;font-family:inherit;text-transform:none;letter-spacing:0;color:inherit;border-bottom:0;white-space:nowrap}
+.acct-page .ud-ltab th:first-child{padding-left:0}
+.acct-page .ud-ltab thead th{padding-top:0;border-bottom:1px solid var(--line)}
+.ud-ltab tbody tr+tr>*{border-top:1px solid var(--line)}
+.acct-page .ud-ltab .num{text-align:right}
+.acct-page .ud-ltab tbody .num{color:var(--ink)}
+.ud-ltab tbody th .ud-leg,.ud-ltab tbody th .ud-leg-name{display:inline-flex;align-items:center;gap:var(--sp-2);max-width:calc(var(--sp-16) * 2.5);min-width:0}
+.ud-ltab tbody th span span,.ud-ltab tbody th .ud-leg span{overflow:hidden;text-overflow:ellipsis}
+.ud-lkey{list-style:none;margin:var(--sp-3) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.ud-lkey li{display:inline-flex;align-items:center;gap:var(--sp-2);min-width:0}
+.sw{display:inline-block;flex:none;width:var(--sp-2);height:var(--sp-2);border-radius:9999px;background:var(--muted)}
+.sw.ln{width:var(--sp-3);height:2px;border-radius:0;background:var(--ink)}
+.sw.s0,.ud-bshare i.s0{background:var(--storm-0)}
+.sw.s1,.ud-bshare i.s1{background:var(--storm-1)}
+.sw.s2,.ud-bshare i.s2{background:var(--storm-3)}
+.sw.s3,.ud-bshare i.s3{background:var(--storm-4)}
+.sw.s4,.ud-bshare i.s4{background:var(--storm-2)}
+.sw.sx,.ud-bshare i.sx{background:var(--muted)}
+
+.ud-frame{display:grid;grid-template-columns:var(--sp-10) minmax(0,1fr) var(--sp-8);height:calc(var(--sp-16) * 3.5)}
+.ud-y{position:relative;font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted);font-variant-numeric:tabular-nums}
+.ud-y span{position:absolute;right:var(--sp-2);transform:translateY(-50%);white-space:nowrap}
+.ud-y-r span{right:auto;left:var(--sp-2)}
+.ud-plot{position:relative;height:100%;min-width:0;border-radius:var(--acct-r-control)}
+.ud-plot[tabindex]{cursor:pointer}
+.ud-plot:focus-visible{outline:2px solid var(--accent);outline-offset:var(--sp-1)}
+.usage-dash .ud-plot svg{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;aspect-ratio:auto;overflow:visible}
+.ud-plot svg .grid{stroke:var(--line);stroke-width:1}
+.ud-plot rect.hit{fill:transparent}
+/* series colours: the storm ramp in stack order, grey for Other */
+.ud-plot .seg.s0{fill:var(--storm-0)}
+.ud-plot .seg.s1{fill:var(--storm-1)}
+.ud-plot .seg.s2{fill:var(--storm-3)}
+.ud-plot .seg.s3{fill:var(--storm-4)}
+.ud-plot .seg.s4{fill:var(--storm-2)}
+.ud-plot .seg.sx{fill:var(--muted)}
+/* one entrance: the columns rise on the first draw only */
+.ud-plot.is-enter .seg,.usage-dash .ud-plot svg[preserveAspectRatio] .seg{transform-box:fill-box;transform-origin:50% 100%;animation:ud-rise var(--dur-5) var(--ease-std) both}
+@keyframes ud-rise{from{transform:scaleY(0)}}
+/* hover: a full-height band behind the column, the others dimmed a step */
+.ud-band{fill:var(--ink);fill-opacity:0;pointer-events:none;transition:fill-opacity var(--dur-2) var(--ease-std)}
+.ud-plot.is-hover .ud-band{fill-opacity:.07}
+.ud-plot .seg{transition:opacity var(--dur-2) var(--ease-std)}
+.ud-plot.is-hover .col .seg{opacity:.55}
+.ud-plot.is-hover .col.is-on .seg{opacity:1}
+/* requests: thin and muted, under the card; a dot marks the hovered bucket */
+.ud-line{fill:none;stroke:var(--muted);stroke-width:1;stroke-opacity:.75;stroke-linejoin:round;pointer-events:none}
+.ud-dot{fill:var(--ink);stroke:var(--elevated);stroke-width:2;opacity:0;pointer-events:none;transition:opacity var(--dur-2) var(--ease-std)}
+.ud-plot.is-hover .ud-dot{opacity:1}
+.ud-empty-plot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;margin:0;font-size:var(--fs-sm);color:var(--muted)}
+.ud-x{position:relative;height:var(--sp-6);margin:0 var(--sp-8) 0 var(--sp-10);font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.ud-x span{position:absolute;top:var(--sp-1);transform:translateX(-50%);white-space:nowrap}
+.ud-x span.is-first{transform:none}
+.ud-x span.is-last{transform:translateX(-100%)}
+/* the legend column takes room from the plot: under ~900px of chart the odd
+   x labels step out so the edge-anchored first and last never collide */
+@container (max-width: 900px){.ud-x .is-minor{display:none}}
+
+/* legend toggles: a series can be hidden; both axes rescale (usage-chart.js) */
+.acct-page button.ud-leg{display:inline-flex;align-items:center;gap:var(--sp-2);margin:0;padding:0;min-height:var(--target-sm);background:none;border:0;border-radius:var(--acct-r-control);color:inherit;font:inherit;cursor:pointer;transition:color var(--dur-2) var(--ease-std),opacity var(--dur-2) var(--ease-std)}
+.acct-page button.ud-leg:hover{color:var(--ink)}
+.acct-page button.ud-leg:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ud-ltab tr.is-off{opacity:.5}
+.ud-ltab tr.is-off .sw{background:transparent;box-shadow:inset 0 0 0 1px var(--muted)}
+.ud-ltab tr.is-off th span{text-decoration:line-through}
+.ud-leg-line .sw.ln{background:var(--muted)}
+
+/* the hover card: beside the column, never over it; docked under the chart
+   when neither side has room (a phone) */
+.ud-hc{position:absolute;top:0;z-index:3;box-sizing:border-box;width:max-content;min-width:calc(var(--sp-16) * 3);max-width:calc(var(--sp-16) * 5.5);padding:var(--sp-3);background:var(--canvas);border:1px solid var(--line);border-radius:var(--acct-r-control);font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--ink);pointer-events:none}
+.ud-hc[hidden]{display:none}
+.ud-hc.is-pinned{pointer-events:auto}
+.ud-hc.is-docked{position:static;width:auto;max-width:none;margin:var(--sp-2) 0 0}
+.ud-hc p{margin:0}
+.ud-hc-h{font-weight:600;white-space:nowrap;margin:0 0 var(--sp-2)}
+.ud-hc-none{color:var(--muted)}
+.ud-hc-s{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:var(--sp-1) var(--sp-2);align-items:center}
+.ud-hc-s li{display:contents}
+.ud-hc-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.ud-hc-s b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ud-hc-s em{font-style:normal;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;min-width:calc(var(--sp-8) + var(--sp-1))}
+.ud-hc-t{display:grid;grid-template-columns:auto auto auto auto;gap:var(--sp-1) var(--sp-2);margin:0}
+.ud-hc-t dt:nth-of-type(2n){padding-left:var(--sp-3);border-left:1px solid var(--line)}
+.ud-hc-s+.ud-hc-t{margin-top:var(--sp-2);padding-top:var(--sp-2);border-top:1px solid var(--line)}
+.ud-hc-t dt{color:var(--muted);white-space:nowrap}
+.ud-hc-t dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.acct-page a.ud-hc-go{display:none;margin-top:var(--sp-2);padding-top:var(--sp-2);border-top:1px solid var(--line);color:var(--storm-0);text-decoration:none}
+.ud-hc.is-pinned a.ud-hc-go{display:block}
+
+/* ---- breakdown: ranked rows with a share bar ---------------------------- */
+.ud-card h2{margin:0 0 var(--sp-3)}
+.ud-blist{list-style:none;margin:0;padding:0}
+.ud-brow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) calc(var(--sp-16) * 3.5);gap:var(--sp-4);align-items:center;padding:var(--sp-3) 0;border-top:1px solid var(--line)}
+.ud-brow:first-child{border-top:0}
+.acct-page a.ud-bname{display:flex;align-items:center;gap:var(--sp-2);min-width:0;color:var(--ink);text-decoration:none;font-size:var(--fs-sm);transition:color var(--dur-2) var(--ease-std)}
+.acct-page a.ud-bname:hover{color:var(--storm-0)}
+.acct-page a.ud-bname:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--acct-r-control)}
+.ud-bname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ud-bshare{display:block;height:var(--sp-2);border-radius:9999px;background:var(--line);overflow:hidden}
+.ud-bshare i{display:block;height:100%;border-radius:9999px}
+.ud-bfig{display:flex;flex-direction:column;align-items:flex-end;gap:0;font-variant-numeric:tabular-nums}
+.ud-bfig b{font-size:var(--fs-sm);color:var(--ink);font-weight:600}
+.ud-bfig span{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap}
+@media (max-width: 900px) and (min-width: 640px){
+  .ud-table td.ud-io{white-space:normal}
+  .ud-table .ud-io span{display:block}
+  .ud-table .ud-io span.ud-sl{display:none}
+  .ud-table td.ud-clip{max-width:calc(var(--sp-16) * 1.5)}
+}
+@media (max-width: 639px){
+  .ud-table th:first-child,.ud-table td:first-child{position:sticky;left:0;z-index:1;background:var(--elevated);padding-right:var(--sp-2)}
+}
+
+/* ---- requests table -------------------------------------------------------- */
+.ud-card-head{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;justify-content:space-between;margin:0 0 var(--sp-3)}
+.ud-card-head h2{margin:0}
+.acct-page .ud-card-head a.ghost{margin:0}
+.ud-filters{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin:0 0 var(--sp-4)}
+.ud-factions{display:flex;gap:var(--sp-2);align-items:center}
+.ud-note{margin:0 0 var(--sp-3);font-size:var(--fs-xs);color:var(--muted)}
+.ud-scroll{max-width:100%}
+/* Fits the card from 640px up: eight tight columns (In / Out merged, Time as
+   'Sep 17 00:12', Agent narrow and muted), gutters on the left of each cell
+   only, and the free-text cells (key name, provider) clip with an ellipsis
+   instead of widening the table. Below 640px it scrolls sideways with Time
+   pinned. */
+.ud-table{width:100%;border-collapse:collapse;font-size:var(--fs-sm);line-height:var(--lh-sm)}
+.ud-table th{font-size:var(--fs-xs);font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0;text-align:left;padding:0 0 var(--sp-2) var(--sp-3);white-space:nowrap}
+.ud-table td{padding:var(--sp-2) 0 var(--sp-2) var(--sp-3);border-top:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.ud-table th:first-child,.ud-table td:first-child{padding-left:0}
+.ud-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ud-table td.ud-t{color:var(--muted);font-variant-numeric:tabular-nums}
+.ud-table td:nth-child(2){font-size:var(--fs-xs);color:var(--muted);width:1%}
+.ud-table td.ud-clip{max-width:calc(var(--sp-16) * 2);overflow:hidden;text-overflow:ellipsis}
+.ud-table .ud-io span:last-child,.ud-table .ud-sl,.ud-dim{color:var(--muted)}
+.ud-pager{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin-top:var(--sp-3)}
+.ud-pnum{font-size:var(--fs-xs);color:var(--muted)}
+
+/* ---- All AI scope (scope=all): spend by provider and provenance ---------- */
+/* the provenance lives in the fill: measured solid, plan banded, estimated
+   hatched. Each series colour carries a pattern pair (usage.ts, usage-chart.js);
+   the stripe is the colour, the ground under it the same colour at low alpha. */
+.ud-plot .pt-fg.s0{fill:var(--storm-0)}
+.ud-plot .pt-fg.s1{fill:var(--storm-1)}
+.ud-plot .pt-fg.s2{fill:var(--storm-3)}
+.ud-plot .pt-fg.s3{fill:var(--storm-4)}
+.ud-plot .pt-fg.s4{fill:var(--storm-2)}
+.ud-plot .pt-fg.sx{fill:var(--muted)}
+.ud-plot .pt-bg{fill-opacity:.28}
+.ud-plot .pt-bg.s0{fill:var(--storm-0)}
+.ud-plot .pt-bg.s1{fill:var(--storm-1)}
+.ud-plot .pt-bg.s2{fill:var(--storm-3)}
+.ud-plot .pt-bg.s3{fill:var(--storm-4)}
+.ud-plot .pt-bg.s4{fill:var(--storm-2)}
+.ud-plot .pt-bg.sx{fill:var(--muted)}
+.ud-kpis.is-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ud-chart.is-spend .ud-frame{grid-template-columns:var(--sp-10) minmax(0,1fr) var(--sp-4)}
+.ud-chart.is-spend .ud-x{margin-right:var(--sp-4)}
+.ud-chart.is-spend .ud-plot[tabindex]{cursor:default}
+/* the provenance keys: the same three fills, in ink */
+.sw.pv-m{width:var(--sp-3);background:var(--muted)}
+.sw.pv-e{width:var(--sp-3);background:repeating-linear-gradient(45deg,var(--muted) 0 2px,transparent 2px 4px);box-shadow:inset 0 0 0 1px var(--muted)}
+.sw.pv-p{width:var(--sp-3);background:repeating-linear-gradient(0deg,var(--muted) 0 2px,transparent 2px 4px);box-shadow:inset 0 0 0 1px var(--muted)}
+/* the hover card's provider table: name, measured, estimated, plan */
+.ud-hc-p{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:var(--sp-1) var(--sp-3);align-items:center}
+.ud-hc-pr{display:contents}
+.ud-hc-pr.is-head span{color:var(--muted);white-space:nowrap;text-align:right}
+.ud-hc-pr.is-head span:first-child{text-align:left}
+.ud-hc-p .ud-hc-n{display:inline-flex;align-items:center;gap:var(--sp-2)}
+.ud-hc-p b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ud-hc-p b.is-zero{font-weight:400;color:var(--muted)}
+.ud-hc-t.is-total{grid-template-columns:minmax(0,1fr) auto;margin-top:var(--sp-2);padding-top:var(--sp-2);border-top:1px solid var(--line)}
+.ud-hc-t.is-total dd{font-weight:600}
+/* reconciliation: one hairline row per provider */
+.ud-recon{margin:var(--sp-5) 0 0}
+.acct-page .ud-recon-h{margin:0 0 var(--sp-2);font-size:var(--fs-sm);line-height:var(--lh-sm);font-weight:600;color:var(--ink)}
+.ud-rlist{list-style:none;margin:0;padding:0}
+.ud-rrow{display:grid;grid-template-columns:minmax(0,calc(var(--sp-16) * 2.5)) auto minmax(0,1fr) auto;grid-template-areas:"name stat src tot";gap:var(--sp-1) var(--sp-4);align-items:center;padding:var(--sp-3) 0;border-top:1px solid var(--line);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+.ud-rrow:last-child{border-bottom:1px solid var(--line)}
+.ud-rname{grid-area:name;display:flex;align-items:center;gap:var(--sp-2);min-width:0;color:var(--ink)}
+.ud-rname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ud-rtot{grid-area:tot;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.ud-rstat{grid-area:stat;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ud-rstat.is-ok{color:var(--ink)}
+.ud-rstat.is-res{color:var(--warn)}
+.ud-rstat.is-est{color:var(--muted)}
+.ud-rsrc{grid-area:src;display:flex;flex-wrap:wrap;gap:var(--sp-1) var(--sp-3);min-width:0;font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.ud-src{white-space:nowrap}
+.ud-src.is-stale{color:var(--warn)}
+.usage-dash.is-all .acct-empty{margin-top:var(--sp-2)}
+
+/* ---- narrow ---------------------------------------------------------------- */
+@media (max-width: 760px){
+  .ud-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ud-kpi{border-left:0;padding-left:0;border-top:1px solid var(--line)}
+  .ud-kpi:nth-child(-n+1){border-top:0}
+  .ud-kpi.is-lead{grid-column:1 / -1}
+  .ud-kpi:nth-child(odd):not(.is-lead){padding-left:var(--sp-4);border-left:1px solid var(--line)}
+  .ud-toolbar .ud-group{margin-left:0}
+  .ud-kpis.is-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ud-chart{grid-template-columns:minmax(0,1fr)}
+  .ud-chart>.ud-legend{grid-column:1;grid-row:auto;order:1;max-width:none;margin-top:var(--sp-3)}
+  .ud-ltab{width:100%}
+}
+@media (max-width: 560px){
+  .usage-dash{padding:var(--sp-4)}
+  .ud-rrow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name tot" "stat stat" "src src"}
+  .ud-frame{height:calc(var(--sp-16) * 2.5)}
+  .ud-x .is-minor{display:none}
+  .ud-dates{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-2)}
+  .acct-page .ud-dates button.ghost{grid-column:1 / -1}
+  .acct-page .ud-dates .ud-field input{width:100%}
+  .ud-filters .ud-field{flex:1 1 calc(50% - var(--sp-3))}
+  .acct-page .ud-filters .ud-field select{width:100%}
+  .ud-brow{grid-template-columns:minmax(0,1fr) auto;gap:var(--sp-2) var(--sp-3)}
+  .ud-bfig{display:contents}
+  .ud-bfig b{grid-column:2;grid-row:1;text-align:right}
+  .ud-bshare{grid-column:1 / -1;grid-row:2}
+  .ud-bfig span{grid-column:1 / -1;grid-row:3}
+}
+@media (max-width: 400px){
+  .ud-kpis,.ud-kpis.is-4{grid-template-columns:minmax(0,1fr)}
+  .ud-kpi,.ud-kpi:nth-child(odd):not(.is-lead){padding-left:0;border-left:0}
+  .ud-x span{display:none}
+  .ud-x span.is-keep{display:block}
+  /* two date fields side by side were 121px at 320 and cut the year to
+     "09/19/202" under the calendar mark (F2, 2026-09-25): one per row. */
+  .ud-dates{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ---- phone running copy (A1 device matrix, 2026-09-23): the KPI sublines
+   and the window's timezone line are read, not glanced at, so on a phone
+   they take the 14px floor like the rest of the account copy. */
+@media (pointer: coarse) and (max-width: 599px), (pointer: coarse) and (orientation: landscape) and (max-height: 500px){
+  .ud-kpi .ud-kpi-s{font-size:var(--fs-sm);line-height:var(--lh-sm)}
+  .ud-when>span{font-size:var(--fs-sm);line-height:var(--lh-sm)}
+}

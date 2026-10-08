@@ -1,0 +1,82 @@
+[
+  {
+    "file": "mcp.txt",
+    "kind": "txt",
+    "real": "capture",
+    "source": {
+      "repo": "superbot (this repo)",
+      "path_or_command": "curl -sS -X POST https://beta.superbot.gg/mcp -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}'",
+      "date": "2026-09-10"
+    },
+    "note": "Real JSON-RPC tools/list reply from the production MCP endpoint (Streamable HTTP). Captured 2026-09-10 on xdxdxd.dsh.sh, now the legacy client alias; the host was edited in place to the canonical origin beta.superbot.gg on 2026-09-24 with the reply unchanged. On beta the same command needs a granted account Bearer (anonymous gets the gate's 401). `claude mcp list` on this machine does not list superbot (only an unrelated 'appllama' server is configured here), so the JSON-RPC capture is the faithful proof instead."
+  },
+  {
+    "file": "cli.txt",
+    "kind": "txt",
+    "real": "capture",
+    "source": {
+      "repo": "superbot-helper",
+      "path_or_command": "SUPERBOT_HOME=~/.superbot-dev node dist/superbot.js  /  \u2026 status --json",
+      "date": "2026-09-10"
+    },
+    "note": "Real output of the built Helper CLI (superbot-helper v0.1.9, dist/superbot.js), run against SUPERBOT_HOME=~/.superbot-dev \u2014 never the real ~/.superbot install. Bare invocation (command list) plus `status --json` (trimmed to the top-level fields; the full reply also carries a long self-repair checklist, omitted for length)."
+  },
+  {
+    "file": "agentic.png",
+    "width": 1437,
+    "height": 1583,
+    "kind": "png",
+    "real": "render-of-real",
+    "source": {
+      "repo": "superbot-desktop",
+      "path_or_command": "node scripts/gui-sync/capture-desktop.mjs --state swarm (reused worktree of superbot-desktop at ece98bd9e7d6258535134a56b47f30cab9572843, under /tmp/sbd-gs.2d2da841, with scripts/gui-sync/desktop-stub.patch applied there; pnpm install --frozen-lockfile; pnpm tokens --force; MAIN_VITE_SUPERBOT_DEBUG_SURFACES=1 VITE_SUPERBOT_COSMOS=1 VITE_SUPERBOT_VOICE=1 pnpm --filter superbot-desktop-app build (this capture ran with --skip-build: the reused worktree's earlier install and build, taken as they stood); bootHubSurface (apps/desktop/e2e/surfaces/hub-lib.mjs) hidden against the fake Helper + edge stub; the #/swarm dev route (apps/desktop/src/renderer/src/routes/swarm.tsx), the 'Usage panel' section's real SwarmUsagePanel (hub/SwarmUsagePanel.tsx) with its Details disclosure opened, the gallery's 420px column widened to 600px so the 3-way picker's labels fit the card; a 1000x1000 px window override at 2x (CDP Emulation.setDeviceMetricsOverride, one session), which the app's 1.2 zoom leaves as 833x833 CSS px at devicePixelRatio 2.4, one full-viewport Page.captureScreenshot cropped to the region's DOM rect (1437x1583+117+208 px) to the panel alone, excluding the gallery's own headings and copy; banned-string check over the panel's text; magick <frame>.png -crop <box> +repage -alpha off -strip -define png:compression-level=9 agentic.png)",
+      "date": "2026-10-01"
+    },
+    "note": "Real component render, marked render-of-real (not a live run): the restructured Super usage panel (SwarmUsagePanel) at 1437x1583, the same component a finished swarm run's usage opens in, fed the dev route's pinned sample SwarmUsage (a manager on claude-opus-4 and workers on claude-haiku-4, gpt-5-mini and grok-4: the donut and '56% cheaper' headline, the three-way baseline picker with 'Frontier alone' selected, the saved-vs-baseline arithmetic and the per-agent breakdown, Details open). The surrounding #/swarm gallery page is cropped out: its copy would read as a dev disclosure. File size 285 KB."
+  },
+  {"file":"cloud.html","kind":"html","real":"authored","source":{"repo":"superbot (this repo)","path_or_command":"hand-authored, no build step (markup inlined in site/features.html; no cloud.html file on disk)","date":"2026-09-11"},"note":"Replaces the cloud.txt run-queue capture on the page. The queue-count stat is no longer the story the figure tells (owner, 2026-09-10: wanted the phone-to-cloud-to-laptop sync made vivid, not a queue number); the figure is now an authored .fig-sync schematic (phone / cloud / laptop nodes, animated dashed links, reduced-motion guarded) with representative product-shaped example text (an auth-test-fix PR against example/api), not a data capture. cloud.txt stays on disk as a still-real capture of the beta run queue but is no longer referenced by features.html."},
+  {
+    "file": "cli.ansi",
+    "kind": "ansi",
+    "real": "capture",
+    "source": {
+      "repo": "superbot-helper",
+      "path_or_command": "FORCE_COLOR=1 TERM=xterm-256color SUPERBOT_HOME=$(mktemp -d) node scripts/capture-cli-start.mts | sed '/./,$!d' (imports superbot-helper's own src/cli renderers read-only)",
+      "date": "2026-09-24"
+    },
+    "note": "The CLI's current interactive start screen (what bare `superbot` prints on a real TTY; owner 2026-09-24: the old --help dump soft-wrapped its descriptions mid-phrase and no longer matched what the CLI shows), rendered by superbot-helper's OWN code rather than retyped: renderBanner() (src/cli/banner.ts:204-243; half-block mascot in TEAL/WHITE/MAGENTA per src/cli/ui.ts:61-63; facts `superbot v<ver>` / `helper <ver> (standalone)` / `origin the Helper` exactly as src/cli/session.ts:358 calls it), the engine/model/root block via ui.kv() (ui.ts:329-332) with the rows session.ts:361-376 builds (engine claude = first of AUTO_ENGINE_ORDER, session.ts:80; model via modelLabel(), model-select.ts:186-188, plus `  \u2014 claude picks its own`), and the prompt `[superbot] you> ` (session.ts:607). Version 0.1.146 = the latest superbot-helper release tag v0.1.146 (VERSION is build-injected, session.ts:73-74). Root shows as `~` (no personal path; the real CLI prints the realpath'd cwd). The one example ask after the prompt is AUTHORED text (question, file paths, answer) painted through the CLI's real turn renderers: tool rows as ui.dim(`  ${settledToolGlyph()} ${kind} ${path}`) (session-turn.ts:442, tool-failure.ts:53-55), answer prose through LineRenderer (session-render.ts:37-71, backticks -> teal). 16-colour tier (FORCE_COLOR=1) so every colour maps onto term.css classes. Widest row: 52 columns. scripts/ansi-to-html.mjs converts this into cli.html."
+  },
+  {
+    "file": "cli.html",
+    "kind": "html",
+    "real": "capture",
+    "source": {
+      "repo": "superbot (this repo) + superbot-helper",
+      "path_or_command": "node scripts/ansi-to-html.mjs cli.ansi (all 18 rows kept)",
+      "date": "2026-09-24"
+    },
+    "note": "HTML fragment `<pre class=\"term-body\">...</pre>` rendered from cli.ansi above by scripts/ansi-to-html.mjs (SGR 16-colour fg -> classes a-0..a-15 in term.css, any bg -> inline background-color). Inlined into site/features.html's #cli figure (title bar `superbot`) with three page-side additions only: the pre gets class `term-cli` (features.css: white-space: pre, font scaled to the figure with container units so the 52-column widest row fits at every width, overflow-x as fallback), the example exchange is wrapped in `.term-stream` (a looping clip-path replay revealing the ask's step rows one at a time, no layout shift), and a blinking `.term-cursor` block follows the final prompt. Every glyph and colour otherwise equals this file."
+  },
+  {
+    "file": "mcp.html",
+    "kind": "html",
+    "real": "capture",
+    "source": {
+      "repo": "superbot (this repo)",
+      "path_or_command": "node scripts/ansi-to-html.mjs <reformatted mcp.txt JSON payload> --json --lines=20",
+      "date": "2026-09-10"
+    },
+    "note": "HTML fragment colorizing the SAME real tools/list JSON-RPC reply already captured verbatim in mcp.txt (production MCP endpoint, https://beta.superbot.gg/mcp; captured on the legacy alias xdxdxd.dsh.sh) \u2014 re-flowed to <=20 lines (the description string's manual line-wrapping undone, two closing-brace pairs joined) with no value changed, then run through scripts/ansi-to-html.mjs --json, which tokenizes JSON with a regex (not a parser) and colours keys a-6 bold, string values a-2, numbers a-4, literals a-5, punctuation a-8. GAP vs. the assignment: `superbot mcp list` and `superbot status` WERE captured live against a running `SUPERBOT_HOME=~/.superbot-dev` helper (helper start/stop bracketed the capture, both succeeded) \u2014 but the live `mcp list` output enumerates this dev machine's real, personal MCP client roster (~46 servers, several named after real people/projects, e.g. a personal email-suffixed entry), which is private and not the production superbot MCP endpoint anyway. Publishing it would leak that machine's personal config for no gain over the real production JSON already on file, so it was discarded in favour of the documented mcp.txt fallback per the assignment's own fallback clause."
+  },
+  {
+    "file": "term.css",
+    "kind": "css",
+    "real": "authored",
+    "source": {
+      "repo": "superbot (this repo)",
+      "path_or_command": "hand-written, mirrors PALETTE_16 in scripts/ansi-to-html.mjs",
+      "date": "2026-09-10"
+    },
+    "note": "The 16-hex terminal palette scripts/ansi-to-html.mjs's classes (a-0..a-15) resolve against, plus the a-b/a-d/a-i/a-u weight/style classes. This is DATA for the terminal captures in this directory, not a site design-token file \u2014 the site's own token stylesheet is untouched. Indices 5/6/8/15 are pulled directly from superbot-helper's own src/cli/ui.ts swatches (MAGENTA, TEAL, MUTED, WHITE) so the rendered banner matches the CLI's real palette; the rest are conventional xterm defaults."
+  }
+]

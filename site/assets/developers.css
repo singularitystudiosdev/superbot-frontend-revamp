@@ -1,0 +1,284 @@
+/* The developer reference: /developers, /developers/{group} and
+   /developers/{group}/{operationId} (edge/src/developers/page.ts and
+   render-op.ts). Loaded after site.css and built from its tokens only: no
+   colour, size or radius is written here that site.css does not name.
+
+   Look plan:
+   - colour: --bg canvas, --card code panes and the request band, --line
+     hairlines, --fg / --muted ink, --accent the only accent (links, focus,
+     the active nav row, the active tab); --danger marks DELETE only
+   - type: --font-ui for prose, --font-mono for every request line, method,
+     path, field name and sample
+   - radii: --r-sm for code cards, tabs, chips and buttons; --r-lg only for
+     the base-URL card on the overview
+   - the one bold thing: the mono request line on a --card band under each h2
+
+   Layout (site.css zooms the page 1.25x from 1200px; these are viewport
+   widths): one column below 1100px with the code cards under their text;
+   1100-1439px a group bar on top and a sticky code column beside each
+   operation; 1440px and up a text-only left nav beside the same two columns. */
+
+/* the shared header row is 23px over at 320 on a finger: below 400 it takes
+   two rows instead of overflowing (the rule store-links.ts carries too) */
+@media (max-width: 400px) {
+  .sb-header { height: auto; }
+  .sb-header-in { flex-wrap: wrap; height: auto; min-height: var(--nav-h); padding-top: var(--sp-1); padding-bottom: var(--sp-1); }
+}
+
+[hidden] { display: none !important; }
+
+/* the gutters sit on the two columns, not on .ref: <main> itself carries the
+   safe-area inset (--gutter-l/-r) a notched phone in landscape needs. */
+.ref { max-width: var(--container); margin: 0 auto; padding-top: var(--sp-6); }
+.ref-main { min-width: 0; padding: 0 var(--gutter-r) 0 var(--gutter-l); }
+.ref a { color: var(--accent); }
+
+/* ---- the group bar (below 1440px) ---- */
+.ref-side {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4);
+  padding-bottom: var(--sp-3); margin-bottom: var(--sp-8); border-bottom: 1px solid var(--line);
+  margin-left: var(--gutter-l); margin-right: var(--gutter-r);
+}
+.ref-nav { flex: 1 1 auto; min-width: 0; }
+.ref-nav ul { list-style: none; padding: 0; }
+.ref-nav .grp { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
+.ref-nav .sub { display: none; }
+.ref .ref-nav a {
+  display: inline-flex; align-items: center; min-height: var(--target-sm); padding: 0 var(--sp-2);
+  border-radius: var(--r-sm); color: var(--muted); text-decoration: none; font-size: var(--fs-sm); line-height: var(--lh-sm);
+}
+.ref .ref-nav a:hover, .ref .ref-nav a:active { color: var(--fg); }
+.ref .ref-nav a[aria-current="page"], .ref .ref-nav a.on { color: var(--accent); background: var(--card); }
+
+.find { position: relative; flex: 1 1 100%; }
+@media (min-width: 760px) { .find { flex: 0 1 calc(var(--sp-16) * 4); order: 2; } }
+.find input {
+  width: 100%; min-height: var(--target); padding: 0 var(--sp-8) 0 var(--sp-3);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm);
+  color: var(--fg); font-size: var(--fs-sm);
+}
+.find input::placeholder { color: var(--muted); }
+.find kbd {
+  position: absolute; right: var(--sp-2); top: 50%; transform: translateY(-50%);
+  padding: 0 var(--sp-1); border: 1px solid var(--line); border-radius: var(--r-sm);
+  color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); pointer-events: none;
+}
+
+/* ---- 1440px and up: the text-only left nav ---- */
+@media (min-width: 1440px) {
+  .ref { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 4fr); column-gap: var(--sp-8); align-items: start; }
+  .ref-side {
+    display: block; position: sticky; top: calc(var(--nav-h) + var(--sp-4));
+    /* the page is zoomed 1.25x in this tier, and vh follows the zoom: the
+       same factor brings the list back inside the real viewport */
+    max-height: calc(100vh / 1.25 - var(--nav-h) - var(--sp-8)); overflow-y: auto;
+    margin: 0; margin-left: var(--gutter-l); padding: 0 0 var(--sp-4); border-bottom: 0;
+  }
+  .ref-main { padding-left: 0; }
+  .find { margin-bottom: var(--sp-4); }
+  .ref-nav .grp { display: block; }
+  .ref .ref-nav a { display: flex; width: 100%; }
+  .ref-nav .sub { display: block; margin: var(--sp-1) 0 var(--sp-2) var(--sp-2); padding-left: var(--sp-2); border-left: 1px solid var(--line); }
+  .ref .ref-nav .sub a { font-size: var(--fs-xs); line-height: var(--lh-xs); padding-top: var(--sp-1); padding-bottom: var(--sp-1); }
+}
+
+/* ---- page head and prose ---- */
+.head { margin-bottom: var(--sp-section); }
+.head h1 { font-size: var(--fs-h2); line-height: var(--lh-xl); margin-bottom: var(--sp-3); }
+.ln { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); max-width: var(--measure); }
+.ln + .ln, .ln + .list, .list + .ln { margin-top: var(--sp-3); }
+/* one sentence per line */
+.ln > span { display: block; }
+.head .ln { color: var(--fg); }
+.head .ln + .ln { color: var(--muted); }
+.ln.meta { margin-top: var(--sp-2); }
+.list { padding-left: var(--sp-5); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); max-width: var(--measure); }
+.list li + li { margin-top: var(--sp-1); }
+.ref td code, .ref .fld-d code, .ref .ln code {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 0 var(--sp-1);
+  color: var(--fg); overflow-wrap: anywhere;
+}
+
+.sec { margin-bottom: var(--sp-section); }
+.sec h2 { font-size: var(--fs-xl); line-height: var(--lh-xl); margin-bottom: var(--sp-3); }
+.sec h3, .op h3 { font-size: var(--fs-base); line-height: var(--lh-base); margin: var(--sp-6) 0 var(--sp-2); }
+.sec > .code, .sec > .tbl { margin-top: var(--sp-4); max-width: none; }
+.sec > .code { max-width: var(--content); }
+.idx { margin-top: var(--sp-8); }
+.idx h3 { margin-top: 0; }
+.idx h3 a { color: var(--fg); text-decoration: none; display: inline-flex; align-items: center; min-height: var(--target-sm); min-width: var(--target-sm); }
+.idx h3 a:hover { color: var(--accent); }
+.idx .tbl { margin-top: var(--sp-3); }
+
+/* ---- the base-URL card: one card, the width of the page's other code blocks, the only --r-lg on the page ---- */
+.base { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-4) var(--sp-5); min-width: 0; max-width: var(--content); margin-top: var(--sp-4); }
+.base-h { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+.base-h h3 { margin: 0; font-size: var(--fs-base); line-height: var(--lh-base); }
+/* the env lines never break mid-token: the block pans instead, and the
+   .ref prefix outranks the phone rule that wraps every other .ref pre */
+.ref .base pre { margin-top: var(--sp-3); padding: var(--sp-3); background: var(--bg); border-radius: var(--r-sm); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--fg); white-space: pre; overflow-wrap: normal; overflow-x: auto; }
+
+/* ---- tables ---- */
+.tbl { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+/* a table wrapper that scrolls is a tab stop (edge/src/focus-scrollers.ts). Its cells carry no left padding, so site.css's inset ring
+   would sit over the first column's glyphs; nothing around a .tbl clips, so the ring is drawn just outside it instead */
+.tbl:focus-visible { outline-offset: calc(var(--sp-1) / 2); }
+.ref table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.ref th {
+  text-align: left; color: var(--muted); font-weight: 500; font-size: var(--fs-xs); line-height: var(--lh-xs);
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0; border-bottom: 1px solid var(--line);
+}
+.ref td { padding: var(--sp-2) var(--sp-3) var(--sp-2) 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--muted); }
+.ref tr:last-child td { border-bottom: 0; }
+.ref td.st { font-family: var(--font-mono); color: var(--fg); white-space: nowrap; }
+.ref .ln.cell { max-width: none; }
+.index td:nth-child(1) { white-space: nowrap; }
+.index td:nth-child(2) code { white-space: nowrap; overflow-wrap: normal; }
+.index td:nth-child(3) { width: 56%; }
+.codes td:first-child code, .errs td:nth-child(2) code { white-space: nowrap; overflow-wrap: normal; }
+.ref tr:target td { color: var(--fg); }
+/* a link alone in a cell is a target, not a word in a sentence: it gets the
+   target floor (28px for a mouse, 44px on a finger) */
+.ref td > a { display: inline-flex; align-items: center; min-height: var(--target-sm); }
+@media (max-width: 759px) {
+  .index thead, .codes thead, .errs thead, .scopes thead { display: none; }
+  .index tr, .codes tr, .errs tr, .scopes tr {
+    display: grid; column-gap: var(--sp-2); border-bottom: 1px solid var(--line); padding: var(--sp-2) 0;
+  }
+  .ref .index td, .ref .codes td, .ref .errs td, .ref .scopes td { border-bottom: 0; padding: 0; }
+  .index tr, .errs tr { grid-template-columns: auto minmax(0, 1fr); }
+  .codes tr, .scopes tr { grid-template-columns: minmax(0, 1fr) auto; }
+  .index td:nth-child(2) code, .codes td:first-child code, .errs td:nth-child(2) code { white-space: normal; overflow-wrap: anywhere; }
+  .index td:nth-child(3), .codes td:nth-child(3), .errs td:nth-child(3) { grid-column: 1 / -1; width: auto; padding-top: var(--sp-1); }
+  .scopes td:nth-child(2) { grid-column: 1 / -1; order: 3; padding-top: var(--sp-1); }
+}
+
+/* ---- methods, in mono: GET muted, writes ink, DELETE danger ---- */
+.m { font-family: var(--font-mono); font-weight: 500; }
+.m-get { color: var(--muted); }
+.m-post, .m-put, .m-patch { color: var(--fg); }
+.m-delete { color: var(--danger); }
+
+/* ---- one operation ---- */
+.op { border-top: 1px solid var(--line); padding-top: var(--sp-8); margin-top: var(--sp-section); }
+.head + .op { margin-top: 0; }
+.op h2 { font-size: var(--fs-xl); line-height: var(--lh-xl); display: flex; align-items: baseline; gap: var(--sp-2); }
+.ref .perma {
+  display: inline-flex; align-items: center; justify-content: center; min-width: var(--target-sm); min-height: var(--target-sm);
+  color: var(--muted); text-decoration: none; font-weight: 400; opacity: 0;
+}
+.op h2:hover .perma, .ref .perma:focus-visible { opacity: 1; }
+.ref .perma:hover { color: var(--accent); }
+@media (pointer: coarse) { .ref .perma { opacity: 1; } }
+
+/* the one bold thing: the request line */
+.req {
+  margin: var(--sp-3) 0 var(--sp-6); padding: var(--sp-3) var(--sp-4);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--font-mono); font-size: var(--fs-lg); line-height: var(--lh-lg); color: var(--fg);
+}
+.req-p { overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .req { font-size: var(--fs-sm); line-height: var(--lh-sm); overflow-wrap: anywhere; }
+}
+
+.op-text { min-width: 0; }
+.op-text > .ln:first-child { color: var(--fg); }
+.op-code { display: grid; gap: var(--sp-4); margin-top: var(--sp-6); min-width: 0; }
+@media (min-width: 1100px) {
+  .op { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--sp-8); align-items: start; }
+  .op h2, .op .req { grid-column: 1 / -1; }
+  .op-code { position: sticky; top: calc(var(--nav-h) + var(--sp-4)); margin-top: 0; }
+}
+
+/* parameter and field rows: hairline rows, name mono, type muted */
+.params, .fields { list-style: none; padding: 0; }
+.prm, .fld { padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+.fld-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-2); }
+.ref .fld-n { font-size: var(--fs-sm); color: var(--fg); background: none; border: 0; padding: 0; overflow-wrap: anywhere; }
+.fld-t { font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); }
+.fld-r, .fld-o { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fld-r { color: var(--fg); }
+.fld-o { color: var(--muted); }
+.fld-d { margin-top: var(--sp-1); }
+
+/* nested levels: a <details> per level, its rows on a --line guide */
+details.sub { margin-top: var(--sp-2); }
+details.sub > summary {
+  display: inline-flex; align-items: center; gap: var(--sp-1); min-height: var(--target-sm); padding: 0 var(--sp-2);
+  border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs);
+  cursor: pointer; list-style: none;
+}
+details.sub > summary::-webkit-details-marker { display: none; }
+details.sub > summary::before { content: "+"; font-family: var(--font-mono); }
+details.sub[open] > summary::before { content: "\2212"; }
+details.sub > summary:hover { color: var(--fg); }
+details.sub > .fields { margin-top: var(--sp-2); padding-left: var(--sp-3); border-left: 1px solid var(--line); }
+details.sub > .fields > .fld:first-child { border-top: 0; }
+
+/* ---- code cards: request (curl / JS / Python) and response (per status) ---- */
+.code { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; min-width: 0; }
+.code-bar { display: flex; align-items: center; gap: var(--sp-2); min-height: var(--target); padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-3); border-bottom: 1px solid var(--line); }
+.code-ttl { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.tabs { display: flex; gap: var(--sp-1); flex: 1 1 auto; min-width: 0; overflow-x: auto; }
+.tabs button {
+  min-height: var(--target-sm); min-width: var(--target-sm); padding: 0 var(--sp-2); border: 1px solid transparent; border-radius: var(--r-sm);
+  background: none; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs);
+  cursor: pointer; white-space: nowrap;
+}
+.tabs button:hover { color: var(--fg); }
+.tabs button[aria-selected="true"] { color: var(--accent); border-color: var(--line); background: var(--bg); }
+.code-bar .cpy { margin-left: auto; }
+.pane + .pane { border-top: 1px solid var(--line); }
+.pane-lbl { padding: var(--sp-2) var(--sp-3) 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.pane-lbl b { color: var(--fg); font-weight: 500; font-family: var(--font-mono); }
+.tabbed .pane-lbl b { display: none; }
+.tabbed .pane-lbl:not(:has(span)) { display: none; }
+.code pre {
+  margin: 0; padding: var(--sp-3); max-height: calc(var(--sp-16) * 6); overflow: auto;
+  font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--fg);
+}
+/* a pre that scrolls is a tab stop (page.ts envCard, render-op.ts). Its ring is site.css's focus ring moved inside its own
+   box: .code clips (overflow: hidden), so a ring drawn outside shows as a hairline under the bar and nothing else. The
+   offset is minus the ring's own width (2px, written from the --sp-1 token) so the whole ring lands inside the box. */
+.code pre:focus-visible, .base pre:focus-visible { outline-offset: calc(var(--sp-1) / -2); border-radius: var(--r-sm); }
+
+/* copy, and the agent row's links: small bordered controls */
+.cpy, .btn {
+  display: inline-flex; align-items: center; justify-content: center; background: none;
+  border: 1px solid var(--line); color: var(--muted); border-radius: var(--r-sm);
+  min-height: var(--target-sm); min-width: var(--target); padding: 0 var(--sp-2);
+  font: inherit; font-size: var(--fs-xs); line-height: var(--lh-xs); cursor: pointer;
+  transition: color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+.btn { min-height: var(--target); font-size: var(--fs-sm); }
+.cpy:hover, .cpy:active, .cpy.copied, .btn:hover, .btn:active { color: var(--accent); border-color: var(--accent); }
+.agent { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-6); }
+.ref .agent a {
+  display: inline-flex; align-items: center; min-height: var(--target-sm); padding: 0 var(--sp-2);
+  border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); text-decoration: none;
+  transition: color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+.ref .agent a:hover, .ref .agent a:active { color: var(--accent); border-color: var(--accent); }
+
+/* the filter's empty state: one sentence, one action */
+.empty { padding: var(--sp-8) 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+.empty p { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* a phone reads the row labels as copy: 14px on a finger and at 320. Last in
+   the file so it outranks the 12px base rules above at equal specificity.
+   A copy-me sample shows whole on a phone: it wraps (indent kept) instead of
+   clipping behind a hidden scrollbar, and a URL breaks where it must. */
+@media (pointer: coarse), (max-width: 480px) {
+  .fld-t, .fld-r, .fld-o, details.sub > summary, .pane-lbl { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .ref pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+}
+
+/* under 400px the title, three tabs and copy do not fit one bar (JavaScript
+   and Python were sliced at 320): the tabs take their own full row under the
+   title and copy, every tab whole, wrapping rather than scrolling. */
+@media (max-width: 400px) {
+  .code-bar:has(.tabs) { flex-wrap: wrap; }
+  .code-bar .tabs { order: 3; flex: 1 1 100%; flex-wrap: wrap; overflow: visible; }
+  .tabs button { flex: none; }
+}

@@ -1,0 +1,433 @@
+---
+title: "one API for every model you pay for"
+canonical_url: "https://superbot.gg/api"
+last_updated: "2026-10-08"
+summary: "every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."
+---
+
+> Markdown twin of https://superbot.gg/api (the HTML page is canonical).
+> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+
+[superbot.gg](https://superbot.gg/) / api
+
+# One endpoint for every model on your account.
+
+Your subscriptions, API keys and custom endpoints answer at one URL.
+Call them in the OpenAI or Anthropic format.
+Mint and manage scoped keys from the API itself.
+
+[Get an API key](https://superbot.gg/account/api#keys) [Every route](https://superbot.gg/api#routes)
+
+**OpenAI dialect**
+
+```sh
+OPENAI_BASE_URL=https://superbot.gg/v1
+OPENAI_API_KEY=sbc_...
+curl https://superbot.gg/v1/chat/completions -H "Authorization: Bearer $OPENAI_API_KEY" -H "content-type: application/json" -d '{"model":"superbot","stream": true,"messages":[{"role":"user","content":"hi"}]}'
+```
+
+**Anthropic dialect**
+
+```sh
+ANTHROPIC_BASE_URL=https://superbot.gg/v1
+ANTHROPIC_API_KEY=sbc_...
+curl https://superbot.gg/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '{"model":"superbot","max_tokens":256,"stream": true,"messages":[{"role":"user","content":"hi"}]}'
+```
+
+**curl**
+
+```sh
+curl -N https://superbot.gg/v1/chat/completions -H "Authorization: Bearer $OPENAI_API_KEY" -H "content-type: application/json" -d '{"model":"superbot","stream":true,"messages":[{"role":"user","content":"hi"}]}'
+```
+
+## Any model on your account
+
+Connect a subscription, a provider API key or a custom endpoint once.
+Every model it carries answers at this URL.
+Name the model id and the call goes to the provider that holds it.
+
+`GET /v1/models` lists every id your key can name.
+Answers come back in the dialect you called, OpenAI or Anthropic.
+
+Add a provider in the app, or add an endpoint on the [api console](https://superbot.gg/account/api#providers) or with `POST /v1/upstreams`.
+
+## Keys you mint and manage
+
+Mint one scoped key per tool or teammate.
+Give each its own scopes, allowed models and daily or monthly cap.
+Revoke one and only that tool stops.
+
+Do it on the [api console](https://superbot.gg/account/api#keys) or from the API itself.
+`POST /v1/keys` mints, `GET /v1/keys` lists, `PATCH /v1/keys/{id}` edits, `DELETE /v1/keys/{id}` revokes.
+A key needs `keys:write` to do this, and never mints a key wider than itself.
+
+### Scopes
+
+| scope           | what it allows                            |
+| --------------- | ----------------------------------------- |
+| gateway:invoke  | Call models through Superbot              |
+| usage:read      | Read usage and spend                      |
+| billing:read    | Read the credit balance                   |
+| keys:read       | List caller keys                          |
+| keys:write      | Mint, edit and revoke caller keys         |
+| endpoints:read  | Read custom endpoints and aliases         |
+| endpoints:write | Change custom endpoints and aliases       |
+| teams:read      | Read teams and invites                    |
+| teams:write     | Manage teams, members and invites         |
+| devices:read    | List devices                              |
+| devices:write   | Remove devices                            |
+| runs:read       | List and read cloud runs and their events |
+| runs:write      | Start and cancel cloud runs               |
+
+Presets: Gateway calls models, Read-only query reads your account, Full access holds every scope.
+
+## Every route
+
+Each route links to its full reference, with request and response samples.
+
+### Call models
+
+| method | path                                                                                      | what it does             | scope          |
+| ------ | ----------------------------------------------------------------------------------------- | ------------------------ | -------------- |
+| POST   | [/v1/chat/completions](https://superbot.gg/developers/gateway/createChatCompletion)     | Create a chat completion | gateway:invoke |
+| POST   | [/v1/responses](https://superbot.gg/developers/gateway/createResponse)                  | Create a response        | gateway:invoke |
+| POST   | [/v1/messages](https://superbot.gg/developers/gateway/createMessage)                    | Create a message         | gateway:invoke |
+| POST   | [/v1/messages/count_tokens](https://superbot.gg/developers/gateway/countMessageTokens) | Estimate input tokens    | any key        |
+| GET    | [/v1/models](https://superbot.gg/developers/gateway/listModels)                         | List models              | any key        |
+
+### Manage keys
+
+| method | path                                                                   | what it does        | scope      |
+| ------ | ---------------------------------------------------------------------- | ------------------- | ---------- |
+| GET    | [/v1/keys](https://superbot.gg/developers/keys/listKeys)             | List caller keys    | keys:read  |
+| POST   | [/v1/keys](https://superbot.gg/developers/keys/createKey)            | Create a caller key | keys:write |
+| GET    | [/v1/keys/whoami](https://superbot.gg/developers/keys/getCurrentKey) | Get the calling key | any key    |
+| PATCH  | [/v1/keys/{id}](https://superbot.gg/developers/keys/updateKey)       | Update a caller key | keys:write |
+| DELETE | [/v1/keys/{id}](https://superbot.gg/developers/keys/revokeKey)       | Revoke a caller key | keys:write |
+
+### Usage and spend
+
+| method | path                                                                            | what it does                   | scope        |
+| ------ | ------------------------------------------------------------------------------- | ------------------------------ | ------------ |
+| GET    | [/v1/usage](https://superbot.gg/developers/usage/getUsage)                    | Get usage over a window        | usage:read   |
+| GET    | [/v1/usage/requests](https://superbot.gg/developers/usage/listUsageRequests)  | List usage per request         | usage:read   |
+| GET    | [/v1/usage/daily](https://superbot.gg/developers/usage/getUsageDaily)         | Get usage per UTC day          | usage:read   |
+| GET    | [/v1/usage/breakdown](https://superbot.gg/developers/usage/getUsageBreakdown) | Get usage bucketed and grouped | usage:read   |
+| GET    | [/v1/usage/export](https://superbot.gg/developers/usage/exportUsage)          | Export usage rows              | usage:read   |
+| GET    | [/v1/credits](https://superbot.gg/developers/usage/getCredits)                | Get the credit balance         | billing:read |
+| GET    | [/v1/spend](https://superbot.gg/developers/usage/getSpend)                    | Get AI spend across apps       | usage:read   |
+| GET    | [/v1/usage/report](https://superbot.gg/developers/usage/getUsageReport)       | Get a usage report             | usage:read   |
+
+### Custom endpoints
+
+| method | path                                                                                               | what it does                     | scope           |
+| ------ | -------------------------------------------------------------------------------------------------- | -------------------------------- | --------------- |
+| GET    | [/v1/upstreams](https://superbot.gg/developers/endpoints/listUpstreams)                          | List custom endpoints            | endpoints:read  |
+| POST   | [/v1/upstreams](https://superbot.gg/developers/endpoints/createUpstream)                         | Add a custom endpoint            | endpoints:write |
+| PATCH  | [/v1/upstreams/{slug}](https://superbot.gg/developers/endpoints/updateUpstream)                  | Update a custom endpoint         | endpoints:write |
+| DELETE | [/v1/upstreams/{slug}](https://superbot.gg/developers/endpoints/deleteUpstream)                  | Remove a custom endpoint         | endpoints:write |
+| POST   | [/v1/upstreams/{slug}/probe](https://superbot.gg/developers/endpoints/probeUpstream)             | Re-probe a custom endpoint       | endpoints:write |
+| GET    | [/v1/aliases](https://superbot.gg/developers/endpoints/listAliases)                              | List @mention aliases            | endpoints:read  |
+| PUT    | [/v1/aliases/{token}](https://superbot.gg/developers/endpoints/setAlias)                         | Set an @mention alias            | endpoints:write |
+| DELETE | [/v1/aliases/{token}](https://superbot.gg/developers/endpoints/deleteAlias)                      | Delete an @mention alias         | endpoints:write |
+| GET    | [/docs/services/{service_id}.json](https://superbot.gg/developers/endpoints/getServiceDocument) | Get a service’s OpenAPI document | no key          |
+
+### Teams
+
+| method | path                                                                                                  | what it does              | scope       |
+| ------ | ----------------------------------------------------------------------------------------------------- | ------------------------- | ----------- |
+| GET    | [/v1/org/{id}/audit](https://superbot.gg/developers/teams/exportTeamAuditLog)                       | Export a team’s audit log | teams:read  |
+| GET    | [/v1/teams](https://superbot.gg/developers/teams/listTeams)                                         | List teams                | teams:read  |
+| POST   | [/v1/teams](https://superbot.gg/developers/teams/createTeam)                                        | Create a team             | teams:write |
+| GET    | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/getTeam)                                | Get a team                | teams:read  |
+| PATCH  | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/updateTeam)                             | Update a team             | teams:write |
+| DELETE | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/deleteTeam)                             | Delete a team             | teams:write |
+| GET    | [/v1/teams/{team_id}/members](https://superbot.gg/developers/teams/listTeamMembers)                | List team members         | teams:read  |
+| PATCH  | [/v1/teams/{team_id}/members/{user_id}](https://superbot.gg/developers/teams/updateTeamMember)    | Change a member’s role    | teams:write |
+| DELETE | [/v1/teams/{team_id}/members/{user_id}](https://superbot.gg/developers/teams/removeTeamMember)    | Remove a team member      | teams:write |
+| GET    | [/v1/teams/{team_id}/invites](https://superbot.gg/developers/teams/listTeamInvites)                | List pending team invites | teams:read  |
+| POST   | [/v1/teams/{team_id}/invites](https://superbot.gg/developers/teams/createTeamInvite)               | Invite someone to a team  | teams:write |
+| DELETE | [/v1/teams/{team_id}/invites/{code}](https://superbot.gg/developers/teams/revokeTeamInvite)        | Revoke a team invite      | teams:write |
+| POST   | [/v1/teams/{team_id}/invites/{code}/resend](https://superbot.gg/developers/teams/resendTeamInvite) | Resend a team invite      | teams:write |
+| POST   | [/v1/team_invites/{code}/accept](https://superbot.gg/developers/teams/acceptTeamInvite)            | Accept a team invite      | teams:write |
+
+### Devices
+
+| method | path                                                                                                                     | what it does                      | scope         |
+| ------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------- | ------------- |
+| POST   | [/v1/devices/{device_id}/jobs](https://superbot.gg/developers/devices/createAgentJob)                                 | Run a job on an agent computer    | devices:write |
+| GET    | [/v1/devices/{device_id}/jobs/{job_id}](https://superbot.gg/developers/devices/getAgentJob)                          | Read an agent computer job        | devices:read  |
+| GET    | [/v1/devices/{device_id}/terminals/{terminal_id}/stream](https://superbot.gg/developers/devices/streamAgentTerminal) | Stream an agent computer terminal | devices:read  |
+| GET    | [/v1/pair/{user_code}](https://superbot.gg/developers/devices/previewAgentPair)                                       | Preview an agent computer code    | any key       |
+| POST   | [/v1/pair/{user_code}/approve](https://superbot.gg/developers/devices/approveAgentPair)                               | Approve an agent computer code    | any key       |
+| GET    | [/v1/devices](https://superbot.gg/developers/devices/listDevices)                                                      | List devices                      | devices:read  |
+| GET    | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/getDevice)                                           | Get a device                      | devices:read  |
+| PATCH  | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/updateDevice)                                        | Rename a device                   | devices:write |
+| DELETE | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/deleteDevice)                                        | Unlink a device                   | devices:write |
+
+### Runs
+
+| method | path                                                                                | what it does                      | scope      |
+| ------ | ----------------------------------------------------------------------------------- | --------------------------------- | ---------- |
+| GET    | [/v1/runs](https://superbot.gg/developers/runs/listRuns)                          | List cloud runs                   | runs:read  |
+| POST   | [/v1/runs](https://superbot.gg/developers/runs/createRun)                         | Start a cloud run                 | runs:write |
+| GET    | [/v1/runs/projects](https://superbot.gg/developers/runs/listRunProjects)          | Find the project for a repository | runs:read  |
+| GET    | [/v1/runs/{run_id}](https://superbot.gg/developers/runs/getRun)                  | Get a cloud run                   | runs:read  |
+| GET    | [/v1/runs/{run_id}/events](https://superbot.gg/developers/runs/listRunEvents)    | Follow a run’s events             | runs:read  |
+| POST   | [/v1/runs/{run_id}/cancel](https://superbot.gg/developers/runs/cancelRun)        | Cancel a cloud run                | runs:write |
+| POST   | [/v1/runs/{run_id}/messages](https://superbot.gg/developers/runs/sendRunMessage) | Steer a running cloud run         | runs:write |
+
+The whole reference lives at [/developers](https://superbot.gg/developers).
+The machine-readable spec is [/docs/openapi.json](https://superbot.gg/docs/openapi.json).
+
+**house models**plus every model on your account
+
+3
+
+**dialects**OpenAI Chat, Responses, Messages
+
+3
+
+**requests a minute per key**
+
+1,200
+
+## Streaming
+
+Set `stream` to true.
+Read server-sent events.
+
+Chunks arrive in the dialect you called.
+
+`data: {"object":"chat.completion.chunk","choices":[{"delta":{"content":"Hello"}}]}` `data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}`
+
+## Plans for every kind of work
+
+Start free, or try Pro free for 14 days.
+No card needed. Runs on your own accounts are never limited.
+
+[Download](https://superbot.gg/download) [Helper and CLI](https://superbot.gg/download#helper)
+
+### Superbot Free
+
+$0 a month
+
+10,000 credits a month
+
+Runs at once
+
+3
+
+Long runs
+
+No
+
+Scheduled runs
+
+No
+
+Queue
+
+Standard
+
+Support
+
+Community
+
+Every model
+
+Yes
+
+### Superbot Plus
+
+$20 a month$16.67 a month
+
+Billed $200 yearly
+
+22,000 credits a month
+
+Runs at once
+
+6
+
+Long runs
+
+Yes
+
+Scheduled runs
+
+Yes
+
+Queue
+
+Standard
+
+Support
+
+Community
+
+Every model
+
+Yes
+
+14-day Pro trial
+
+### Superbot Pro (recommended)
+
+$100 a month$80 a month
+
+Billed $960 yearly
+
+120,000 credits a month
+
+Runs at once
+
+15
+
+Long runs
+
+Yes
+
+Scheduled runs
+
+Yes
+
+Queue
+
+Priority
+
+Support
+
+Priority
+
+Every model
+
+Yes
+
+### Superbot Max
+
+$200 a month$160 a month
+
+Billed $1,920 yearly
+
+270,000 credits a month
+
+Runs at once
+
+30
+
+Long runs
+
+Yes
+
+Scheduled runs
+
+Yes
+
+Queue
+
+Fastest
+
+Support
+
+Priority
+
+Every model
+
+Yes
+
+### Superbot Teams
+
+$25 a seat a month$25 a seat a month
+
+Billed yearlyBilled $300 a seat yearly
+
+30,000 a seat, pooled
+
+Runs at once
+
+6 per seat
+
+Long runs
+
+Yes
+
+Scheduled runs
+
+Yes
+
+Queue
+
+Priority
+
+Support
+
+Dedicated
+
+Every model
+
+Yes
+
+The 14-day Superbot Pro trial starts with 20,000 trial credits that expire when it ends; one account gets one trial. Past an allowance, credits cost $1 per 1,000. Limits cover hosted cloud runs only. [How billing works](https://superbot.gg/docs/billing).
+
+### Credit packs
+
+| price | credits |
+| ----- | ------- |
+| $5    | 5,000   |
+| $20   | 20,000  |
+| $100  | 100,000 |
+
+Plan credits reset monthly and do not roll over. Pack credits never expire.
+
+## One rate card for every call
+
+1 credit = $0.001. Rates are credits per 1M tokens.
+
+### House models
+
+| model                     | input | output | cache read |
+| ------------------------- | ----- | ------ | ---------- |
+| superbot                  | 200   | 800    | 5          |
+| superbot-fastfree in beta | 100   | 400    | 2.5        |
+
+superbot-fast is free in beta.
+fair use: 500 credits per 5 hours, 2,000 credits per 7 days.
+past that, it bills at the rates above.
+
+### Your own subscriptions and keys
+
+Models on your own subscriptions and keys are free on superbot.
+superbot adds no credits to those calls.
+You pay your provider as usual.
+
+A vendor model dialed on superbot credits, with no account of yours attached, is charged at its own list price.
+That is the same $0.001 per credit.
+
+Every call on superbot credits is priced on this one card.
+Superbot Free carries a monthly 10,000-credit beta pot, refilled on the 1st.
+
+## House models
+
+These always answer, with or without a provider connected.
+Every other model on your account answers by its own id.
+
+| model         | role                                  | context |
+| ------------- | ------------------------------------- | ------- |
+| superbot      | Your Superbot agent.                  | 1M      |
+| superbot-omni | Superbot agent, run on your computer. | 1M      |
+| superbot-fast | Quick and cheap, for small jobs.      | 500k    |
+
+## Status contract
+
+- `401` missing, malformed or unknown key
+- `402` budget spent
+- `403` revoked key or model not allowed
+- `429` over the per-key bucket
+- `499` the caller hung up
+
+Signed in? Mint a key on the [api console](https://superbot.gg/account/api).
+
+Third-party client? [Use superbot from Cursor, Continue, Claude Code and other clients](https://superbot.gg/clients).
+
+[Get an API key](https://superbot.gg/account/api#keys) [Download](https://superbot.gg/download)

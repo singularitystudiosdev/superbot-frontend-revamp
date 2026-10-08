@@ -1,0 +1,43 @@
+<!doctype html>
+<!-- source card for og-time.png: screenshot at 1200x630 (node .tmp/tt-render.8dea07a5.mjs).
+     the time-traveler conceit stays: a greeting to whoever digs up the first
+     capture, drawn in the superbot.gg chrome (black canvas, Inter headline,
+     JetBrains Mono stamp) beside the kit's vector mascot mark - the same mark,
+     geometry and duotone base offset as the shared og.png card, so the two
+     link previews read as one family. The mark is scaled to 574px (from og.png's
+     614) because the headline + the tracked mono stamp will not fit beside a
+     614px mark at 1200 wide. -->
+<html><head><meta charset="utf-8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+  body {
+    background: #000000; color: #ededf0;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex; align-items: center; padding: 0 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* the kit mark: og.png's box, margins and base duotone, scaled to 574px to fit */
+  svg.mark { width: 574px; height: 574px; flex: none; margin: 0 -60px 0 -80px; transform: translateY(-20px); }
+  .word { flex: none; transform: translateY(-10px); }
+  h1 { font-size: 96px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; color: #f6f7f9; }
+  h1 .tt { color: #4d8aff; }
+  p.stamp {
+    margin-top: 22px;
+    font: 26px/1.4 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #8a8f98; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  p.stamp b { color: #4d8aff; font-weight: 500; letter-spacing: 0.1em; text-transform: none; }
+</style></head>
+<body>
+  <svg class="mark" viewBox="0 0 100 100" aria-label="superbot mark"><defs><mask id="tmark" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><g fill="#fff"><rect x="14" y="32" width="72" height="54" rx="15"/>
+  <path d="M14 46V28Q14 20 21 21Q28 24 36 32Z"/>
+  <path d="M86 46V28Q86 20 79 21Q72 24 64 32Z"/></g><g fill="#000"><ellipse cx="35" cy="58" rx="8" ry="11"/><ellipse cx="65" cy="58" rx="8" ry="11"/></g></mask></defs><rect x="-30" y="-30" width="160" height="160" fill="#00e5c3" mask="url(#tmark)" transform="translate(-1.2 -1.2)"/><rect x="-30" y="-30" width="160" height="160" fill="#c026d3" mask="url(#tmark)" transform="translate(1.2 1.2)"/><rect x="-30" y="-30" width="160" height="160" fill="#ffffff" mask="url(#tmark)"/></svg>
+  <div class="word">
+    <h1>greetings,<br/><span class="tt">time traveler.</span></h1>
+    <p class="stamp">superbot.gg<br/><b>the agent to manage your agents</b></p>
+  </div>
+</body></html>

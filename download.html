@@ -1,0 +1,86 @@
+---
+title: "download"
+canonical_url: "https://superbot.gg/download"
+last_updated: "2026-10-08"
+summary: "download superbot for macOS and Windows, join the iPhone and Android test builds, and manage every AI agent you already pay for from one place."
+---
+
+> Markdown twin of https://superbot.gg/download (the HTML page is canonical).
+> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+
+# download superbot
+
+[ I want the app ](https://superbot.gg/download#route-app) [ I use my harness ](https://superbot.gg/download#helper) [ I only call an API ](https://superbot.gg/download#api) [ I use MCP ](https://superbot.gg/download#mcp)
+
+## Superbot app
+
+Other platforms
+
+### macOS
+
+- [Apple Silicon](https://superbot.gg/download/asset/mac-arm64)
+- [Apple Silicon (zip)](https://superbot.gg/download/asset/mac-arm64-zip)
+
+Install from a terminal
+
+- macOS and Linux
+`curl -fsSL https://superbot.gg/bootstrap.sh | sh`
+- Windows, in PowerShell
+`irm https://superbot.gg/bootstrap.ps1 | iex`
+
+read it first: [bootstrap.sh](https://superbot.gg/bootstrap.sh), [bootstrap.ps1](https://superbot.gg/bootstrap.ps1).
+
+`superbot update` updates the Helper.
+`superbot uninstall` [removes it all](https://superbot.gg/docs#uninstall).
+
+wiring a client by hand? [recipes](https://superbot.gg/docs#clients)
+
+[install on an agent computer](https://superbot.gg/agent)
+
+for developers: the raw helper files
+
+## superbot helper
+
+- the helper build is not downloadable yet.
+the [bootstrap one-liner](https://superbot.gg/download#dl-cli) installs it.
+
+`curl -fsSL https://superbot.gg/bootstrap.sh | sh`
+
+## superbot relay
+
+use your own harness. Claude Code, Agent SDK, Cursor.
+
+- macOS and Linux
+`curl -fsSL https://superbot.gg/bootstrap.sh | sh`
+- Windows, in PowerShell
+`irm https://superbot.gg/bootstrap.ps1 | iex`
+
+## Superbot API
+
+Any OpenAI or Anthropic client works.
+
+[Get an API key](https://superbot.gg/account/api)
+
+[Keys and authentication](https://superbot.gg/docs#api-auth)
+
+## superbot MCP
+
+Any MCP client works.
+
+Paste this into your agent.
+
+`install the superbot MCP server globally: https://superbot.gg/mcp
+install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md
+Tell me if I need to sign in.`
+
+Then type `/superbot` in your agent.
+
+In Codex, type `$superbot`.
+
+Or add the server URL yourself.
+
+`https://superbot.gg/mcp`
+
+`{ "mcpServers": { "superbot": { "type": "http", "url": "https://superbot.gg/mcp" } } }`
+
+no release yet: showing v0.1.0

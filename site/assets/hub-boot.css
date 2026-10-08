@@ -1,0 +1,981 @@
+/* hub-boot: the boot-sequence hero. One rAF clock in hub-boot.js drives every
+   beat; this sheet holds layout and rest states.
+   Tokens copied from site.css :root (colors, spacing, radii, durations, eases). */
+
+/* STAGE-ONLY SHEET. It loads beside site.css and hero.css on / (the promoted
+   hero, 2026-09-06), so it must not carry page-level rules: the mock page's
+   own frame (its :root tokens, resets, .hero/.hero-copy/.sub/.sb-btn/.foot)
+   lives inline in site/home-hub-boot.html. The eleven tokens below are the
+   only ones the stage needs that site.css and hero.css do not already define;
+   the
+   rest (--bg, --fg, --muted, --line, --accent, --accent-ink, --danger, --warn,
+   --stage, --window, --font-mono, --sp-*, --r-*, --dur-*, --ease-*) come from
+   the host page. (A leaked `.hero h1 { max-width: 18ch }` from here is what
+   capped the lander's headline to three lines.) */
+:root { --win: #0d0d0d; --side: #0d0d0d; --surface: #181818; --ink: #000000; --ui: var(--font-ui); --line-strong: #5c5c5c; --sb-icon: url(/site/assets/brand/superbot-app-icon.png); } /* the miniature's surfaces sit on the site ladder (site.css: canvas #000000, card #0d0d0d, raised #181818); --ink is the DARK ink the vendor avatar chips and the panel chips print with; --line-strong is Mobile's lineStrong (the filter and search buttons' hairline, the context bar's track); --sb-icon is the superbot tile's app icon, the one url the HUD mark's .ground layer and the <img class="tile"> both load */
+/* vendor brand pairs, category coding only (vendor identity, the one place a
+   hex off the site ladder is allowed): --brand-<vendor> is the tile ground,
+   --brand-<vendor>-ink the mark on it. Dark-UI variants as the app shows them
+   (cursor prints the mark WHITE on black; openai and gemini are the inverse,
+   black on white, per superbot-desktop brand.tokens.json "openai"). */
+:root {
+  --ok: #34d399; /* status green: the online dot (the amber/red pair's third member) */
+  /* the app's one filled action ramp, used by the header's Ask Superbot (the
+     sidebar's New chat wore a fill until superbot-desktop fc132325b; it is a
+     ghost list row now). The referent's own two stops; the only hex off the
+     site ladder this sheet adds, on the owner's instruction (2026-09-12). */
+  --go: linear-gradient(135deg, #3b5bff 0%, #7c3aed 100%);
+  --brand-openai: #ffffff;    --brand-openai-ink: #000000;
+  --brand-claude: #d97757;    --brand-claude-ink: #ffffff;
+  --brand-gemini: #ffffff;    --brand-gemini-ink: #1f1f1f;
+  --brand-cursor: #000000;    --brand-cursor-ink: #ffffff;
+  --brand-vscode: #0078d4;    --brand-vscode-ink: #ffffff;
+  --brand-zed: #084ccf;       --brand-zed-ink: #ffffff;
+  --brand-windsurf: #0b100f;  --brand-windsurf-ink: #58e5bb;
+  --brand-copilot: #24292f;   --brand-copilot-ink: #ffffff;
+}
+
+/* ---------- the terminal stage ---------- */
+.stage { position: relative; aspect-ratio: 16 / 10; background: var(--stage); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; display: grid; grid-template-rows: 28px minmax(0, 1fr); box-shadow: 0 14px 28px rgba(0,0,0,.24), 0 0 8px rgba(0,0,0,.2); max-width: none; container: stage / inline-size; } /* max-width: none — hero.css caps .stage at --content (720px), which would squeeze the promoted stage on lander-agent; container lets the narrow-stage rules below key off the STAGE width, not the viewport */
+.stage-bar { position: relative; display: flex; align-items: center; gap: 6px; padding: 0 var(--sp-3); border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); } /* position: relative — hero.css's .stage-bar is position:absolute (its cards float over the stage); absolute here would pull the bar out of the stage grid and drop .body into the 28px row */
+.stage-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.stage-bar span { margin-left: var(--sp-2); }
+.stage-bar .led { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.stage-bar .led.on { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.body { position: relative; display: grid; grid-template-columns: 21% minmax(0, 1fr); min-height: 0; grid-row: 2; } /* grid-row: 2 pins the body to the stage's second row even if the bar ever leaves the flow */
+
+/* margin log: the terminal's own transcript; the mascot parks here at the end */
+.margin { position: relative; border-right: 1px solid var(--line); padding: var(--sp-3); font-size: 12px; line-height: 18px; color: var(--muted); overflow: hidden; white-space: pre-wrap; word-break: break-word; }
+.margin .ln { display: block; white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.margin .ln.cmd { color: var(--fg); }
+.margin .ln.kv { padding-left: 1.2em; }
+.margin .ln.kv b { color: var(--fg); font-weight: 650; }
+.margin .ln.done::before { content: "✓ "; color: var(--accent); }
+.margin .ln.gap { height: 9px; }
+.margin .caret { display: inline-block; width: 7px; height: 14px; vertical-align: -2px; background: var(--accent); animation: caret 1s steps(2, jump-none) infinite; /* deliberate */ }
+@keyframes caret { to { opacity: 0; } }
+
+/* arena: everything animated lives here, positioned from its center */
+.arena { position: relative; overflow: hidden; }
+.arena > * { position: absolute; }
+
+.arena .boot-mascot { left: 50%; top: 50%; width: clamp(96px, 15vw, 210px); aspect-ratio: 1; transform: translate(-50%, -50%); z-index: 3; } /* the mascot is the vector mark (markSvg() + mascot-mark.css), not the retired ASCII cat; its own class, so hero.css's legacy .stage .mascot rules (bottom-anchored glyph typography) never reach it. The box IS the mark: layout() centres the bubble above it and the keys under it from its rect */
+/* the rig is the one element hub-boot.js's pose() transforms (rise, plump,
+   squash, glance, typing dip); it scales from his feet (y 86 of the 100-unit
+   viewBox), so he rises up out of the flat line drawn there */
+.boot-mascot .mark-rig { position: absolute; inset: 0; display: block; transform-origin: 50% 86%; opacity: 0; }
+.boot-mascot .boot-mark { width: 100%; height: 100%; }
+/* the flat line he boots out of (the old glyph row), with the light that runs it */
+.boot-mascot .mark-flat { position: absolute; left: 50%; top: 86%; width: 150%; height: 2px; margin-top: -1px; border-radius: 1px; background: rgb(255 255 255 / .55); transform: translateX(-50%); transform-origin: 50% 50%; }
+.boot-mascot .mark-flat b { position: absolute; left: 0; top: -1px; width: 16.667%; height: 4px; border-radius: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent); opacity: 0; }
+/* expressions on the story clock (pose() sets data-expr): the hello wink and the
+   ^_^ of the gulp landing (the same arcs mascot-mark.css shows on a click) */
+.boot-mascot .mark-eye { transform-box: fill-box; transform-origin: 50% 50%; transition: transform 90ms ease-out; }
+.boot-mascot[data-expr="wink"] .mark-eye-r { transform: scaleY(.1); }
+.boot-mascot[data-expr="happy"] .mark-eye { opacity: 0; }
+.boot-mascot[data-expr="happy"] .mark-happy { opacity: 1; }
+/* parked: after the story he sits in the terminal margin, beside the hub, still
+   idling (mascot-mark.css's bob/breath/ears, the blink and the pupils). Parking
+   moves him OUT of .arena, so the size is restated here */
+.boot-mascot.parked { width: clamp(56px, 8vw, 116px); aspect-ratio: 1; }
+.margin .boot-mascot.parked { position: absolute; left: 50%; top: auto; bottom: 46px; transform: translateX(-50%); }
+.margin .sb-keys.parked { top: auto; bottom: 22px; }
+
+/* ---------- the `perch` cut (ship, perch, bloom, tour, full) ----------
+   At the end the terminal column collapses to nothing and the arena takes the
+   whole stage, while the mascot is lent OUT of the stage to the anchor the host
+   page puts beside its headline. The width change is a layout animation on
+   purpose: the collapse IS the beat, and 700ms reads as a settle rather than a
+   snap (design-motion's 300ms cap covers incidental motion, not the one gesture
+   a variant exists for). These two selectors are the only rules in this
+   stage-only sheet that reach outside .stage; they style the mascot the stage
+   lends, never anything the host page owns. */
+.body { transition: grid-template-columns 700ms var(--ease-out); } /* deliberate */
+.stage.perched .body { grid-template-columns: 0% minmax(0, 1fr); }
+.stage.perched .margin { opacity: 0; padding: 0; border-right: 0; transition: opacity var(--dur-4) var(--ease-std); }
+/* (the old perch anchor beside the headline is gone: the brand tile sits
+   there now and the mascot fades with the terminal, owner 2026-09-08) */
+/* play again (2026-09-26, the user: "somewhere less invasive"): a bare muted
+   glyph at the right end of the window's title bar, after the led, for every
+   arm. It used to be a 44px accent disc centred on the stage's foot, with the
+   hub lifted 48px off the foot to make it a strip; now the hub keeps its inset
+   and nothing sits over the app. The button is the bar's full 28px height and
+   --target-sm wide (28px on a mouse); under a coarse pointer --target-sm is
+   44px and ::after carries the hit area 16px down into the stage, since the
+   stage clips anything above the bar. The bar stacks over .body so that strip
+   reaches the finger. [hidden] until the story reaches its hold. */
+.stage-bar { z-index: 10; }
+.replay-park { position: relative; flex: none; width: 28px; height: 28px; margin-right: calc(-1 * var(--sp-1)); padding: 0; border: 0; border-radius: var(--r-control); background: none; color: var(--muted); font: 13px/28px var(--font-mono); text-align: center; cursor: pointer; transition: color var(--dur-2) var(--ease-std); }
+.replay-park::after { content: ""; position: absolute; top: 0; left: calc((100% - var(--target-sm)) / 2); width: var(--target-sm); height: var(--target-sm); }
+.replay-park:focus-visible { color: var(--accent); outline-offset: -2px; }
+/* the hover tint sits inside (hover:hover): the button is [hidden] until the
+   story reaches its hold, and an unqualified :hover rule made the mobile matrix
+   read the hidden button as a hover-only reveal (measured 2026-09-17). A finger
+   never hovers; the button simply appears when it is armed. */
+@media (hover: hover) { .replay-park:hover { color: var(--accent); } }
+.replay-park[hidden] { display: none; }
+
+/* speech bubble: centred above the face (layout() sets left/top), wraps, and
+   never wider than the arena, so it cannot run off the edge */
+.bubble { left: 50%; top: 20%; transform: translate(-50%, -100%); max-width: calc(100% - 32px); width: max-content; text-align: center; font-size: 13px; line-height: 18px; padding: 6px 10px; background: var(--window); border: 1px solid var(--line); border-radius: var(--r-lg); border-bottom-left-radius: 2px; color: var(--fg); white-space: normal; overflow-wrap: anywhere; opacity: 0; z-index: 4; }
+.bubble .caret { display: inline-block; width: 6px; height: 12px; vertical-align: -1px; background: var(--accent); margin-left: 2px; }
+
+.scan { left: 0; right: 0; top: 0; height: 16px; font: 12px/16px var(--font-mono); color: var(--accent); white-space: nowrap; overflow: hidden; opacity: 0; letter-spacing: 0; text-shadow: 0 0 10px var(--accent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); z-index: 2; }
+
+/* inventory: app tiles and chips, moved only by transform */
+#items { inset: 0; } /* the layer must span the arena or the items' 50% anchors resolve against a zero box */
+.item { position: absolute; left: 50%; top: 50%; opacity: 0; will-change: transform; z-index: 3; }
+.item.app { width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 16px; background: var(--window); border: 1px solid var(--line); display: grid; place-items: center; color: var(--fg); box-shadow: 0 8px 16px rgba(0,0,0,.28); }
+.item.app svg { width: 34px; height: 34px; }
+.item.chip { height: 30px; margin: -15px 0 0 -70px; padding: 0 12px; border-radius: var(--r-pill); background: var(--window); border: 1px solid var(--line); color: var(--fg); font-size: 13px; line-height: 28px; white-space: nowrap; }
+.item.chip b { color: var(--accent); font-weight: 650; }
+
+/* the miniature's 11px base is the desktop scene's own scale; on a touch
+   surface at tablet width (iPad Mini 744, iPad Pro 11 834) the same labels
+   are body copy a reader is meant to read, and the mobile matrix measures
+   them against the 12px floor (10.92px search/ask, 11px blank-tx, measured
+   2026-09-17). Above 1100 the scene is unchanged — it is a picture there. */
+@media (pointer: coarse) and (max-width: 1400px) {
+  #hub .chat-head .search { font-size: 12px; }
+  #hub #feed .blank-tx { font-size: 14px; line-height: 20px; }
+  /* the chat-list column reads at 11px / 10.01px / 9.02px off the miniature's
+     11px base; on a coarse pointer those are the reader's text, not a scaled
+     picture, and the matrix flagged 29-32 nodes under 12px on the landscape
+     tablets (1080-1376px wide, 2026-09-17). The base font-size stays 11px so
+     the mock's geometry does not move; only these runs take the floor. */
+  #hub .chats .row, #hub .chats .row .t, #hub .chats .row em,
+  #hub .chats .today { font-size: 12px; line-height: 16px; }
+  /* the same floor for the user row (11.0044px at iPad Mini landscape,
+     2026-09-17) */
+  #arena .chats .acct .acct-email { font-size: 12px; line-height: 15px; }
+  /* and the Servers menu's rows, which read at the same 11px / 9px ladder */
+  #hub .hud-menu-tx b, #hub .hud-menu-tx small { font-size: 12px; line-height: 16px; }
+  /* the new-chat disclosure is running copy on a touch screen: the same floor */
+  #hub .main .disclaim { font-size: 12px; line-height: 16px; }
+  /* the open thread (#feed) rides the same 11px base: the bubble, the reply
+     and its list read at 11px, the fold/worked meta at .91em (10.01px) and
+     the date rule at .82em (9.02px) on every touch device in the matrix
+     (2026-09-23). The shrink's source is the em ladder, not a transform (the
+     hub rests at scale 1), so the thread's runs take the 12px floor here; the
+     muted colour keeps the meta below the reply. */
+  #hub #feed .bub, #hub #feed .m-text, #hub #feed .m-list,
+  #hub #feed .worked, #hub #feed .m-act, #hub #feed .date-div { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+}
+
+/* the badge: logo.svg, popped out of the crushed mascot */
+.badge { left: 50%; top: 50%; width: 88px; height: 88px; margin: -44px 0 0 -44px; opacity: 0; z-index: 5; filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); }
+.badge img { display: block; width: 100%; height: 100%; }
+
+/* ---------- the hub: the real app's layout ---------- */
+/* the hub is ONE miniature of the real app, so its type ladder rides em off
+   this 11px base rather than a scatter of px values: rescale the scene from
+   this line and every label follows. The 12px design floor is a rule for
+   real UI; the sizes declared below are the miniature's, relative to this
+   base (.82em reads 9px, .91em reads 10px, 1em reads 11px). */
+.hub { inset: 8px; right: 8px; background: var(--win); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; display: grid; grid-template-columns: var(--side-track) minmax(0, 1fr); font: 11px/15px var(--ui); opacity: 0; transform-origin: 0 0; z-index: 6; } /* two tracks: the sidebar, then the main lane. The sidebar track is the old rail and sidebar tracks together (56 + 208), which were taken as RATIOS off the owner's capture of the GUI (2026-09-12: rail 84 of 1472 = 5.7%, sidebar 330 = 22.4%) and rendered at the miniature's scale; since 2026-09-26 the app has no rail column and its sidebar opens with the HUD, so the first track now carries the app's 72px lane rail beside the 208px sidebar the mock has always drawn (72 + 208 = 280). The health panel exists in the app but opens collapsed, so the hub draws none and the second track is the whole main lane. */
+.hub > * { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+/* the sidebar track holds the app's 72px lane rail beside its 240px sidebar
+   (312 app px, --side-track), so the app's rail is a column of the hub again at
+   the app's own ratios. */
+/* THE SCALE (2026-10-01, #57: the user saw the rail 91 against 72, the tiles 34 against 40, the rows 34 against 30).
+   superbot-desktop measured at a 1200x750 window (scripts/gui-sync/desktop-geometry.json) is the referent, and
+   the hub is a scaled copy of it: --k is ONE hub px per app px, the hub's frame at its widest (the desk's 4/3 of
+   --content, 960, less the stage's and the hub's own 20px of inset and border: 940) over the app's 1200px window,
+   so a window-wide length (the 880 main, the 736 composer centred in it) lands where the app's does. It is the
+   11px base over the app's 14px to 0.3% (the 2em title line already read 28 app px as 22px). Every length of the
+   rail, the sidebar, the list and the header below is an app length times --k, so a spec value reads off the
+   rule (calc(var(--k) * 40) is the app's 40px tile) and the whole frame moves together. The phone cut's 12px
+   base takes the same ratio (below). The palette is the app's measured one, named for its tokens
+   (packages/tokens color.tokens.json): the window ground --win #0d0d0d is already the app's body; the card
+   (sidebar and main) #0a0a0a, the rail #121213, raised #1a1a1c, the line #1e1e21, muted #aeb1bc and the ink
+   #e6e8ee replace the site ladder inside the hub only. The ONE accent stays the site's --accent (the notch, the
+   open glyph and the wash share it), where the app's #2b6bff is the same hue before the site's AA lift. */
+.hub { --k: calc((var(--content) * 4 / 3 - 20px) / 1200); --radius-8: calc(var(--k) * 8); --radius-16: calc(var(--k) * 16); --rail-w: calc(var(--k) * 72); --side-track: calc(var(--k) * 312); --gutter: calc(var(--k) * 8);
+  --color-card: #0a0a0a; --color-rail: #121213; --color-raised: #1a1a1c; --color-line: #1e1e21; --color-muted: #aeb1bc; --color-fg: #e6e8ee;
+  --side: var(--color-card); --raised: var(--color-raised); --line: var(--color-line); --muted: var(--color-muted); --fg: var(--color-fg);
+  --accent: var(--storm-1); --accent-ink: #ffffff; --accent-text: color-mix(in srgb, var(--storm-1) 80%, #ffffff); }
+/* the hub's accent is the app's own (color.accent #2b6bff, the site's storm-1) and not the site's AA-lifted --accent, so the notch, the open lane's glyph and 14% wash, the selected row's bar and wash and the health dots read as the desktop does, and the three mocks (this one, the wschat frame, the /features desk) agree. The accent is a FILL here: text that must read as the accent on a dark ground (.ref, .tags, the tour's code keyword) takes --accent-text, storm-1 lifted a fifth toward white (5.3:1 on the raised ground, where the bare blue is 3.85:1), and the ink on a filled accent is white (4.52:1; the site's dark ink is 4.30:1 on this blue). A client's skin (.hub[data-app]) sets its own accent, and the text accent follows it. */
+.hub[data-app] { --accent-text: var(--accent); }
+.hub[data-app] { --color-rail: color-mix(in srgb, var(--side) 96%, #ffffff 4%); } /* a client's skin (the tour cuts) lifts ITS card for the rail, as the app's rail sits one step above its card */
+.hub > .side { display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); min-width: 0; }
+/* the splitter gutter (the app's .hub-splitter: 8px of the window's own ground between the sidebar and the main
+   pane, a 1px hairline centred in it): the main pane steps in by it, and its line rides the pane */
+.hub > .main { margin-left: var(--gutter); }
+.hub > .main::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--k) * -4.5); width: 1px; background: var(--line); pointer-events: none; }
+.side > .col { min-width: 0; display: flex; flex-direction: column; }
+.hub .inner { opacity: 0; }
+.hub .cap { font-size: .82em; line-height: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hub .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.hub .dot.warn { background: var(--warn); }
+.hub .dot.bad { background: var(--danger); }
+.hub .dot.off { background: var(--line); }
+.hub .act { display: inline-block; padding: 0 7px; border-radius: var(--r-control); background: var(--raised); border: 1px solid var(--line); color: var(--fg); font-size: .91em; line-height: 16px; }
+
+/* ---------- the lane rail (72 app px) ----------
+   hub/CollapsedRail.tsx, back in the app since 2026-09-28: the window's drag
+   band, then the Chat and Code lane tiles heading the rail directly under it
+   (.hub-rail-lanes, superbot-desktop f2fbe329c, 2026-10-01: the Superbot mark
+   and the hairline that sat between the band and the lanes left the rail; the
+   mascot is the sidebar HUD's now, see .hud-mark below), then the foot's
+   Fleet, Settings and account avatar (Setup joins it only while a step is
+   owed, so rail_setup_remaining 0 draws none). No Chats card (efd3c5b28) and
+   no Publish card (6f6bd76ee: the project tools toggle dock panes) is drawn.
+   The open lane is the app's Notched Pill (collapsed-rail.css, 3f7389dc5): an
+   accent-wash tile wearing the accent glyph, and beside it the NOTCH, a 4 by 20
+   accent bar (4 by 20 app px, --k each) level with the
+   tile, flush with the rail's outer edge in the gap the centred tile leaves,
+   rounded on its inner end only. It rides ::after because hero-workspace.css
+   keeps ::before on a rail button for its hit area. Every other tile is a bare
+   muted glyph on the rail's own ground, and no project is open, so the Code
+   lane's pill around the project tools is not drawn. The hub is an
+   aria-hidden picture with no hover, so each tile's name rides its aria-label
+   (the app's tooltip). The rail's ground and tiles are .inner: they fade up
+   with the lane (hub-handoff.js revealInners). */
+.rail { --rail-wash: color-mix(in srgb, var(--accent) 14%, var(--side)); position: relative; isolation: isolate; flex: none; min-width: 0; display: flex; flex-direction: column; align-items: center; padding: 0 calc(var(--k) * .83) 0 0; } /* --rail-wash: the open lane tile's ground, the app's color.accent-wash: the accent at 14% over the card (the desktop's #2b6bff over #0a0a0a is #0f182c; the hub keeps the site's own accent over the same card). The right padding is the app's 0.83px hairline, which the tiles centre clear of (the spec's x 15.58 of a 71.17 box) */
+.rail-ground { position: absolute; inset: 0; z-index: -1; background: var(--color-rail); box-shadow: inset -1px 0 0 var(--line); pointer-events: none; } /* the rail's ground (the app's color.rail, one lift above the card) and right hairline, a child so the mark can ride its own opacity; the hairline is a shadow, as the HUD's (.side .hud) */
+.rail-band { flex: none; width: 100%; height: calc(var(--k) * 34); margin-bottom: calc(var(--k) * 4); } /* the window's drag band (34, collapsed-rail.css .hub-rail-band), then the lanes one --spacing-4 under it (.hub-rail-lanes margin-block-start), so the first tile sits at y 38 */
+.rail-tile { flex: none; display: grid; place-items: center; width: calc(var(--k) * 40); height: calc(var(--k) * 40); margin: 0; border: 0; padding: 0; border-radius: var(--radius-8); background: none; color: var(--muted); font: inherit; } /* the app's 40 tile at the 8 radius; a REST tile is bare (transparent), only the open lane wears the wash */
+.rail-tile svg { width: calc(var(--k) * 22); height: calc(var(--k) * 22); stroke-width: 2.25; } /* --size-rail-icon 22 at the app's 2.25 stroke (lucide strokeWidth, in the 24 box's units) */
+.rail > .rail-tile + .rail-tile { margin-top: calc(var(--k) * 12); } /* the lane group's 12 gap: a 52 pitch */
+.rail-tile.on { position: relative; background: var(--rail-wash); color: var(--accent); }
+.rail-tile.on::after { content: ""; position: absolute; top: calc(var(--k) * 10); left: calc((var(--rail-w) - var(--k) * .83 - var(--k) * 40) / -2); width: calc(var(--k) * 4); height: calc(var(--k) * 20); border-radius: 0 var(--r-pill) var(--r-pill) 0; background: var(--accent); pointer-events: none; } /* the notch: 4 by 20, level with the tile (tile top + 10), flush with the rail's outer edge in the gap the centred tile leaves (the tile's own left inset is minus that), rounded on its inner end only */
+.rail button.rail-tile { cursor: pointer; }
+@media (hover: hover) { .rail button.rail-tile:hover { color: var(--fg); } .rail button.rail-tile.on:hover { color: var(--accent); } } /* the open lane keeps its accent glyph hovered, as the app's data-current does */
+.rail button.rail-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rail-foot { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: calc(var(--k) * 8); min-height: 0; padding-bottom: calc(var(--k) * 16); } /* the foot: Fleet, Settings and the avatar, 8 apart and 16 above the window's foot (collapsed-rail.css .hub-rail-foot); no Setup tile, the fixture owes none */
+.rail-av { flex: none; display: grid; place-items: center; width: calc(var(--k) * 32); height: calc(var(--k) * 32); border-radius: 50%; background: var(--line); color: var(--fg); font: 600 calc(var(--k) * 16) / 1 var(--ui); } /* --size-avatar 32, the pill on the line colour, its initial 16/600 */
+
+/* ---------- the sidebar and its HUD ----------
+   The app has no rail column since 2026-09-26: the sidebar is the first track
+   and opens with the HUD (superbot-desktop hub/SidebarHud.tsx,
+   sidebar-hud.css). .side holds the HUD and then the chat list (.chats).
+   Since f2fbe329c (2026-10-01) the HUD carries the page's one mascot again,
+   small, in the title line: .hud-mark, a square the line's own height, the
+   desktop's 8px gap, then the bold wordmark, over the disc stack, the whole
+   column wide. Every size below is the app's measured length times --k (the
+   hub's one scale, see the top of the hub section): the --text-wordmark 22/28
+   face on a 28 line, and that one line box is the title line's height, the
+   wordmark's and the mark's. The discs are the app's 24px --size-avatar-sm
+   disc, each next one stepping back a third of it (--spacing-8: a 16 step) and
+   the --size-ring cutout 2. The HUD's box is the app's: 30 above the title
+   line (the window clearance), a 16 left and 4 right inset, the 4 between the
+   title line and the disc row, and the --spacing-12 end band (not the
+   --spacing-32 it reserved for the history import's row, sidebar-hud.css
+   .hud:not(:has(.hud-import-row)), 272b5f844: with no import row it read as a
+   void under the disc stack). The sidebar draws no right hairline of its own:
+   the app's seam is the splitter gutter beside it (.hub > .main). */
+.side .hud { flex: none; position: relative; display: flex; align-items: center; padding: calc(var(--k) * 30) calc(var(--k) * 4) calc(var(--k) * 12) calc(var(--k) * 16); background: var(--side); border: 0; z-index: 2; } /* the HUD is the app's sidebar-hud.css box: the title line at y 30, the 28 line, 4, the 24 disc row, the 12 end band = 98; the inset is 16 left and 4 right. It draws no right hairline: the app's seam is the splitter gutter beside the sidebar (.hub > .main). The narrow cut's bottom hairline is a shadow, not a border: hub-handoff.js:85-89 captures the HUD border colour mid-transition (the .hub * border-color fade this deferred sheet starts from the pre-sheet currentColor) and hero-sphere.js:261 writes it back inline, which drew a near-white seam on the sphere, realui and workspace arms */
+/* the held window frame and grounds belong to this sheet, not to the handoff's inline pin: prepStage (hub-handoff.js:85-89) reads the .hub and .hud colours once, at mount, and revealHub / hero-sphere.js writeGrounds pin whatever it read inline for the rest of the page. Read while this deferred sheet is still fading in (or before it has applied) that is a mid-fade grey, a half-alpha ground, or the pre-sheet near-white currentColor (measured: frame rgb(236) and a transparent ground under a 800ms sheet, rgb(0)/rgb(91) frames and a 0.733-alpha ground on a plain load). !important beats the inline pin, and only once the stage is perched (the hold), so the reveal's own fade-in is untouched. data-hero marks the handoff arms (prepStage sets it); the boot story writes no inline grounds */
+.stage[data-hero].perched .hub { border-color: var(--line) !important; background-color: var(--win) !important; }
+.stage[data-hero].perched .side .hud { background-color: var(--side) !important; }
+.side .chats { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+/* the text column: the title line over the disc stack, --spacing-4 apart */
+.hud-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: calc(var(--k) * 4); }
+/* the title line (sidebar-hud.css .hud-title-line): the mark, the 8px gap, the
+   wordmark, ONE height: --hud-line, 28 app px (the --text-wordmark
+   line, times --k). The wordmark inherits it as its line box (.hud-word
+   line-height: inherit) and the mark takes it as its side, so the two are the
+   same pixels and the mark never grows the line or moves the disc row. */
+.hud-title-line { --hud-line: calc(var(--k) * 28); display: flex; align-items: center; gap: calc(var(--k) * 8); min-width: 0; line-height: var(--hud-line); }
+/* the mark (SidebarHud.tsx hud-mark): a square the title line's height
+   (--hud-line, the desktop's 28px box), the page's ONE mascot and the landing
+   seat of every hero's flying tile (hub-handoff.js S.mark, hero-sphere.js,
+   hero-realui.js). It wears the desktop's DEFAULT skin, 'plain' (superbot-desktop
+   abca8cb9b, 2026-10-01: StormTile({ skin = 'plain', bare }), what the example
+   account, which never picked a skin, gets): a BARE tile under it is the living
+   head alone, in the face's white ink with its teal and magenta ghosts, on the
+   HUD's own ground. No app icon, no storm ring, no aura, no spectrum, no
+   sheen, no gradient and no ground of any kind sits behind it; the eye holes
+   show the sidebar through. The Superbot column's 'active' state keeps that
+   head alive in place (ears, blink, bob and pupils from mascot-mark.css
+   .sb-mark and mountMascotMark), so it is the one layer, .face. It is seated
+   on the desktop's bare crop (storm-tile.tsx BARE_LIVE_SEAT: the face box
+   x 12.8, y 19.3, 74.4 by 67.9 of the mark's 100 units, so the head fills the
+   box edge to edge): 100 / 74.4 = 134.409% square at -12.8 / 74.4 = -17.2043%
+   and 50% - (19.3 + 67.9 / 2) / 74.4 = -21.5726% (width, height, left, top).
+   The face is not clipped, so the ear tips at the box's top corners are never
+   cut. The box rides its own opacity: the heroes hold it dark while the
+   flying tile (the app icon, the one grey-gradient layer on the page) lands on
+   this box, then cross-fade the tile out over the head (hero-sphere.js,
+   hero-realui.js XFADE); at rest nothing but the head is drawn. A vendor
+   column's title draws no mascot (SidebarHud.tsx: markNode is the Superbot
+   column's alone), so hub-boot.js's client tour hides it there (.off). The
+   --r-control corner is the desktop's focus-ring box. Motion is
+   unconditional (motion-always-on.mdc). */
+.hud-mark { position: relative; flex: none; display: block; width: var(--hud-line); height: var(--hud-line); border-radius: var(--radius-8); opacity: 0; }
+.hud-mark.off { display: none; }
+.hud-mark > .face { position: absolute; inset: 0; display: block; }
+.hud-mark > .face .sb-mark { position: absolute; left: -17.2043%; top: -21.5726%; width: 134.409%; height: 134.409%; max-width: none; cursor: default; } /* the bare crop's seat, see above; max-width: none undoes site.css:179 */
+.hud-word { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "SF Pro Rounded", ui-rounded, var(--ui); font-weight: 700; font-size: calc(var(--k) * 22); line-height: inherit; letter-spacing: calc(var(--k) * -0.44); color: #ffffff; opacity: 0; } /* the app's --text-wordmark: 22 on a 28 line, 700, -0.44px, white, in its rounded stack (SF Pro Rounded, ui-rounded, then the site's UI face) */
+/* a vendor destination's label takes the line at the headline's weight
+   (--text-headline 500): the 700 lockup is the 'superbot' name alone */
+.hud-word.vendor { font-weight: 500; letter-spacing: calc(var(--k) * -0.4); color: var(--fg); }
+/* the destination discs (packages/ui avatar-stack.tsx): round, overlapping,
+   each next one stepped back over the one before it and painted ABOVE it
+   (tree order is paint order); every disc wears an outside ring of the
+   sidebar ground, the cutout that punches it out of the one under it, and a
+   hairline edge inside its circle. The SELECTED disc keeps its slot and
+   gains a second ring in the fg ink outside the cutout */
+.hud-discs { display: flex; align-items: center; min-width: 0; height: calc(var(--k) * 24); padding-left: 0; isolation: isolate; }
+.hud .hud-disc { position: relative; flex: none; display: grid; place-items: center; width: calc(var(--k) * 24); height: calc(var(--k) * 24); border-radius: var(--r-pill); background: var(--raised); color: var(--fg); box-shadow: 0 0 0 calc(var(--k) * 2) var(--side); opacity: 0;
+  transition: background-color var(--dur-4) var(--ease-std), color var(--dur-4) var(--ease-std), box-shadow var(--dur-4) var(--ease-std), translate var(--dur-2) var(--ease-std); }
+.hud-disc::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line); pointer-events: none; }
+.hud-disc + .hud-disc { margin-left: calc(var(--k) * -8); }
+.hud .hud-disc.sel { box-shadow: 0 0 0 calc(var(--k) * 2) var(--side), 0 0 0 calc(var(--k) * 4) var(--fg); }
+/* a hovered disc lifts --spacing-2 and rises over its neighbours (the app's
+   hover); `translate`, not `transform`, so it never fights the reveal's own
+   transform writes */
+@media (hover: hover) { .hud-disc:hover { translate: 0 -.18em; z-index: 1; } }
+.hud-disc svg, .hud-menu-art svg { width: 62%; height: 62%; }
+.hud-disc > img, .hud-menu-art > img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+/* superbot's disc is the bare mono mark on the black tile ground */
+.hud-disc.sb, .hud-menu-art.sb { background: var(--tile-bg); }
+.hud-disc.sb > img, .hud-menu-art.sb > img { width: 64%; height: 64%; border-radius: 0; }
+/* the trailing + closes the stack a little apart from it */
+.hud .hud-disc.add { margin-left: calc(var(--k) * 4); background: var(--raised); color: var(--muted); font: 400 calc(var(--k) * 18) / 1 var(--ui); }
+/* the chevron beside the stack (the app's hud-expand): a bare muted 24 disc, no fill and no ring, 4 off the last disc */
+.hud .hud-disc.chev { margin-left: calc(var(--k) * 4); background: transparent; box-shadow: none; color: var(--muted); }
+.hud .hud-disc.chev::after { content: none; }
+.hud .hud-disc.chev + .hud-disc.add { margin-left: calc(var(--k) * 4); }
+/* vendor discs: the app's own icons, COLORED, each on its own ground (user,
+   2026-09-08). Ground + ink per brand pair; the edge hairline above keeps
+   the black ground (cursor) reading as a disc on the black. */
+.hud-disc[data-app="openai"], .hud-menu-art[data-app="openai"] { background: var(--brand-openai); color: var(--brand-openai-ink); }
+/* ChatGPT is its full-bleed app-icon art: the knot fills 75% of sb-ic-openai's
+   viewBox, so the svg runs at the disc's width */
+.hud-disc[data-app="openai"] svg, .hud-menu-art[data-app="openai"] svg { width: 96%; height: 96%; }
+.hud-disc[data-app="claude"], .hud-menu-art[data-app="claude"] { background: var(--brand-claude); color: var(--brand-claude-ink); }
+.hud-disc[data-app="gemini"], .hud-menu-art[data-app="gemini"] { background: var(--brand-gemini); color: var(--brand-gemini-ink); }
+.hud-disc[data-app="cursor"], .hud-menu-art[data-app="cursor"] { background: var(--brand-cursor); color: var(--brand-cursor-ink); }
+/* the Servers menu (ServerSwitcherMenu.tsx): a raised card
+   hung under the HUD row, one row per destination (its art, its name, one
+   short status in words), a hairline, then + Add. Hidden until the HUD
+   carries .menu-open; hub-boot.js opens it for one beat of the tour. */
+.hud .hud-menu { position: absolute; left: .55em; top: calc(100% - 1.8em); z-index: 9; width: 22em; max-width: calc(100% - 1.1em); display: grid; gap: .1em; padding: .36em; border-radius: calc(var(--r-control) * 1.25); background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1.27em 2.55em rgba(0,0,0,.4);
+  opacity: 0; visibility: hidden; translate: 0 -.36em;
+  transition: opacity var(--dur-3) var(--ease-std), translate var(--dur-3) var(--ease-out), visibility 0s linear var(--dur-3); }
+.hud.menu-open .hud-menu { opacity: 1; visibility: visible; translate: 0 0; transition-delay: 0s; }
+.hud-menu-row { display: flex; align-items: center; gap: .73em; min-width: 0; padding: .36em .55em; border-radius: var(--r-control); color: var(--fg); }
+.hud-menu-row.on { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.hud-menu-art { flex: none; display: grid; place-items: center; width: 2em; height: 2em; box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: var(--r-pill); background: var(--raised); color: var(--fg); font-style: normal; }
+.hud-menu-art.add { background: transparent; box-shadow: none; color: var(--muted); font: 400 1.3em/1 var(--ui); }
+.hud-menu-tx { min-width: 0; display: grid; }
+.hud-menu-tx b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.hud-menu-tx small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .82em; line-height: 1.3; }
+.hud-menu-div { height: 1px; margin: .18em .55em; background: var(--line); }
+
+/* ---------- client themes (the `tabs` cut's act two) ----------
+   Selecting a client retints the HUB — never the stage frame, which is
+   superbot's own window — to that vendor's palette, so the hero shows what it
+   claims: the app wears each client's skin, and coming home to superbot reads
+   as the neutral overview. The palettes are our own tokens picked to read as
+   the vendor; nothing is lifted beyond the HUD's existing vendor marks.
+   Only custom properties change here. A custom property is not itself
+   animatable without @property, so the cross-fade is carried by the transition
+   below on the background-color / color / border-color that consume them.
+   300ms is design-motion's cap: this is incidental motion, not the one
+   deliberate gesture the 700ms terminal collapse is. */
+.hub[data-app="openai"] { --bg: #0c0d0d; --side: #131414; --surface: #1b1c1c; --raised: #212322; --window: #101111; --win: #0a0b0b; --line: #2a2c2b; --accent: #10a37f; --accent-ink: #03130e; }
+.hub[data-app="claude"] { --bg: #191817; --side: #201f1d; --surface: #2a2825; --raised: #322f2b; --window: #1f1e1c; --win: #151413; --line: #3a3733; --muted: #a49c90; --accent: #d97757; --accent-ink: #1c0c05; }
+/* every descendant, not a hand-kept list: the hub is ~150 static nodes and an
+   enumerated list left the hub's own ground, the status dots, the meter fills,
+   the HUD's cutout rings and the code tinting snapping at each switch while their
+   neighbours faded. box-shadow is in the list for .row.on's inset accent bar.
+   None of these four properties is one the script animates (it drives opacity
+   and transform), so nothing here fights the clock. */
+.hub, .hub * {
+  transition: background-color var(--dur-4) var(--ease-std), border-color var(--dur-4) var(--ease-std),
+              color var(--dur-4) var(--ease-std), box-shadow var(--dur-4) var(--ease-std);
+}
+
+.chats { background: var(--side); }
+/* the Recent head carries the app's tools at its right end (Sidebar.tsx
+   chatListActions, f2fbe329c): Search, then the list-settings filter. The
+   list-zoom minus and plus moved to Settings (725ac116d), and Mark all as
+   read joins the pair only while a chat is unread, which the example account
+   has none of. The tools are hover-only like the app's (hub.css:533
+   .hub-side-bucket-actions, 84e5a0e00: the icons to the right of the bucket
+   label are visible only on hover): clear at rest, shown while the head is
+   hovered. Only opacity moves, on the app's 150ms (--dur-2), so the row never
+   shifts and the wells keep their place. The four retint properties stay in
+   this list because the rule outranks `.hub *` above and would drop them.
+   The reveal sits inside (hover: hover), as the hover tints above do. The
+   app's touch rule (hover: none paints them) is not carried: this drawing is
+   not a control, so a touch reader sees the row at rest, as on /features. The
+   hub is an aria-hidden picture, so the app's :focus-within reveal has no
+   focus to follow here. */
+.today .side-ic { flex: none; align-self: center; display: grid; place-items: center; font-style: normal; font-weight: 400; color: var(--muted); opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-std), background-color var(--dur-4) var(--ease-std), border-color var(--dur-4) var(--ease-std),
+              color var(--dur-4) var(--ease-std), box-shadow var(--dur-4) var(--ease-std); }
+@media (hover: hover) { #hub .today:hover .side-ic { opacity: 1; } }
+.today .side-ic:first-of-type { margin-left: auto; } /* the two buttons push right: filter, then search */
+.today .side-ic + .side-ic { margin-left: calc(var(--k) * 4); } /* the app's pair sit 4 apart (24 boxes at x 236 and 264) */
+/* the tools are the app's sm IconButton (packages/ui primitives/
+   icon-button.tsx:49-50): a control-radius square, never a disc, on the card
+   ground with the control hairline; 8 of 24 is 6 of this 18px box */
+.today .side-ic.ic-btn { width: calc(var(--k) * 24); height: calc(var(--k) * 24); border-radius: var(--radius-8); background: var(--win); border: 1px solid var(--line-strong); }
+.today .side-ic svg { width: calc(var(--k) * 14); height: calc(var(--k) * 14); }
+/* the Recent head: the tools sit at its right end, the label left (the app's
+   .hub-side-bucket-actions). The label is 9px at the miniature's base; the
+   tools are 18px boxes and would out-measure it, so the row keeps its own
+   padding and the tools are the only thing that may push it. */
+.today .side-ic:first-of-type { margin-left: auto; }
+/* New chat: the list's first row, a GHOST row (superbot-desktop hub.css
+   .hub-side-new-chat-item, 72d19defd; the 1px outline it wore since
+   fc132325b is gone). A chat row with no chat in it: no border, no fill, no
+   corner, drawn exactly as .chats .row.chat below is (a flat band, 14px of
+   padding), so the SquarePen sits on the chat marks' column and the label on
+   the titles' column (14 + the 16px mark slot + the row's 6px gap). One chat
+   row tall (the 27px floor), the title size, muted ink. It sits directly
+   under the tab strip and above the Recent section header, 2px
+   above and below. The app's glyph is the full 16px slot; the chats' tiles
+   hold an 11px image in the same slot, so the pen is 14px here and reads the
+   same size as the marks beside it. The hub is an aria-hidden picture with no
+   hover on any row, so the app's hover and press layers are not drawn here. */
+.chats .row.new { margin: calc(var(--k) * 4) calc(var(--k) * 16) 0 calc(var(--k) * 8); border: 0; background: transparent; font: 500 calc(var(--k) * 13) / calc(var(--k) * 19) var(--ui); color: var(--muted); } /* the seat is 4 under the HUD (hub.css .hub-side-new-chat-seat); the row is the chat row's own 28 band */
+.row.new .nc-mark { flex: none; display: grid; place-items: center; width: calc(var(--k) * 16); height: calc(var(--k) * 16); font-style: normal; }
+.row.new .nc-mark svg { width: calc(var(--k) * 16); height: calc(var(--k) * 16); stroke-width: 2; }
+/* the list's section label ('Recent'; a day caption only when the app's
+   Group by day is on, which is off by default; the example account has no
+   pinned chats, so no 'Pinned' label is drawn). The class keeps its old
+   name so the font floor above still reaches it. */
+.today { display: flex; align-items: center; height: calc(var(--k) * 24); margin: calc(var(--k) * 4) calc(var(--k) * 16) 0 calc(var(--k) * 8); padding: 0 calc(var(--k) * 8) 0 calc(var(--k) * 8); color: var(--muted); font: 400 calc(var(--k) * 11) / calc(var(--k) * 16) var(--ui); }
+.today + .row { margin-top: calc(var(--k) * 2); }
+.row.chat + .today { margin-top: calc(var(--k) * 8); }
+.row { position: relative; display: flex; align-items: center; gap: calc(var(--k) * 8); height: calc(var(--k) * 28); margin: 0 calc(var(--k) * 16) 0 calc(var(--k) * 8); padding: calc(var(--k) * 4) calc(var(--k) * 8); border-radius: 0; color: var(--muted); white-space: nowrap; overflow: hidden; }
+/* unread: the bar at the row's own left edge, so read and unread rows keep their
+   icons on one line (the referent does exactly this) */
+.row.chat.unread::before { content: ""; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 3px; height: 13px; border-radius: var(--r-pill); background: var(--fg); opacity: .85; }
+.row.chat.unread .t { color: var(--fg); }
+/* the day's rows open with the app's own tile: the superbot mark or the client's */
+.row .sp { flex: none; width: calc(var(--k) * 16); height: calc(var(--k) * 16); border-radius: var(--radius-8); background: var(--raised); display: grid; place-items: center; }
+.row .sp img { width: calc(var(--k) * 16); height: calc(var(--k) * 16); opacity: .68; } /* the app's Superbot row glyph is the 16 cat in the muted ink: #aeb1bc is 68% of white, which the white mark file is dimmed to */
+.row .sp svg { width: calc(var(--k) * 14); height: calc(var(--k) * 14); }
+.row svg { flex: none; width: calc(var(--k) * 14); height: calc(var(--k) * 14); stroke-width: 2; }
+.row .sp { flex: none; } /* the chat-bubble slot at a chat row's left edge: title, bubble, timestamp = the three slots a row needs */
+/* a chat imported from a client wears that client's own tile (the build draws
+   the Claude burst on its brand ground for Claude Code sessions) */
+.row .sp.app-claude { background: var(--brand-claude); color: var(--brand-claude-ink); }
+/* the build's list rows read larger than the old miniature: a 14px title
+   against a 12px base, so 1.09em here, with the time in the mono face */
+.chats .row.chat { font: 500 calc(var(--k) * 13) / calc(var(--k) * 19) var(--ui); } /* the title: 13/500, a 19 line (chat-row.tsx) */
+.chats .row.chat + .row.chat { margin-top: calc(var(--k) * 2); }
+/* the app's chat row (packages/ui chat-row.tsx:329-350): no corner radius and
+   no inset, the highlight runs edge to edge as a flat band, and the open row
+   is the --overlay-row-active state layer (fg at 14%) over the list, never a
+   raised fill. Padding carries the old margin so the icons do not move. */
+.chats .row.chat { overflow: visible; isolation: isolate; } /* visible so the open row's wash can run past its box into the sidebar's 4 insets; the title ellipsises on its own */
+.chats .row.chat.on { background: none; color: var(--fg); }
+/* the open row (hub.css .hub-chat-row[data-active]): the accent at 14% as a FULL-BLEED wash (the row's box grown 4 either side, 224 of the sidebar's 240) under it, and a 3 by 20 accent bar 4 from the row's top on its leading edge; the title takes the ink */
+.chats .row.chat.on::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: calc(var(--k) * -4); right: calc(var(--k) * -4); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.chats .row.chat.on::after { content: ""; position: absolute; left: 0; top: calc(var(--k) * 4); width: calc(var(--k) * 3); height: calc(var(--k) * 20); border-radius: var(--r-pill); background: var(--accent); }
+/* the provider mark (chat-row.tsx:376-390): a 16px tile at the app-icon
+   corner (half --radius-8) with the list's hairline, the glyph at 11px */
+.chats .row.chat .sp { width: calc(var(--k) * 16); height: calc(var(--k) * 16); background: transparent; }
+.chats .row.chat .sp.app-claude { background: var(--brand-claude); border-radius: calc(var(--radius-8) / 2); box-shadow: inset 0 0 0 1px var(--line); }
+.row em { margin-left: auto; font-style: normal; font-size: calc(var(--k) * 13); }
+.chats .row.chat em { font: 400 calc(var(--k) * 9) / 1 var(--font-mono); font-variant-numeric: tabular-nums; } /* the stamp: 9px monospace, tabular, its right edge 8 inside the row, one 8 gap (the row's) off the title */
+.row .t { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; } /* the title truncates, the timestamp always shows */
+.row .cnt { margin-left: auto; flex: none; min-width: 13px; padding: 0 3px; border-radius: var(--r-pill); background: var(--danger); color: #ffffff; font: 700 8px/13px var(--font-mono); text-align: center; }
+.row.on { background: var(--raised); color: var(--fg); } /* a bare .row.on (the Code lane's) is one raised row; the chat list's open row is the wash above */
+/* the footer account row, ONE row (superbot-desktop v00-crisper.tsx:184-209):
+   the avatar with its status dot, the address, then the Settings gear. The plan
+   line and Upgrade live in the account popover, never in this row. */
+.acct { margin: auto 0 0; padding: calc(var(--k) * 8); display: flex; align-items: center; gap: calc(var(--k) * 8); min-width: 0; border-radius: 0; background: var(--side); border: 0; border-top: 1px solid var(--line); min-height: calc(var(--k) * 48); } /* the app's .hub-side-foot: a hairline over the foot, an 8 inset round a 32 bar */
+.acct .avatar { position: relative; flex: none; width: calc(var(--k) * 24); height: calc(var(--k) * 24); margin-left: calc(var(--k) * 4); line-height: calc(var(--k) * 24); color: var(--fg); font: 600 calc(var(--k) * 11) / calc(var(--k) * 24) var(--ui); } /* the 24 avatar sits 4 inside the account button (x 84), its initial 11/600 */
+.acct .avatar .dot { position: absolute; right: calc(var(--k) * -2); bottom: calc(var(--k) * -2); width: calc(var(--k) * 8); height: calc(var(--k) * 8); background: var(--accent); box-shadow: 0 0 0 calc(var(--k) * 2) var(--side); } /* the health dot: 8, a 2 ring of the sidebar ground */
+.acct .acct-email { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 calc(var(--k) * 13) / calc(var(--k) * 16) var(--ui); color: var(--fg); }
+.acct .acct-tool { flex: none; display: grid; place-items: center; width: calc(var(--k) * 32); height: calc(var(--k) * 32); border-radius: var(--radius-8); color: var(--secondary); font-style: normal; }
+.acct .acct-tool svg { width: calc(var(--k) * 16); height: calc(var(--k) * 16); }
+/* the app's one ramp (packages/ui styles.css:1258 --super-grad): the armed
+   SUPER chip and the context ring share it */
+.hub { --super-grad: linear-gradient(135deg, #3fd6d0 0%, #4f7bff 48%, #c45cff 100%); }
+.hub .dot.ok { background: var(--ok); }
+/* the stepped-in list has no room for the timestamps, and a half-clipped "12m"
+   reads as broken where a clipped title reads as truncated */
+.hub.slim:not(.docked) .row em { display: none; } /* docked, the later .hub.docked grid restores the full sidebar, and the app never hides a row's stamp (packages/ui chat-row.tsx:7-9) */
+/* the step-in itself, scoped to the widest stage tier: below 820px the chat
+   list is already hidden and the narrower templates own the grid, so a slim
+   override down there would only leave a dead column. */
+/* one combined list: a second `.hub { transition: ... }` here would out-order
+   the retint transition above (same specificity, later wins) and leave the
+   hub's own --win ground snapping while every descendant faded */
+.hub { transition: background-color var(--dur-4) var(--ease-std), border-color var(--dur-4) var(--ease-std), /* right left the list: a layout property, so the stage's horizontal step snaps; colours still fade */
+       color var(--dur-4) var(--ease-std), box-shadow var(--dur-4) var(--ease-std),
+       grid-template-columns var(--dur-4) var(--ease-out); }
+@container stage (min-width: 821px) { .hub.slim { grid-template-columns: var(--side-track) minmax(0, 1fr); } } /* the perched step-in keeps the rail and the sidebar at their full 312 app px (72 + 240): the HUD row needs its column (the wordmark over the disc stack) and a 150px sidebar clipped it, which is the "too small" the user rejected */
+
+.main { background: var(--side); }
+.chat-head { --head-r: calc(var(--k) * 149); flex: none; display: grid; grid-template-columns: minmax(auto, 1fr) minmax(0, calc(var(--k) * 315)) minmax(0, 1fr); align-items: center; column-gap: calc(var(--k) * 8); height: calc(var(--k) * 48); padding: 0 var(--head-r) 0 calc(var(--k) * 16); border-bottom: 1px solid var(--line); font-weight: 400; font-size: 12px; }
+/* header chrome, exactly the real app's (hub/MainPane.tsx:1037-1235, Thread.tsx
+   23294-23351): the title at the left, the wide Search field centred in the
+   lane, then the actions at the trailing edge. A Superbot chat draws no vendor
+   mark before the title (PaneHeadVendorMark renders on vendor chats only,
+   MainPane.tsx:806-816,1082-1084). The panel toggle and the separate toolbar row
+   are both retired (channels.ts:2061), so one header row carries the lot. */
+/* the app's .hub-main-head: 48 tall under its hairline, padded 16 left and 149 right (the actions ride the right padding), the title at the left, the search centred in what the padding leaves; the narrow cuts below give the padding back */
+.chat-head b { grid-column: 1; justify-self: start; max-width: 100%; min-width: max-content; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 calc(var(--k) * 15) / calc(var(--k) * 20) var(--ui); color: var(--fg); } /* the title: 15/500 on a 20 line. It never shrinks below its text (the first track is auto-min): at shrink 1 the packed row took a sub-pixel off the title and "Release notes draft" drew as "Release notes dr…" beside the field; a name longer than the row still ellipsises */
+.chat-head .search { grid-column: 2; display: flex; align-items: center; gap: calc(var(--k) * 8); height: calc(var(--k) * 32); min-width: 0; padding: 0 calc(var(--k) * 12); border-radius: var(--radius-8); background: var(--raised); border: 1px solid var(--line); color: var(--muted); font-weight: 400; font-size: calc(var(--k) * 11); line-height: calc(var(--k) * 16); } /* the field: 315 x 32 at the 8 radius on the raised fill, a 12 left pad, its 11px label; it gives way before the title */
+.chat-head .search svg { flex: none; width: calc(var(--k) * 16); height: calc(var(--k) * 16); }
+.chat-head .search kbd { margin-left: auto; font: 400 calc(var(--k) * 11) / calc(var(--k) * 16) var(--font-mono); color: var(--muted); }
+/* the header actions (Thread.tsx headChips): Resync, Share, Move to a project
+   (a Superbot thread with no project), then the Browser globe. Bare muted
+   glyphs, no boxes, as the app draws them since 2026-09-30. */
+.chat-head .head-act { grid-column: 3; justify-self: end; margin-right: calc(calc(var(--k) * 12) - var(--head-r)); display: flex; align-items: center; gap: calc(var(--k) * 12); color: var(--muted); }
+.chat-head .head-act i { display: grid; place-items: center; font-style: normal; }
+.chat-head .head-act svg { width: calc(var(--k) * 16); height: calc(var(--k) * 16); }
+.feed { flex: 1; min-height: 0; padding: 10px 12px; display: grid; align-content: start; gap: 9px; overflow: hidden; }
+/* the empty NEW CHAT, which is what the app shows when nothing is open: the
+   duotone mark over one line, centred, and nothing else. The old welcome block
+   and the date divider left with the transcript (2026-09-12). */
+.feed.blank { align-content: center; justify-items: center; text-align: center; gap: 7px; }
+.feed.blank .blank-mark { width: 88px; height: 88px; }
+.feed.blank .blank-tx { margin: 0; color: var(--secondary); text-wrap: balance; }
+.msg { display: flex; gap: 8px; opacity: 0; }
+/* the open THREAD (the build's reading column): a centred date rule, the
+   user's turn as a right-aligned bubble, then the reply under its folded step
+   count, closed by the turn's outcome chip. No avatars, no names. */
+.feed.thread { padding: 12px 8% 8px; gap: 12px; }
+.date-div { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .82em; }
+.date-div::before, .date-div::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+/* the date sits in a raised pill between the hairlines (packages/ui
+   date-divider.tsx:97-107: rounded-pill bg-raised px-8 py-4) */
+.date-div span { padding: 2px 8px; border-radius: var(--r-pill); background: var(--raised); }
+.msg.own { justify-content: flex-end; }
+/* the user's bubble has no hairline (packages/ui message-row.tsx:470:
+   rounded-16 bg-raised px-16 py-4) */
+.msg .bub { margin: 0; max-width: 72%; padding: 5px 11px; border-radius: 14px; background: var(--raised); border: 0; color: var(--fg); line-height: 15px; }
+.msg.reply .m-main { gap: 7px; }
+.msg.reply p.m-text { margin: 0; color: var(--fg); }
+.m-list { margin: 0; padding-left: 14px; display: grid; gap: 3px; line-height: 15px; color: var(--fg); }
+.m-list b { font-weight: 650; }
+/* the turn's ONE muted activity line, above the reply body (Thread.tsx: the
+   app's "Thought 2s / Searched 1 site", here the fixture's "Thought 3s" with its
+   disclosure caret). Only what happened is named; nothing is claimed. */
+.m-act { display: inline-flex; align-items: center; gap: 3px; justify-self: start; color: var(--muted); font-size: .91em; }
+.worked { display: inline-flex; align-items: center; gap: 5px; justify-self: start; color: var(--muted); font-size: .91em; }
+.chev { font-style: normal; font-size: 1.2em; line-height: 1; }
+.chev.dn { transform: rotate(90deg); }
+.msg.cont .avatar { visibility: hidden; }
+.avatar { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--c, #facc15); color: var(--ink); font: 700 10px/24px var(--ui); text-align: center; }
+/* superbot's avatar is the kit's bare mark on the black tile (a static surface,
+   so no ring): the same glyph the HUD's disc, the header and the list carry */
+.avatar.sb { background: var(--tile-bg, #000000); box-shadow: inset 0 0 0 1px var(--line); font-size: 0; overflow: hidden; display: grid; place-items: center; }
+.avatar.sb img { width: 62%; height: 62%; display: block; }
+.m-main { min-width: 0; flex: 1; display: grid; gap: 5px; }
+.m-head { display: flex; gap: 6px; align-items: baseline; }
+.m-name { font-weight: 700; }
+.m-when { font-size: .82em; color: var(--muted); }
+.app { padding: 0 4px; border-radius: 3px; background: var(--accent); color: var(--accent-ink); font: 700 8px/12px var(--ui); letter-spacing: .04em; }
+.m-text { font-size: 1em; line-height: 15px; }
+.ref { display: inline-block; padding: 0 4px; border-radius: 4px; background: var(--raised); color: var(--accent-text); font-weight: 650; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; display: grid; gap: 3px; }
+.arena .card { position: static; width: auto; } /* hero.css's .card is absolutely positioned at min(280px,42%) for the incident cards; that must not leak into the hub's chat cards or the phone's */
+.card.rule { border-left: 3px solid var(--accent); justify-items: start; max-width: 200px; }
+.card.rule b { font-size: 1em; }
+.card.rule small { color: var(--muted); font-size: .82em; }
+.card.council { border-left: 3px solid var(--accent); font-size: .91em; }
+.c-head { display: flex; gap: 6px; align-items: center; color: var(--muted); }
+.c-head .cost { margin-left: auto; font: 10px var(--font-mono); }
+.tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tags span { padding: 0 5px; border-radius: 3px; background: color-mix(in srgb, var(--accent) 22%, var(--surface)); color: var(--accent-text); font-size: .9em; line-height: 14px; }
+.tags span.dim { background: var(--raised); color: var(--muted); }
+/* the composer, as the app draws it today (owner's capture, 2026-09-12): TWO
+   lines in one raised bar. The plus and the placeholder on the first, then the
+   mode switch, the Manage switch, the model picker and the send on the second (superseded below, 2026-09-23).
+   The bar carries the storm ramp on its own border and a faint bloom under it,
+   which is the one piece of brand chrome the app leaves on the input. */
+.composer { flex: none; position: relative; width: calc(100% - 16px); max-width: calc(var(--k) * 736); margin: 6px auto 8px; border-radius: var(--radius-16); } /* the app's [data-slot=composer]: 736 wide, centred in the 880 main, the 16 radius */
+/* the build's composer (2026-09-23 capture): one box on a blue hairline, the
+   placeholder over a foot of +, the SUPER Half pill, then the model picker, the
+   screen-share, the mic and the send at the right; the disclaimer under it */
+.composer .pill { position: relative; display: grid; grid-template-rows: calc(var(--k) * 44) calc(var(--k) * 28); row-gap: calc(var(--k) * 12); align-content: start; min-height: calc(var(--k) * 94); padding: 0 calc(var(--k) * 8) calc(var(--k) * 7.5) calc(var(--k) * 14); border-radius: var(--radius-16); background: var(--raised); border: 1px solid color-mix(in srgb, var(--storm-2) 62%, var(--line)); color: var(--muted); font-size: 1em; box-shadow: 0 0 14px -6px rgb(59 91 255 / .45); } /* the app's composer box: 94 tall on the raised fill at the 16 radius; the placeholder takes its 44 row, the foot's chips their 28 row 12 under it (chips at y 57); the 1px border counts inside the 94, so the bottom pad is 7.5 where the app's is 9 */
+.composer .line { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.composer .plus { flex: none; width: 16px; text-align: center; font: 400 14px/16px var(--ui); color: var(--muted); }
+.composer .ph { flex: 1; min-width: 0; font-size: calc(var(--k) * 15); line-height: calc(var(--k) * 20); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the SUPER chip, the HALF PILL (superbot-desktop 9634ac086, packages/ui
+   styles.css .bc-super / -cap / -spark / -tag / -chev), at the miniature's
+   scale (the send round is 20px here, 28 in the app): one pill at the send's
+   height split at a straight seam. LEFT a roughly square cap holding a
+   four-point sparkle (lucide Sparkle, filled): fg at 8% with a muted sparkle
+   while unarmed (OFF, an idle AUTO), the storm gradient with a white sparkle
+   when [data-on] (ON, a lit AUTO). RIGHT a dark half on a hairline reading
+   the mode in title case, then a small down chevron. No "SUPER" word, no
+   switch. The page draws it OFF. */
+.composer .super { flex: none; display: flex; align-items: stretch; height: 20px; border-radius: var(--r-pill); color: var(--fg); font: 500 .82em/1 var(--ui); white-space: nowrap; }
+.composer .super-cap { flex: none; display: grid; place-items: center; width: 24px; border-radius: var(--r-pill) 0 0 var(--r-pill); background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.composer .super[data-on] .super-cap { background: var(--super-grad); }
+.composer .super-spark { width: 10px; height: 10px; color: var(--muted); opacity: .7; }
+.composer .super[data-on] .super-spark { color: #fff; opacity: 1; }
+.composer .super-tag { display: flex; align-items: center; gap: 3px; padding: 0 6px 0 7px; border: 1px solid color-mix(in srgb, var(--line) 50%, var(--line-strong)); border-left: 0; border-radius: 0 var(--r-pill) var(--r-pill) 0; background: color-mix(in srgb, var(--fg) 3%, transparent); }
+.composer .super-chev { width: 9px; height: 9px; color: var(--muted); }
+/* the mode segment (composer-mode.tsx:143-232): idle (no sticky mode, Agent) it
+   is icon only, a dim cursor glyph and a small caret in the muted tone; Plan
+   or Debug swaps the glyph and adds its word. The mock draws the idle Agent
+   reading, so the glyph is there and the word is not. */
+.composer .mode { flex: none; display: flex; align-items: center; gap: 2px; color: var(--muted); opacity: .8; }
+.composer .mode-glyph { width: 12px; height: 12px; }
+.composer .mode-cv { width: 9px; height: 9px; }
+/* the model pill (.bc-plat, styles.css:1706-1725): the bare superbot face,
+   the word in title case, and a stroke chevron */
+.composer .model { margin-left: auto; flex: none; display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: .91em; line-height: 15px; }
+.composer .model .glitch { display: grid; }
+.composer .model img { width: 10px; height: 10px; }
+.composer .model .cv { width: 9px; height: 9px; }
+/* the computer-use toggle (composer.tsx, the app's .bc-computer): the monitor
+   glyph in the sm IconButton's square (control-radius, not the mic's circle);
+   off is the bare muted glyph, the armed tiers light it. The mock draws off. */
+.composer .computer, .composer .mic, .composer .send { flex: none; display: grid; place-items: center; color: var(--muted); }
+.composer .computer { width: 20px; height: 20px; border-radius: var(--r-control); }
+.composer .computer svg { width: 12px; height: 12px; }
+.composer .mic, .composer .send { width: 20px; height: 20px; border-radius: 50%; background: var(--raised); }
+.composer .mic svg, .composer .send svg { width: 11px; height: 11px; }
+/* A Superbot chat draws NO composer footer row (Thread.tsx: the AI disclaimer is
+   null once the thread has rows; it shows on the new-chat screen only), so the
+   thread's context reading is the ContextRing alone (Thread.tsx:23401-23425),
+   seated at the right end of the chips/location row. The mock's composer is one
+   bar, so the ring lands at the right end of its foot: a storm arc over the line
+   track, the reading on its aria-label. */
+.composer .ctx { flex: none; display: grid; place-items: center; width: 16px; height: 16px; color: var(--muted); }
+.composer .ctx .ring { display: block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--storm-2); border-right-color: var(--storm-2); }
+/* the AI disclosure, on the new-chat screen only (hero-workspace.js newChat():
+   hub-chat.css:891 .hub-ai-caption[data-seat='new-chat']): one centred muted
+   line under the bar, 8px above it as the app's --spacing-8, one sentence that
+   never wraps or clips (text-wrap.mdc) */
+.main .disclaim { margin: 8px 8% 0; text-align: center; color: var(--muted); font-size: .82em; line-height: 12px; white-space: nowrap; }
+
+/* the tour transcript: a SECOND feed stacked on the story's own, holding
+   whichever client's exchange act two is showing. Two feeds rather than
+   rewriting #feed's innerHTML, because the story's messages are captured as
+   element refs at module load and rewriting the container would drop them
+   (the same trap renderMargin() documents for the parked mascot). */
+.main { position: relative; }
+.feed.tour { position: absolute; inset: 62px 0 92px; opacity: 0; } /* header + toolbar above, composer + disclaimer below */
+.card.code { background: var(--win); padding: 0; gap: 0; overflow: hidden; }
+.card.code .c-bar { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .82em; }
+.card.code pre { margin: 0; padding: 6px 8px; font: 9px/14px var(--font-mono); color: var(--fg); white-space: pre; overflow: hidden; }
+.card.code pre .k { color: var(--accent-text); }
+.card.code pre .c { color: var(--muted); }
+/* superbot's answer is the payoff of the tour, so it carries the one lit edge
+   in the scene — the accent it is tinted with is ours again by then */
+.card.code.better { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent), 0 6px 22px color-mix(in srgb, var(--accent) 14%, transparent); }
+
+
+/* ---------- the phone: CSS only, same hub compact ---------- */
+.phone { right: 3%; bottom: 3%; width: 19.5%; aspect-ratio: 9 / 19; background: #000000; border: 2px solid var(--line); border-radius: var(--r-surface); padding: 6px; box-shadow: 0 14px 28px rgba(0,0,0,.4); opacity: 0; z-index: 8; transform: translateY(120%); } /* 19.5% of the wider arena = the same absolute size 22% was before the margin went 30%→21%; right/bottom/width left the transition list (layout properties, check-ui): the dock morph snaps, the transform entrance still animates */
+/* docked (the end state, owner 2026-09-08: "the mobile could become like a
+   column on the right that they can see to see that it's synced in real
+   time"): the phone parks as a right column beside the hub, its bottom on the
+   hub's bottom, so the two screens sit side by side with the same last line */
+.hub.docked { grid-template-columns: var(--side-track) minmax(0, 1fr); right: calc(24% + 20px); }
+.phone.docked { right: 8px; bottom: 8px; top: 8px; width: 24%; aspect-ratio: auto; } /* a touch wider than the floating phone: 19.5% read as narrow beside the hub (owner, 2026-09-08) */ /* docked, the phone is the hub's height: a right column, not a floating device */
+/* the phone is superbot Mobile's chat screen (superbot-mobile
+   src/features/thread/ThreadScreen.tsx) as the app draws it on 2026-09-24, in
+   two states: the new chat (hero: the white cat face over the two-line serif
+   greeting "Good afternoon." / "Where do we go?", nothing else) and, once #phone carries .thread (the beats add it as the first
+   turn lands), the open thread (the hero faded out, the thread title in the
+   header, the date divider, the user bubble and the plain reply). Sizes are
+   the app's points at the miniature's ~0.55 scale (the 402pt canvas divides
+   down to the ~220px screen): body 15pt -> 9px, caption 12pt -> 7px, title
+   17pt -> 10px, header 52pt -> 30px, composer field 56pt -> 30px. Colours are
+   the app's dark theme, which the site ladder already equals (themes.ts:338:
+   canvas #000000 = --bg, elevated #181818 = --raised, line #262626, text
+   #ececec / #cfcfcf / #9a9a9a); the one ramp is --go on the composer's dim
+   ring. */
+.phone .screen { position: absolute; inset: 6px; background: var(--bg); border-radius: var(--r-control); overflow: hidden; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; grid-template-columns: minmax(0, 1fr); font: 9px/12px var(--ui); color: var(--fg); } /* the one column is minmax(0,1fr), not the implicit min-content track: the turn and the composer row were sizing to their text and running 80px past the screen (measured 2026-09-08) */
+/* the iOS status band: the clock left; cellular bars, wifi and battery right (the captures' own band) */
+.phone .ph-status { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 4px; font-size: 1em; font-weight: 600; color: var(--fg); }
+.phone.docked .ph-sig { visibility: hidden; } /* the sync chip takes the status glyphs' slot once docked */
+.phone .ph-sig { display: flex; align-items: center; gap: 3px; }
+.phone .ph-bars { display: flex; align-items: flex-end; gap: 1px; height: 6px; }
+.phone .ph-bars b { width: 2px; height: 100%; border-radius: 1px; background: var(--fg); }
+.phone .ph-bars b:nth-child(1) { height: 40%; } .phone .ph-bars b:nth-child(2) { height: 60%; } .phone .ph-bars b:nth-child(3) { height: 80%; }
+.phone .ph-wifi { width: 9px; height: 9px; }
+.phone .ph-batt { position: relative; display: block; width: 13px; height: 6px; border: 1px solid var(--muted); border-radius: 2px; padding: 1px; }
+.phone .ph-batt b { display: block; height: 100%; border-radius: 1px; background: var(--fg); }
+/* ScreenHeader (ScreenHeader.tsx:216-260): sizes.header row, space[16] edges, the leading back circle, the title with its muted chevron.down (titleChevron="down", ThreadScreen.tsx:11292), then share and search, over the hairline */
+.phone .ph-head { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px; border-bottom: 1px solid var(--line); color: var(--fg); }
+.phone .ph-back { flex: none; display: grid; place-items: center; width: 11px; height: 11px; color: var(--fg); }
+.phone .ph-back svg { width: 11px; height: 11px; }
+.phone .ph-title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 2px; }
+.phone .ph-title b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; font-size: 1.12em; line-height: 13px; } /* type.title: 17pt medium, at the miniature's 9px base (the screen's own font shorthand) */
+.phone .ph-t-thread, .phone.thread .ph-t-new { display: none; }
+.phone.thread .ph-t-thread { display: block; }
+.phone .ph-tcv { flex: none; width: 8px; height: 8px; color: var(--muted); } /* sizes.icon.sm, text.muted */
+.phone .ph-ic { flex: none; display: grid; place-items: center; width: 11px; height: 11px; color: var(--secondary); } /* the share glyph tints text.secondary (ThreadScreen.tsx:11405) */
+.phone .ph-ic svg { width: 11px; height: 11px; }
+.phone .ph-head .sync { position: absolute; right: 12px; top: 12px; padding: 0 3px; background: var(--bg); font: 8px/12px var(--font-mono); color: var(--accent); opacity: 0; } /* on the status band, in the status glyphs' slot: its plate is the canvas black, so as the beat fades the chip in it covers the glyphs instead of printing over them */
+/* the transcript area: the hero and the feed share it, one at a time */
+.phone .ph-canvas { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+/* the new chat screen, the app's final design of 2026-09-25: the white cat
+   face (no tile, no ring) centred in the area over a two-line greeting in the
+   system serif, "Good afternoon." over "Where do we go?", large and regular
+   weight. Nothing else sits in the area: no cards, no second greeting line.
+   The hero is one layer and fades out as the first turn lands (.thread). The
+   greeting's size follows the screen's width (the ph-screen container below):
+   "Where do we go?" measures about 7.4 times its font size in the serif, so
+   dividing the padded width by 8 keeps each line whole on the narrowest
+   floating screen, capped at the app's scale on the wider docked one. */
+.phone .ph-hero { position: absolute; inset: 0; display: flex; flex-direction: column; min-width: 0; transition: opacity var(--dur-3) var(--ease-std); }
+.phone.thread .ph-hero { opacity: 0; }
+.phone .ph-greet { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 8px; text-align: center; }
+.phone .ph-face { display: block; width: 40px; height: 40px; margin-bottom: 10px; }
+.phone .ph-where { font: 400 min(1.9em, calc((100cqi - 16px) / 8))/1.12 var(--font-serif); letter-spacing: -.01em; color: var(--fg); white-space: nowrap; }
+/* the footer line: the AI disclosure on the new chat alone (ThreadScreen.tsx),
+   and the Context row (label + the storm well + the reading) once a thread
+   exists. Each state shows its own, never both. */
+.phone:not(.thread) .ph-ctx { display: none; }
+.phone.thread .ph-ai { display: none; }
+/* the thread (FlashList anchored at the bottom): the date divider (DateDivider.tsx: caption muted between two hairlines, space[12] above and below), then the turns in MessageRow's space[16] gutters */
+.phone .ph-feed { position: absolute; inset: 0; padding: 6px 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; min-width: 0; opacity: 0; transition: opacity var(--dur-3) var(--ease-std); }
+.phone.thread .ph-feed { opacity: 1; }
+.phone .ph-date { display: flex; align-items: center; gap: 4px; padding: 6px 8px; font-size: .78em; line-height: 9px; color: var(--muted); }
+.phone .ph-date::before, .phone .ph-date::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.phone .msg { display: block; min-width: 0; padding: 2px 8px; }
+/* the user turn: right-aligned surface.elevated bubble, r16 continuous, maxWidth 85%, space[12]/space[16] padding (MessageRow.tsx:163-176) */
+.phone .ph-own { display: flex; justify-content: flex-end; }
+.phone .ph-bub { max-width: 85%; margin: 0; padding: 6px 8px; border-radius: var(--r-control); background: var(--raised); color: var(--fg); overflow-wrap: anywhere; }
+/* the assistant turn: full width, plain body text, no surface of its own (MessageRow.tsx:177-180) */
+.phone .ph-reply { color: var(--fg); }
+.phone:not(.replied) .ph-reply { display: none; } /* the reply row is not in the list until it lands, so the user turn sits on the bottom anchor alone */
+.phone .ph-reply p { margin: 0; }
+.phone .ph-reply ul { margin: 2px 0; padding-left: 11px; }
+.phone .ph-reply li { margin: 1px 0; }
+.phone .ph-reply b { font-weight: 600; }
+/* the reply's one muted activity line and its one footer caption, as the desktop
+   thread draws them (the app's "Thought 2s", the turn's "12s · 5 steps"). */
+.phone .ph-act { display: inline-flex; align-items: center; gap: 3px; margin: 0 0 2px; color: var(--muted); font-size: .82em; }
+.phone .ph-chev { font-style: normal; }
+.phone .ph-worked { margin: 3px 0 0; color: var(--muted); font-size: .82em; }
+/* the full composer, the app's final design: one raised r16 box on a hairline,
+   the placeholder line "How can superbot help you today?" over the controls
+   row (a round +, the "superbot" chip with the cat and a caret, then the mic
+   and the white round send at the right). Every size is in em off the
+   composer's own font size, which follows the screen's width (100cqi / 22,
+   capped at the miniature's 9px base), so the whole row and the placeholder
+   stay whole on the narrow floating screen as on the docked one. */
+.phone .ph-composer { padding: 4px 7px 0; min-width: 0; font-size: min(9px, calc(100cqi / 31)); line-height: 1.3; }
+.phone .ph-box { display: grid; gap: .7em; padding: .85em .7em .7em; border: 1px solid var(--line); border-radius: var(--r-surface); background: var(--raised); color: var(--muted); }
+.phone .ph-place { padding-left: .3em; white-space: nowrap; overflow: hidden; }
+.phone .ph-row { display: flex; align-items: center; gap: .28em; min-width: 0; }
+.phone .ph-row i { flex: none; display: grid; place-items: center; width: 2em; height: 2em; border-radius: 50%; border: 1px solid var(--line); color: var(--fg); }
+.phone .ph-row i svg { width: 1em; height: 1em; }
+.phone .ph-row .ph-mic { margin-left: auto; }
+.phone .ph-row .ph-send { border: 0; background: var(--fg); color: var(--bg); }
+.phone .ph-chip { flex: none; display: inline-flex; align-items: center; gap: .28em; height: 2em; padding: 0 .5em 0 .4em; border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--fg); font-weight: 400; white-space: nowrap; }
+.phone .ph-chip img { width: 1.1em; height: 1.1em; }
+/* the phone composer's own Half SUPER pill and mode segment, the same two
+   controls the desktop bar carries, at the phone row's em scale. The pill is
+   Off (idle); the mode segment's glyph is the idle Agent cursor and its
+   caret. */
+.phone .ph-super { flex: none; display: flex; align-items: stretch; height: 2.7em; border-radius: var(--r-pill); color: var(--fg); font-size: .78em; }
+.phone .ph-super-cap { flex: none; display: grid; place-items: center; width: 2.2em; border-radius: var(--r-pill) 0 0 var(--r-pill); background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.phone .ph-super-cap svg { width: .95em; height: .95em; color: var(--muted); opacity: .7; }
+.phone .ph-super-tag { display: flex; align-items: center; gap: .15em; padding: 0 .35em 0 .4em; border: 1px solid var(--line); border-left: 0; border-radius: 0 var(--r-pill) var(--r-pill) 0; background: color-mix(in srgb, var(--fg) 3%, transparent); }
+.phone .ph-super-tag svg { width: .8em; height: .8em; color: var(--muted); }
+.phone .ph-mode { flex: none; display: flex; align-items: center; gap: .1em; color: var(--muted); opacity: .8; }
+.phone .ph-mode-glyph { width: .85em; height: .85em; }
+.phone .ph-mode-cv { width: .7em; height: .7em; }
+/* the footer line under the composer (Composer.tsx:2497-2523, styles.footerSlot): centred, the AI disclosure alone on one line in the new chat; in a thread the context-window bar (ContextWindowBar: an 88pt well on the storm ramp + the estimated "~N%" caption) leads it, the pair wrapping rather than clipping on a narrow phone */
+.phone .ph-foot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1px 6px; padding: 4px 7px 0; min-width: 0; font-size: .78em; line-height: 9px; color: var(--muted); white-space: nowrap; }
+.phone .ph-ctx { flex: none; display: flex; align-items: center; gap: 4px; overflow: hidden; }
+.phone .ph-ctx-l { color: var(--muted); }
+.phone .ph-ctx i { flex: none; display: block; width: 26px; height: 2px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.phone .ph-ctx b { display: block; width: 8%; height: 100%; background: var(--go); }
+.phone .ph-ai { flex: none; }
+/* the disclosure is one sentence on one line, never clipped or ellipsised. The
+   phone is a scaled picture whose width follows the arena (19.5% floating, 24%
+   docked) while its type is fixed px, so the footer's caption size (.78em, the
+   app's 12pt caption at the miniature's scale; the site ladder has no step under
+   --fs-xs 12px) is capped by the screen's own width: the 37-character sentence
+   measures about 19.4 times its font size, so dividing the padded screen width
+   by 20 keeps it on one line at every phone width the stage draws (about 5.9px
+   on the 132px floating screen, which the stage then shows at 1.25x). */
+.phone .screen { container: ph-screen / inline-size; }
+.phone .ph-foot { font-size: min(.78em, calc((100cqi - 14px) / 20)); }
+.phone .ph-home { justify-self: center; width: 34%; height: 3px; border-radius: 999px; background: var(--fg); margin: 6px 0 4px; } /* the iOS home indicator reads light on a dark app */
+.phone-label { right: 3%; bottom: calc(3% - 22px); width: 19.5%; text-align: center; font: 11px/16px var(--font-mono); color: var(--accent); opacity: 0; z-index: 8; }
+
+/* sync beam: one curve from the chat lane to the phone's shoulder, drawn twice.
+   The rail dissolves at BOTH ends through its gradient rather than stopping at a
+   hard terminus, so it reads as a connection instead of a line ruled from
+   nowhere, and a single light runs it — replacing the dashed arc with an ascii
+   glyph riding a textPath, which read as debris on a dotted line.
+   The classes are .rail/.run on purpose: hero.css:183-188 styles `.beam .line`
+   and `.beam .traffic` for the V0 hero and BOTH sheets load on the lander, so
+   renaming retires that collision outright instead of overriding it (the old
+   `.beam .line { opacity: 1 }` override went with it). hero.css's `.beam path`
+   still sets fill/stroke, but a class selector outranks it. */
+.beam { inset: 0; width: 100%; height: 100%; opacity: 0; z-index: 7; pointer-events: none; overflow: visible; }
+.beam .rail, .beam .run { fill: none; stroke-linecap: round; }
+.beam .rail { stroke: url(#beam-fade); stroke-width: 1.5; }
+.beam .run { stroke: url(#beam-run); stroke-width: 2.5; }
+.beam .g-off { stop-color: var(--accent); stop-opacity: 0; }
+.beam .g-rail { stop-color: var(--accent); stop-opacity: .3; }
+.beam .g-hot { stop-color: var(--accent); stop-opacity: 1; }
+
+/* ---------- breakpoints ---------- */
+/* narrow hubs: the sidebar's chat list leaves (as it did below 900px before),
+   and the HUD row survives as a slim header across the top of the lane, the
+   wordmark and the discs as the app draws them. The rail goes with the chat
+   list (the app's narrow window hides its sidebar and rail together); the
+   HUD's title line keeps the page's one mascot, so at every width the heroes'
+   flying tile lands on the HUD mark (hub-handoff.js, hero-sphere.js,
+   hero-realui.js). */
+@media (max-width: 900px) {
+  .hub, .hub.slim { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .hub > .side { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+  .hub > .main { margin-left: 0; } .hub > .main::before { display: none; } .chat-head { --head-r: calc(var(--k) * 12); } /* one column: no splitter gutter, and the header's actions ride the row */
+  .side .chats { display: none; }
+  .side .hud { padding: .55em 1.1em; box-shadow: inset 0 -1px 0 var(--line); }
+  .hud-text { flex-direction: row; align-items: center; gap: .64em; } /* the slim header: the wordmark and the discs share one line */
+  .hud .hud-menu { top: calc(100% + .27em); }
+  .phone { width: 30%; }
+  .phone-label { width: 30%; }
+}
+/* The old <=1000px tier (the panel's last two cards and the composer's model
+   picker) is RETIRED, 2026-09-12: the health panel is collapsed at every width
+   and the model picker is part of the app's composer, so hiding it on the
+   lander's 960px stage was hiding the referent itself. */
+/* tablet-width stages (641px viewports up to ~900px): the hub sheds its
+   Chats column, then its panel, so the chat lane never drops under ~180px
+   (at a 593px stage all four columns left it 23px). The phone cut below
+   640px takes over from here with its own two-column hub. */
+@container stage (max-width: 820px) {
+  .hub, .hub.slim { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .hub > .side { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+  .hub > .main { margin-left: 0; } .hub > .main::before { display: none; } .chat-head { --head-r: calc(var(--k) * 12); } /* one column: no splitter gutter, and the header's actions ride the row */
+  .side .chats { display: none; }
+  .side .hud { padding: .55em 1.1em; box-shadow: inset 0 -1px 0 var(--line); }
+  .hud-text { flex-direction: row; align-items: center; gap: .64em; } /* the slim header: the wordmark and the discs share one line */
+  .hud .hud-menu { top: calc(100% + .27em); }
+  /* 21% of a 720px stage is 151px: too narrow for "auth sessions   3", the
+     transcript's widest line, so the column widens to 27% here */
+  .body { grid-template-columns: 27% minmax(0, 1fr); }
+}
+@container stage (max-width: 660px) {
+  /* the SUPER switch and the screen-share leave first: they are the bar's
+     furniture, and the placeholder is the bar */
+  .composer .super, .composer .mode, .composer .computer { display: none; }
+  .feed.blank .blank-mark { width: 64px; height: 64px; }
+  /* the app tiles shrink here, not in the phone media block below: hub-boot.js
+     picks its tidy-grid pitch (52 vs 78) off this same stage width, so the
+     drawn tile and the pitch switch together */
+  .item.app { width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 12px; }
+  .item.app svg { width: 24px; height: 24px; }
+}
+
+/* phones (<=640px): the compact cut of the story. A portrait 4/5 stage (the
+   16/10 one left the hub 170px tall and the phone mock covering half of it),
+   the terminal transcript as a 3-line strip under the arena that shows its
+   LAST lines (a flex column pinned to the end; the old nth-last-child trick
+   counted the parked mascot and keys and hid every line), the hub down to
+   the HUD header over the chat lane at 12px, and no phone/beam (the viewer is
+   already on one). */
+@media (max-width: 640px) {
+  .stage { aspect-ratio: 4 / 5; }
+  .body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 54px; } /* 54 = 6px padding x2 + exactly three 14px lines, so no fourth line peeks half-clipped at the top */
+  .margin { order: 2; border-right: 0; border-top: 1px solid var(--line); padding: 6px 10px; font-size: 12px; line-height: 14px; display: flex; flex-direction: column; justify-content: flex-end; white-space: nowrap; }
+  .margin .ln { flex: none; }
+  .margin .ln.gap { height: 4px; }
+  .margin .boot-mascot.parked, .margin .sb-keys.parked { display: none; }
+  .hub { --k: calc(12px / 14); inset: 6px; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); font-size: 12px; line-height: 16px; } /* --k follows the 12px base here, as it follows the 11px one above */
+  .hub > .side { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+  .hub > .main { margin-left: 0; } .hub > .main::before { display: none; } .chat-head { --head-r: calc(var(--k) * 12); } /* one column: no splitter gutter, and the header's actions ride the row */
+  .hud-disc.chev { display: none; }
+  /* the header gives the ~310px hub back to the lane */
+  .side .hud { padding: .45em .8em; }
+  .side .chats, .phone, .phone-label, .beam { display: none; }
+  .composer .model, .composer .super, .composer .mode, .composer .ctx, .composer .computer, .chat-head .head-act { display: none; } /* .chat-head .head-act: the base `.chat-head .head-act { display: flex }` out-ranks a bare `.head-act`, so the four header actions stayed and cut the title to "New c…" */
+  .arena .boot-mascot { width: clamp(80px, 30vw, 132px); }
+  .bubble { font-size: 12px; }
+  .item.chip { height: 26px; margin: -13px 0 0 -60px; font-size: 12px; line-height: 24px; padding: 0 10px; }
+  /* the 12px text floor (mobile-web-design.mdc) for everything the phone cut
+     still shows in the chat lane; the desktop hub keeps its 9-11px captions
+     because it is a scaled-down picture of the app, not phone body text */
+  .hub .cap, .m-when, .m-text, .hub .act, .composer, .composer .send,
+  .chat-head .topic, .chat-head .search { font-size: 12px; }
+  .hub .cap, .m-text, .hub .act { line-height: 16px; }
+  /* the two header chips measured 10.92px (a .91em of the 12px header), under
+     the 12px floor; the empty-state line under them is the app's running copy,
+     not chrome, so it takes 14px (mobile-web-design.mdc; measured 2026-09-17).
+     Both sit here, in the last phone block, so they out-order the .chat-head
+     and .feed.blank base rules declared earlier in this sheet. */
+  .feed.blank .blank-tx { font-size: 14px; line-height: 20px; }
+}
+
+/* phone landscape sits ABOVE the 640px phone cut, so the floors above do not
+   fire there and the hub's .91em header chips measured 10.92px again, with the
+   empty line at the 11px base (mobile audit 2026-09-17; iPhone 15 landscape).
+   Short landscape is still a phone: restate the two floors. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .chat-head .search { font-size: 12px; }
+  .feed.blank .blank-tx { font-size: 14px; line-height: 20px; }
+}
+
+
+/* ---------- the 2026-09-23 build redraw: narrow stages ----------
+   The app lets the composer foot wrap; a still picture cannot, so on
+   narrower stages the least load-bearing chrome leaves first: the SUPER
+   switch and the screen-share, then the model picker and the search hint. */
+/* The desktop stage (958px at a 1440 viewport, a 643px-tall hub) holds the
+   whole composer foot, as the app does at its 1100px window floor; only below
+   760px does the foot run out of width for SUPER and the screen-share. */
+@container stage (max-width: 760px) { .composer .super, .composer .mode, .composer .computer { display: none; } }
+@container stage (max-width: 900px) { .composer .model, .chat-head .search kbd { display: none; } .feed.thread { align-content: end; } .feed.thread .date-div { display: none; } }
+@media (max-width: 640px) { .feed.thread { align-content: end; padding: 10px 12px 8px; } .composer { width: auto; max-width: none; margin: 6px 10px 8px; } }
+/* the HUD header takes a row off every narrow hub (the tablet stage, the
+   phone cut, a phone on its side), so the thread's two meta lines (the folded
+   step count and the worked-for chip) give it back and the user's bubble
+   stays whole above the reply */
+@container stage (max-width: 820px) { .feed.thread .worked { display: none; } }
+/* the docked hub (phone beside it) restates its tracks at every width, so
+   once the chat list hides below 900px the narrow stages keep the one-column
+   grid (the HUD header over the lane) when docked too */
+@media (max-width: 900px) { .hub.docked { grid-template-columns: minmax(0, 1fr); } }
+@container stage (max-width: 820px) { .hub.docked { grid-template-columns: minmax(0, 1fr); } }
+/* the dock exists to make room for the phone column; the phone cut draws no
+   phone, so the docked hub takes the whole arena instead of keeping a 24% inset
+   for a column that is not there (which left the HUD 245px and clipped its
+   wordmark). */
+@media (max-width: 640px) { .hub.docked { grid-template-columns: minmax(0, 1fr); right: 8px; bottom: 8px; } .feed.thread .date-div { display: none; } }
+
+/* phones (portrait, and short landscape, which the matrix also counts as a
+   phone): the thread's sentences are running copy, so the bubble, the reply
+   and its list take 14px; the fold/worked meta stays on the 12px floor set in
+   the coarse block above, one step under the copy. Declared last so it
+   out-orders that block at the same specificity. */
+@media (pointer: coarse) and (max-width: 599px), (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+  #hub #feed .bub, #hub #feed .m-text, #hub #feed .m-list { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+}
+
+/* a phone on its side (landscape pass, 2026-09-26). The landscape stage is a
+   ~330x224-266px window (hero.css), and docked beside a 24% phone column the
+   hub's lane was ~170px wide: the chat title cut to "Releas…", the search chip
+   to "Searc", the context line to "su…", and the phone mock's copy ran one
+   word a line at 2-9px. The reader is already holding a phone, so landscape
+   takes the portrait phone cut's answer (the 640px block above): no phone, no
+   beam, no label. hub-handoff.js reads the phone's display at prepStage
+   (noPhone) and then never docks, so the hub keeps the whole arena. The HUD
+   header tightens so the shorter hub keeps its lane, and the lane
+   sheds the search chip, the thread toolbar, the model picker and the
+   composer's foot line, so the title and the placeholder read whole. Scoped
+   to #stage: the /features content spliced into #more shares no class with
+   the stage, and this keeps it that way. */
+@media (orientation: landscape) and (max-height: 500px) {
+  #stage .phone, #stage .phone-label, #stage .beam { display: none; }
+  #stage .hub, #stage .hub.docked { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); right: 8px; bottom: 8px; }
+  #stage .hub > .side { grid-template-columns: minmax(0, 1fr); }
+  #stage .rail { display: none; }
+  #stage .hub > .main { margin-left: 0; } #stage .hub > .main::before { display: none; } #stage .chat-head { --head-r: calc(var(--k) * 12); }
+  #stage .hud-disc.chev { display: none; }
+  #stage .side .chats { display: none; }
+  #stage .side .hud { padding: .36em .8em; box-shadow: inset 0 -1px 0 var(--line); }
+  #stage .chat-head .search, #stage .head-act, #stage .composer .model, #stage .composer .mode { display: none; }
+  /* the placeholder is the last line under the 12px floor once the phone
+     mock is gone (it read 11px, the hub's base) */
+  #stage .composer .ph { font-size: var(--fs-xs); }
+}

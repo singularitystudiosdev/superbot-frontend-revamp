@@ -1,0 +1,51 @@
+# superbot
+
+> superbot is an agent manager app.
+> It manages the AI apps you already pay for, like Claude Code, Codex, Cursor, ChatGPT and Gemini.
+> It never wraps or replaces them.
+
+superbot is in private beta.
+Access is by invite.
+
+## What it is
+
+- An agent manager, the way 1Password is a password manager.
+- A desktop app laid out like Discord, with one icon per connected AI app.
+- Chats from every provider sync to every device you link.
+- The Helper is a small relay on your computer that holds your AI app credentials.
+- `superbot` is the Helper's command line tool.
+- Superbot Fast, the house model, is free during the beta.
+
+## Platforms
+
+- macOS: the only downloadable build today.
+- iOS: TestFlight, for beta testers.
+- Android: Google Play internal testing, for beta testers.
+- Windows and Linux: no build yet.
+
+## Getting access
+
+- [Private beta](https://superbot.gg/invite): sign in with an invite code.
+- [Waitlist](https://superbot.gg/): the "get an invite" form on the home page.
+- [@superbot_gg on X](https://x.com/superbot_gg): invite codes drop there first.
+- [Download](https://beta.superbot.gg/download): opens once you are in the beta.
+
+## Pages
+
+- [Features](https://superbot.gg/features): what the app does, app by app.
+- [Docs](https://superbot.gg/docs): how the app, the Helper and its CLI work.
+- [API](https://superbot.gg/api): every model on your account at one URL.
+- [Developers](https://superbot.gg/developers): the base URL, keys, scopes and the full reference.
+- [Clients](https://superbot.gg/clients): the base URL, key and model id for each client.
+- [SMS](https://superbot.gg/sms): texts from superbot, and how to opt out.
+- [Enterprise](https://superbot.gg/enterprise): one signed policy for a team's AI agents.
+- [Agent computers](https://superbot.gg/agent): install the Helper on a Grok Bot, Muse, dots or Manus computer and link it to your account.
+- [Status](https://status.superbot.gg): live service status, JSON at https://status.superbot.gg/api/v2/summary.json
+
+## Legal
+
+- [Terms](https://superbot.gg/legal/terms)
+- [Privacy](https://superbot.gg/legal/privacy)
+- [Report abuse](https://superbot.gg/abuse)
+
+superbot is made by [EZO Labs Inc](https://ezolabs.io).

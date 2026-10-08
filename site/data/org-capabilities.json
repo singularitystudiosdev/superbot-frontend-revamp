@@ -1,0 +1,212 @@
+{
+  "generated_by": "scripts/gen-org-capabilities.mjs",
+  "controls": [
+    "models",
+    "mcp",
+    "permissions",
+    "network",
+    "rules"
+  ],
+  "level_meaning": {
+    "enforced": "written where the member cannot edit it",
+    "advisory": "written to the member's own file",
+    "relay": "held at the relay on routed traffic",
+    "unresolved": "no key on this harness"
+  },
+  "install_modes": {
+    "admin": "system policy directory writable (admin install)",
+    "user": "member's own files only"
+  },
+  "relay_server_name": "superbot",
+  "harnesses": [
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "native_file": true,
+      "surfaces": [
+        "mcp",
+        "models",
+        "rules",
+        "autonomy"
+      ],
+      "levels": {
+        "admin": {
+          "models": "enforced",
+          "mcp": "enforced",
+          "permissions": "enforced",
+          "network": "advisory",
+          "rules": "enforced"
+        },
+        "user": {
+          "models": "advisory",
+          "mcp": "relay",
+          "permissions": "advisory",
+          "network": "advisory",
+          "rules": "unresolved"
+        }
+      },
+      "mcp_deny_only": {
+        "admin": "enforced",
+        "user": "relay"
+      }
+    },
+    {
+      "id": "codex",
+      "name": "Codex CLI",
+      "native_file": true,
+      "surfaces": [
+        "mcp",
+        "models"
+      ],
+      "levels": {
+        "admin": {
+          "models": "relay",
+          "mcp": "enforced",
+          "permissions": "unresolved",
+          "network": "unresolved",
+          "rules": "unresolved"
+        },
+        "user": {
+          "models": "relay",
+          "mcp": "relay",
+          "permissions": "unresolved",
+          "network": "unresolved",
+          "rules": "unresolved"
+        }
+      },
+      "mcp_deny_only": {
+        "admin": "relay",
+        "user": "relay"
+      }
+    }
+  ],
+  "relay_only": {
+    "levels": {
+      "models": "relay",
+      "mcp": "relay",
+      "permissions": "unresolved",
+      "network": "unresolved",
+      "rules": "unresolved"
+    },
+    "harnesses": [
+      {
+        "id": "claude-desktop",
+        "name": "Claude Desktop"
+      },
+      {
+        "id": "cursor",
+        "name": "Cursor"
+      },
+      {
+        "id": "vscode",
+        "name": "VS Code"
+      },
+      {
+        "id": "vscode-insiders",
+        "name": "VS Code Insiders"
+      },
+      {
+        "id": "windsurf",
+        "name": "Devin Desktop (formerly Windsurf)"
+      },
+      {
+        "id": "devin",
+        "name": "Devin CLI"
+      },
+      {
+        "id": "cline",
+        "name": "Cline"
+      },
+      {
+        "id": "roo-code",
+        "name": "Roo Code"
+      },
+      {
+        "id": "kilo-code",
+        "name": "Kilo Code"
+      },
+      {
+        "id": "hermes",
+        "name": "Hermes Agent"
+      },
+      {
+        "id": "zazen",
+        "name": "Zazen (Freebuff fork)"
+      },
+      {
+        "id": "omp",
+        "name": "omp"
+      },
+      {
+        "id": "pi",
+        "name": "pi"
+      },
+      {
+        "id": "openclaw",
+        "name": "OpenClaw"
+      },
+      {
+        "id": "gemini",
+        "name": "Gemini CLI"
+      },
+      {
+        "id": "muse",
+        "name": "Muse Code"
+      },
+      {
+        "id": "chatgpt-desktop",
+        "name": "ChatGPT desktop"
+      },
+      {
+        "id": "zed",
+        "name": "Zed"
+      },
+      {
+        "id": "continue",
+        "name": "Continue"
+      },
+      {
+        "id": "copilot-cli",
+        "name": "GitHub Copilot CLI"
+      },
+      {
+        "id": "kiro",
+        "name": "Kiro"
+      },
+      {
+        "id": "qwen-code",
+        "name": "Qwen Code"
+      },
+      {
+        "id": "opencode",
+        "name": "opencode"
+      },
+      {
+        "id": "amazon-q-cli",
+        "name": "Amazon Q CLI"
+      }
+    ]
+  },
+  "edge": {
+    "models": {
+      "status": 403,
+      "error": "model_not_allowed"
+    },
+    "budget": {
+      "status": 402,
+      "walk": [
+        "org",
+        "member",
+        "agent"
+      ],
+      "errors": [
+        "org_monthly_limit",
+        "member_monthly_limit",
+        "agent_monthly_limit"
+      ]
+    },
+    "agent_grants": {
+      "max_ttl_hours": 24
+    }
+  }
+}

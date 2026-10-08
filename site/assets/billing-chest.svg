@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+  <!-- An open treasure chest: magenta lid thrown back, three coins heaped over the rim, a blue strapped box with a teal lock. -->
+  <g stroke="#0c0c0f" stroke-width="2" stroke-linejoin="round">
+    <rect x="6" y="3" width="34" height="11" rx="4" fill="#c026d3"/>
+    <rect x="8" y="12" width="30" height="8" fill="#7a1489"/>
+  </g>
+  <path d="M10 7.5 H20" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <g stroke="#0c0c0f" stroke-width="2" stroke-linejoin="round">
+    <circle cx="14" cy="20" r="6" fill="#00e5c3"/>
+    <circle cx="34" cy="20" r="6" fill="#00e5c3"/>
+    <circle cx="24" cy="17.5" r="6.5" fill="#00e5c3"/>
+    <circle cx="24" cy="17.5" r="3.2" fill="#2b6bff"/>
+  </g>
+  <g stroke="#0c0c0f" stroke-width="2" stroke-linejoin="round">
+    <rect x="4" y="22" width="40" height="22" rx="3" fill="#1747c9"/>
+    <rect x="5" y="23" width="38" height="12" fill="#2b6bff" stroke="none"/>
+    <rect x="9" y="22" width="5" height="22" fill="#00e5c3"/>
+    <rect x="34" y="22" width="5" height="22" fill="#00e5c3"/>
+    <rect x="19.5" y="26" width="9" height="10" rx="2" fill="#00e5c3"/>
+  </g>
+  <circle cx="24" cy="30" r="1.5" fill="#0c0c0f"/>
+  <path d="M24 30 V33.5" stroke="#0c0c0f" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M44 2 L45.1 5.4 L48 6.5 L45.1 7.6 L44 11 L42.9 7.6 L40 6.5 L42.9 5.4 Z" fill="#ffffff" stroke="#0c0c0f" stroke-width="1.2" stroke-linejoin="round"/>
+</svg>

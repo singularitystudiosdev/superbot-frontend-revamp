@@ -1,0 +1,53 @@
+<section class="doc-block" id="troubleshooting">
+  <h3>Troubleshooting</h3>
+  <p class="doc-lede">Fixes for what goes wrong after you install the Helper.</p>
+  <p>If superbot seems down, check <a href="https://status.superbot.gg">status.superbot.gg</a>.</p>
+  <h4>My AI client does not show superbot</h4>
+  <p>Restart the client. If it still lists no superbot tool, run <code>superbot clients wire</code> to route every client the Helper finds.</p>
+  <h4>superbot: command not found</h4>
+  <p>Paste the activation line the installer printed at the end. In sh, bash and zsh it is <code>export PATH="$HOME/.superbot/bin:$PATH"</code>.</p>
+  <h4>The installer did not sign me in</h4>
+  <p>Run <code>superbot signin</code>. It opens your browser to sign in.</p>
+  <h4>My caller key is refused</h4>
+  <p>A 401 means the key is missing or malformed, and a 403 means it was revoked or does not allow that model. Mint a new key in <a href="#api-auth">Keys and authentication</a>.</p>
+  <p>Related: <a href="#clients">Your AI clients</a></p>
+</section>
+
+<section class="doc-block" id="remote-ssh">
+  <h3>Remote SSH projects</h3>
+  <p class="doc-lede">A project on an SSH host keeps its files, terminal and agents on that box.</p>
+  <p>Click + and pick <strong>Connect to an SSH host</strong>, then choose a host or type <code>user@host</code>.</p>
+  <h4>The chat shows a connection error</h4>
+  <ul class="doc-list">
+    <li><strong>SSH sign-in failed</strong>: enter the password, or add your key to ssh-agent or pick one for this host.</li>
+    <li><strong>Host key rejected</strong>: the box's host key differs from the one you accepted. Check the fingerprint, then retry.</li>
+    <li><strong>Box unreachable</strong>: the box did not answer. Check that it is on and reachable from your computer.</li>
+    <li><strong>Box platform unsupported</strong>: the box needs Linux with glibc 2.28 or newer, or macOS, on x64 or arm64. Alpine and other musl Linux do not work.</li>
+    <li><strong>Box has no internet</strong>: the box cannot download the Helper. <strong>Send from this computer</strong> (Send from this Mac on a Mac) copies it over.</li>
+    <li><strong>Port forwarding blocked</strong>: allow <code>AllowTcpForwarding</code> in <code>sshd_config</code> on the box, then retry.</li>
+    <li><strong>Login shell prints output</strong>: stop the shell profile or login banner from printing on connect, then retry.</li>
+    <li><strong>Engine missing on box</strong>: <strong>Reinstall Helper</strong> puts the engine back.</li>
+    <li><strong>OpenSSH too old</strong>: update OpenSSH on your computer to 8.7 or newer, then retry.</li>
+  </ul>
+</section>
+
+<section class="doc-block" id="uninstall">
+  <h3>Uninstall</h3>
+  <p class="doc-lede"><code>superbot uninstall</code> deletes superbot and everything it left on your machine: the Helper, the desktop app and its data, superbot's own entries in your AI clients, and your local accounts, chats and keys.</p>
+  <p>You sign in again after a reinstall. <code>superbot uninstall <span class="sb-nowrap">--dry-run</span></code> lists what would go and deletes nothing. A script with no terminal has to pass <code class="sb-nowrap">--yes</code>.</p>
+  <p>To remove one client by hand, run <code>claude mcp remove superbot</code> for Claude Code, or delete the <code>superbot</code> entry from that client's config file. Nothing else was installed.</p>
+  <p>Related: <a href="#clients">Your AI clients</a></p>
+</section>
+
+<section class="doc-block" id="more">
+  <h3>More ways to read this</h3>
+  <p class="doc-lede">This documentation in the formats other tools read.</p>
+  <ul class="doc-list">
+    <li><a href="llms.txt">llms.txt</a>: every install recipe and the MCP endpoint, as an agent reads it.</li>
+    <li><a href="/docs.md">docs.md</a>: this page as markdown.</li>
+    <li><a href="clients.html">clients</a>: the per-client setup pages.</li>
+    <li><a href="api.html">api</a>: the full rate card and the request formats.</li>
+    <li><a href="enterprise.html">enterprise</a>: teams, policy and coverage.</li>
+    <li><a href="request-harness.html">request a client</a>: one that is not on the list yet.</li>
+  </ul>
+</section>

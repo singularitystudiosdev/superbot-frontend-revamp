@@ -1,0 +1,9 @@
+{
+  "PUT /v1/org/:id/policy rev 2": {
+    "rev": 2
+  },
+  "PUT rev 3 without prev_sig": {
+    "status": 400,
+    "error": "chain_break"
+  }
+}

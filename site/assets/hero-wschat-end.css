@@ -1,0 +1,82 @@
+/* hero-workspace-end: the hero's last frame (hero-wschat-end.js createEnd()).
+   A black card over the whole stage, the same ground as hero-wschat.css
+   .hw-card, holding one lockup, the 'superbot' wordmark with the living mark to
+   its right, and one circular replay control under it. The module writes the
+   card's opacity, the two lockup parts' rise and unblur (the .hw-w word rise)
+   and the control's fade; everything here is the resting look.
+   Type: the wordmark is the desktop's text.wordmark (packages/tokens
+   type.tokens.json: 700, -0.02em, the site's .sb-wordmark and the HUD's
+   .hud-word, var(--font-ui)), sized as the card headline (.hw-title's
+   clamp). One radius: 50%, the control's circle. No gradient, glow or glass.
+   Motion is unconditional (.cursor/rules/motion-always-on.mdc). */
+
+.stage .hwe-card {
+  position: absolute; inset: 0; z-index: 61; /* over .hw-card (60): the end card takes the stage from it */
+  display: grid; place-items: center;
+  background: #000; /* the hw-card's black */
+  container-type: size;
+  opacity: 0; visibility: hidden;
+}
+
+/* Hidden, the card holds no animation. It sits at opacity 0 / visibility hidden
+   from hero mount until the story's end card starts (and again after a replay
+   or a scrub back), and the mark inside it carries six infinite loops
+   (mascot-mark.css: bob, breath, both ears, both ghosts) that would stay in
+   document.getAnimations() under a card nothing paints: Blink re-queues every
+   running infinite animation on every main frame, painted or not. Removed with
+   `animation: none`, never paused: a paused animation stays in the timeline and
+   is re-added each frame. hero-wschat-end.js render() puts .is-on on the card
+   beside the visibility write, so a shown card is untouched (the loops play for
+   as long as it is up) and they restart at 0% as it comes in, behind the
+   lockup's own rise (the mark part is at opacity 0 until WORD_AT). Weight
+   (0,4,0) outranks every rule that starts or swaps a loop on the mark
+   (.sb-mark .x, .sb-mark.is-happy: 0,2,0). */
+.stage .hwe-card:not(.is-on) .sb-mark,
+.stage .hwe-card:not(.is-on) .sb-mark * { animation: none; }
+
+.hwe-body { display: flex; flex-direction: column; align-items: center; gap: clamp(24px, 6cqh, 48px); } /* --sp-6..--sp-12 */
+
+/* the lockup: one row, the word and the mark centred on each other */
+.hwe-lockup {
+  margin: 0;
+  display: flex; align-items: center; gap: .12em; /* plus the mark box's own 14% left inset: about a word space */
+  font: 700 clamp(22px, 7.2cqw, 92px)/1 var(--font-ui);
+  letter-spacing: -.02em;
+  color: #fff;
+  white-space: nowrap;
+}
+/* each part waits for its beat; the module writes its rise */
+.hwe-word, .hwe-mark { display: block; opacity: 0; will-change: transform, opacity, filter; }
+/* the mark's box is 1.12em: its face (the 100-unit box's 21..86 band) then
+   stands a hair over the word's cap height, as the HUD mark stands over its
+   wordmark. The svg keeps .sb-mark's own bob, so the rise is written on the
+   span around it. Centred in the row, the face's centre (53.5 of 100) lands
+   on the word's optical middle (ascender top to baseline). */
+.hwe-mark { flex: none; width: 1.12em; height: 1.12em; }
+.hwe-mark .sb-mark { width: 100%; height: 100%; max-width: none; } /* max-width: none undoes site.css's img/svg cap */
+
+/* the replay control: a real button, 44px at the least (--target-touch),
+   growing with the stage to 56px; the module fades its seat in last and
+   holds it inert until then */
+.hwe-act { opacity: 0; }
+.hwe-replay {
+  --hwe-d: clamp(44px, 5.2cqw, 56px);
+  display: grid; place-items: center;
+  width: var(--hwe-d); height: var(--hwe-d); min-width: var(--target-touch, 44px); min-height: var(--target-touch, 44px);
+  margin: 0; padding: 0;
+  border: 1px solid var(--line, #262626); border-radius: 50%;
+  background: transparent;
+  color: var(--muted, #9a9a9a);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur-2, 150ms) var(--ease-std, cubic-bezier(.2, 0, 0, 1)),
+    background-color var(--dur-2, 150ms) var(--ease-std, cubic-bezier(.2, 0, 0, 1)),
+    border-color var(--dur-2, 150ms) var(--ease-std, cubic-bezier(.2, 0, 0, 1)),
+    transform var(--dur-2, 150ms) var(--ease-std, cubic-bezier(.2, 0, 0, 1));
+}
+.hwe-replay svg { width: 44%; height: 44%; display: block; }
+@media (hover: hover) {
+  .hwe-replay:hover { color: var(--fg, #ececec); background-color: var(--raised, #181818); border-color: var(--line-strong, #5c5c5c); }
+}
+.hwe-replay:active { transform: scale(.96); }
+.hwe-replay:focus-visible { outline: 2px solid var(--accent, #4d8aff); outline-offset: 2px; color: var(--fg, #ececec); }

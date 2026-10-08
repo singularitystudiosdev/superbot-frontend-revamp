@@ -1,0 +1,197 @@
+<section class="doc-block" id="builtin-tools">
+  <h3>Built-in tools</h3>
+  <p class="doc-lede">Every agent starts with the same tools, so one ask can research a topic and hand back a finished file.</p>
+  <ul class="doc-list">
+    <li><strong>Web</strong> search and page reading, with a browser for pages that need JavaScript and web archives for pages that are gone.</li>
+    <li><strong>Research</strong> searches scholarly papers and code repositories, and writes a cited report.</li>
+    <li><strong>Files</strong> builds a spreadsheet with live formulas, a document, a deck or a PDF.</li>
+    <li><strong>Media</strong> makes images, video and audio on your own accounts.</li>
+    <li><strong>Browser and screen</strong> works sites you are signed into and, when you allow it, any app on your screen.</li>
+  </ul>
+  <p>Related: <a href="#computer">Your browser and your screen</a>, <a href="#media">Media on your own accounts</a></p>
+</section>
+
+<section class="doc-block" id="sessions">
+  <h3>Browser sessions and logins</h3>
+  <p class="doc-lede">Your agent works the sites you are signed into, using sessions the Helper reads from your own browsers.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Sign in to the site in your browser.</li>
+    <li>Ask your agent to use the site. The Helper reads your browsers only after you allow it. On a Mac it reads Chrome, Brave, Edge, Arc, Vivaldi, Firefox and Safari.</li>
+    <li>To import one site yourself, run <code>superbot cookies &lt;domain&gt;</code>. Add <code class="sb-nowrap">--dry-run</code> to write nothing or <code class="sb-nowrap">--yes</code> to skip the prompt.</li>
+  </ol>
+  <p>Saved logins import from your browsers and from 1Password, Bitwarden, LastPass and KeePass. To switch a read off, open <strong>Settings &gt; Privacy</strong> and use <strong>Browser sign-ins</strong> or <strong>Passwords and SSH keys</strong> under <strong>What Superbot can read on this computer</strong> (<strong>this Mac</strong> on a Mac).</p>
+</section>
+
+<section class="doc-block" id="computer">
+  <h3>Your browser and your screen</h3>
+  <p class="doc-lede">Your agent browses websites for you, for example to order food, and with your permission works any app on your screen.</p>
+  <p>On the desktop, the chip in the <strong>Browser</strong> pane's address bar picks where agent pages open: <strong>Cloud</strong>, or <strong>This Mac</strong> (<strong>This computer</strong> on Windows). <strong>My IP</strong> sends the cloud browser's traffic out through your computer's connection, so sites see your own address.</p>
+  <p>Computer use works on macOS only and has three settings. <strong>Off</strong> never touches your screen, <strong>Ask</strong> asks before each action, and <strong>Always</strong> acts without asking. It starts at Off.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press the computer use toggle in the composer to move through <strong>Off</strong>, <strong>Ask</strong> and <strong>Always</strong>.</li>
+    <li>The first time, <strong>Turn on computer use</strong> asks for <strong>Accessibility</strong> to click and type and <strong>Screen Recording</strong> to take screenshots.</li>
+  </ol>
+  <p>When it is Off and a task needs your screen, the agent asks <strong>Turn on computer use: &lt;reason&gt;</strong>. Choose <strong>Allow in this chat</strong>, <strong>Always allow</strong> or <strong>Not now</strong>.</p>
+  <p>Related: <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="remote">
+  <h3>Live view and remote control</h3>
+  <p class="doc-lede">From another device, you watch the screen of the device that did your task and take its controls.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>From one device, ask another to do something, for example from your phone to your computer. The reply shows a tile with <strong>Watch live</strong>.</li>
+    <li>Press <strong>Watch live</strong>. The other device opens as live video.</li>
+    <li>Choose <strong>Observe</strong> to watch or <strong>Control</strong> to click and type. <strong>End</strong> closes the viewer.</li>
+  </ol>
+  <p>The viewed computer shows a banner naming the device, with <strong>Stop Sharing</strong>. To change what it allows, open <strong>Settings &gt; Privacy</strong> and find the <strong>Live view</strong> group:</p>
+  <ul class="doc-list">
+    <li><strong>Let your other devices view and control this computer</strong> turns Live view on or off. It is on by default.</li>
+    <li><strong>Require approval on this computer</strong> asks on this computer before another device can view or control it. It is off by default.</li>
+  </ul>
+  <p>A device you have not allowed opens view only. Press <strong>Allow</strong> on the viewed computer, then reconnect to take control. A device added to your account in the last 24 hours starts this way.</p>
+</section>
+
+<section class="doc-block" id="media">
+  <h3>Media on your own accounts</h3>
+  <p class="doc-lede">An agent makes images, video and audio when you describe them, and runs them on your own accounts before superbot's.</p>
+  <ul class="doc-list">
+    <li><strong>Images</strong> use your ChatGPT plan or your OpenAI, Gemini or Grok key. A ChatGPT Free plan cannot make images, so superbot tries your key next.</li>
+    <li><strong>Video</strong> uses your OpenRouter key, or your own Google key (Veo) or xAI key (Grok Imagine).</li>
+    <li><strong>Audio</strong> uses your OpenAI or Gemini key.</li>
+  </ul>
+  <p>Connect accounts in <strong>Settings &gt; Subscriptions &amp; keys</strong>. On the phone, open <strong>Settings &gt; Connections</strong>.</p>
+</section>
+
+<section class="doc-block" id="voice">
+  <h3 id="calls">Calls and texts from your phone</h3>
+  <p class="doc-lede">Your agent calls and texts people from your own iPhone number, and a text to superbot's own number gets its answer back as a text.</p>
+  <p>This needs a Mac with the Helper running, an iPhone paired to it, and Messages signed in to your Apple Account on the Mac.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Settings &gt; Devices &amp; phone</strong>. Under <strong>Phone line</strong>, the chip reads <strong>Calls and texts from your iPhone</strong> when setup is done.</li>
+    <li>Finish the setup it lists: <strong>Allow Messages</strong>, then <strong>Open Full Disk Access</strong>. For calls, also choose <strong>Superbot Call Mic</strong> as the microphone in Phone.</li>
+    <li>Ask: "call the dentist and ask for the first free slot".</li>
+  </ol>
+  <p>Every call and text asks you first. If Phone.app needs it, you tap <strong>Call</strong> once on your Mac. The same number is called at most once in 24 hours. <strong>Open calls…</strong> under <strong>Phone line</strong> lists what your agent made.</p>
+  <p>To text superbot, text its number: the desktop <strong>SMS</strong> pane shows <strong>Text &lt;number&gt; to link a phone</strong>. On the phone, open <strong>Settings &gt; Devices &amp; phone &gt; Text Superbot</strong>.</p>
+  <p>Related: <a href="sms.html">Text Superbot</a>, <a href="#api-endpoints">Endpoints</a></p>
+</section>
+
+<section class="doc-block" id="voice-chat">
+  <h3>Voice chat and dictation</h3>
+  <p class="doc-lede">Talk to an agent and hear it answer, or dictate a message instead of typing it.</p>
+  <h4>Voice chat</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>On the desktop, press <strong>Voice</strong> in the composer, or choose <strong>Start voice chat</strong> in the File menu (<code class="sb-nowrap">⌘⇧O</code> on a Mac, <code class="sb-nowrap">Ctrl+Shift+O</code> on Windows). On the phone, press <strong>Voice</strong> in the composer.</li>
+    <li>Talk. The control shows what is happening, from <strong>Listening</strong> to <strong>Speaking</strong>.</li>
+    <li>Press <strong>End voice</strong> to finish.</li>
+  </ol>
+  <p>To use your own voice, open <strong>Settings &gt; Voice</strong>, press <strong>Record my voice</strong> under <strong>Your voice</strong>, read for up to 60 seconds, tick <strong>My voice, or I have permission</strong>, then choose <strong>My voice</strong>. The sample goes to ElevenLabs and the voice is AI-generated.</p>
+  <h4 id="dictation">Dictation</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press the microphone in the composer (<strong>Click to speak</strong>) and talk. It reads <strong>Listening. Click to stop.</strong></li>
+    <li>The text lands in the message box, ready to edit.</li>
+    <li>To choose where speech becomes text, open <strong>Settings &gt; Voice</strong> and set <strong>Dictation engine</strong>. <strong>On this Mac</strong> (<strong>On this computer</strong> on Windows) keeps the audio on it, and <strong>Superbot cloud</strong> sends it to the speech provider.</li>
+  </ol>
+</section>
+
+<section class="doc-block" id="quick-ask">
+  <h3 id="quick-ask-heading">Quick Ask</h3>
+  <p class="doc-lede">On the desktop, one shortcut opens a small panel from any app that answers about the window you were using.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press <code class="sb-nowrap">Alt+Space</code> (<code class="sb-nowrap">⌥Space</code> on a Mac) from any app, or choose <strong>Quick Ask</strong> in the File menu.</li>
+    <li>Type your question under <strong>Ask anything</strong>. A chip shows the app and window you came from.</li>
+    <li>Press <strong>Expand to full chat</strong> to carry on in the full app. Escape hides the panel and keeps your draft.</li>
+  </ol>
+  <p>Quick Ask attaches a screenshot only when you press <strong>Screen snapshot</strong>. To change the shortcut, open <strong>Settings &gt; Shortcuts</strong> and press <strong>Record</strong> in the <strong>Quick Ask</strong> group. <strong>Restore default</strong> goes back.</p>
+</section>
+
+<section class="doc-block" id="build">
+  <h3>Build, edit and preview</h3>
+  <p class="doc-lede">On the desktop, you run a live copy of what your agent builds and change its files without leaving the app.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press <strong>Preview</strong> in the project header, beside <strong>Publish</strong>. The app runs the project on your computer and opens it in the side pane. <strong>Stop</strong> ends it.</li>
+    <li>Open a project file to edit it. <strong>Save</strong> writes it, <strong>Format</strong> formats it, and <strong>Diff</strong> and <strong>File</strong> switch the view.</li>
+    <li>For a page or document the agent made in a chat, press <strong>Open in pane</strong>. In the pane, <strong>Edit</strong> changes it in place and <strong>Done</strong> finishes. <strong>View code</strong> shows the source and <strong>Download</strong> saves it.</li>
+  </ol>
+  <p>Related: <a href="#publish">Publish your app</a>, <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="publish">
+  <h3>Publish your app</h3>
+  <p class="doc-lede">Your app goes online at a free <code>&lt;name&gt;.superbot.sh</code> address on your own Cloudflare account.</p>
+  <p>This needs a free Cloudflare account. The first time, <strong>Connect Cloudflare</strong> opens a dialog: press <strong>Continue to Cloudflare</strong>, sign in, then pick <strong>Use this account</strong>.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open a project and press <strong>Publish</strong> in its header.</li>
+    <li>Pick a name. Under <strong>Who can open it?</strong> choose <strong>Anyone</strong> or <strong>Only people I invite</strong>.</li>
+    <li>Press <strong>Put it online</strong>. Publish checks the app and tests it on your computer first. Later publishes read <strong>Update live app</strong>.</li>
+  </ol>
+  <p>Once it is live, the <strong>Live</strong> tab on the project manages it. <strong>Versions</strong> keeps every publish and <strong>Roll back</strong> returns to an older one. <strong>Domains</strong> renames the address or adds your own. <strong>Keys</strong> stores the secrets your app reads. <strong>Remove app</strong>, under <strong>Take it offline</strong>, deletes the app and its data for good.</p>
+  <p>Type <code>/publish</code> in a chat to have your agent publish the project.</p>
+  <p>Related: <a href="#build">Build, edit and preview</a>, <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="cloud">
+  <h3>Cloud runs from your phone</h3>
+  <p class="doc-lede">Your phone sends a task to a cloud copy of your project, and the files it changes sync back to your computer.</p>
+  <p>This needs <strong>Sync projects across devices</strong> on in <strong>Settings &gt; Privacy</strong>, under <strong>Advanced</strong>, and sync on for the project. Without it the phone says <strong>Turn on sync to work in the cloud.</strong></p>
+  <ol class="doc-steps" data-mark="check">
+    <li>On the phone, open a chat in the project and press <strong>Run in cloud</strong> in the thread header.</li>
+    <li>The next time the Helper syncs, the changed files land in your local folder.</li>
+  </ol>
+  <p>On the desktop, press <strong>Build in cloud</strong> on the plan card. It stays off until the project is linked to a repo, with the reason <strong>Link a repo to this project first</strong>.</p>
+  <p>In a repo-linked project, if you edited a file the cloud also changed, yours stays and the cloud's version lands beside it as <code>notes.sync-conflict-20261004-101500-cloud.md</code>.</p>
+  <p>Related: <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="phone">
+  <h3>Phone extras</h3>
+  <p class="doc-lede">On iPhone, you start a chat from the home screen or the Action Button, and the Lock Screen shows a running agent.</p>
+  <ul class="doc-list">
+    <li><strong>Home-screen shortcuts</strong>: press and hold the superbot icon for <strong>New chat</strong>, <strong>Ask by voice</strong> and <strong>Voice chat</strong>.</li>
+    <li><strong>Action Button</strong>: in the iOS Settings app, open <strong>Action Button</strong>, choose <strong>Shortcut</strong>, then pick <strong>New chat</strong> or <strong>Start voice chat</strong> from superbot.</li>
+    <li><strong>Lock Screen and Dynamic Island</strong>: show <strong>Superbot is working</strong> while an agent runs and <strong>Waiting for you</strong> when it needs you.</li>
+    <li><strong>Notifications</strong>: in Settings, on <strong>Your agent</strong>, under <strong>General</strong>, switch <strong>Push when Superbot finishes</strong> and <strong>Push when Superbot needs you</strong>. Both are on by default.</li>
+    <li><strong>Offline reading</strong>: chats stay readable on the phone without a connection.</li>
+  </ul>
+  <p>Related: <a href="#voice-chat">Voice chat and dictation</a>, <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="omni">
+  <h3>The omni engine</h3>
+  <p class="doc-lede">omni is superbot's own agent loop: it sends your turn to the model, runs the tools it asks for and repeats until done.</p>
+  <p>It drives any model behind the OpenAI or Anthropic API with the same tools, including the models on your custom endpoints. To compare two models, pick each in the model picker and send the same task.</p>
+  <p>Related: <a href="#external-apis">Custom endpoints</a>, <a href="#api-models">Models</a></p>
+</section>
+
+<section class="doc-block" id="organizations">
+  <h3 id="teams">Teams and policy</h3>
+  <p class="doc-lede">A team shares MCP servers, rules and skills across its members and applies one signed policy to every member's devices.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Account &gt; Teams</strong> and press <strong>Create team</strong>.</li>
+    <li>Under <strong>Members</strong>, enter an email, pick a role below your own and press <strong>Invite</strong>.</li>
+    <li>Owners and admins see the <strong>Policy and coverage</strong> card. It reads a count such as <strong>3 of 5 reported</strong> once a policy is published, and marks a member whose devices have not reported as <strong>not reported</strong>.</li>
+  </ol>
+  <p>An owner or admin publishes the signed policy through the org API. Until then the card reads <strong>No policy published yet.</strong></p>
+  <p>Related: <a href="enterprise.html">Teams and enterprise</a></p>
+</section>
+
+<section class="doc-block" id="usage">
+  <h3>Usage and spend</h3>
+  <p class="doc-lede">See what your agents used and what it cost, for the last 7 days by default.</p>
+  <p>Open <strong>Account &gt; Usage</strong> to read it, and pick a longer range there. To cap a caller key, set <strong>Daily limit</strong> or <strong>Monthly limit</strong> in credits when you mint it under <strong>Account &gt; API</strong>. A key that reaches a limit is refused until the window resets.</p>
+  <p>Related: <a href="#api-auth">Keys and authentication</a>, <a href="#api-endpoints">Endpoints</a></p>
+</section>
+
+<section class="doc-block" id="external-apis">
+  <h3>Custom endpoints</h3>
+  <p class="doc-lede">Add any OpenAI- or Anthropic-compatible endpoint to the model picker and dial it with your own superbot key beside the house models.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Settings &gt; Subscriptions &amp; keys</strong> and find the <strong>Custom endpoints</strong> group (formerly <strong>External APIs</strong>).</li>
+    <li>Press <strong>Add endpoint</strong> (<strong>Add an endpoint</strong> on an empty list).</li>
+    <li>Under <strong>Where it is saved</strong>, pick <strong>Hosted endpoint</strong> so every device on your account can dial it, or <strong>This Mac</strong> (<strong>This computer</strong> on Windows) to keep it on this computer.</li>
+    <li>On the hosted path, enter a <strong>Label</strong>, the <strong>Base URL</strong> and the <strong>API key</strong>.</li>
+    <li>Set <strong>Dialect</strong> to <strong>Auto</strong>, <strong>OpenAI</strong> or <strong>Anthropic</strong>, then press <strong>Add endpoint</strong>.</li>
+  </ol>
+  <p>Models load when the endpoint answers <code>/models</code>, and <strong>Refresh models</strong> reloads them. <strong>Scan for keys</strong>, under <strong>Found on this Mac</strong> (<strong>Found on this computer</strong> on Windows), finds API keys already on this computer and offers each one as an endpoint. On the phone, open <strong>Settings &gt; Connections</strong> and choose <strong>Custom endpoints</strong>.</p>
+  <p>Related: <a href="#api-models">Models</a>, <a href="#api-auth">Keys and authentication</a></p>
+</section>

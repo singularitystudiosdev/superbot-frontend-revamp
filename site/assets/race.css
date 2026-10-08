@@ -1,0 +1,116 @@
+/* The race: two panes on the same request, superbot's loop against
+   claude-agent-sdk on the same model (the /benchmarks run). Lives at the top of /benchmarks (moved off the lander on owner
+   request, 2026-09-01); hero-race.js drives it, the static markup is the
+   finished state when the script never runs. Tokens from site.css. */
+:root { --stage: var(--bg); }
+
+.race { max-width: var(--container); margin: var(--sp-8) auto 0; padding: 0 var(--sp-5); position: relative; z-index: 1; }
+.race-head { text-align: center; max-width: 720px; margin: 0 auto var(--sp-6); }
+.race .eyebrow { font-size: var(--fs-xs); line-height: var(--lh-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-3); }
+.race h2 { font-size: var(--fs-h2); line-height: 1.3; font-weight: 500; letter-spacing: -0.01em; }
+.race h2 code { color: var(--accent); background: none; border: 0; padding: 0; font-size: 1em; }
+.panes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
+@media (max-width: 720px) { .panes { grid-template-columns: 1fr; } }
+.pane { position: relative; background: var(--stage); border: 1px solid var(--line); border-radius: var(--r-surface); overflow: hidden; }
+.pane.us { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.pane-bar {
+  display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+  border-bottom: 1px solid var(--line); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); white-space: nowrap;
+}
+.pane-bar i { width: 7px; height: 7px; border-radius: 50%; flex: none; border: 1px solid var(--line); background: var(--raised); }
+.pane-bar span { margin-left: 6px; overflow: hidden; text-overflow: ellipsis; }
+.pane-bar .clock { margin-left: auto; font-style: normal; font-variant-numeric: tabular-nums; color: var(--muted); }
+.pane.us .pane-bar .clock { color: var(--accent); }
+.pane .term {
+  /* the script grew past a fixed 268px box (12+/14+ lines): the term now
+     keeps its old floor but grows with the content, up to two extra --sp-16
+     steps, then scrolls (hero-race.js keeps scrollTop pinned to the newest
+     line as it types) */
+  margin: 0; padding: var(--sp-3) var(--sp-4); min-height: 268px; max-height: calc(268px + var(--sp-16) * 2); overflow-y: auto; overflow-x: hidden;
+  font: var(--fs-xs) / 18px var(--font-mono); color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.pane .term .p { color: var(--fg); }
+.pane .term .p::before { content: '> '; color: var(--accent); }
+.pane .term .t { color: var(--muted); }
+.pane .term .t::before { content: '⏺ '; color: var(--muted); }
+.pane .term .ok { color: var(--accent); }
+.pane .term .ok::before { content: '✓ '; }
+.pane .term .wait { color: var(--muted); }
+.pane .term .cur::after, .pane .term .cur .typed::after { content: '▌'; color: var(--accent); animation: blink 1.06s steps(1) infinite; /* deliberate */ }
+/* a step line carries its typed text in .typed (hero-race.js) so the cursor
+   rides the text, ahead of the latency label; the prompt line has no .typed
+   and keeps the cursor on the line itself */
+.pane .term .cur:has(.typed)::after { content: none; }
+.pane.done .pane-bar .clock { color: var(--accent); font-weight: 600; }
+
+/* on /benchmarks the page column already carries the side padding, and the
+   numbers block that follows the race needs the same gap the figures get */
+.bench .race { padding: 0; }
+.race + .eyebrow { margin-top: var(--sp-10); }
+
+/* ---- the command: /superbot on its own line under the request, in its own
+   badge, lit with one ring pulse the moment it is fully typed ---- */
+.pane .term .cmd {
+  display: inline-block; color: color-mix(in srgb, var(--accent) 65%, white); font-weight: 700; letter-spacing: .01em;
+  padding: 0 6px; margin-right: 2px; border-radius: var(--r-control);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 0 0 transparent;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+@keyframes cmd-pop {
+  0% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+  100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 0 12px transparent; }
+}
+.pane .term .cmd.lit { animation: cmd-pop 900ms var(--ease-out, ease-out) both; /* deliberate */ }
+
+/* ---- the stopwatch: a dot that blinks while the pane runs and holds solid
+   when it stops; the digits are tabular so the milliseconds do not jitter ---- */
+.pane-bar .clock { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.pane-bar .clock::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex: none; }
+.pane.running .pane-bar .clock { color: var(--fg); }
+.pane.running .pane-bar .clock::before { background: var(--accent); animation: sw-tick 1s steps(2) infinite; /* deliberate */ }
+.pane.done .pane-bar .clock::before { background: var(--accent); animation: none; box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent); }
+@keyframes sw-tick { 50% { opacity: .25; } }
+
+/* ---- the brand mark at work in the superbot pane: bottom-right, bare: no
+   tile, no ring (the storm ring is retired from every tile, 2026-10-06; the
+   mark here was never a .sb-tile). Idle is the static mark,
+   no motion; the storm aura behind it only wakes while the pane carries
+   .running, the same two-layer foil + glint recipe .sb-btn already borrows
+   from harness-notes/brand/duostorm/duostorm.css (conic wheel + glint band,
+   both transform/opacity only), reusing that recipe's own tokens from
+   site.css so nothing here is a new invented number. ---- */
+.pane .race-mark {
+  position: absolute; right: var(--sp-3); bottom: var(--sp-3); z-index: 1; pointer-events: none;
+  width: var(--sp-10); height: var(--sp-10);
+}
+.pane .race-mark-img { position: relative; z-index: 1; width: 100%; height: 100%; }
+.pane .race-mark-aura {
+  content: ""; position: absolute; inset: -30%; border-radius: 50%;
+  background: conic-gradient(from 0deg at 50% 50%,
+    var(--storm-0) 0deg, var(--storm-1) 72deg, var(--storm-2) 144deg, var(--storm-3) 216deg, var(--storm-4) 288deg, var(--storm-0) 360deg);
+  /* the spectrum wheel only: the .sb-btn recipe's white glint band is left
+     out on purpose. Unclipped at inset -40% and screen-blended it swept a
+     white streak across the pane well outside the mark (owner, 2026-09-10);
+     the mask keeps the blurred wheel a soft disc that fades to nothing at
+     its edge instead of a hard blurred rim */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 40%, transparent 72%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 40%, transparent 72%);
+  filter: blur(calc(var(--aura-blur) * 0.3));
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity var(--aura-settle) var(--ease-std);
+  z-index: 0;
+  animation: race-mark-spin var(--aura-spin) linear infinite; /* deliberate */
+  animation-play-state: paused;
+}
+.pane.running .race-mark-aura { opacity: var(--aura-foil-opacity); animation-play-state: running; }
+@keyframes race-mark-spin { to { transform: rotate(360deg); } }
+@media (max-width: 720px) { .pane .race-mark { width: var(--sp-8); height: var(--sp-8); } }
+
+/* ---- per-step latency: the milliseconds a step took, written after its
+   line the moment it lands; the superbot pane's read in the tens and
+   hundreds, the plain pane's in the thousands ---- */
+.pane .term .ms { color: var(--muted); font-style: normal; font-variant-numeric: tabular-nums; opacity: .7; }
+.pane .term .ms::before { content: ' – '; }
+.pane.us .term .ms { color: var(--accent); opacity: .85; }

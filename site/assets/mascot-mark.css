@@ -1,0 +1,26 @@
+/* superbot mark — the vector mascot's idle motion for any page that is not the
+   lander. The lander's lockup keeps its own copy scoped to .sb-glitch
+   (hero.css), sized to its headline; this sheet carries the same motion on
+   .sb-mark and leaves sizing to the page (set width/height on the svg).
+   Markup comes from markSvg() (site/assets/mascot-mark.js, edge/src/mascot.ts)
+   and mountMascotMark() owns the blink, the pupils and the click's happy beat.
+   Motion is unconditional: superbot never honours prefers-reduced-motion
+   (.cosmos/rules/motion-always-on.mdc). */
+.sb-mark { display: block; overflow: visible; cursor: pointer; -webkit-tap-highlight-color: transparent; animation: sb-mark-bob 2.4s ease-in-out infinite; } /* deliberate */
+.sb-mark .sb-mark-a { transform: translate(-1.2px, -1.2px); animation: sb-mark-a 7s ease-in-out infinite; } /* deliberate */
+.sb-mark .sb-mark-b { transform: translate(1.2px, 1.2px); animation: sb-mark-b 11s ease-in-out infinite; } /* deliberate */
+.sb-mark .mark-body { transform-box: fill-box; transform-origin: 50% 50%; animation: sb-mark-breath 5.5s ease-in-out infinite; } /* deliberate */
+.sb-mark .mark-ear { transform-box: fill-box; transform-origin: 50% 100%; }
+.sb-mark .mark-ear-l { animation: sb-mark-ear-l 3.1s ease-in-out infinite; } /* deliberate */
+.sb-mark .mark-ear-r { animation: sb-mark-ear-r 4.3s ease-in-out infinite; } /* deliberate */
+.sb-mark .mark-happy { opacity: 0; }
+.sb-mark.is-happy .mark-happy { opacity: 1; }
+.sb-mark.is-happy .mark-eye { opacity: 0; }
+.sb-mark.is-happy { animation: sb-mark-happy-bob 600ms ease-out; } /* deliberate */
+@keyframes sb-mark-a { 0%, 100% { transform: translate(-1.2px, -1.2px); } 38% { transform: translate(-0.5px, -0.6px); } 41% { transform: translate(-2.2px, -1px); } 44% { transform: translate(-1.2px, -1.2px); } 72% { transform: translate(-0.7px, -0.5px); } }
+@keyframes sb-mark-b { 0%, 100% { transform: translate(1.2px, 1.2px); } 27% { transform: translate(0.6px, 0.5px); } 61% { transform: translate(1.2px, 1.2px); } 63% { transform: translate(2px, 0.6px); } 66% { transform: translate(1.2px, 1.2px); } 84% { transform: translate(0.5px, 0.8px); } }
+@keyframes sb-mark-bob { 0%, 100% { transform: translateY(-1.5px); } 50% { transform: translateY(1.5px); } }
+@keyframes sb-mark-breath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
+@keyframes sb-mark-happy-bob { 0%, 100% { transform: none; } 25% { transform: translateY(-4px); } 50% { transform: none; } 75% { transform: translateY(-4px); } }
+@keyframes sb-mark-ear-l { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes sb-mark-ear-r { 0%, 100% { transform: rotate(3deg); } 50% { transform: rotate(-3deg); } }

@@ -1,0 +1,111 @@
+/* /benchmarks: the release-post figure shape (abliteration.ai's
+   introducing-abliterated-model-large-v2, retrieved 2026-09-01, ledger
+   harness-notes/brand-refresh.md): an uppercase mono eyebrow, a sober heading
+   with small pill badges, three side-by-side figure cards, in each the value
+   ABOVE the bar, the featured bar in the foreground colour and the rest at 25%,
+   a fixed-height caption block so the three line up, then a verbatim
+   methodology footnote and a sources line. Pure CSS bars, no chart library.
+   Tokens from site.css. */
+
+.bench { max-width: var(--container); margin: 0 auto; padding: var(--sp-10) var(--gutter-r) 0 var(--gutter-l); }
+.bench .crumb { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-4); }
+.bench .crumb a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: max(24px, var(--target-sm)); border-radius: var(--r-sm); }
+.bench .crumb a:hover { color: var(--fg); }
+.bench .crumb .gg { color: var(--accent); }
+.bench .eyebrow { font-size: var(--fs-xs); line-height: var(--lh-xs); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-3); }
+.bench h1 { font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem); line-height: 1.15; font-weight: 500; letter-spacing: -0.02em; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+.bench h1 .pill {
+  font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 500; letter-spacing: 0;
+  padding: 2px 10px; border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--muted); background: var(--card);
+}
+.bench .lede { color: var(--muted); max-width: var(--measure); margin-top: var(--sp-3); }
+.bench .lede b { color: var(--fg); font-weight: 500; }
+
+/* the try-it chip: secondary by construction — ghost surface, never the
+   accent fill, so the page's own figures stay the loudest thing on it */
+/* the page's one primary control: the storm action (duostorm kit .sb-btn),
+   carried by site.css — this block only sizes it into the chip row */
+.bench .trychip { margin-top: var(--sp-4); }
+.bench .trychip .sb-btn { font-size: var(--fs-sm); }
+@media (pointer: coarse) { .bench .trychip .sb-btn { min-height: var(--target); } }
+
+/* figures in one row (three by default, four for the headline set), two
+   across on a tablet AND on a phone: a two-bar figure is 44px of bars, so
+   two fit a 393px column and the page is half as long as one per row
+   (a full-page phone shot of this page ran 4,700px; measured 2026-09-02) */
+.figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-4); margin-top: var(--sp-6); }
+.figs.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .figs, .figs.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .figs, .figs.four { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  .fig { padding: var(--sp-4); }
+  .fig .cap { min-height: 60px; margin-bottom: var(--sp-4); }
+  .fig .chart { min-height: 180px; }
+  .fig .track { height: 132px; }
+}
+.bench .eyebrow + .figs { margin-top: var(--sp-4); }
+.bench .figs + .eyebrow { margin-top: var(--sp-10); }
+/* a placeholder figure: dashed frame, ghost bars, a dash where the number goes */
+.fig.placeholder { border-style: dashed; }
+.fig.placeholder .bar { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--fg) 18%, transparent) 0 6px, transparent 6px 12px); }
+.fig.placeholder .col.us .bar { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--fg) 55%, transparent) 0 6px, transparent 6px 12px); }
+.fig { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-xl); padding: var(--sp-5) var(--sp-6); }
+.fig .cap { min-height: 52px; margin-bottom: var(--sp-5); }
+.fig .cap b { display: block; font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 500; letter-spacing: -0.01em; }
+.fig .cap span { display: block; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); margin-top: 2px; }
+.fig .chart { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--sp-3); align-items: end; min-height: 220px; }
+.fig .col { display: grid; justify-items: center; gap: 6px; }
+.fig .val { font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; color: var(--muted); }
+.fig .track { width: 100%; max-width: 44px; height: 168px; border-radius: var(--r-sm); background: var(--raised); position: relative; overflow: hidden; }
+.fig .bar {
+  position: absolute; inset: auto 0 0 0; height: var(--h, 0%); border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--fg) 25%, transparent);
+  transform-origin: bottom; animation: bench-rise var(--dur-4) var(--ease-out) both;
+}
+.fig .name { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); min-height: 36px; text-align: center; }
+/* the featured arm: full foreground on the bar, brighter text, no accent hue */
+.fig .col.us .bar { background: var(--fg); }
+.fig .col.us .val, .fig .col.us .name { color: var(--fg); font-weight: 600; }
+/* lower-is-better figures: the featured bar is the shorter one, so the
+   winning shape is still the emphasised one */
+@keyframes bench-rise { from { transform: scaleY(0); } to { transform: none; } }
+
+.bench .note { margin-top: var(--sp-6); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); max-width: 78ch; }
+.bench .note b { color: var(--fg); font-weight: 500; }
+.bench .sources { margin-top: var(--sp-8); padding-top: var(--sp-6); border-top: 1px solid var(--line); }
+.bench .sources h2 { font-size: var(--fs-xs); line-height: var(--lh-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: var(--sp-3); }
+.bench .sources ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--muted); }
+.bench .sources a { color: var(--fg); }
+.bench .sources code { font-size: 0.92em; }
+
+/* what is NOT on this page yet: the owner's model claims, each with a slot */
+.slots { margin-top: var(--sp-10); }
+.slots h2 { font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 500; letter-spacing: -0.01em; margin-bottom: var(--sp-2); }
+.slots p { color: var(--muted); max-width: var(--measure); margin-bottom: var(--sp-4); }
+.slots table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); line-height: var(--lh-sm); table-layout: fixed; }
+.slots th, .slots td { text-align: left; padding: var(--sp-2) var(--sp-3); border-top: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+.slots th { color: var(--muted); font-weight: 500; font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; }
+.slots td.st { color: var(--warn, #d9b86b); }
+.slots td.st.ok { color: var(--accent); }
+.slots col.c1 { width: 34%; } .slots col.c2 { width: 44%; } .slots col.c3 { width: 22%; }
+/* a phone stacks each row: claim, then what backs it, then the status */
+@media (max-width: 560px) {
+  .slots thead { display: none; }
+  .slots tr { display: grid; border-top: 1px solid var(--line); padding: var(--sp-2) 0; }
+  .slots td { border: 0; padding: 2px var(--sp-1); }
+  .slots td:first-child { color: var(--fg); }
+}
+
+/* ---- centred rows: a two-up figure pair under a centred lede ---- */
+.bench .eyebrow.center { text-align: center; }
+.bench .lede.center { margin-inline: auto; text-align: center; }
+.figs.two.center { grid-template-columns: repeat(2, minmax(0, 340px)); justify-content: center; }
+/* one centred figure card, the same 340px column the two-up row uses */
+.figs.one.center { grid-template-columns: minmax(0, 340px); justify-content: center; }
+@media (max-width: 720px) { .figs.two.center { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---- superbot's bar carries a soft accent glow, the page's own green,
+   so the winning column reads as ours at a glance ---- */
+.col.us .bar {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 18px color-mix(in srgb, var(--accent) 38%, transparent), 0 0 42px color-mix(in srgb, var(--accent) 16%, transparent);
+}

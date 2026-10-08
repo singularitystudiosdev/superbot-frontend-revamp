@@ -1,0 +1,15 @@
+{
+  "name": "superbot.gg",
+  "short_name": "superbot",
+  "description": "the agent to manage your agents.",
+  "start_url": "/rooms/app/",
+  "scope": "/",
+  "display": "minimal-ui",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    { "src": "/site/assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/site/assets/brand/tile-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" },
+    { "src": "/site/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

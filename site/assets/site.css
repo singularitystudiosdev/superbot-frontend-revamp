@@ -1,0 +1,953 @@
+/* superbot site tokens + base. One sheet for every human-facing page
+   (/, /docs, /pair, /account, and the chat header). Pages keep their own
+   layout CSS; anything two pages share lives here.
+
+   Colour + brand: the duostorm kit (harness-notes/brand/duostorm/duostorm.css
+   + duostorm-style-guide.html, chosen 2026-09-08) is the source for the
+   surface ladder, the ink tones, the storm palette and every brand recipe
+   below (.sb-tile, .sb-aurora, .sb-storm-outline, .sb-composer, the storm
+   action). The storm ramp is brand chrome only: the mark's ghosts, the aura, the
+   composer glow and the filled action ramp, never a surface or a text colour.
+   The one solid accent everywhere else is storm-1 blue (#2b6bff).
+
+   Scales (retrieved 2026-09-01, ledger: harness-notes/design-pass.md):
+   - spacing: 4px base, the Tailwind v4 / Open Props step
+   - type: 12/14/16/18/20 with paired line-heights, h1 fluid via clamp();
+     UI sans (SF Pro Rounded / system-ui) for display and body, mono only
+     for code, terminals, key caps and ledger figures
+   - motion: Material 3 duration ladder, the expo-out curve bun/warp/zed all
+     ship (cubic-bezier(.16,1,.3,1)) for entrances, M3 standard for the rest
+   - focus: 2px accent outline offset 2px (8.4:1 on the page bg)
+   - targets: every control ≥ 24px tall, primary ones 36px (WCAG 2.2 2.5.8);
+     on a touch primary pointer every control lifts to 44px (Apple HIG 44×44pt,
+     Material 48dp; retrieved 2026-09-02, ledger: harness-notes/mobile-e2e.md)
+     through the --target tokens below, so no page carries its own touch rules
+   - gutters: --gutter-l/--gutter-r are the page's side padding, never less
+     than the device's safe-area inset (viewport-fit=cover on every page) */
+
+:root {
+  color-scheme: dark;
+
+  /* ── surfaces + ink (duostorm neutral ladder = superbot-mobile's Dark theme, themes.ts, reached
+     through duostorm.css; NOT the desktop's default palette, whose raised is #1a1a1c and line
+     #1e1e21). Every value below is copied by hand; test/design-token-copies.test.mjs fails when
+     one stops matching its source. ── */
+  --bg: #000000;          /* canvas: mobile dark surface.canvas */
+  --card: #0d0d0d;        /* sidebar / card: mobile dark surface.sidebar */
+  --raised: #181818;      /* elevated: duostorm.css --elevated = mobile dark surface.elevated */
+  --line: #262626;        /* duostorm.css --line = mobile dark line */
+  --line-strong: #5c5c5c; /* mobile dark lineStrong (themes.ts), NOT the desktop's #3a3b40: the hairline of a pill or chip drawn on --raised. The RULE is the desktop's (superbot-desktop 239ed8f52: raised pills use the strong line; surfaces keep --line); the VALUE is mobile's */
+  --fg: #ececec;          /* ink */
+  --secondary: #cfcfcf;
+  --muted: #9a9a9a;
+
+  /* ── the one solid accent: focus rings, links, chips, LEDs, selection ── */
+  --accent: #4d8aff;      /* clears 4.5:1 on --card #0d0d0d (5.92:1, WCAG formula); storm-1 #2b6bff stays the brand ramp's start */
+  --accent-ink: #0d0d0d;  /* 5.92:1 on the flat accent: the ink for text painted on filled accent */
+
+  /* ── status coding, unchanged ── */
+  --danger: #c96f6f; --danger-line: #5c3030; --warn: #d9b86b;
+
+  /* ── code syntax roles: the desktop app's palette, so code on the share page, the
+     docs and the rooms panel reads in the colours it reads in the app. A COPIED
+     block (no shared token package reaches the site): superbot-desktop
+     packages/tokens/tokens/syntax.tokens.json (built as dist/tokens.css:327-336),
+     the dark ground this sheet paints on; the light values are tokens-light/
+     color.tokens.json syntax.* (built as dist/tokens.light.css:73-81) and live in
+     frontends/rooms/hub-theme.css, the one surface here with a light theme.
+     Re-copy both when the app's tokens move; test/design-token-copies.test.mjs
+     fails when a copy stops matching, and edge/test/highlight-theme.test.ts
+     pins the names and the role map below. ── */
+  --syntax-comment: #7d8799;
+  --syntax-keyword: #c678dd;
+  --syntax-string: #98c379;
+  --syntax-number: #e5c07b;
+  --syntax-function: #61afef;
+  --syntax-variable: #e06c75;
+  --syntax-operator: #56b6c2;
+  --syntax-constant: #d19a66;
+  --syntax-invalid: #ffffff;
+  /* the shiki theme's roles (edge/src/highlight-theme.ts, a port of the app's
+     packages/ui/src/lib/highlight-theme.ts): each reads its --syntax-* token;
+     punctuation stays the foreground, as in the app's styles.css:915-926. A
+     code box paints its own surface, so the theme's background is clear. */
+  --shiki-foreground: var(--fg);
+  --shiki-background: transparent;
+  --shiki-token-comment: var(--syntax-comment);
+  --shiki-token-keyword: var(--syntax-keyword);
+  --shiki-token-string: var(--syntax-string);
+  --shiki-token-number: var(--syntax-number);
+  --shiki-token-function: var(--syntax-function);
+  --shiki-token-variable: var(--syntax-variable);
+  --shiki-token-constant: var(--syntax-constant);
+  --shiki-token-operator: var(--syntax-operator);
+  --shiki-token-punctuation: var(--fg);
+  --shiki-token-invalid: var(--syntax-invalid);
+
+  /* ── storm palette (brand chrome only) ── */
+  --storm-0: #00e5c3; --storm-1: #2b6bff; --storm-2: #6a1fd8; --storm-3: #c026d3; --storm-4: #ff3d9a;
+  --storm-gradient: linear-gradient(135deg, var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+  --storm-gradient-x: linear-gradient(90deg, var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+  --storm-action: linear-gradient(135deg, var(--storm-1) 0%, var(--storm-2) 55%, var(--storm-3) 100%);
+  --action-glow: 0 6px 18px -6px rgb(43 107 255 / 0.55), 0 2px 10px -4px rgb(192 38 211 / 0.35);
+  /* ── the control's borrowed aura: the kit's periods (duostorm.css:224-237),
+     mirrored here because no page imports the kit. The button wakes the same
+     two layers as the app tile (spectrum wheel + glint), on the same coprime
+     clocks and the same settle, at a lower peak than the tile's 0.85. ── */
+  --aura-blur: 26px;
+  --aura-spin: 7s;
+  --aura-sheen: 3.4s;
+  --aura-settle: 480ms;
+  --aura-foil-opacity: 0.55;
+  --aura-glint-opacity: 0.35;
+
+  /* ── composer glow ── */
+  --composer-glow: var(--storm-gradient-x);
+  --composer-glow-opacity: 0.38;
+  --composer-glow-blur: 28px;
+
+  /* ── aurora periods (incommensurate, so the composite never repeats) ── */
+  --aurora-a: 9s; --aurora-b: 13s; --aurora-c: 17s;
+
+  /* ── tile (the storm ring is retired 2026-10-06; --ring-width is read only by duostorm.css's flat .is-mono ring) ── */
+  --tile-bg: #000000; --tile-radius: 22.5%; --ring-width: 2.73%;
+
+  /* ── type: two families, no more ── */
+  --font-ui: "SF Pro Rounded", "SF Pro Display", -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  /* the one exception: the mobile app's new chat greeting is set in the system
+     serif (New York on iOS), so the phone mocks that draw that screen quote it.
+     The stack is the desktop kit's --font-serif (packages/tokens). Only the
+     phone mocks' greeting uses it; site prose stays on the two families above. */
+  --font-serif: ui-serif, "New York", "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
+
+  /* ── two radii: 8px controls, 16px surfaces (pill + 50% are shapes, not
+     values). The legacy aliases below let existing rules collapse onto
+     the pair without touching every page. ── */
+  --r-control: 8px; --r-surface: 16px; --r-pill: 9999px;
+  --r-sm: 8px; --r-md: 8px; --r-lg: 16px; --r-xl: 16px;
+
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px;
+  --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-16: 64px;
+  --sp-section: clamp(48px, 8vw, 96px);
+
+  --fs-xs: 12px; --lh-xs: 16px;
+  --fs-sm: 14px; --lh-sm: 20px;
+  --fs-base: 16px; --lh-base: 24px;
+  --fs-lg: 18px; --lh-lg: 28px;
+  --fs-xl: 20px; --lh-xl: 28px;
+  --fs-h1: clamp(2rem, 1.2rem + 3.5vw, 3.25rem);
+  --fs-h2: clamp(1.25rem, 1rem + 1vw, 1.5rem);
+  --tracking-tight: -0.02em;
+
+  --dur-1: 100ms; --dur-2: 150ms; --dur-3: 200ms; --dur-4: 300ms; --dur-5: 500ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-std: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  --content: 720px;
+  --container: 1120px;
+  --measure: 62ch;
+  /* the sticky header row = the floating island (10px top margin + the 48px
+     island, border-box) + one --sp-2 breath; scroll-padding-top at :126 reads
+     it so anchors clear the whole island */
+  --nav-h: 58px;
+
+  /* control heights: primary and small. A touch primary pointer lifts both
+     to 44px below; a mouse keeps the tighter desktop scale. */
+  --target: 36px;
+  --target-sm: 28px;
+  /* side padding for every page column: the spacing token, or the safe-area
+     inset when the notch or home-indicator edge is wider (phones in landscape) */
+  --gutter: var(--sp-6);
+  --gutter-l: max(var(--gutter), env(safe-area-inset-left, 0px));
+  --gutter-r: max(var(--gutter), env(safe-area-inset-right, 0px));
+  /* ── hero module (#61/#54/#57) ── */
+  --signin-w: 30rem;      /* the sign-in door's column cap (waitlist.css .wl); the value its old literal carried */
+
+  /* ── sign-in surfaces (waitlist-form.js, the phone's sign-in sheet, /invite;
+     edge/src/beta/pages.c1bff7a8.ts CSS_BASE mirrors every value here) ── */
+  --control-h: 52px;      /* the sign-in stack's buttons and fields */
+  --target-touch: 44px;   /* the touch floor as a value: phone landscape rows */
+  /* brand-mandated neutrals, not accents: Apple HIG's white button on a dark
+     page, and Google's dark theme (branding guidelines, 2026-07-07) with its
+     Google Sans Medium 14/20 label, the G 12px in and 10px before the label */
+  --apple-fill: #ffffff; --apple-ink: #000000;
+  --google-fill: #131314; --google-line: #8e918f; --google-ink: #e3e3e3;
+  --font-google: "Google Sans", Roboto, Arial, sans-serif;
+  --google-pad: var(--sp-3); --google-gap: 10px;
+  /* "Last used" (#54): the pill straddles the button's top edge, the tiny
+     mascot beside it */
+  --badge-h: var(--lh-sm); --mark-tiny: var(--sp-5);
+  /* the done state (#57): the bare echo mark (2026-09-27, the desktop and
+     mobile twins' echo restyle), the superbot.gg landing hero's own numbers
+     (deploy/superbot-router/src/pages.ts .mark): the echoes rest at
+     d*(3px,2px), throw to d*(7px,2px), kick to d*(5px,-1px) on the 2.8s
+     `split` loop (d = -1 cyan, +1 magenta), and the whole mark floats -6px on
+     a 5.6s ease-in-out loop */
+  --mark-done: 96px;
+  --echo-rest-x: 3px; --echo-rest-y: 2px; --echo-jump-x: 7px; --echo-kick-x: 5px; --echo-kick-y: -1px;
+  --echo-split-dur: 2.8s; --echo-float-y: -6px; --echo-float-dur: 5.6s;
+  /* the terms notice's quiet ink (owner, 2026-09-27: smaller, less
+     prominent): a neutral a step under --muted that still clears 4.5:1 (4.9:1
+     on --card, 5.3:1 on --bg), and its links' thin half-strength underline */
+  --legal-ink: #808080; --legal-line: color-mix(in srgb, var(--legal-ink) 50%, transparent);
+  /* ── the phone's sign-in sheet (#65) ── signin-sheet.css: the sticky CTA
+     opens a <dialog>, a bottom sheet on a phone, a centred card wider up.
+     --sheet-w is the card's width and the sheet's content column (the .wl
+     stack's 30rem less the surface padding). --sheet-max-h is a percentage
+     of the fixed containing block, not dvh: it follows the iOS toolbars and
+     stays true under the 1.25 zoom tier below; 48px of page stays in view
+     over the sheet, so it reads as over the page, not a new one. The scrim
+     is the nav drawer's (.sb-scrim), no blur. The handle is the kit's pill.
+     Entrance on --ease-out, the exit faster on --ease-in (design-motion:
+     exits outpace entrances); the card scales from the .sb-btn press scale. */
+  --sheet-w: 28rem;
+  --sheet-max-h: calc(100% - var(--sp-12));
+  --sheet-scrim: color-mix(in srgb, var(--bg) 72%, transparent);
+  --sheet-handle-w: var(--sp-8); --sheet-handle-h: var(--sp-1);
+  --sheet-in: var(--dur-4); --sheet-out: var(--dur-3);
+  --sheet-scale-from: 0.96;
+}
+@media (max-width: 480px) { :root { --gutter: var(--sp-4); } }
+
+/* ---- touch: the primary pointer is a finger. Every control takes the 44px
+   floor at once; fields hold 16px so iOS Safari stops zooming the page into
+   them on focus; the grey tap flash goes, the :active states below stand in
+   for hover, which a finger never has. ---- */
+@media (pointer: coarse) {
+  :root { --target: 44px; --target-sm: 44px; --nav-h: 62px; } /* the island grows to 52px here (below) so the 44px targets keep 4px of breathing room, and --nav-h follows: 10px top margin + 52px */
+  /* !important because this is the iOS-zoom floor, not a style choice: a
+     page-local shell rule (topup-page/onboarding-page/dashboard-page each
+     carry `input{font-size:var(--fs-sm)}`, 0-0-1, and a class-scoped
+     `.chat input`, 0-1-1) must not be able to drag a focused field under
+     16px and make Safari zoom the phone into it. The shell copies of this
+     rule are redundant with it (seam 4, 2026-09-17). */
+  body input:not([type="hidden"]), body textarea, body select { font-size: max(16px, 1em) !important; }
+  /* every <main> names the notch inset itself. A page whose own <main> carries
+     a gutter (`.wrap`/`.sms`/`main#main`/`.features`, one class rule) outweighs
+     this bare-element selector and keeps its padding; this is the floor for a
+     page whose <main> has no horizontal padding of its own, which measured
+     flush to both viewport edges (2026-09-17). Longhands because a checker
+     that enumerates style[i] cannot see a var()/env() shorthand; env()
+     resolves to 0px off a notch, so nothing moves on a phone without one. */
+  main {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+}
+/* touch-action: manipulation keeps pan and pinch and drops double-tap zoom on
+   controls, so two fast taps on send or a tab never zoom the page */
+a, button, summary, input, textarea, select, [role="button"], [role="tab"], [role="radio"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* anchor targets land below the sticky header instead of under it */
+html { scroll-padding-top: calc(var(--nav-h) + var(--sp-2)); }
+body {
+  background: var(--bg); color: var(--fg);
+  font: var(--fs-base) / var(--lh-base) var(--font-ui);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  min-height: 100vh; min-height: 100dvh;
+  /* the lander's original crosshair (owner call 2026-09-01: restored after
+     the token-sheet pass cut it), scoped to chrome by the reset below.
+     Controls keep their own cursor:pointer. */
+  cursor: crosshair;
+}
+/* crosshair is chrome-only: prose, log lines, code and fields take the
+   reading cursors back — the page-wide cursor killed the text I-beam. Links
+   and buttons keep their UA / per-component pointers. */
+p, li, dt, dd, blockquote, pre, code, kbd, figcaption, td, th,
+input, textarea, select, label { cursor: auto; }
+a { color: inherit; }
+button, input, textarea, select { font: inherit; color: inherit; }
+img, svg, canvas { display: block; max-width: 100%; }
+h1, h2, h3 { font-weight: 650; letter-spacing: var(--tracking-tight); text-wrap: balance; }
+p { text-wrap: pretty; }
+/* mono is a content font, not a body font: code, key caps, terminal stages
+   and figures carry it (pages scope their own .mono / .term rules) */
+code, kbd, pre { font-family: var(--font-mono); }
+/* the 0.94em step under a 12px parent (download's sha256 chips, 2026-09-17)
+   resolved to 11.28px — under the iOS 11pt floor. The step keeps its intent
+   on larger parents and floors at the caption size everywhere else. */
+code, kbd { font-size: max(12px, 0.94em); }
+/* the accent pair at full strength (the token block names selection a solid
+   accent consumer): ink on solid accent is 5.92:1, where the dark ink over the
+   old 35% tint was ~1.7:1 */
+::selection { background: var(--accent); color: var(--accent-ink); }
+/* code blocks get a visible scroll path of their own: a bare pre is
+   white-space: pre with no overflow handling, so one long JSON line set a
+   .more disclosure's content box past the 360px viewport (Q-09's residual) */
+pre { overflow-x: auto; }
+/* a scroller that is a tab stop (edge/src/focus-scrollers.ts: every pre, a docs copy row, a .tbl table wrapper) draws its ring INSIDE its
+   own box. The card around a code block or a table usually clips (overflow: hidden), and the universal ring below sits outside the
+   box, so on exactly the blocks a keyboard can reach it would be cut away. A page's own, more specific ring still wins. */
+pre:focus-visible, .tbl:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* one focus ring for every control: outline follows border-radius, and
+   the offset keeps it clear of the element's own border */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* text fields already turn their border accent on focus; a soft ring beside
+   it reads as one state instead of two nested boxes */
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* cross-document view transitions: progressive enhancement, not a dependency —
+   support is limited (Chrome 126, Safari 18.2, no Firefox; retrieved
+   2026-09-03). Pages without it just navigate as they always did. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-3); }
+
+/* ---- skip link: the first Tab on any page with a header jumps past it
+   (WCAG 2.4.1); visible only while focused ---- */
+.sb-skip {
+  position: absolute; left: var(--sp-4); top: var(--sp-2); z-index: 20;
+  display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--sp-4);
+  background: var(--accent); color: var(--accent-ink); border-radius: var(--r-md);
+  font-size: var(--fs-sm); font-weight: 600; text-decoration: none;
+  box-shadow: 0 0 0 6px var(--bg);
+  /* parked above the viewport by transform, not by top: transform is the only
+     thing the transition animates (top would repaint every frame) */
+  transform: translateY(calc(-100% - var(--sp-4)));
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.sb-skip:focus-visible { transform: none; outline-offset: 2px; }
+/* the skip target is a landmark, not a control: no ring around the page.
+   Checkers still flag the bare outline:none; the offset makes it explicit. */
+main[tabindex="-1"]:focus-visible { outline: none; outline-offset: 0; }
+
+/* ---- header: the floating island — a sticky 920px pill (10px off the top,
+   48px tall), wordmark left, links right. The .sb-header row keeps only
+   sticky/top/z-index/height: no full-width background, no blur, no bottom
+   border — the page shows through on every side of the island. ---- */
+.sb-header {
+  position: sticky; top: 0; z-index: 10; height: var(--nav-h);
+  /* the narrow ladder below (.sb-nav) keys on THIS box, not on the viewport:
+     1280px at 200% text zoom lays the header out in 640 CSS px and a media
+     query cannot see that, so the 200% axis used to get the full six-link
+     desktop row in half the room (measured 2026-09-12, nav-narrow). Container
+     queries are baseline for this project (mobile-web-design.mdc). */
+  container-type: inline-size; container-name: sbnav;
+  /* the notch: a phone on its side with viewport-fit=cover (iPhone 17 Pro,
+     874x402, ~62px insets) ran the island edge to edge, the mark under the
+     Dynamic Island and the CTA clipped by the rounded corner (iOS 26 sim,
+     2026-09-26): the island's max-width only binds above --container, so
+     below it nothing held the inset. The row pads by the insets, which also
+     narrows the sbnav container the tiers below read. env() is 0px off a
+     notch, so desktop, tablet and portrait phones do not move. Shorthand and
+     longhands both, per mobile-web-design.mdc (two checkers, two readings). */
+  padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.sb-header-in {
+  /* .sb-header-in IS the island: hairline border, pill radius, translucent
+     card fill with its own blur. The 0 6px 0 14px padding leaves 6px between
+     the Install Now pill and the rounded right end and 14px before the mark. */
+  /* The island spans the page column: --container minus the two gutters, so
+     its outer edges sit on the content's edges on every --container page
+     (account, docs, developers) and frame the narrower --content pages. */
+  max-width: calc(var(--container) - var(--gutter-l) - var(--gutter-r));
+  height: 48px; margin: 10px auto 0; padding: 0 6px 0 14px;
+  display: flex; align-items: center; gap: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+/* coarse pointer: --target and --target-sm are already 44px (:115) and 44px
+   fits the 48px island, but the island grows 4px so the 44px targets keep
+   4px of breathing room instead of 2px; --nav-h lifts in step (:115). */
+@media (pointer: coarse) {
+  .sb-header-in { height: 52px; }
+}
+/* the wordmark: the duotone cat mark at 24px (brand/mark-duo-sm.svg, the OG
+   card's teal/magenta offset cut for small sizes; the tile appears only where
+   it can animate, and carries no ring) + lowercase text, the .gg suffix plain ink —
+   no accent, no storm on the text */
+.sb-word {
+  /* own colour, not the page's `a` rule: /topup's a{color:accent} was
+     tinting the whole wordmark while every other page read it as fg +
+     plain .gg (2026-09-05) */
+  color: var(--fg);
+  font-size: var(--fs-sm); font-weight: 700; letter-spacing: 0; text-decoration: none;
+  display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--sp-2); margin-left: calc(-1 * var(--sp-2));
+  border-radius: var(--r-md);
+}
+/* the spacing rides the mark, not the flex gap: a gap would also separate
+   the "superbot" text node from the ".gg" suffix and split the word */
+.sb-word .sb-word-mark { width: 24px; height: 24px; flex: none; margin-right: 8px; }
+.sb-word .gg { color: var(--fg); }
+.sb-nav { margin-left: auto; display: flex; align-items: center; gap: var(--sp-1); }
+.sb-nav a:not(.sb-btn) {
+  display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--sp-3);
+  border-radius: var(--r-md); color: var(--muted); text-decoration: none; font-size: var(--fs-sm);
+  border: 1px solid transparent; white-space: nowrap;
+  transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+.sb-nav a:not(.sb-btn):hover, .sb-nav a:not(.sb-btn):active { color: var(--fg); background: var(--raised); }
+.sb-nav a:not(.sb-btn)[aria-current="page"] { color: var(--fg); }
+/* the X account (site-nav.ts xLink, 2026-09-26): the 16px X mark alone, a
+   square --target hit area (36px on a mouse, 44px under a coarse pointer) that
+   wears the text links' muted ink, fg + raised hover and the shared focus ring.
+   The handle inside it is for the phone menu's row (.sb-drawer-nav below); in
+   the island the mark and the anchor's "@superbot_gg on X" name carry it. */
+.sb-nav a.sb-nav-x { padding: 0; min-width: var(--target); justify-content: center; }
+.sb-nav-x svg { width: var(--sp-4); height: var(--sp-4); flex: none; }
+.sb-nav-x-txt { display: none; }
+/* the header's one filled control (Install Now): the shared .sb-btn recipe at
+   the small pill size — fs-xs ink on the ramp — lifted to the full --target so
+   it nests flush in the island's rounded end (36px pill in a 48px island = 6px
+   inset top and bottom, matching the 6px right padding; the old --target-sm
+   28px read as lost inside the capsule). The @420 tier below keeps the same
+   lift through its .sb-btn.sm line. */
+.sb-nav .sb-btn { min-height: var(--target); padding: 0 var(--sp-3); font-size: var(--fs-xs); border-radius: var(--r-pill); }
+@container sbnav (max-width: 720px) {
+  /* the row (wordmark + features + for teams + docs + benchmarks + log in +
+     the Install Now pill) needs 673px at the 14px step, which an island of
+     693 or less cannot give it, so below 720 it takes the 12px step, --sp-1
+     link padding and no inter-item gap: 466px of row, which fits an island
+     from 486 up. */
+  .sb-header-in { gap: var(--sp-1); }
+  .sb-nav { gap: 0; }
+  .sb-word, .sb-nav a:not(.sb-btn) { font-size: var(--fs-xs); } /* :not(.sb-btn): the base recipe at :283 is 0,2,1 and beats a bare 0,1,1 here */
+  .sb-nav a:not(.sb-btn) { padding: 0 var(--sp-1); }
+  /* the notch padding (.sb-header) puts a landscape phone in this tier (812
+     minus two 50px insets is 712): "docs" measured 37px wide there, under the
+     44px touch floor. --target-sm is 28px on a mouse, under every label's own
+     width, so a fine pointer does not move (2026-09-26). */
+  .sb-nav a:not(.sb-btn) { min-width: var(--target-sm); justify-content: center; }
+  .sb-nav .sb-btn.sm { padding: 0 var(--sp-2); } /* .sm: the shared .sb-btn.sm recipe at :451 is 0,2,0 and later, so the pill's own side padding is out-ranked here, as it is at every narrower tier */
+}
+@container sbnav (max-width: 560px) {
+  /* for teams is still in the row here, so the links give up their side
+     padding (their min-width holds the target the padding used to) and the
+     island drops both gaps: 428px of row. The nav then takes whatever is
+     left and spreads across it, so the labels keep their air (space-between
+     inside the nav, not a gap between items: at 320 the five links and the
+     pill have 256px of text in a 264px box, and a fixed gap would push the
+     pill past the island). */
+  .sb-header-in { gap: 0; }
+  .sb-nav { flex: 1 1 auto; margin-left: var(--sp-2); justify-content: space-between; }
+  .sb-nav a:not(.sb-btn) { padding: 0; min-width: var(--target-sm); justify-content: center; }
+}
+@container sbnav (max-width: 480px) {
+  /* below 480 the island goes edge-to-edge with an 8px (--sp-2) side margin:
+     max-width releases so it spans the width minus the margins; the 10px top
+     margin and the narrower tiers below stand */
+  .sb-header-in { max-width: none; margin: 10px var(--sp-2) 0; }
+  /* the for-teams link (site-nav.ts, 2026-09-12) measured 56px at 360, on a
+     row that was already over: it drops below 480, where /features' org block
+     and the footer of every page that carries one keep the route. The api
+     link (2026-10-03) drops with it: the 320 row had 20px to spare, and the
+     phone drawer clones the whole nav, so the route stays one tap away */
+  .sb-nav a[href$="/enterprise"], .sb-nav a[href$="/developers"] { display: none; }
+}
+@container sbnav (max-width: 440px) {
+  /* the row is 384px with the wordmark text (110 + 8 + the 266px nav) while
+     the island's content box is 405 at 441 and 385 at 421: below 440 the
+     brand keeps its mark and gives up the text, 82px of the row. The link,
+     its target and the anchor's "superbot.gg" name (site-nav.ts) all stay,
+     so the brand is still announced and still goes home. */
+  .sb-word-txt { display: none; }
+  .sb-word { min-width: var(--target-sm); justify-content: center; }
+  .sb-word .sb-word-mark { margin-right: 0; }
+  .sb-nav .sb-btn.sm { min-height: var(--target); padding: 0 var(--sp-1); } /* min-height stays at the full --target so the pill keeps its flush 36px nest in the island at every width */
+  /* the platform mark nav-store.js puts in the pill (16px + the button's
+     --sp-2 gap) measured the header 23-27px over at 320 on every page
+     (mobile matrix, 2026-09-09); the pill's text label stays, the mark
+     goes below 420 */
+  .sb-nav .sb-btn .sb-os-mark { display: none; }
+}
+@container sbnav (max-width: 360px) {
+  /* 320px (WCAG 1.4.10's width, an iPhone SE): the island gives up its
+     widest air instead of wrapping, so --nav-h and every anchor's
+     scroll-padding stay true - 4px side margins, --sp-2 left padding,
+     --sp-1 right. The 284px row fits the 304px content box at 320 with
+     20px to spare. */
+  .sb-header-in { margin-left: var(--sp-1); margin-right: var(--sp-1); padding-left: var(--sp-2); padding-right: var(--sp-1); }
+}
+
+/* ---- phone nav: the 44px menu button and its drawer (nav-drawer.js) ----
+   Measured 2026-09-17 at 320 CSS px: the six-link row was 347px wide in a
+   320px viewport — 23 to 27px of document overflow on every static page — and
+   there was no menu button, so the row was the page's minimum width and the
+   last link sat past the edge. The script clones the shell's own nav into the
+   drawer, so labels, order, href and aria-current stay whatever the server
+   emitted; these rules only dress it. */
+.sb-navbtn {
+  display: none; /* the script shows it only where the drawer installs */
+  align-items: center; justify-content: center;
+  min-height: var(--target); min-width: var(--target);
+  margin-left: auto; padding: 0; border: 1px solid transparent;
+  border-radius: var(--r-md); background: none; color: var(--fg); cursor: pointer;
+}
+.sb-navbtn:active { background: var(--raised); }
+/* the links move into the drawer; the Install Now pill STAYS in the island —
+   it is the page's one primary action and the drawer's own copy is its tap
+   target there, so hiding the whole nav would have removed the CTA from the
+   header entirely (2026-09-17). */
+.sb-nav.sb-nav-has-btn a:not(.sb-btn) { display: none; }
+/* the beta host's locked pill ("Get early access" / "Enter invite code",
+   data-access, site-nav.ts) is too long for the phone island (owner,
+   2026-09-25: "looks bad on that"): with the drawer installed it leaves the
+   island and lives only as the drawer's CTA. Install Now stays as above. */
+.sb-nav.sb-nav-has-btn .sb-btn[data-access] { display: none; }
+.sb-nav.sb-nav-has-btn + .sb-navbtn { display: inline-flex; margin-left: var(--sp-1); }
+/* with the links in the drawer the pill is alone in the nav: it docks beside
+   the menu button (the phone convention, one thumb zone) instead of floating
+   by the mark, and it takes back the side padding the ≤440 tier's --sp-1 took
+   when the row still held five links — at 320 its label sat 4px from the
+   rounded ends (2026-09-25). 0,4,0 outranks that tier's 0,3,0; the class
+   only exists where the drawer installs, so the inline row is untouched. */
+.sb-nav.sb-nav-has-btn { justify-content: flex-end; }
+.sb-nav.sb-nav-has-btn .sb-btn.sm { padding: 0 var(--sp-3); }
+/* the wordmark comes back. The ≤440 tier drops its text because the row
+   there still held five links; with the drawer installed the island holds
+   only the mark, the menu button and at most the Install Now pill, and the
+   mark alone read as an empty pill (iOS 26 sim, 2026-09-26: "shows no
+   links, looks weird"). The text returns at the 16px step: 262px of row at
+   320 with the pill, inside a 298px island. .sb-drawer-dock is set on the
+   dock by the script with .sb-nav-has-btn and cleared for its row
+   measurement, so it never feeds back into the install decision. */
+.sb-drawer-dock .sb-word-txt { display: inline; }
+.sb-drawer-dock .sb-word { font-size: var(--fs-base); }
+.sb-drawer-dock .sb-word .sb-word-mark { margin-right: var(--sp-2); }
+.sb-navbtn-bars,
+.sb-navbtn-bars::before,
+.sb-navbtn-bars::after {
+  display: block; width: 18px; height: 1.5px; border-radius: 1px; background: currentColor;
+}
+.sb-navbtn-bars { position: relative; }
+.sb-navbtn-bars::before, .sb-navbtn-bars::after { content: ""; position: absolute; left: 0; }
+.sb-navbtn-bars::before { top: -5px; }
+.sb-navbtn-bars::after { top: 5px; }
+
+/* the sheet (2026-09-26, the Discord mobile-web menu): full height from the
+   right, a --sp-12 scrim strip on the left that a thumb can tap to dismiss,
+   the top row docked on the island's own pixels, 56px rows, the CTA pinned in
+   the thumb zone. The old panel was a 100dvh box that stopped above iOS 26
+   Safari's floating toolbar with the page showing under it, its links 44px
+   rows at 16px text in the top third and 60% of the panel empty. */
+.sb-scrim {
+  /* runs 128px past the bottom edge: iOS 26 Safari's floating toolbar sits
+     over the page, and a scrim that stopped at the edge left a strip of live
+     page under it */
+  position: fixed; top: 0; left: 0; right: 0; bottom: calc(-2 * var(--sp-16)); z-index: 40;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  animation: sb-fade var(--dur-3) var(--ease-out);
+}
+.sb-drawer {
+  position: fixed; top: 0; right: 0; z-index: 41;
+  width: min(calc(100% - var(--sp-12)), calc(var(--sp-16) * 6));
+  /* the content lays out in the visible height (the CTA must clear the
+     toolbar); the fill below it runs on under the toolbar through ::after */
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column;
+  padding-right: env(safe-area-inset-right, 0px);
+  background: var(--card); border-left: 1px solid var(--line);
+  animation: sb-drawer-in var(--dur-3) var(--ease-out);
+}
+/* display:flex above outranks the UA's [hidden] rule: the closed sheet must
+   still leave the page */
+.sb-drawer[hidden], .sb-scrim[hidden] { display: none; }
+.sb-drawer::after {
+  content: ""; position: absolute; top: 100%; left: -1px; right: 0; height: calc(2 * var(--sp-16));
+  background: inherit; border-left: inherit;
+}
+/* focus lands on the dialog itself on open (nav-drawer.js): a landmark, not a
+   control, so no ring, the way main[tabindex="-1"] carries none above */
+.sb-drawer:focus, .sb-drawer:focus-visible { outline: none; outline-offset: 0; }
+@keyframes sb-drawer-in { from { transform: translateX(var(--sp-4)); opacity: 0; } to { transform: none; opacity: 1; } }
+body.sb-nav-open { overflow: hidden; }
+/* the top row: the script measures the menu button and writes --sb-x-top,
+   --sb-x-right and --sb-x-size, so the close control sits on the button's
+   exact rect and the wordmark on the same band; the fallbacks are the
+   island's own numbers (10px margin + 4px inset, a 44px target) */
+.sb-drawer-head {
+  flex: none; position: relative;
+  height: calc(var(--sb-x-top, var(--sp-3)) + var(--sb-x-size, var(--target)) + var(--sp-4));
+}
+.sb-drawer-word.sb-word {
+  position: absolute; top: var(--sb-x-top, var(--sp-3)); left: var(--sp-3);
+  min-height: var(--sb-x-size, var(--target)); margin: 0; font-size: var(--fs-base);
+}
+.sb-drawer-close {
+  position: absolute; top: var(--sb-x-top, var(--sp-3)); right: var(--sb-x-right, var(--sp-2));
+  display: flex; align-items: center; justify-content: center;
+  width: var(--sb-x-size, var(--target)); height: var(--sb-x-size, var(--target));
+  min-height: var(--target); min-width: var(--target); padding: 0;
+  border: 1px solid transparent; border-radius: var(--r-md); background: none; color: var(--fg); cursor: pointer;
+}
+.sb-drawer-close:active { background: var(--raised); }
+@media (hover: hover) { .sb-drawer-close:hover { background: var(--raised); } }
+.sb-drawer-close-x { position: relative; display: block; width: 18px; height: 18px; }
+.sb-drawer-close-x::before, .sb-drawer-close-x::after {
+  content: ""; position: absolute; left: 0; top: 50%; width: 18px; height: 1.5px; border-radius: 1px; background: currentColor;
+}
+.sb-drawer-close-x::before { transform: rotate(45deg); }
+.sb-drawer-close-x::after { transform: rotate(-45deg); }
+/* the rows: full width, 56px, 18px labels, hairlines between; the list
+   scrolls on its own if a short screen cannot hold it, and the CTA rides its
+   end, pushed to the bottom by margin-top:auto whenever there is room */
+.sb-drawer-nav {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column;
+  padding-bottom: calc(var(--sp-4) + env(safe-area-inset-bottom, 0px));
+}
+.sb-drawer-nav a {
+  display: flex; align-items: center; flex: none;
+  color: var(--fg); text-decoration: none; white-space: nowrap;
+}
+.sb-drawer-nav a:not(.sb-drawer-cta) {
+  min-height: calc(var(--sp-12) + var(--sp-2)); padding: 0 var(--sp-5);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 500;
+  transition: background-color var(--dur-2) var(--ease-std);
+}
+.sb-drawer-nav a:not(.sb-drawer-cta):first-child { border-top: 1px solid var(--line); }
+.sb-drawer-nav a:not(.sb-drawer-cta):active { background: var(--raised); }
+@media (hover: hover) { .sb-drawer-nav a:not(.sb-drawer-cta):hover { background: var(--raised); } }
+.sb-drawer-nav a[aria-current="page"]:not(.sb-drawer-cta) { color: var(--accent); }
+/* the X row: the cloned header anchor shows its handle here, the mark ahead
+   of it at the island's 16px */
+.sb-drawer-nav a.sb-nav-x { gap: var(--sp-3); }
+.sb-drawer-nav .sb-nav-x-txt { display: inline; }
+.sb-drawer-nav a:not(.sb-drawer-cta):has(+ .sb-drawer-cta) { margin-bottom: var(--sp-6); }
+.sb-drawer-nav a.sb-drawer-cta {
+  margin: auto var(--sp-5) 0; min-height: calc(var(--sp-12) + var(--sp-1)); padding: 0 var(--sp-5);
+  justify-content: center; border-radius: var(--r-pill);
+  font-size: var(--fs-base); line-height: var(--lh-base);
+  background: var(--accent); color: var(--accent-ink);
+}
+/* the clone keeps .sb-btn, so the CTA wears the same storm ramp as the pill it
+   copies; the flat --accent above was painting over it (2026-09-25) */
+.sb-drawer-nav a.sb-btn.sb-drawer-cta { background-color: var(--accent); background-image: var(--storm-action); background-size: 200% 100%; font-weight: 600; }
+
+/* a phone on its side has 343px of height under the chrome: the island gives
+   up 6px of its top margin and 2px of its own height so the sticky band is 56,
+   not 62, and the 44px targets still fit inside the 46px island (2026-09-17,
+   measured 62px on every coarse device; the landscape budget is 56). */
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+  :root { --nav-h: 56px; }
+  .sb-header-in { height: 46px; margin-top: 10px; }
+}
+
+/* ---- buttons: the filled action IS the brand's storm action (duostorm
+   kit .sb-action recipe), and its hover is the brand's living aura (kit
+   .sb-aura, duostorm.css:198-331) worn by a control: the ramp idles on a slow
+   single-axis breathe that never stops, and a wake (hover, keyboard focus)
+   fades in two compositor-only layers behind the label — the five-stop
+   spectrum wheel turning on --aura-spin and a white glint crossing on
+   --aura-sheen, coprime so they never phase-lock — while the glow lifts it.
+   The press is a small spatial scale. Nothing snaps: every property hover
+   changes rides a transition, and rest and hover share one geometry. Every
+   other control stays quiet. Rework 2026-09-09; the two-frame swap it
+   replaces was an unclosed comment swallowing this block's transition. ---- */
+.sb-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  min-height: var(--target); padding: 0 var(--sp-4); border-radius: var(--r-control);
+  background-color: var(--accent); background-image: var(--storm-action); background-size: 200% 100%; background-position: 0% 50%;
+  color: var(--accent-ink); border: 1px solid transparent;
+  font-size: var(--fs-sm); font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap;
+  /* overflow clips both pseudo layers to the rounded box and leaves the outer
+     glow alone (clip-path would clip the glow too); isolation makes the
+     negative-z layers paint above the control's own ramp, under the label,
+     and scopes their blend to this face */
+  position: relative; overflow: hidden; isolation: isolate;
+  /* the wake: exactly the properties hover changes on the element itself */
+  transition: box-shadow var(--dur-4) var(--ease-std), transform var(--dur-2) var(--ease-std);
+}
+/* nowrap is for the label: the download page's primary anchor (a.dl.sb-btn)
+   stacks a mono sha256 <code> under it, and that code must keep its break
+   opportunities or its 64-char min-content drags the whole grid out */
+.sb-btn code { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+/* the idle: the ramp drifts on one axis, slow and reversible, so the control
+   feels alive at rest. It keeps breathing through hover, focus and press —
+   the old hover kill snapped the ramp back to its start in one frame. */
+.sb-btn:not([disabled]) { animation: sb-storm-breathe 6s ease-in-out infinite; } /* deliberate */
+@keyframes sb-storm-breathe { 0%, 100% { background-position: 0% 50%; } 60% { background-position: 60% 50%; } }
+/* the foil: the kit's .sb-aura-spectrum on a control face. A conic wheel of
+   the five storm stops, 1.5x the control's width so it covers every corner
+   at every angle (radius 0.75w against a worst-case half-diagonal of 0.707w
+   on any control wider than tall), rotating by transform only. Screen blend
+   can only brighten the ramp, so the ink's contrast is never worse than at
+   rest. Parked at opacity 0 and paused, so a sleeping control costs nothing. */
+.sb-btn::before {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: 150%; aspect-ratio: 1; border-radius: 50%;
+  background: conic-gradient(from 0deg at 50% 50%,
+    var(--storm-0) 0deg, var(--storm-1) 72deg, var(--storm-2) 144deg,
+    var(--storm-3) 216deg, var(--storm-4) 288deg, var(--storm-0) 360deg);
+  filter: blur(calc(var(--aura-blur) * 0.3));
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity var(--aura-settle) var(--ease-std);
+  pointer-events: none; z-index: -2;
+  animation: sb-btn-spin var(--aura-spin) linear infinite; /* deliberate ambient loop, runs only while awake */
+  animation-play-state: paused;
+}
+@keyframes sb-btn-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+/* the glint: the kit's .sb-aura-sheen. A white band crossing the face on
+   --aura-sheen, transform only. It replaces the old one-shot sweep and the
+   M3 state layer: the wake IS the feedback. */
+.sb-btn::after {
+  content: ""; position: absolute; inset: -40%;
+  background: linear-gradient(115deg, transparent 42%, #fff 50%, transparent 58%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity var(--aura-settle) var(--ease-std);
+  pointer-events: none; z-index: -1;
+  animation: sb-btn-glint var(--aura-sheen) ease-in-out infinite; /* deliberate ambient loop, runs only while awake */
+  animation-play-state: paused;
+}
+@keyframes sb-btn-glint { from { transform: translateX(-70%); } to { transform: translateX(70%); } }
+/* the wake: pointer or keyboard, both layers fade in on the settle band and
+   start moving; the glow lifts the control on the same clock */
+/* hover is not an input (mobile-web-design.mdc): the pointer wake lives under
+   (hover:hover) so a finger never matches it, and the keyboard wake is
+   unguarded. A touch pointer keeps its feedback from :active, which is the
+   event a finger actually sends (2026-09-17, U-site). */
+.sb-btn:focus-visible:not([disabled])::before { opacity: var(--aura-foil-opacity); animation-play-state: running; }
+.sb-btn:focus-visible:not([disabled])::after { opacity: var(--aura-glint-opacity); animation-play-state: running; }
+.sb-btn:focus-visible:not([disabled]) { box-shadow: var(--action-glow); }
+@media (hover: hover) {
+  .sb-btn:hover:not([disabled])::before { opacity: var(--aura-foil-opacity); animation-play-state: running; }
+  .sb-btn:hover:not([disabled])::after { opacity: var(--aura-glint-opacity); animation-play-state: running; }
+  .sb-btn:hover:not([disabled]) { box-shadow: var(--action-glow); }
+}
+@media (hover: none) {
+  .sb-btn:active:not([disabled]) { box-shadow: var(--action-glow); }
+}
+.sb-btn:active:not([disabled]) { transform: scale(0.96); }
+/* ghost: the quiet variant — card surface, hairline border. It wakes the same
+   wheel, but its ::after is the CUT: an opaque card fill one border-width
+   inside, so the wheel reads only as a 1px rotating storm rim (the shimmer
+   "backdrop cut"). The cut is restated at the wake's own specificity, or the
+   wake rule (0,3,1) would out-rank it (0,2,1) and flood the face with foil.
+   The rim is the feedback: border-color and shadow stay put. */
+.sb-btn.ghost { background: var(--card); background-image: none; color: var(--fg); border-color: var(--line); animation: none; }
+.sb-btn.ghost::after,
+.sb-btn.ghost:hover:not([disabled])::after,
+.sb-btn.ghost:focus-visible:not([disabled])::after {
+  inset: 1px; border-radius: inherit; background: var(--card);
+  mix-blend-mode: normal; opacity: 1; animation: none;
+}
+.sb-btn.ghost:hover:not([disabled]),
+.sb-btn.ghost:focus-visible:not([disabled]) { box-shadow: none; }
+.sb-btn.sm { min-height: var(--target-sm); padding: 0 var(--sp-3); font-size: var(--fs-xs); }
+/* pill: the shape of the referent (the desktop app's Ask superbot control) —
+   the nav CTA and anything cut that way */
+.sb-btn.pill { border-radius: var(--r-pill); }
+/* disabled drops the ramp and both aura layers for the elevated surface, the
+   label settling on muted (≈5.2:1). Inert to the pointer entirely. */
+.sb-btn[disabled] {
+  pointer-events: none; cursor: default; transform: none; filter: none; animation: none;
+  background-image: none; background: var(--raised); color: var(--muted);
+  border-color: transparent; box-shadow: none;
+}
+.sb-btn[disabled]::before, .sb-btn[disabled]::after { content: none; }
+.sb-btn.ghost[disabled] { background: var(--card); color: var(--muted); border-color: var(--line); }
+
+/* ---- OS marks (os-detect.js) -------------------------------------------
+   A platform glyph inside a control, left of its label, at currentColor.
+   Two shared recipes: .sb-os-mark for the mark inside any .sb-btn (the
+   header pill via nav-store.js, the download primary, the lander hero), and
+   .dl-mark for the download row's fixed-width mark column. The svg carries
+   its own width and height from os-detect.js osMark(); an empty .dl-mark
+   renders nothing, so a no-JS row is unchanged. ---- */
+.sb-os-mark { display: inline-flex; flex: none; align-items: center; justify-content: center; }
+.sb-os-mark svg { display: block; }
+.dl-mark { display: none; flex: none; width: 20px; height: var(--lh-base); align-items: center; justify-content: center; }
+.dl-mark:not(:empty) { display: inline-flex; }
+.dl-mark svg { display: block; }
+
+/* ---- brand recipes (ported from the duostorm kit) ---- */
+
+/* A brand tile: any square element with the mark image inside. It is a bare
+   black rounded square holding the duotone face. The storm-gradient ring that
+   used to be painted around it (a masked ::before) is retired 2026-10-06 (owner:
+   "we don't use that anywhere anymore"); nothing on this sheet draws a stroke
+   around a tile. .is-ringless is kept as a no-op class so old markup stays
+   valid. The one ring the kit still has is .is-mono's flat --mono-ring, which
+   lives in duostorm.css and is not the storm gradient. */
+.sb-tile {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  aspect-ratio: 1;
+  background: var(--tile-bg);
+  border-radius: var(--tile-radius);
+  overflow: hidden;
+}
+.sb-tile > img { width: 72%; height: 72%; }
+
+/* The storm aurora: three blurred storm blobs over the electric-blue ground,
+   each centre a registered <percentage> pair animated alternate ease-in-out
+   on its own incommensurate period. */
+@property --sa-x1 { syntax: "<percentage>"; inherits: true; initial-value: 18%; }
+@property --sa-y1 { syntax: "<percentage>"; inherits: true; initial-value: 22%; }
+@property --sa-x2 { syntax: "<percentage>"; inherits: true; initial-value: 84%; }
+@property --sa-y2 { syntax: "<percentage>"; inherits: true; initial-value: 30%; }
+@property --sa-x3 { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+@property --sa-y3 { syntax: "<percentage>"; inherits: true; initial-value: 88%; }
+.sb-aurora {
+  background:
+    radial-gradient(circle at var(--sa-x1) var(--sa-y1), var(--storm-0) 0%, transparent 62%),
+    radial-gradient(circle at var(--sa-x2) var(--sa-y2), var(--storm-4) 0%, transparent 62%),
+    radial-gradient(circle at var(--sa-x3) var(--sa-y3), var(--storm-2) 0%, transparent 66%),
+    linear-gradient(var(--storm-1), var(--storm-1));
+  animation:
+    sb-aurora-a var(--aurora-a) ease-in-out infinite alternate,
+    sb-aurora-b var(--aurora-b) ease-in-out infinite alternate,
+    sb-aurora-c var(--aurora-c) ease-in-out infinite alternate;
+}
+@keyframes sb-aurora-a { from { --sa-x1: 18%; --sa-y1: 22%; } to { --sa-x1: 78%; --sa-y1: 74%; } }
+@keyframes sb-aurora-b { from { --sa-x2: 84%; --sa-y2: 30%; } to { --sa-x2: 16%; --sa-y2: 82%; } }
+@keyframes sb-aurora-c { from { --sa-x3: 50%; --sa-y3: 88%; } to { --sa-x3: 56%; --sa-y3: 10%; } }
+
+/* A storm-gradient outline on any control (focus ring, selected rail item). */
+.sb-storm-outline {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--raised), var(--raised)) padding-box,
+    var(--storm-gradient) border-box;
+}
+
+/* The composer pill's glow: a blurred storm band under the pill. */
+.sb-composer { position: relative; }
+.sb-composer::before {
+  content: "";
+  position: absolute; inset: -12px -24px;
+  background: var(--composer-glow);
+  filter: blur(var(--composer-glow-blur));
+  opacity: var(--composer-glow-opacity);
+  border-radius: var(--r-pill);
+  z-index: -1;
+}
+
+/* ---- surfaces + inline code ---- */
+.sb-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); }
+p code, li code, .sb-code {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 1px 6px; color: var(--fg);
+  /* a chip holding a URL has no break opportunity of its own: at 320px the
+     uninstall commands on /docs ran 45px past the viewport (2026-09-02) */
+  overflow-wrap: anywhere;
+}
+/* a flag-shaped chip (--uninstall) must not break at its own hyphen into two
+   chips on a phone; long commands keep their wrap and do not take this class */
+.sb-nowrap { white-space: nowrap; }
+
+/* ---- no-JS install fallback ----
+   edge/src/app.ts landerWithFallback renders bare <pre>/<p>/<a> into the
+   #oneliner mount; install-snippet.js replaces them once it runs. These
+   rules only ever paint for a reader without JavaScript. */
+#oneliner:not(.sb-oneliner) { max-width: var(--content); margin-left: auto; margin-right: auto; text-align: left; }
+#oneliner:not(.sb-oneliner) > pre {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface);
+  padding: var(--sp-3) var(--sp-4); overflow-x: auto; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--fg);
+}
+#oneliner:not(.sb-oneliner) > p { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); margin-top: var(--sp-2); overflow-wrap: anywhere; }
+#oneliner:not(.sb-oneliner) > p code { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 1px 6px; color: var(--fg); }
+#oneliner:not(.sb-oneliner) > p a { color: var(--accent); }
+
+/* ---- footer ---- */
+.sb-footer {
+  margin-top: var(--sp-section); border-top: 1px solid var(--line);
+  color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs);
+}
+.sb-footer-in {
+  max-width: var(--container); margin: 0 auto;
+  padding: var(--sp-6) var(--gutter-r) max(var(--sp-6), env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+  display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-6); align-items: center; justify-content: space-between;
+}
+/* The same edges again, as longhands, and this rule is not redundant: a
+   shorthand whose value carries var() is not expanded into longhands that the
+   CSSOM can enumerate, so a checker reading `style[i]` saw an EMPTY padding
+   on exactly the declarations that carry the notch (2026-09-17). The other
+   checker reads the declaration TEXT, where only the shorthand line above
+   shows the inset. Two readings of one computed padding — the shorthand is
+   what the browser actually lays out; these longhands only make the floor
+   legible to a checker that enumerates properties. Values are identical. */
+@media (pointer: coarse) {
+  .sb-footer-in { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+}
+/* footer links: 24px is the WCAG floor a mouse gets; a finger gets the 44px
+   token, and the row spacing shrinks so the taller rows do not read as a gap */
+.sb-footer a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: max(24px, var(--target-sm)); }
+.sb-footer a:hover, .sb-footer a:active { color: var(--fg); }
+.sb-footer .links { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+/* the X link: its mark sits before the handle (siteFooter, X_MARK) */
+.sb-footer .sb-x { gap: 6px; }
+/* 44 wide as well as tall: "home" is 29px of text, so the padding makes up
+   the rest and the gap shrinks by the same amount */
+@media (pointer: coarse) {
+  .sb-footer a { min-width: var(--target-sm); padding: 0 var(--sp-2); }
+  .sb-footer .links { gap: 0; margin: 0 calc(-1 * var(--sp-2)); }
+  /* the -8px pull lets the padded tap boxes use the plain 16px gutter, but on a
+     notched phone on its side the gutter IS the inset (--gutter-l/r = 62), so
+     the last box sat 8px under the rounded corner (874x402, 2026-09-26). Each
+     side pulls only as far as the gutter exceeds its inset: -8 without a
+     notch, 0 beside one. */
+  .sb-footer .links {
+    margin-left: max(calc(-1 * var(--sp-2)), calc(env(safe-area-inset-left, 0px) - var(--gutter-l)));
+    margin-right: max(calc(-1 * var(--sp-2)), calc(env(safe-area-inset-right, 0px) - var(--gutter-r)));
+  }
+}
+.sb-footer .creed { color: var(--accent); }
+/* the trademark line is a sentence a phone reads, not a caption: 14px (the
+   mobile matrix flags it as running copy at the footer's 12px) */
+.sb-footer .tm { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+/* phones: the footer measured 197px tall at 375 (241 at 320) under a 48px
+   margin, "unnecessarily fat" (owner, 2026-09-25). The 44px link rows already
+   carry 14px of air above and below their 16px text, so the stacked 12px gaps
+   and the 24px padding were air on top of air: the gaps go, the padding and
+   the margin above take one step down. Targets stay 44px (156px at 375). */
+@media (max-width: 480px) {
+  .sb-footer { margin-top: var(--sp-8); }
+  .sb-footer-in {
+    row-gap: 0;
+    padding-top: var(--sp-4);
+    padding-bottom: max(var(--sp-4), env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---- entrance: fade-up, staggered by --i, one token per step ---- */
+/* from .01, never 0: an LCP candidate first painted under opacity 0 is not counted (ga-audit 2026-10-01) */
+@keyframes sb-rise { from { opacity: .01; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes sb-fade { from { opacity: .01; } to { opacity: 1; } }
+.sb-reveal {
+  animation: sb-rise var(--dur-4) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.sb-visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---- the whole page reads a quarter larger on wide screens (owner,
+   2026-09-01): a plain zoom rather than a second token sheet. Phones and
+   small laptops stay at 1x so the 390px layouts keep their exact fit.
+   zoom inflates dvh measurements non-uniformly — inside this tier a 100dvh
+   probe resolves 1.25× the real viewport, so any 100dvh consumer overflows
+   by exactly the zoom factor (measured 2026-09-04, zoom, resolved
+   2026-09-08). The pin now lives here instead of per page: the body's own
+   dvh min-height (above) drops to a percentage inside the tier, because
+   percentages still resolve against the real viewport under zoom — the same
+   idiom chat.html proved on its shell. The clean replacement — a rem-based
+   root scale (html font-size 125% with the token sheet in rem) — would
+   rewrite every page's px-token consumption, including sheets this file does
+   not own; until that lands, each new 100dvh consumer needs the same
+   percentage pin. ---- */
+@media (min-width: 1200px) {
+  html { zoom: 1.25; height: 100%; }
+  body { min-height: 100%; }
+  .sb-drawer { height: 100%; } /* the same pin for the drawer's 100dvh (a zoomed 200% text axis can still install it) */
+}

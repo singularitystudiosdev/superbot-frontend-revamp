@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<title>Benchmarks, October 2026 – superbot.gg</title>
+<meta name="description" content="Superbot answered 57.5% of 40 real-world asks right the first time, ahead of Claude Code, Codex, Cursor and the Opus, Sonnet and GPT APIs. Judge-graded, October 2026."/>
+<meta property="og:title" content="Superbot benchmarks, October 2026"/>
+<meta property="og:description" content="57.5% of real asks right the first time. Next best: Claude Code at 52.5%."/>
+<meta property="og:image" content="./kit/og-card.png"/>
+<meta property="og:image:width" content="2400"/>
+<meta property="og:image:height" content="1260"/>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../site.css"/>
+<link rel="stylesheet" href="../bench.css"/>
+<!-- page-scoped: the results page's own shapes (hero rank, scoreboard, pass
+     grid, interval meter). Tokens only, from site.css; bars are data, so their
+     lengths ride a --v custom property per mark. -->
+<style>
+  .res { padding-bottom: var(--sp-16); }
+  .res ul { padding-left: 0; margin-left: 0; }
+  .res figure { margin: 0; }
+  /* every block may shrink below its content's min-content width: without this
+     the pass grid's scroll table widens the whole page on a phone */
+  .res, .res > *, .res-hero > *, .res section > * { min-width: 0; }
+  /* positioned, so the table's visually hidden labels are clipped by the scroll
+     box instead of stretching the document (measured: 707px wide at a 485px
+     viewport before this) */
+  .res-frame.scroll { max-width: 100%; position: relative; }
+  .res h1 { display: block; font-size: var(--fs-h1); line-height: 1.08; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
+  .res header .lede { color: var(--muted); margin-top: var(--sp-4); }
+  .res h2 { font-size: var(--fs-h2); line-height: 1.2; letter-spacing: -0.01em; font-weight: 600; text-wrap: balance; }
+  .res h3 { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 500; margin-bottom: var(--sp-3); }
+  .res section { margin-top: var(--sp-16); }
+  .res .sec-lede { color: var(--muted); max-width: var(--measure); margin-top: var(--sp-2); text-wrap: pretty; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* hero: the one bold element, the 57.5% beside the whole field */
+  .res-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: var(--sp-12); align-items: center; margin-top: var(--sp-8); }
+  .res-num { display: block; font-size: calc(var(--fs-h1) * 2.25); line-height: 1; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .res-num-label { display: block; color: var(--secondary); margin-top: var(--sp-3); }
+  .res-hero .sb-btn { margin-top: var(--sp-8); }
+
+  /* ranked bars: name, track, value */
+  /* one grid for the whole list, rows on a subgrid, so every bar starts at the
+     same x whatever the label length */
+  .rank { list-style: none; display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: var(--sp-3); }
+  .rank li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
+  .rank .n { text-align: right; color: var(--secondary); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+  .rank .p { color: var(--secondary); font-size: var(--fs-sm); line-height: var(--lh-sm); font-variant-numeric: tabular-nums; }
+  .rank li.us .n, .rank li.us .p { color: var(--fg); font-weight: 600; }
+  .t { display: block; height: var(--sp-3); border-radius: var(--r-control); background: var(--raised); }
+  .t i { display: block; height: 100%; width: calc(var(--v) * 1%); background: var(--line-strong); border-radius: 0 var(--r-control) var(--r-control) 0; }
+  .t i.us { background: var(--accent); }
+
+  /* scoreboard: one row per metric, Superbot against its nearest comparator */
+  .score { list-style: none; margin-top: var(--sp-6); border-top: 1px solid var(--line); }
+  .score li { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 13rem); gap: var(--sp-6); align-items: center; padding: var(--sp-4) 0; border-bottom: 1px solid var(--line); }
+  .score .k b { display: block; font-weight: 500; }
+  .score .k span { display: block; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); margin-top: var(--sp-1); }
+  .score .meter { display: grid; gap: var(--sp-2); }
+  .score .v { text-align: right; }
+  .score .v b { display: block; font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .score .v span { display: block; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .stack { display: flex; gap: 2px; height: var(--sp-3); }
+  .stack i { display: block; width: calc(var(--v) * 1%); background: var(--line-strong); border-radius: var(--r-control); }
+  .stack i.us { background: var(--accent); }
+  .stack i.tie { background: var(--raised); }
+  .trade-h { margin-top: var(--sp-10); }
+
+  /* framed figures: the category grid, the speed groups, the desktop pair */
+  .res-frame { margin-top: var(--sp-6); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); padding: var(--sp-6); }
+  .res-frame.scroll { overflow-x: auto; }
+  .cats { width: 100%; border-collapse: collapse; min-width: 44rem; }
+  .cats th, .cats td { padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
+  .cats tbody tr:last-child th, .cats tbody tr:last-child td { border-bottom: 0; }
+  .cats thead th { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 500; text-align: center; vertical-align: bottom; }
+  .cats thead th.us { color: var(--fg); }
+  .cats tbody th { text-align: left; font-weight: 500; white-space: nowrap; }
+  .cats tbody th span { display: block; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 400; }
+  .cats td { text-align: center; white-space: nowrap; }
+  .dot { display: inline-block; width: var(--sp-3); height: var(--sp-3); margin: 0 2px; border-radius: 50%; border: 1px solid var(--line-strong); vertical-align: middle; }
+  .dot.on { background: var(--muted); border-color: var(--muted); }
+  td.us .dot.on { background: var(--accent); border-color: var(--accent); }
+  .speed { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-8); }
+  .duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); margin-top: var(--sp-6); }
+  .res-fig { display: grid; gap: var(--sp-5); }
+  .res-fig figcaption b { display: block; font-weight: 500; }
+  .res-fig figcaption span { display: block; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); margin-top: var(--sp-1); }
+
+  /* method: what each figure means and where it came from, one sentence a line */
+  .method { list-style: none; margin-top: var(--sp-6); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-8) var(--sp-6); }
+  .method li { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .method b { display: block; color: var(--fg); font-weight: 500; font-size: var(--fs-base); line-height: var(--lh-base); margin-bottom: var(--sp-2); }
+  .method span { display: block; }
+  .method code { font-family: var(--font-mono); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+  .links { display: flex; flex-wrap: wrap; gap: var(--sp-6); margin-top: var(--sp-6); }
+  .links a { display: inline-flex; align-items: center; min-height: max(24px, var(--target)); color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+  .links a:hover, .links a:focus-visible { border-bottom-color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .res-hero, .speed, .duo, .method { grid-template-columns: minmax(0, 1fr); }
+    .res-hero { gap: var(--sp-8); }
+    /* a phone stacks each row: the metric, its bars, then the values on one line */
+    .score li { grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); }
+    .score .v { text-align: left; display: flex; align-items: baseline; gap: var(--sp-3); }
+    .score .v span { white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+<main class="bench res" id="main">
+  <div class="crumb"><a href="index.html">superbot<span class="gg">.gg</span></a> / benchmarks / october 2026</div>
+
+  <header>
+    <h1>Right the first time.</h1>
+    <p class="lede">Superbot beat six rivals on 40 real asks.<br/>A judge graded every answer by checklist.</p>
+  </header>
+  <div class="res-hero">
+    <div>
+      <span class="res-num">57.5%</span>
+      <span class="res-num-label">one-shot pass rate, ahead of every outside rival</span>
+      <a class="sb-btn" href="download.html">Download Superbot</a>
+    </div>
+    <figure class="res-frame" aria-label="One-shot pass rate for all ten setups">
+      <ul class="rank">
+<li class="us"><span class="n">Superbot</span><span class="t"><i class="us" style="--v:82.1" title="Superbot: 57.5%"></i></span><span class="p">57.5%</span></li>
+<li class="us"><span class="n">Superbot Fast</span><span class="t"><i class="us" style="--v:82.1" title="Superbot Fast: 57.5%"></i></span><span class="p">57.5%</span></li>
+<li class=""><span class="n">Superbot SUPER (on)</span><span class="t"><i class="" style="--v:75.0" title="Superbot SUPER (on): 52.5%"></i></span><span class="p">52.5%</span></li>
+<li class=""><span class="n">Claude Code</span><span class="t"><i class="" style="--v:75.0" title="Claude Code: 52.5%"></i></span><span class="p">52.5%</span></li>
+<li class=""><span class="n">Superbot SUPER (auto)</span><span class="t"><i class="" style="--v:67.9" title="Superbot SUPER (auto): 47.5%"></i></span><span class="p">47.5%</span></li>
+<li class=""><span class="n">Opus 5.5 (API)</span><span class="t"><i class="" style="--v:64.3" title="Opus 5.5 (API): 45%"></i></span><span class="p">45%</span></li>
+<li class=""><span class="n">Codex CLI</span><span class="t"><i class="" style="--v:64.3" title="Codex CLI: 45%"></i></span><span class="p">45%</span></li>
+<li class=""><span class="n">Sonnet 5.5 high (API)</span><span class="t"><i class="" style="--v:57.1" title="Sonnet 5.5 high (API): 40%"></i></span><span class="p">40%</span></li>
+<li class=""><span class="n">GPT-5.5 (API)</span><span class="t"><i class="" style="--v:53.6" title="GPT-5.5 (API): 37.5%"></i></span><span class="p">37.5%</span></li>
+<li class=""><span class="n">Cursor CLI</span><span class="t"><i class="" style="--v:53.6" title="Cursor CLI: 37.5%"></i></span><span class="p">37.5%</span></li>
+      </ul>
+    </figure>
+  </div>
+
+  <section aria-labelledby="q-h">
+    <h2 id="q-h">Better answers on eight measures</h2>
+    <p class="sec-lede">Nearest of six rivals, same 40 prompts.</p>
+    <ul class="score">
+<li>
+  <div class="k"><b>One-shot pass rate</b><span>Judge scored the checklist 95 or above.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:82.1" title="Superbot: 57.5%"></i></span><span class="t"><i class="" style="--v:75.0" title="Claude Code: 52.5%"></i></span></div>
+  <div class="v"><b>57.5%</b><span>vs 52.5% Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Done in one turn</b><span>No follow-up turn needed.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:92.5" title="Superbot: 92.5%"></i></span><span class="t"><i class="" style="--v:82.5" title="Claude Code: 82.5%"></i></span></div>
+  <div class="v"><b>92.5%</b><span>vs 82.5% Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Usefulness</b><span>Judge score out of 100, mean of 40.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:87.4" title="Superbot: 87.4"></i></span><span class="t"><i class="" style="--v:84.7" title="Claude Code: 84.7"></i></span></div>
+  <div class="v"><b>87.4</b><span>vs 84.7 Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Completeness</b><span>Judge score out of 100, mean of 40.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:95.9" title="Superbot: 95.9"></i></span><span class="t"><i class="" style="--v:90.6" title="Claude Code: 90.6"></i></span></div>
+  <div class="v"><b>95.9</b><span>vs 90.6 Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Fulfillment</b><span>Share of the checklist delivered.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:92.3" title="Superbot: 92.3"></i></span><span class="t"><i class="" style="--v:87.5" title="Claude Code: 87.5"></i></span></div>
+  <div class="v"><b>92.3</b><span>vs 87.5 Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Missed checklist lines</b><span>Per answer. Lower is better.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:17.5" title="Superbot: 0.18"></i></span><span class="t"><i class="" style="--v:35.0" title="Claude Code: 0.35"></i></span></div>
+  <div class="v"><b>0.18</b><span>vs 0.35 Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Answers with nothing missed</b><span>First try, every checklist line met.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:82.5" title="Superbot: 33"></i></span><span class="t"><i class="" style="--v:67.5" title="Claude Code: 27"></i></span></div>
+  <div class="v"><b>33</b><span>vs 27 Claude Code</span></div>
+</li>
+<li>
+  <div class="k"><b>Prompt-by-prompt matchups</b><span>Against each rival, prompt by prompt.</span></div>
+  <div class="meter"><span class="stack" title="137 won, 21 tied, 82 lost"><i class="us" style="--v:57.1"></i><i class="tie" style="--v:8.8"></i><i style="--v:34.2"></i></span></div>
+  <div class="v"><b>137 of 240 won</b><span>21 tied, 82 lost</span></div>
+</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="c-h">
+    <h2 id="c-h">Two kinds of ask no rival matched</h2>
+    <p class="sec-lede">A filled dot is a passed prompt.<br/>Two prompts each: a direction, not proof.</p>
+    <div class="res-frame scroll"><table class="cats">
+<thead><tr><th scope="col"><span class="vh">Category</span></th><th scope="col" class="us">Superbot</th><th scope="col" class="us">Superbot Fast</th><th scope="col" class="">Claude Code</th><th scope="col" class="">Codex CLI</th><th scope="col" class="">Cursor CLI</th><th scope="col" class="">Opus 5.5 API</th><th scope="col" class="">Sonnet 5.5 API</th><th scope="col" class="">GPT-5.5 API</th></tr></thead>
+<tbody>
+<tr><th scope="row"><b>Missing attachments</b><span>Ask for the file, never invent it.</span></th><td class="us"><span class="vh">Superbot: 2 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot on" aria-hidden="true"></span></td><td class="us"><span class="vh">Superbot Fast: 1 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Claude Code: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Codex CLI: 1 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Cursor CLI: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Opus 5.5 API: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Sonnet 5.5 API: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">GPT-5.5 API: 1 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td></tr>
+<tr><th scope="row"><b>Casual chat</b><span>Small talk and a low-mood check-in.</span></th><td class="us"><span class="vh">Superbot: 1 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class="us"><span class="vh">Superbot Fast: 2 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot on" aria-hidden="true"></span></td><td class=""><span class="vh">Claude Code: 1 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Codex CLI: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Cursor CLI: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Opus 5.5 API: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">Sonnet 5.5 API: 1 of 2</span><span class="dot on" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td><td class=""><span class="vh">GPT-5.5 API: 0 of 2</span><span class="dot" aria-hidden="true"></span><span class="dot" aria-hidden="true"></span></td></tr>
+</tbody></table></div>
+  </section>
+
+  <section aria-labelledby="s-h">
+    <h2 id="s-h">Faster than the model APIs</h2>
+    <p class="sec-lede">Median time to a finished answer.<br/>Every Superbot answer here was correct.</p>
+    <div class="res-frame speed">
+      <div class="grp"><h3>Math</h3><ul class="rank small"><li class="us"><span class="n">Superbot Fast</span><span class="t"><i class="us" style="--v:20.7" title="Superbot Fast: 0.46s"></i></span><span class="p">0.46s</span></li><li class="us"><span class="n">Superbot</span><span class="t"><i class="us" style="--v:33.5" title="Superbot: 0.74s"></i></span><span class="p">0.74s</span></li><li class=""><span class="n">Sonnet 5.5 high (API)</span><span class="t"><i class="" style="--v:48.6" title="Sonnet 5.5 high (API): 1.07s"></i></span><span class="p">1.07s</span></li><li class=""><span class="n">Opus 5.5 (API)</span><span class="t"><i class="" style="--v:62.5" title="Opus 5.5 (API): 1.37s"></i></span><span class="p">1.37s</span></li><li class=""><span class="n">GPT-5.5 (API)</span><span class="t"><i class="" style="--v:92.8" title="GPT-5.5 (API): 2.04s"></i></span><span class="p">2.04s</span></li></ul></div>
+      <div class="grp"><h3>Fact lookups</h3><ul class="rank small"><li class="us"><span class="n">Superbot</span><span class="t"><i class="us" style="--v:42.3" title="Superbot: 1.10s"></i></span><span class="p">1.10s</span></li><li class=""><span class="n">Sonnet 5.5 high (API)</span><span class="t"><i class="" style="--v:51.7" title="Sonnet 5.5 high (API): 1.34s"></i></span><span class="p">1.34s</span></li><li class=""><span class="n">Opus 5.5 (API)</span><span class="t"><i class="" style="--v:75.1" title="Opus 5.5 (API): 1.95s"></i></span><span class="p">1.95s</span></li><li class=""><span class="n">GPT-5.5 (API)</span><span class="t"><i class="" style="--v:94.8" title="GPT-5.5 (API): 2.46s"></i></span><span class="p">2.46s</span></li></ul></div>
+      <div class="grp"><h3>Short code</h3><ul class="rank small"><li class="us"><span class="n">Superbot Fast</span><span class="t"><i class="us" style="--v:41.5" title="Superbot Fast: 1.08s"></i></span><span class="p">1.08s</span></li><li class="us"><span class="n">Superbot</span><span class="t"><i class="us" style="--v:46.2" title="Superbot: 1.20s"></i></span><span class="p">1.20s</span></li><li class=""><span class="n">Sonnet 5.5 high (API)</span><span class="t"><i class="" style="--v:55.3" title="Sonnet 5.5 high (API): 1.44s"></i></span><span class="p">1.44s</span></li><li class=""><span class="n">Opus 5.5 (API)</span><span class="t"><i class="" style="--v:65.9" title="Opus 5.5 (API): 1.71s"></i></span><span class="p">1.71s</span></li><li class=""><span class="n">GPT-5.5 (API)</span><span class="t"><i class="" style="--v:96.1" title="GPT-5.5 (API): 2.50s"></i></span><span class="p">2.50s</span></li></ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="d-h">
+    <h2 id="d-h">On your desktop, vs the Agent SDK</h2>
+    <p class="sec-lede">Same Mac, same model, two runs each.</p>
+    <div class="duo">
+      <figure class="fig res-fig"><figcaption><b>Everyday asks answered right</b><span>Seven chat-shaped prompts.</span></figcaption><ul class="rank"><li class="us"><span class="n">Superbot</span><span class="t"><i class="us" style="--v:100.0" title="Superbot: 14 of 14"></i></span><span class="p">14 of 14</span></li><li class=""><span class="n">Claude Agent SDK</span><span class="t"><i class="" style="--v:78.6" title="Claude Agent SDK: 11 of 14"></i></span><span class="p">11 of 14</span></li></ul></figure>
+      <figure class="fig res-fig"><figcaption><b>Time to answer “347 × 29”</b><span>Both engines got it right.</span></figcaption><ul class="rank"><li class="us"><span class="n">Superbot</span><span class="t"><i class="us" style="--v:2.5" title="Superbot: 0.75s"></i></span><span class="p">0.75s</span></li><li class=""><span class="n">Claude Agent SDK</span><span class="t"><i class="" style="--v:95.7" title="Claude Agent SDK: 28.7s"></i></span><span class="p">28.7s</span></li></ul></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="x-h">
+    <h2 id="x-h">Tidy context vs loading it all</h2>
+    <p class="sec-lede">Full sends every rule on every call.<br/>Tidy sends only what each task needs.</p>
+    <ul class="score">
+<li>
+  <div class="k"><b>Rule tokens on the first call</b><span>Tools and the system prompt are not counted.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:21.3" title="Tidy: 9,582"></i></span><span class="t"><i class="" style="--v:94.1" title="Full: 42,352"></i></span></div>
+  <div class="v"><b>9,582</b><span>vs 42,352 Full</span></div>
+</li>
+<li>
+  <div class="k"><b>Cost per call</b><span>Same model and tasks. Lower is better.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:31.9" title="Tidy: 1x"></i></span><span class="t"><i class="" style="--v:92.0" title="Full: 2.9x"></i></span></div>
+  <div class="v"><b>2.9x less</b><span>than Full</span></div>
+</li>
+<li>
+  <div class="k"><b>First token, cold call</b><span>Median. Lower is better.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:81.4" title="Tidy: 7.33s"></i></span><span class="t"><i class="" style="--v:91.7" title="Full: 8.26s"></i></span></div>
+  <div class="v"><b>7.33s</b><span>vs 8.26s Full</span></div>
+</li>
+<li>
+  <div class="k"><b>Full answer, cold call</b><span>Median, send to last token.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:76.0" title="Tidy: 10.6s"></i></span><span class="t"><i class="" style="--v:90.4" title="Full: 12.7s"></i></span></div>
+  <div class="v"><b>10.6s</b><span>vs 12.7s Full</span></div>
+</li>
+<li>
+  <div class="k"><b>Requirements met</b><span>Level with full, 95% CI −0.7 to +12.5.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:78.2" title="Tidy: 78.2%"></i></span><span class="t"><i class="" style="--v:73.7" title="Full: 73.7%"></i></span></div>
+  <div class="v"><b>78.2%</b><span>vs 73.7% Full</span></div>
+</li>
+<li>
+  <div class="k"><b>Directives honoured</b><span>Level with full, 95% CI −0.8 to +6.8.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:88.0" title="Tidy: 88%"></i></span><span class="t"><i class="" style="--v:85.3" title="Full: 85.3%"></i></span></div>
+  <div class="v"><b>88%</b><span>vs 85.3% Full</span></div>
+</li>
+<li>
+  <div class="k"><b>Blind judge</b><span>Answer picked, 18 pairs, order swapped.</span></div>
+  <div class="meter"><span class="t"><i class="us" style="--v:55.6" title="Tidy: 55.6%"></i></span><span class="t"><i class="" style="--v:44.4" title="Full: 44.4%"></i></span></div>
+  <div class="v"><b>55.6%</b><span>vs 44.4% Full, a tie</span></div>
+</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="m-h">
+    <h2 id="m-h">How we measured</h2>
+    <ul class="method">
+      <li><b>Quality</b><span>Quality run, 2026-10-02 (corrected).</span><span>40 prompts, one sample per setup.</span><span>A judge graded each answer by checklist.</span><span>A pass is fulfillment of 95 or more.</span><span>Six prompts were re-measured after setup fixes.</span><span>We fixed how tool use is recorded.</span><span>We fixed the rival CLIs' network and permissions.</span></li>
+      <li><b>Rivals</b><span>The three CLIs run their own agents.</span><span>The API setups are bare models, no tools.</span><span>So they cannot fetch pages or read the date.</span><span>The GPT row is labelled GPT-5.5.</span><span>That is the model its answers say served them.</span></li>
+      <li><b>Speed</b><span>Latency run, 2026-10-02.</span><span>20 prompts, three runs each, median time.</span><span>Its only rivals are the three model APIs.</span></li>
+      <li><b>Desktop</b><span>Desktop run, 2026-10-02, one Mac.</span><span>App builds left out: both engines timed out.</span></li>
+      <li><b>Context</b><span>Context run, 2026-10-02: 24 tasks, Sonnet 5.</span><span>Superbot's context.</span><span>Tidy sends only the rules each task needs.</span><span>Differences are paired by task, 95% CI.</span></li>
+      <li><b>Where Superbot does not lead</b><span>Claude Code scores higher on presentation.</span><span>Claude Code wins 19 matchups to our 16.</span><span>Live web tasks and live facts are no longer a clear lead.</span><span>The Sonnet 5.5 API is fastest overall.</span><span>Tidy sends more tokens than the plain rules.</span></li>
+    </ul>
+    <div class="links">
+      <a href="./kit/index.html">Every metric as a card</a>
+      <a href="./answers/answers.html">Answers side by side</a>
+      <a href="./kit/og-card.png">Social card</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

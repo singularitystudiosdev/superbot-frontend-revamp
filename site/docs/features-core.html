@@ -1,0 +1,192 @@
+<div class="doc-groups">
+
+<section class="doc-block" id="apps">
+  <h3>Desktop and phone apps</h3>
+  <p class="doc-lede">The desktop and phone apps run on one account, so a chat you start on one device keeps going on the other.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Download the app on each device from <a href="download.html">Download superbot</a>.</li>
+    <li>Sign in with the same email on both.</li>
+  </ol>
+  <p>The <strong>Sync chats across devices</strong> switch in <strong>Settings &gt; Privacy</strong> stores your chats on superbot's servers so your other devices see them, and <strong>Sync projects across devices</strong> turns project sync on or off. <strong>Sync now</strong> on a project pushes it at once.</p>
+</section>
+
+<section class="doc-block" id="helper-app">
+  <h3>superbot relay</h3>
+  <p class="doc-lede">The superbot relay app switches which engine answers <code>claude</code> on this computer, for people who keep their own agent app.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Install it from <a href="#install">Install</a> or <a href="/download#helper">Download superbot</a>.</li>
+    <li>Choose <strong>Omni</strong> under <strong>What claude runs</strong>, or run <code>superbot engine on</code>. Until you choose, <code>claude</code> runs Claude Code.</li>
+    <li>Run <code>superbot engine off</code> to go back. <code>superbot engine restore</code> puts your original launcher back exactly, and uninstall does too.</li>
+  </ol>
+  <p>The launcher takes Claude Code's own launcher slot, <code>~/.local/bin/claude</code>, and never renames or edits the Claude Code binary. With Omni on, only one-shot <code>claude -p</code> calls with flags Omni knows run on it. Interactive <code>claude</code>, subcommands and anything else run Claude Code, and so does every call while the Helper is down.</p>
+  <p><strong>Pays for model calls</strong> reads <strong>Superbot credits</strong> by default. <strong>Your Claude plan</strong> is opt-in, with a one-line notice.</p>
+  <p>Agent SDK apps do not reach the launcher through PATH, and Omni does not serve SDK calls yet, so they run on Claude Code today. To point one at the launcher, set <code>cli_path</code> in the Python SDK or <code>pathToClaudeCodeExecutable</code> in the TypeScript SDK.</p>
+  <p>The app has a <strong>Tidy</strong> setting too, covered in <a href="#tidy">Tidy mode</a>.</p>
+</section>
+
+<section class="doc-block" id="helper">
+  <h3>Helper and CLI</h3>
+  <p class="doc-lede">The Helper pairs your computer to your account and connects your AI clients, and you control it with the <code>superbot</code> command.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Run <code>superbot signin</code>. It opens your browser to pair the computer.</li>
+    <li>Run <code>superbot status</code> to see what the Helper is doing.</li>
+    <li>Run <code>superbot session</code> to chat with your agent in the terminal.</li>
+  </ol>
+  <p>The desktop app carries the app's own update; <code>superbot update</code> updates the Helper alone. <code>superbot uninstall</code> asks first, then removes the Helper and the desktop app along with the data they hold on this computer. <code>superbot uninstall --dry-run</code> lists what would go without deleting anything.</p>
+  <p>Related: <a href="#uninstall">Uninstall</a></p>
+</section>
+
+<section class="doc-block" id="clients">
+  <h3>Your AI clients</h3>
+  <p class="doc-lede">The Helper finds the AI clients on your computer, such as Claude Code and Cursor, and routes each one through your account.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Install the app, or run the Helper line from <a href="#start">Start here</a>.</li>
+    <li>Restart the client and ask what superbot tools it has. The answer includes <code>superbot</code>.</li>
+  </ol>
+  <p>Each client also has its own recipe: <a href="install/claude.md">Claude Code</a>, <a href="install/cursor.md">Cursor</a>, <a href="install/vscode.md">VS Code</a>, <a href="install/codex.md">Codex</a>, <a href="install/gemini.md">Gemini CLI</a> and <a href="install/claude-desktop.md">Claude Desktop</a>. A client with no recipe connects with an API key. <a href="#connection">Your connection</a> lists the base URL and models, and <a href="#api-auth">Keys and authentication</a> covers the key.</p>
+  <p>Related: <a href="clients.html">Set up your clients</a></p>
+</section>
+
+<section class="doc-block" id="super">
+  <h3>Super mode and swarms</h3>
+  <p class="doc-lede">One message goes to a team of agents that run on your connected subscriptions and report what each one cost.</p>
+  <ul class="doc-list">
+    <li>In the composer, set <strong>Super</strong> to <strong>On</strong>. The phone has the same toggle.</li>
+    <li>In <code>superbot session</code>, type <code>/super on</code>.</li>
+  </ul>
+  <p>Each agent narrates its plan and posts an update at each milestone.</p>
+</section>
+
+<section class="doc-block" id="daemon">
+  <h3>Daemon mode and parked chats</h3>
+  <p class="doc-lede">An agent keeps watching on a schedule while you are away, and a parked chat waits for one thing before it carries on.</p>
+  <h4>Daemon mode</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open the composer's mode menu and choose <strong>Daemon</strong>, or type <code>/daemon</code> followed by what to watch.</li>
+    <li>Send your message to start the watch. A daemon watches up to 5 chats at once.</li>
+    <li>Use <strong>Pause</strong> and <strong>Resume</strong> in the status line under the composer.</li>
+    <li>To stop, choose <strong>Agent</strong> in the mode menu or type <code>/daemon</code> again.</li>
+  </ol>
+  <p>On the phone, the Options sheet has the same <strong>Daemon</strong> row, and the desktop app runs the checks.</p>
+  <h4 id="park">Park and resume</h4>
+  <p>When an agent has to wait, it parks the chat, and superbot wakes it when the wait is over. A banner above the composer reads <strong>Parked:</strong> with what the chat waits for.</p>
+  <ul class="doc-list">
+    <li><strong>Resume now</strong> wakes the chat at once.</li>
+    <li><strong>Cancel wait</strong> drops the wait.</li>
+  </ul>
+  <p>On the phone, the same banner shows <strong>Resume now</strong> and <strong>Cancel wait</strong>.</p>
+  <p>Related: <a href="#fleet">Fleet board</a></p>
+</section>
+
+<section class="doc-block" id="fleet">
+  <h3>Fleet board</h3>
+  <p class="doc-lede">One screen lists every agent working for you, on all your devices and in the cloud.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Fleet</strong> from the command palette or the <strong>View</strong> menu, or press <code class="sb-nowrap">⌘⌥F</code> on a Mac or <code class="sb-nowrap">Ctrl+Alt+F</code> on Windows.</li>
+    <li>Find a row under <strong>Needs you</strong>, <strong>Running</strong>, <strong>Waiting</strong> or <strong>Done</strong>, and press it to open its chat.</li>
+    <li>Press <strong>Stop</strong> on a running row to end its turn or cloud run.</li>
+  </ol>
+  <p>On the desktop, filter the board by <strong>App</strong>, <strong>Project</strong> or <strong>Device</strong>. On the phone, open Settings, then <strong>Your agent</strong>, and under <strong>General</strong> open <strong>Fleet</strong>.</p>
+</section>
+
+<section class="doc-block" id="plan">
+  <h3>Plan card, race and checkpoints</h3>
+  <p class="doc-lede">An agent shows its plan before it changes anything, and checkpoints rewind a bad result.</p>
+  <h4>Plan card</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>Choose <strong>Plan</strong> in the composer's mode menu, or type <code>/plan</code> followed by your request.</li>
+    <li>Press <strong>Build</strong> on the plan card to carry it out.</li>
+  </ol>
+  <h4 id="race">Race</h4>
+  <p><strong>Build in parallel</strong> runs the plan on up to four coding agents installed on this computer, each in its own copy of the project. Press <strong>Merge this</strong> on the column you want to keep, or <strong>Stop race</strong> to cancel.</p>
+  <h4 id="checkpoints">Checkpoints</h4>
+  <p>Checkpoints snapshot the chat and the project each time you send a message. They are on by default.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Hover a message of yours and press <strong>Revert to here</strong>.</li>
+    <li>Choose <strong>Revert chat and files</strong>, <strong>Revert chat only</strong> or <strong>Restore files only</strong>.</li>
+    <li>Press <strong>Undo revert</strong> to bring the messages back until your next message.</li>
+  </ol>
+  <p>The switch is <strong>Checkpoints</strong> in <strong>Settings &gt; General</strong>, in the <strong>Advanced</strong> fold. On the phone, a revert restores files through the desktop app while it is online.</p>
+  <h4 id="branch">Branch a chat</h4>
+  <p>Type <code>/branch</code> or <code>/fork</code> to copy the chat into a new one and switch to it. To cut at an earlier reply, hover it and press <strong>Branch</strong>.</p>
+</section>
+
+<section class="doc-block" id="routines">
+  <h3>Routines</h3>
+  <p class="doc-lede">A routine runs a standing instruction on a schedule you describe once, such as every weekday at 07:00.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Describe it in any connected client, for example "every weekday at 07:00, summarise my inbox".</li>
+    <li>Say "list my routines", or name one and say "pause it", "resume it", "change it" or "delete it".</li>
+  </ol>
+  <p>superbot stores the routine and delivers each result by text message or push. A routine runs on superbot's servers, so your computer does not need to be on. Open <strong>Routines</strong> from the command palette, press <strong>New routine</strong> and fill in the form. <strong>Run now</strong> runs a saved routine once. On the phone, open Settings, then <strong>Your agent</strong>, and under <strong>General</strong> open <strong>Routines</strong>.</p>
+</section>
+
+<section class="doc-block" id="context">
+  <h3>Context and imported chats</h3>
+  <p class="doc-lede">The context optimizer trims each turn before it reaches the model, and your account remembers the preferences you state.</p>
+  <ul class="doc-list">
+    <li>A preference you state once applies in later sessions on all your devices.</li>
+    <li>Chats you import from other apps are stored on superbot's servers, and superbot searches and summarises them when you ask in a connected client.</li>
+  </ul>
+  <p>Related: <a href="#import">Import chats from other apps</a>, <a href="#tidy">Tidy mode</a></p>
+</section>
+
+<section class="doc-block" id="tidy">
+  <h3>Tidy mode</h3>
+  <p class="doc-lede">Tidy keeps each turn short by pasting in the rules and skills your task needs and linking the rest.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Settings &gt; Context</strong>.</li>
+    <li>Under <strong>How should Superbot use your setup?</strong>, choose <strong>Tidy it for Superbot chats</strong>.</li>
+    <li>Open the <strong>Advanced</strong> fold. <strong>Per app</strong> sets <strong>Tidy</strong>, <strong>Keep as is</strong> or <strong>Default</strong> for each app.</li>
+    <li>Press <strong>Undo</strong> beside <strong>Rules up front</strong> to restore the setup you had.</li>
+  </ol>
+  <p>In one benchmark run, Tidy sent 77% fewer rule tokens on the first call than sending your full setup.</p>
+  <p>Tools and the system prompt are not counted.</p>
+  <p>On the phone, open Settings, then <strong>Your agent</strong>, and find the <strong>Context</strong> block.</p>
+</section>
+
+<section class="doc-block" id="import">
+  <h3>Import chats from other apps</h3>
+  <p class="doc-lede">Bring the chat history you already have in other AI apps, such as ChatGPT, into superbot, where it shows in that app's <strong>Chats</strong> list.</p>
+  <p>Imported chats are stored on superbot's servers and readable by superbot.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>On the desktop, open <strong>Settings &gt; Privacy</strong> and tick the app under <strong>Chats</strong>, or turn on <strong>Vendor chats</strong> for every app.</li>
+    <li>Press <strong>Add</strong> in the sidebar, then <strong>Connect an app…</strong>, and pick the app.</li>
+    <li>For an app that keeps its chats on your computer, press <strong>Import chats</strong>.</li>
+  </ol>
+  <p>On an app's <strong>Chats</strong> list, <strong>Resync</strong> scans again, and <strong>Choose a file…</strong> imports a data export when the app offers one. On the phone, open History, press <strong>Import a shared chat</strong>, paste a ChatGPT or Claude share link and press <strong>Import</strong>.</p>
+  <p>Related: <a href="#context">Context and imported chats</a></p>
+</section>
+
+<section class="doc-block" id="tool">
+  <h3>MCP server and its tool</h3>
+  <p class="doc-lede">Any MCP client that connects to superbot gets one tool, <code>superbot</code>, that takes a request in plain words and does the work.</p>
+  <p>To connect one client straight to the server, ask a coding agent to install the superbot MCP server globally, then to install the superbot skill globally.</p>
+  <div class="doc-cmd-lines"><code>install the superbot MCP server globally: {{MCP_URL}}
+install the superbot skill globally: {{ORIGIN}}/skills/superbot/SKILL.md
+Tell me if I need to sign in.</code><button class="doc-copy" type="button" aria-label="click to copy the three-line prompt that installs the superbot MCP server and skill" data-copy><span class="doc-copy-label">click to copy</span>{{COPY_GLYPH}}</button></div>
+  <p class="doc-mut">Then type <code class="sb-nowrap">/superbot</code> in your agent.</p>
+  <p class="doc-mut">In Codex, type <code class="sb-nowrap">$superbot</code>.</p>
+  <p>To add it to Claude Code by hand, run <code>claude mcp add</code> with the server URL.</p>
+  <div class="doc-cmd"><code>claude mcp add --transport http superbot {{MCP_URL}} -s user</code><button class="doc-copy" type="button" aria-label="click to copy the claude mcp add line" data-copy><span class="doc-copy-label">click to copy</span>{{COPY_GLYPH}}</button></div>
+  <p>The server URL is under <a href="#connection">Your connection</a>.</p>
+  <p class="doc-mut">No browser? Signed in, <a href="/download#mcp">copy a key</a>.</p>
+  <p>Then ask for something in plain words, such as "summarise my unread email", and the client calls <code>superbot</code> with your words.</p>
+  <p>Related: <a href="#clients">Your AI clients</a></p>
+</section>
+
+<section class="doc-block" id="mcp-servers">
+  <h3>Your MCP servers</h3>
+  <p class="doc-lede">superbot installs and checks the MCP servers your agents use.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Ask for the capability in plain words, for example "add a Linear tool". The agent searches MCP registries and offers the best match.</li>
+    <li>Approve the install when the agent asks.</li>
+    <li>On the desktop, open <strong>Settings &gt; Tools &amp; MCP</strong> to see every server and whether it works. <strong>Add a tool</strong> adds one by hand, by <strong>HTTP URL</strong> or <strong>Command</strong>.</li>
+  </ol>
+  <p>A row that needs you has an action such as <strong>Sign in</strong> or <strong>Approve change</strong>. If an installed server later changes a tool, its tools stay held back until you press <strong>Approve change</strong>.</p>
+  <p>On the phone, open Settings, then <strong>Connections</strong>, and find <strong>Tools &amp; MCP</strong>.</p>
+  <p>From a terminal, <code>superbot mcp list</code> shows each server's state and tool count, and <code>superbot mcp remove &lt;id&gt;</code> removes one.</p>
+  <p>Related: <a href="#tool">MCP server and its tool</a></p>
+</section>
+
+</div>

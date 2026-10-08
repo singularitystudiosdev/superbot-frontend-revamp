@@ -1,0 +1,130 @@
+/* /request-harness: the ask-for-a-harness form. One column, one control per
+   row, label above the field with one hint line under it and the field's own
+   error line last (the Railway New OAuth App form; one filled CTA, Dribbble's
+   register-application form). Everything chrome comes from site.css: the
+   tokens, the focus ring, the .sb-reveal entrance, and the storm .sb-btn. This sheet owns the page column, the two
+   lists the edge fills in, the notice, the fields and the honeypot.
+
+   Radii: two values on the page, both site.css tokens. --r-md on the fields,
+   the notice, the provider tiles and their icons; --r-pill on the one filled
+   control.
+   Colour: site.css tokens only, no hex literal in this file.
+   Length: the --sp-* / --fs-* / --lh-* / --r-* scales, the four page values
+   declared on .rq below, and the 1px hairlines every sheet in this repo draws
+   borders with. */
+
+.rq {
+  /* the four page values, so no rule below carries a raw length */
+  --rq-h1: clamp(1.5rem, 1.2rem + 1.5vw, 2rem); /* the h1 step /benchmarks and /model read at (bench.css:16) */
+  --rq-h1-lh: 1.15;
+  --rq-form: 40rem;   /* the form column: one column, 40rem, the Railway exemplar */
+  --rq-control: 44px; /* the field floor: Apple HIG 44x44pt, held at every pointer (site.css lifts its own --target to this on a coarse one) */
+  --rq-icon: var(--sp-8); /* the provider tile, 32px: an app icon, not a glyph */
+  --rq-tile: 11rem;   /* tile column floor, held at every width: 32 icon + 12 gap + "claude desktop" at 14px + padding. A phone gets fewer columns, never a smaller label */
+
+  max-width: var(--container); margin: 0 auto;
+  padding: var(--sp-10) var(--gutter-r) 0 var(--gutter-l);
+}
+
+/* the crumb /model, /benchmarks and /features all carry (bench.css:11-14) */
+.rq .crumb { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-4); }
+.rq .crumb a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: var(--target-sm); border-radius: var(--r-md); }
+.rq .crumb a:hover { color: var(--fg); }
+.rq .crumb .gg { color: var(--accent); }
+
+/* weight, tracking and text-wrap: balance come from site.css's h1 rule
+   (:158); this only sets the step and the line box */
+.rq h1 { font-size: var(--rq-h1); line-height: var(--rq-h1-lh); font-weight: 500; margin-bottom: var(--sp-3); }
+.rq .lede { color: var(--muted); max-width: var(--measure); text-wrap: balance; }
+
+/* the two sections the edge fills in: what already works (recipes) and what
+   the desktop app imports from. Grouped rows of logo tiles, the ClickUp /
+   Customer.io integrations-directory shape, ending on an ask tile. */
+.rq-sec { margin-top: var(--sp-10); }
+.rq-sec + .rq-sec { margin-top: var(--sp-8); }
+.rq-sec h2, .rq-form h2 { font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 500; }
+.rq-sec > p { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); max-width: var(--measure); margin: var(--sp-1) 0 var(--sp-4); }
+
+/* the tile grid: provider app icon + name on a hairline card. The icon is the
+   canonical opaque tile (its own ground baked in), clipped at the page's
+   control radius; the name never wraps, the column floor is sized to the
+   longest label ("claude desktop") so it never has to. */
+.rq-tiles {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--rq-tile), 1fr)); gap: var(--sp-2);
+}
+.rq-tile {
+  display: flex; align-items: center; gap: var(--sp-3);
+  min-height: var(--rq-control); padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-2);
+  border: 1px solid var(--line); border-radius: var(--r-md); background: var(--card);
+  color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap;
+  text-decoration: none;
+}
+.rq-tile img { flex: none; width: var(--rq-icon); height: var(--rq-icon); border-radius: var(--r-md); }
+/* only a tile that goes somewhere answers the pointer */
+a.rq-tile { transition: border-color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std); }
+a.rq-tile:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: var(--raised); }
+/* the last tile: not a harness, the way to the form. Same anatomy, an empty
+   icon slot drawn as a dashed hairline with the accent plus in it. */
+.rq-tile-ask { color: var(--muted); border-style: dashed; background: transparent; }
+.rq-tile-ask:hover { color: var(--fg); }
+.rq-tile-plus {
+  flex: none; display: grid; place-items: center; width: var(--rq-icon); height: var(--rq-icon);
+  border: 1px dashed var(--line); border-radius: var(--r-md);
+  color: var(--accent); font-size: var(--fs-lg); line-height: 1;
+}
+
+/* the notice: the whole element is the edge's (<div class="rq-notice ok">,
+   site.css card surface, hairline, control radius), never a wrapper around a
+   notice that might be absent */
+.rq-notice { margin-top: var(--sp-10); padding: var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--card); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.rq-notice b { color: var(--fg); font-weight: 500; }
+.rq-notice a { color: var(--fg); }
+.rq-notice a:hover { color: var(--accent); }
+/* the two states are the same shape as /model's status pills: one accent
+   hairline for a request taken, the danger line for one that needs fixing */
+.rq-notice.ok { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.rq-notice.err { border-color: var(--danger-line); }
+.rq-notice.err b { color: var(--danger); }
+
+/* the form: one column, label above field, the field's error line last */
+.rq-form { margin-top: var(--sp-10); max-width: var(--rq-form); display: grid; gap: var(--sp-6); }
+.rq-field { display: grid; gap: var(--sp-2); }
+.rq-field label { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; color: var(--fg); }
+
+/* :where() keeps this rest state at the specificity of .rq alone, so
+   site.css's field focus rule (:178, which paints the accent border and its
+   ring) still wins on :focus-visible. Do not "fix" it into a plain
+   descendant selector. */
+.rq :where(input, textarea) {
+  width: 100%; min-height: var(--rq-control);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-base); line-height: var(--lh-base);
+  color: var(--fg); background: var(--card);
+  border: 1px solid var(--line); border-radius: var(--r-md);
+  transition: border-color var(--dur-2) var(--ease-std);
+}
+.rq textarea { resize: vertical; }
+
+.rq-hint { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.rq-err { color: var(--danger); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* the honeypot: never painted, still submitted. The site's own
+   visually-hidden idiom (.sb-visually-hidden, site.css:615). */
+.rq-hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+/* the page's one filled control: the storm .sb-btn from site.css, at the
+   capsule shape, on its own line */
+.rq-form .sb-btn { justify-self: start; border-radius: var(--r-pill); }
+@media (max-width: 480px) {
+  .rq-form .sb-btn { justify-self: stretch; }
+}
+/* A tile label never shrinks and never wraps (one-line-sentences.mdc: fewer
+   words, then layout, never a smaller font). The column floor (--rq-tile) is
+   what the longest label needs at --fs-sm, so a narrow phone gets fewer
+   columns, not smaller type: one column at 320 and 390, two from 430. The grid
+   and the tile read the same sizes at every width, so there is no phone block
+   for them. */
+/* an error line is always in the DOM (its id is the field's aria-describedby
+   target); with no message it takes no space */
+.rq-err:empty { display: none; }

@@ -1,0 +1,7 @@
+{
+  "POST /v1/org/:id/receipts": {
+    "ok": true,
+    "attested": true,
+    "policy_rev": 2
+  }
+}

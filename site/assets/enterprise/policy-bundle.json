@@ -1,0 +1,51 @@
+{
+  "bundle": {
+    "v": 1,
+    "org_id": "org_8b052856ec0e33f0",
+    "rev": 2,
+    "issued_at": "2026-09-13T00:25:50.622Z",
+    "prev_sig": "zI5m8bIDrqLs6wHUm9eywxu5GD6GXCzbsESB4jQL//MeygGIdWKeCL2XyMhins7O+oaAQmBrkNlOh8NISHWSAg==",
+    "policy": {
+      "models": {
+        "allow": [
+          "claude-sonnet-5",
+          "gpt-5-mini"
+        ]
+      },
+      "mcp": {
+        "allow": [
+          "github",
+          "linear"
+        ],
+        "deny": [
+          "shell"
+        ]
+      },
+      "rules": {
+        "review-conventions": {
+          "body": "every PR names its test. no force-push to main.",
+          "enforce": true
+        }
+      },
+      "spend": {
+        "org_monthly_tokens": 20000000,
+        "per_member_monthly_tokens": 1500000,
+        "per_agent_monthly_tokens": 250000,
+        "alert_pct": [
+          75,
+          90
+        ]
+      },
+      "autonomy": {
+        "auto_run": true,
+        "browser": true,
+        "network": true
+      },
+      "overridable": [
+        "autonomy.browser"
+      ]
+    }
+  },
+  "sig": "LoIiATNf6DyOf7iMafL4C/…",
+  "pub": "MCowBQYDK2VwAyEAcnWfXt…"
+}

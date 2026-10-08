@@ -1,0 +1,65 @@
+/* hero-sphere: the lander's default hero, a port of the ad gallery's "I can
+   do that too" opening (scenes/tabs.js: the favicon swarm, the spinning
+   sphere, the collapse, the tile pop, the cascade, here the sidebar HUD's
+   wordmark and discs) up to the frontend reveal, landing on the real #hub's
+   HUD mark. Styles for hero-sphere.js's overlay root,
+   which mounts INSIDE #stage (into .body, above the hub) like hero-chaos. The
+   boot-only show/hide and promotion rules keyed on .stage[data-hero] live in
+   hero-chaos.css and apply to every variant prepStage marks. Every selector
+   starts with .hero-sphere; colours are site tokens (--stage, --bg, --card,
+   --line); one radius, the chaos tile's 24%. No glow. Motion is the module's
+   clock writing transform / opacity / filter inline: no keyframes here. */
+
+.hero-sphere {
+  position: absolute; inset: 0; z-index: 20;
+  overflow: hidden; pointer-events: none;
+}
+
+/* the stage's own ground until the real HUD stands in it (hub-boot.css
+   .stage paints var(--stage), so dropping this layer is invisible) */
+.hero-sphere .hs-ground {
+  position: absolute; inset: 0;
+  background: var(--stage, var(--bg));
+}
+
+/* the referent's stage: 1080 px tall, as wide as the aspect makes it,
+   scaled by the module (layout()), origin top-left */
+.hero-sphere .hs-canvas {
+  position: absolute; left: 0; top: 0;
+  width: 1920px; height: 1080px;
+  transform-origin: 0 0;
+}
+
+/* the tiles' layer: orthographic 3D (no perspective), so a tile's translateZ
+   only sorts it; the sphere's perspective is the module's own projection */
+.hero-sphere .hs-orb {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* the app tiles: 64 px (tabs.js .tl) in the chaos tile's shape. They scale
+   from a 20 px favicon up to their slot, so no will-change: transform (a layer
+   hinted with it keeps the raster of its first, smallest frame) */
+.hero-sphere .hs-tile {
+  position: absolute; left: 0; top: 0;
+  width: 64px; height: 64px;
+  transform-origin: 0 0;
+  border-radius: 24%; border: 1px solid var(--line);
+  background: var(--card);
+  overflow: hidden;
+  will-change: opacity, filter;
+}
+.hero-sphere .hs-tile img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+
+/* the superbot tile (brand/superbot-app-icon.png, the HUD mark's own art),
+   300 px, rounded here at the app icon's 22.5% since the png is full bleed. No
+   will-change: transform here either: the flip grows it 4.7x from the merged
+   tile's box, and a hinted layer would keep that first, tiny raster */
+.hero-sphere .hs-mark {
+  position: absolute; left: 0; top: 0;
+  width: 300px; height: 300px;
+  transform-origin: 50% 50%;
+  border-radius: var(--tile-radius);
+  visibility: hidden; user-select: none;
+  will-change: opacity;
+}

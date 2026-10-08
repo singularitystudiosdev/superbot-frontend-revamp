@@ -1,0 +1,30 @@
+$ SUPERBOT_HOME=~/.superbot-dev superbot
+superbot v0.1.9  the Helper's face in a terminal
+
+Usage: superbot <command> [options]
+
+Commands:
+  status                    versions, accounts and clients in one view
+  accounts list|connect|disconnect
+  clients list|wire|unwire|rewire-all
+  keys list|mint <name>|revoke <id>
+  mcp list|set <id>|remove <id>
+  sync                      push local scopes and show the sync heads
+  meter                     this week's spend, calls and tokens
+  chat <text>               one turn through an engine on this machine
+  session                   an interactive agentic session in this directory
+  helper <verb>             start, stop, status, install, update, register
+  signin                    sign in with your browser (a device code) and pair this machine
+  pair <token>              pair this machine with your account
+
+$ SUPERBOT_HOME=~/.superbot-dev superbot status --json
+{
+  "cli": { "version": "0.1.9", "protocol": 1 },
+  "current": { "version": "0.1.10", "protocol": 1, "layout": "js",
+    "entry": "/Users/toor/.superbot-dev/helper/0.1.10/helper.js" },
+  "desktop": { "version": "0.1.10", "protocol": 1 },
+  "relations": { "desktopVsCurrent": "same" },
+  "verdict": "helper not running",
+  "accounts": [],
+  "clients": []
+}

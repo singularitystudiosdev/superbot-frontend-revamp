@@ -1,0 +1,23 @@
+# Cloud runner queue (beta) — edge/src/spaces.ts, local e2e edge
+# scripts/e2e/launch.mjs boots the real buildApp() from edge/src/app.ts;
+# the public deploy gates this behind superbot-cloud-runner.service
+# (deploy/superbot-cloud-runner.service), disabled until the cloud image
+# ships — this exercises the same route code, not a mock.
+
+$ curl -sS -X POST $ORIGIN/v1/spaces/deploy-reviews/runs \
+    -H "authorization: Bearer $TOKEN" -d '{"prompt":"review the latest PR diff"}'
+{"run_id":"run_5faepyjrn849rtbtwv4ykhi7f","status":"queued"}
+  ... 2 more runs queued the same way ...
+
+$ curl -sS $ORIGIN/v1/spaces/deploy-reviews/runs -H "authorization: Bearer $TOKEN"
+{
+  "runs": [
+    { "run_id": "run_47ua24g78fbezd2mn8n0q8110", "status": "queued",
+      "prompt": "draft the release notes" },
+    { "run_id": "run_284w9bfvqg9liwlexop6pe6d0", "status": "queued",
+      "prompt": "summarize failing CI jobs" },
+    { "run_id": "run_5faepyjrn849rtbtwv4ykhi7f", "status": "queued",
+      "prompt": "review the latest PR diff" }
+  ]
+}
+# queue length: 3 runs

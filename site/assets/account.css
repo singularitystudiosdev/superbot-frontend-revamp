@@ -1,0 +1,1725 @@
+/* superbot /account: four themed pages (overview, billing, usage, devices)
+   on the duostorm brand kit (site/assets/duostorm.css) over the shared
+   design tokens (site.css / tokens.css). B2, 2026-09-10; billing storefront
+   rebuild B7, 2026-09-10; tier marks as a swarm ladder, repair pass 2,
+   2026-09-10; connections retired and recovery folded into devices as a
+   "Sign-in settings" card plus toggletips on every card heading, U2/U3
+   2026-09-10 (six pages to four).
+   Two radii only: --r-control (buttons, inputs, pack tiles, chips - chips
+   use the pill) and --r-surface (cards, the chart panel); each tier mark's
+   inner .sb-tile keeps its own brand-kit radius from duostorm.css
+   (--tile-radius, 22.5%), reused unchanged rather than restated as a third
+   literal here, the same way .sb-action and .sb-aura are reused unchanged.
+   The storm ramp is brand chrome and appears ONLY on the recommended tier's
+   filled .sb-action control (the tier tiles carry no ring since 2026-10-06),
+   the coin primitives' rim/face (site/assets/billing-*.svg), the plan rows' allowance bars (data encoding of each tier's own
+   share of the largest allowance), the Pro/Max tier marks' resting-visible
+   .sb-aura (brand chrome confined to the tiles, wakes only on the row's own
+   Subscribe hover/focus, repair pass 2) and the two usage-chart series
+   (tokens teal storm-0, USD magenta storm-3) - nothing else on these pages
+   ever reads a storm-* value. Every
+   numeric literal not already on this line traces to duostorm.css or
+   ~/.cosmos/skills/design-tokens/dist/tokens.css; anything missing is named
+   as a custom property below instead of inlined. */
+
+:root {
+  --acct-r-control: 8px;   /* duostorm.css --radius-control */
+  --acct-r-surface: 16px;  /* duostorm.css --radius-surface */
+  --acct-accent-text: color-mix(in srgb,var(--storm-1) 80%,white); /* accent as TEXT: duostorm.css sets --accent to --storm-1, 3.93:1 on --elevated (axe fail); a fifth white lifts it to 5.4:1, what site.css --accent names. Fills keep --accent. */
+  --acct-r-pill: 9999px;   /* duostorm.css --radius-pill */
+  --acct-chip-gap: var(--sp-1);
+  --acct-row-icon: 20px;   /* under one line-height (fs-sm/lh-sm) — device/platform marks */
+  --acct-section-icon: 20px; /* same 20px as the row marks: a heading's mark sits inside its own lh-base/lh-lg, one size for every section */
+  --acct-tip-max: 260px;   /* judgment: no design-tokens/duostorm value for a toggletip bubble's max-width; kept under --measure (62ch) and short enough to sit beside a card without spanning it */
+  /* the confirm dialog's own two judgment values (nothing in site.css,
+     duostorm.css or design-tokens/dist/tokens.css supplies either). The dialog
+     is shared: /account/data's delete-account confirm and /account/teams'
+     delete-team confirm are the same dialog.acct-dialog, so these are the whole
+     account surface's dialog values, not one page's. */
+  --acct-dialog-w: 440px;  /* the only containers on offer are --container (1120px, a page column) and --measure (62ch, a line length); neither is a confirm dialog's measure, so this is the width the three reference confirms use - GitHub Delete repository, Vercel Delete project, Linear workspace delete - and it is capped by the viewport anyway: min(100% - 2*--sp-4, this) */
+  --acct-scrim: 72%;       /* no scrim/overlay-opacity token exists in this tree (the only *-opacity tokens are site.css --aura-*-opacity / --composer-glow-opacity, all brand-chrome layers), so the ::backdrop is a color-mix on --canvas at this judgment dim: 72% of --canvas over the page, the depth the dashboard's own dialog::backdrop rgba(0,0,0,.6) reaches */
+  /* allowance-bar fills: data encoding (each tier's own share of the largest
+     allowance), so the storm ramp is allowed here same as the usage chart's
+     two series. Max reuses duostorm.css's own 5-stop --storm-gradient-x
+     unchanged; plus/pro are the same truncated stops as their tier-*.svg
+     ring, expressed in storm-* vars so no hex literal is introduced. */
+  --tier-plus-grad: linear-gradient(90deg, var(--storm-0), var(--storm-1));
+  --tier-pro-grad: linear-gradient(90deg, var(--storm-0), var(--storm-1) 33%, var(--storm-2) 66%, var(--storm-3));
+  --tier-max-grad: var(--storm-gradient-x);
+}
+
+.acct-shell{max-width:var(--container);margin:0 auto;padding:var(--sp-6) var(--gutter-r) var(--sp-12) var(--gutter-l)}
+.acct-wrap{display:block}
+.acct-col{min-width:0;max-width:820px}
+
+/* ---- rail: 7 items, text labels always rendered (never icon-only) ------- */
+.acct-rail{margin:0 0 var(--sp-5);background:var(--sidebar);border:1px solid var(--line);border-radius:var(--acct-r-surface);padding:var(--sp-2)}
+.acct-rail ul{list-style:none;margin:0;padding:0;display:flex;gap:var(--sp-1);overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.acct-rail li{display:block;padding:0;border-top:0}
+/* The rail rows: gallery pick #7 "glow pulse" (qa/rail-variants, 2026-09-17).
+   A lucide mark leads each row; the current row sits on the teal-blue-purple
+   sweep (the desktop's --super-grad) painted on ::before, and its glow swells
+   once and settles as the page lands (520ms, deliberate: the desktop rail's own value). Hover only brightens the ink.
+   The sweep sits on ::before so the pill can carry the glow independently of
+   the row's own box. */
+.acct-rail a,.acct-rail button{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:var(--target);min-width:var(--target);padding:0 var(--sp-3);border:1px solid transparent;border-radius:var(--acct-r-control);background:none;color:var(--muted);font-size:var(--fs-sm);font-family:inherit;text-decoration:none;white-space:nowrap;scroll-snap-align:start;cursor:pointer;transition:color 220ms ease}
+.acct-rail .rail-ic{width:16px;height:16px;flex:none;opacity:.7;transition:opacity 220ms ease}
+/* two classes: the page-wide ".acct-page a" (accent ink) ties a lone
+   ".acct-rail a" on specificity and wins by order, which painted the rows
+   accent-blue (the gallery's rows are muted). */
+.acct-page .acct-rail a,.acct-page .acct-rail button{color:var(--muted)}
+.acct-page .acct-rail a:hover,.acct-page .acct-rail button:hover{color:var(--fg)}
+.acct-rail a::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--super-grad);opacity:0;z-index:-1;transition:opacity 120ms ease}
+.acct-page .acct-rail a[aria-current]{color:var(--fg)}
+.acct-rail a[aria-current] .rail-ic{opacity:1}
+/* The pulse runs when the row becomes current: on the page landing, and
+   again the instant a row is pressed (shell.ts moves aria-current before
+   the navigation), so the swell is seen on the click and not only after the
+   load. The settled glow is a step stronger than the gallery's because the
+   rail sits on --sidebar, a lighter ground than the gallery near-black canvas. */
+.acct-rail a[aria-current]::before{opacity:1;box-shadow:0 0 14px rgba(120,100,255,.55);animation:rail-pulse 520ms ease-out both /* deliberate */}
+@keyframes rail-pulse{0%{box-shadow:0 0 0 rgba(120,100,255,0)}35%{box-shadow:0 0 30px 2px rgba(120,100,255,.9)}100%{box-shadow:0 0 14px rgba(120,100,255,.55)}}
+/* <=560: the six chips WRAP instead of scrolling sideways. The strip used to
+   be overflow-x:auto, and at 320 the last chips sat off-screen with nothing
+   saying so — "devices" clipped to "devic", "sign out" entirely invisible
+   (shipped defect, 2026-09-17). Three 44px chips per row fit the 272px
+   content box at 320, so every destination is on screen; nothing scrolls,
+   nothing is clipped, and no scroll-into-view is needed. The wrap reaches to
+   767 (F2, 2026-09-25): a landscape phone at 600 still sliced "teams" to
+   "te" on the sideways row, measured in pixels. At 768 the row is unchanged
+   and >=900 the column rail takes over. */
+@media (max-width:767px){
+  .acct-rail ul{flex-wrap:wrap;overflow:visible}
+  .acct-rail li{flex:1 1 30%;min-width:0}
+  .acct-rail a,.acct-rail button{width:100%}
+}
+@media (min-width:900px){
+  .acct-wrap{display:grid;grid-template-columns:184px minmax(0,1fr);gap:var(--sp-8);align-items:start}
+  .acct-rail{position:sticky;top:calc(var(--nav-h) + var(--sp-4))}
+  /* a Pro Max on its side is 932-956 wide but ~430 tall: the ~398px rail stuck
+     78px down left "sign out" below the fold until the column ended
+     (2026-09-26); in short landscape it scrolls with the page */
+  @media (orientation:landscape) and (max-height:500px){.acct-rail{position:static}}
+  .acct-rail ul{flex-direction:column;overflow:visible;gap:var(--sp-1)}
+  /* the row spans the rail (the gallery's #7 pill runs edge to edge); an
+     inline-flex row hugged its label, so the pill's width changed per page. */
+  .acct-rail a,.acct-rail button{display:flex;width:100%;justify-content:flex-start;min-height:var(--target-sm)}
+}
+/* The column does not shift between pages: a page that scrolls (billing)
+   grew a scrollbar a page that does not (overview) lacks, moving the rail by
+   the bar's width on a Mac with scrollbars shown (the user, 2026-09-17: "when
+   i switch between these the frame moves"). The gutter is reserved always. */
+html:has(.acct-page){scrollbar-gutter:stable}
+
+.acct-page h1{font-size:var(--fs-h2);line-height:1.2;letter-spacing:var(--tracking-tight);margin:0 0 var(--sp-2);font-weight:700}
+.acct-page .lede{color:var(--muted);font-size:var(--fs-sm);margin:0 0 var(--sp-5);max-width:var(--measure)}
+.acct-page h2{font-size:var(--fs-lg);line-height:var(--lh-lg);margin:0 0 var(--sp-2);font-weight:700}
+.acct-page h3{font-size:var(--fs-base);line-height:var(--lh-base);margin:0 0 var(--sp-2);font-weight:500;display:flex;align-items:center;gap:var(--sp-2)}
+/* the section mark (sectionIconSvg in shell.ts) leads every card heading and
+   disclosure summary on the devices page: --ink at heading weight, never
+   larger than the heading's own line-height, decorative so aria-hidden */
+.section-icon{width:var(--acct-section-icon);height:var(--acct-section-icon);flex:none;color:var(--ink)}
+/* a sub-row heading inside a card that already has its own h3 title (the
+   Sign-in settings card's Email / Recovery code rows): one step down from h3
+   in size and weight so the card title and its rows read as a hierarchy, not
+   three identical siblings. */
+.acct-page h4{font-size:var(--fs-sm);line-height:var(--lh-sm);font-weight:600;margin:var(--sp-4) 0 var(--sp-2);display:flex;align-items:center;gap:var(--sp-2)}
+.acct-page p,.acct-page li{color:var(--muted);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+/* The card keeps its plain hairline while you type in it (the storm rim on
+   :focus-within was removed, the user, 2026-09-17); the focused FIELD alone
+   carries the sweep. */
+.acct-card{background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);padding:var(--sp-5) var(--sp-6);margin:0 0 var(--sp-4)}
+.acct-card+.acct-card{margin-top:var(--sp-4)}
+
+/* a card whose body is a disclosure (Devices, Other sessions): the summary
+   IS the card heading row -- same size as .acct-card h3, plus a chevron.
+   list-style:none + the ::-webkit-details-marker reset drop the native
+   triangle; the chevron below stands in for it, rotating open/closed. */
+.acct-card details{margin:0}
+.acct-card details>*:not(summary){margin-top:var(--sp-3)}
+.acct-card summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--target-sm);font-size:var(--fs-lg);line-height:var(--lh-lg);font-weight:700;color:var(--ink)}
+.acct-card summary::-webkit-details-marker{display:none}
+.acct-card summary::after{content:"";width:var(--sp-2);height:var(--sp-2);margin-left:auto;flex:none;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform var(--dur-2) var(--ease-std),border-color var(--dur-2) var(--ease-std)}
+.acct-card summary:hover::after{border-color:var(--fg)}
+.acct-card details[open] summary::after{transform:rotate(-135deg)}
+.acct-card .summary-label{flex:1;min-width:0}
+
+/* toggletips: a round "?" trigger (helpTip in shell.ts) plus the one shared
+   .tip-bubble acctPage renders once per page. The visible glyph is 20px
+   (--acct-row-icon's own size, so it never dwarfs the heading beside it);
+   the ::before pseudo-element pads the hit area out to --target-sm (28px)
+   without widening the glyph itself or the row it sits in. */
+.tip{display:inline-flex;flex:none}
+/* The BUTTON is the target: 24px (WCAG 2.5.8) on a mouse, --target-sm (44) on
+   a finger. The painted ring is a 20px .tip-mark centred inside it. The old
+   20px button padded by a ::before inset measured 20x44 to the target sweep —
+   a pseudo-element never appears in getBoundingClientRect, so the floor could
+   not see the hit area at all (mobile matrix account walker, 2026-09-17). */
+.tip-btn{display:inline-flex;align-items:center;justify-content:center;width:max(24px,var(--target-sm));height:max(24px,var(--target-sm));border:0;background:none;padding:0;color:var(--muted);font-size:var(--fs-xs);line-height:1;font-weight:600;cursor:pointer}
+/* The "?" mark and the round controls below wear the desktop composer's
+   round-button register (packages/ui/src/styles.css .bc-mic / .bc-round-x):
+   a 6% white disc inside an 8% hairline, muted ink that goes white on hover
+   with the hairline lifting to 14%; a pressed or open one fills with the
+   storm sweep and its glow. */
+.tip-mark{display:inline-flex;align-items:center;justify-content:center;width:var(--acct-row-icon);height:var(--acct-row-icon);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-pill);background:rgba(255,255,255,.06);color:var(--muted);font-size:var(--fs-xs);line-height:1;font-weight:600;transition:color 200ms ease,border-color 200ms ease,background 240ms ease,box-shadow 240ms ease}
+.tip-btn:hover .tip-mark,.tip-btn[aria-expanded="true"] .tip-mark{color:var(--fg);border-color:rgba(255,255,255,.14)}
+/* the tip's width with no tip in it (devices.ts TIP_SLOT), so a row without
+   a "?" keeps its revoke in the same column as the rows with one. */
+.tip-slot{width:max(24px,var(--target-sm));height:1px}
+/* The rounded-square icon control: the sidebar's Search / Filter register
+   (lane-view-switch row, image 2) -- a --target square at the control radius
+   on the 6% fill and 8% hairline, muted mark that goes white as the hairline
+   lifts; the danger one tints toward --danger on hover instead. */
+.acct-page .icon-btn{display:inline-flex;align-items:center;justify-content:center;flex:none;width:max(44px,var(--target));height:max(44px,var(--target));margin:0;padding:0;border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-control);background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;transition:color 200ms ease,border-color 200ms ease,background 200ms ease,transform 160ms cubic-bezier(.2,.8,.2,1)}
+.acct-page .icon-btn:hover{color:var(--fg);border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.1)}
+.acct-page .icon-btn.danger:hover{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 60%,transparent);background:color-mix(in srgb,var(--danger) 12%,transparent)}
+.acct-page .icon-btn:active{transform:scale(.98)}
+.acct-page .icon-btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.icon-btn-ic{width:16px;height:16px;flex:none}
+.tip-bubble{position:absolute;z-index:40;max-width:var(--acct-tip-max);background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-control);padding:var(--sp-2) var(--sp-3);font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--ink)}
+.tip-bubble[hidden]{display:none}
+.acct-page input,.acct-page select,.acct-page textarea{font-size:max(16px,1em)}
+/* Fields wear the composer's frame: a hairline at rest, and on focus the
+   storm sweep as the 1px rim (gradient in the border box under a solid
+   padding box, site.css's .sb-storm-outline idea at 1px) with the composer's
+   soft glow beneath. */
+.acct-page input,.acct-page select{width:100%;min-height:max(44px,var(--target));padding:0 var(--sp-3);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-control);background:var(--canvas);color:var(--ink);margin:var(--sp-2) 0;transition:border-color 200ms ease,box-shadow 240ms ease}
+.acct-page textarea{width:100%;resize:none;field-sizing:content;min-height:max(44px,var(--target));padding:var(--sp-2) var(--sp-3);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-control);background:var(--canvas);color:var(--ink);line-height:var(--lh-base);overflow-wrap:anywhere;word-break:break-all;margin:var(--sp-2) 0;transition:border-color 200ms ease,box-shadow 240ms ease}
+.acct-page input:hover,.acct-page select:hover,.acct-page textarea:hover{border-color:rgba(255,255,255,.14)}
+.acct-page input:focus,.acct-page select:focus,.acct-page textarea:focus{outline:none;border-color:transparent;background:linear-gradient(var(--canvas),var(--canvas)) padding-box,var(--super-grad) border-box;box-shadow:0 0 14px rgba(120,100,255,.28)}
+.acct-page label{display:block;color:var(--muted);font-size:var(--fs-sm);font-weight:500;margin-top:var(--sp-3)}
+.acct-page label+input,.acct-page label+select{margin-top:var(--sp-1)}
+/* The secondary control is the composer's pill (.bc-super at rest, .bc-mic's
+   hover): 6% white on an 8% hairline, pill radius, body-size 500 ink that
+   goes white as the hairline lifts, the press scale on the gallery curve.
+   Only the view's one prominent action wears .storm-action. */
+.acct-page button.ghost,.acct-page a.ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:max(44px,var(--target-sm));padding:0 var(--sp-4);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-pill);background:rgba(255,255,255,.06);color:var(--secondary);font-size:var(--fs-sm);font-weight:500;text-decoration:none;cursor:pointer;margin:0;transition:color 200ms ease,border-color 200ms ease,background 200ms ease,transform 160ms cubic-bezier(.2,.8,.2,1)}
+.acct-page button.ghost:hover,.acct-page a.ghost:hover{color:var(--fg);border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.1)}
+.acct-page button.ghost:active,.acct-page a.ghost:active{transform:scale(.98)}
+.acct-page button.ghost:focus-visible,.acct-page a.ghost:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.acct-page button.danger:hover{border-color:color-mix(in srgb,var(--danger) 60%,transparent);color:var(--danger)}
+/* copy: an icon square fused to the read-only field's right edge (the user,
+   2026-09-17: "not a copy button, just a square attached, a copy icon you can
+   press"). The row's gap closes, the field gives up its right corners and
+   the square its left ones, and the two share one hairline. The mark goes
+   white on hover; a successful copy (shell.ts sets data-copied) swaps it for
+   the check on the storm sweep for a moment. */
+.acct-page .row:has(>.copy-btn){gap:0;align-items:stretch;flex-wrap:nowrap}
+.acct-page .row:has(>.copy-btn)>textarea,.acct-page .row:has(>.copy-btn)>input{border-top-right-radius:0;border-bottom-right-radius:0}
+.acct-page .copy-btn{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;flex:none;width:max(44px,var(--target));min-height:max(44px,var(--target));margin:0;padding:0;border:1px solid rgba(255,255,255,.08);border-left:0;border-radius:0 var(--acct-r-control) var(--acct-r-control) 0;background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;transition:color 200ms ease,background 200ms ease,border-color 200ms ease}
+.acct-page .copy-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--super-grad);opacity:0;z-index:-1;transition:opacity 240ms ease}
+.acct-page .copy-btn:hover{color:var(--fg);background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.14)}
+.acct-page .copy-btn:active{color:var(--fg)}
+.acct-page .copy-btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.copy-ic{width:16px;height:16px;flex:none}
+.copy-ic-done{display:none}
+.acct-page .copy-btn[data-copied]{color:var(--fg);border-color:transparent;background:transparent}
+.acct-page .copy-btn[data-copied]::before{opacity:1}
+.acct-page .copy-btn[data-copied] .copy-ic-copy{display:none}
+.acct-page .copy-btn[data-copied] .copy-ic-done{display:block}
+.acct-page .row{display:flex;gap:var(--sp-2);align-items:flex-start;flex-wrap:wrap}
+/* a card lede directly over its field row (API key, Rotate link) sat flush on
+   the field; one --sp-1 of air between them (the user, 2026-09-17) */
+.acct-page p+.row{margin-top:var(--sp-1)}
+.acct-page .row textarea,.acct-page .row input{flex:1;min-width:0;margin:0}
+/* inline ids and masks (user_id, sbk_..., an IP) are the composer's chips:
+   mono on a 6% white pill with the 8% hairline. */
+.acct-page code{color:var(--fg);font-family:var(--font-mono);font-size:.92em;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-control);padding:1px 6px}
+.acct-page a{color:var(--acct-accent-text)}
+.acct-page .alert{color:var(--danger);border:1px solid var(--danger-line);border-radius:var(--acct-r-control);padding:var(--sp-2) var(--sp-3);margin:0 0 var(--sp-3)}
+.acct-page .warn{color:var(--danger)}
+.acct-page .dim{color:var(--muted)}
+
+/* ---- overview, concept G (2026-09-23): a head card (ring, who, actions) over
+   two columns, Recent beside four status tiles. Two radii: the surface for
+   both cards, the control for icon squares and tiles' hover wash. The one
+   bold thing is the ring; the email is the headline. ---- */
+.ov{display:flex;flex-direction:column;gap:var(--sp-4)}
+.hero-bands{display:flex;flex-direction:column;gap:var(--sp-4)}
+.ov-head,.ov-card{background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface)}
+.ov-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-5);padding:var(--sp-5) var(--sp-6)}
+.ov-ring{--ring:96px;width:var(--ring);height:var(--ring);flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(closest-side,var(--elevated) 79%,transparent 80%),conic-gradient(var(--accent) calc(var(--left,0) * 1%),var(--line) 0)}
+.ov-ring-label{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.ov-ring-label .ov-mono{font-size:var(--fs-lg);font-weight:700;color:var(--ink)}
+.ov-ring-label span+span{font-size:var(--fs-xs);color:var(--muted)}
+.ov-who{min-width:0}
+.acct-headline{font-family:var(--font-ui);font-size:var(--fs-h2);line-height:1.25;font-weight:700;color:var(--ink);letter-spacing:-0.01em;overflow-wrap:anywhere;text-wrap:balance;margin:0 0 var(--sp-1)}
+.ov-sub{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-2);color:var(--muted);font-size:var(--fs-xs)}
+.ov-sub .tag{border:1px solid var(--line-strong, #5c5c5c);border-radius:var(--acct-r-pill);padding:0 var(--sp-2);color:var(--ink);background:var(--raised);font-size:var(--fs-xs);line-height:var(--lh-xs)}
+.acct-id{font-family:var(--font-mono);color:var(--muted);font-size:var(--fs-xs);overflow-wrap:anywhere;margin:0}
+.acct-email{color:var(--muted);font-size:var(--fs-sm);margin:var(--sp-1) 0 0;text-wrap:pretty}
+/* plain figures (user order 2026-09-11: "normal numbers", not display type) */
+.acct-figs{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-1) var(--sp-5);margin:var(--sp-3) 0 0;color:var(--muted);font-size:var(--fs-sm)}
+.acct-figs .acct-fig{white-space:nowrap}
+.acct-fig-value{color:var(--ink);font-family:var(--font-mono);font-weight:600;font-variant-numeric:tabular-nums}
+.acct-figs .unit{color:var(--muted)}
+.acct-meter-caption{white-space:nowrap}
+.acct-page a.acct-meter-link{display:inline-flex;align-items:center;min-height:var(--sp-6);color:inherit;text-decoration:none}
+.acct-page a.acct-meter-link:hover,.acct-page a.acct-meter-link:focus-visible{color:var(--acct-accent-text)}
+.ov-actions{display:flex;flex-direction:column;gap:var(--sp-2)}
+.ov-actions>*{white-space:nowrap}
+.ov-mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+/* the two bottom cards share one height (user, 2026-09-23: "normalize the height of the bottom 2 modules"): the row stretches both, and the four tiles split the tiles card evenly */
+.ov-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-4);align-items:stretch}
+.ov-recent h2{margin:0;padding:var(--sp-4) var(--sp-5) var(--sp-3);font-size:var(--fs-base);line-height:var(--lh-base)}
+.ov-feed,.ov-tiles{list-style:none;margin:0;padding:0}
+/* hero stats: a band across the head card's foot, two all-time figures
+   (Tokens burned, agents launched) set in mono at --fs-xl over a muted label,
+   split by one hairline, the way Discord's profile card and the desktop's
+   Settings Overview set their counts under the identity row. Under 360px
+   the two stack (a 10-digit figure no longer fits half of a 320 card). */
+.ov-stats{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin:0;padding-top:var(--sp-4);border-top:1px solid var(--line);gap:var(--sp-3) 0}
+.ov-stats>div{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:2px;padding:0 var(--sp-4);min-width:0}
+.ov-stats>div:first-child{padding-left:0}
+.ov-stats>div+div{border-left:1px solid var(--line)}
+.ov-stats dt{order:2;color:var(--muted);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+.ov-stats dd{margin:0}
+.ov-stat-value{order:1;font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:var(--fs-xl);line-height:var(--lh-xl);font-weight:700;color:var(--ink);white-space:nowrap}
+.ov-stat-note{order:3;color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs)}
+@media (max-width:360px){
+  .ov-stats{grid-template-columns:minmax(0,1fr)}
+  .ov-stats>div{padding:0}
+  .ov-stats>div+div{border-left:0;border-top:1px solid var(--line);padding-top:var(--sp-3)}
+}
+/* a Recent row is a button that opens its details dialog in place */
+.ov-feed li{border-top:1px solid var(--line)}
+.acct-page .ov-feed-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:var(--sp-3);width:100%;margin:0;padding:var(--sp-2) var(--sp-5);min-height:44px;border:0;border-radius:0;background:none;font:inherit;font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--secondary);text-align:left;cursor:pointer;transition:background var(--dur-2) var(--ease-std),color var(--dur-2) var(--ease-std)}
+.acct-page .ov-feed-row:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+.acct-page .ov-feed-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.ov-feed li:last-child .ov-feed-row{border-radius:0 0 var(--acct-r-surface) var(--acct-r-surface)}
+/* the details dialog: the account's shared dialog.acct-dialog frame, with a
+   head row (the event's mark, its title, a close square) over a two-column
+   fact list, muted labels against ink values like the usage chart's hover
+   card, and one ghost link to the page that owns the thing. */
+html:has(dialog.ov-detail[open]){overflow:hidden}
+.ov-detail-head{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:var(--sp-3)}
+.acct-page .ov-detail h3{margin:0;font-size:var(--fs-base);line-height:var(--lh-base);font-weight:600;overflow-wrap:anywhere}
+.ov-facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-2) var(--sp-4);margin:var(--sp-4) 0;padding-top:var(--sp-4);border-top:1px solid var(--line);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+.ov-facts>div{display:contents}
+.ov-facts dt{color:var(--muted);white-space:nowrap}
+.ov-facts dd{margin:0;color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.ov-facts time{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:var(--fs-xs)}
+.ov-detail-actions{display:flex;justify-content:flex-end}
+@media (max-width:420px){
+  /* the label goes over its value so a long IP or key mask keeps the width */
+  .ov-facts{grid-template-columns:minmax(0,1fr);gap:0}
+  .ov-facts dd{margin-bottom:var(--sp-2)}
+  .ov-detail-actions a{flex:1}
+}
+.ov-feed-ic{width:28px;height:28px;border-radius:var(--acct-r-control);background:var(--raised);border:1px solid var(--line);display:grid;place-items:center;color:var(--secondary)}
+.ov .row-icon{width:16px;height:16px;flex:none}
+.ov-feed-ic .row-icon{width:14px;height:14px}
+.ov-feed-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-feed time{color:var(--muted);font-size:var(--fs-xs);white-space:nowrap}
+.ov-empty{margin:0;padding:var(--sp-3) var(--sp-5) var(--sp-5);border-top:1px solid var(--line);color:var(--muted);font-size:var(--fs-sm)}
+.ov-tiles{overflow:hidden;display:grid;grid-auto-rows:1fr}
+.ov-tiles li{display:flex}
+.ov-tiles li+li{border-top:1px solid var(--line)}
+.acct-page a.ov-tile{flex:1;display:flex;flex-direction:column;gap:2px;padding:var(--sp-3) var(--sp-5);min-height:64px;justify-content:center;color:var(--secondary);text-decoration:none;transition:background 160ms ease}
+.acct-page a.ov-tile:hover{background:rgba(255,255,255,.03)}
+.acct-page a.ov-tile:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.ov-tile-head{display:flex;align-items:center;gap:var(--sp-2);color:var(--ink);font-weight:600;font-size:var(--fs-sm)}
+.ov-tile-status{font-size:var(--fs-sm);color:var(--secondary);padding-left:calc(16px + var(--sp-2))}
+.ov-dot{width:8px;height:8px;border-radius:50%;margin-left:auto;background:var(--muted);opacity:.6}
+.ov-dot[data-tone="ok"]{background:var(--accent);opacity:1}
+@media (max-width:860px){.ov-body{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  /* The head stacks: the meter and the actions share the first row, and the
+     identity column takes the full width on its own row. .ov-who keeps its box
+     here (never display:contents, which used to dissolve it into this two-track
+     grid): its children then lay out in ONE full-width column instead of each
+     becoming a cell in a track only as wide as its own min-content, which is
+     what squeezed the id and the perks line to one character a line at 390. */
+  .ov-head{grid-template-columns:auto minmax(0,1fr);gap:var(--sp-3) var(--sp-4);padding:var(--sp-4)}
+  .ov-who{grid-column:1 / -1;display:block}
+  .ov-ring{--ring:64px;grid-row:1}
+  .ov-actions{grid-column:2;grid-row:1;flex-direction:row}
+  .ov-actions>*{flex:1}
+  .acct-figs{margin:var(--sp-3) 0 var(--sp-2)}
+  /* a device or key name is user text: wrap it, never cut it with an ellipsis */
+  .ov-feed-text{white-space:normal;text-wrap:pretty}
+  .acct-page .ov-feed-row,.acct-page a.ov-tile,.ov-recent h2,.ov-empty{padding-left:var(--sp-4);padding-right:var(--sp-4)}
+  .ov-stats{margin-top:var(--sp-2)}
+}
+/* tier marks: count, silhouette and aura state (repair pass 2, 2026-09-10)
+   -- the three tiers differ by how many .sb-tile the mark holds, how they
+   overlap, and whether the front one's aura rests visible. Every inner tile
+   is a plain 48px .sb-tile with the tier's own SVG (the glitch-ladder step
+   baked into each tier-*.svg; the storm ring that used to be baked in too is
+   retired 2026-10-06, so a tile is a bare black square); only
+   the mark container's width grows with the count. */
+.tier-mark{position:relative;display:inline-block;flex:none}
+.tier-mark .sb-tile{position:absolute;top:0;left:0;width:48px;height:48px}
+.tier-mark-plus{width:48px;height:48px}
+.tier-mark-pro{width:60px;height:60px}
+/* the back tile sits behind (z-index 1) and offset down-right by a quarter
+   tile: 48 / 4 = 12px, so the pair reads as a stepped silhouette. */
+.tier-mark-pro .tier-tile-back{top:12px;left:12px;z-index:1}
+.tier-mark-pro .tier-tile-front{top:0;left:0;z-index:2}
+.tier-mark-max{width:76px;height:60px}
+/* three fanned like held cards: -8deg / 0deg / +8deg, the middle one in
+   front (z-index 3). 28px + the 48px tile = the mark's own 76px width. */
+.tier-mark-max .tier-tile-left{top:10px;left:0;transform:rotate(-8deg);z-index:1}
+.tier-mark-max .tier-tile-right{top:10px;left:28px;transform:rotate(8deg);z-index:2}
+.tier-mark-max .tier-tile-mid{top:0;left:14px;z-index:3}
+/* the front tile's aura sits at the kit's own hover-opacity level, and holds
+   no animation until a wake rule names its loops (duostorm.css's idle default;
+   billing's card and bar rules below hide it at rest and wake it for the
+   recommended and the picked card). No new keyframe is declared here: every
+   one of these already exists in duostorm.css. */
+.tier-tile-front .sb-aura,.tier-tile-mid .sb-aura{opacity:var(--aura-hover-opacity)}
+
+/* ---- billing: the plan matrix (2026-09-24, mockup "Matrix") -------------
+   Four tier cards in one row, a comparison table, packs / auto-reload /
+   portal as disclosure rows, and one sticky bar with the page's one primary
+   action. Pairing is pure CSS: the checked card's position (:nth-of-type
+   among the fieldset's labels) lights its table column and shows its bar
+   entry. The accent is the checked card's rim, the table's included marks
+   and the primary action; the storm ramp (brand chrome) is the recommended
+   card's rim and ribbon only. Two radii: surface for cards, table, rows and
+   the bar; control for buttons. */
+.bill{container:bill / inline-size}
+.bill-legend{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.bill-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3);margin:0 0 var(--sp-4);padding:var(--sp-3) 0 0;border:0;min-width:0}
+@container bill (max-width:680px){.bill-cards{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:var(--sp-5)}}
+@container bill (max-width:420px){.bill-cards{grid-template-columns:minmax(0,1fr)}}
+.acct-page label.bill-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);margin:0;padding:var(--sp-6) var(--sp-3) var(--sp-4);background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);color:var(--ink);font-weight:400;text-align:center;cursor:pointer;transition:border-color var(--dur-2) var(--ease-std),box-shadow var(--dur-2) var(--ease-std),transform var(--dur-2) var(--ease-std)}
+.acct-page label.bill-card:hover{border-color:color-mix(in srgb, var(--ink) 30%, transparent)}
+.acct-page label.bill-card:has(:checked){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.acct-page label.bill-card:has(:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.acct-page .bill-card input[type="radio"]{position:absolute;width:1px;height:1px;min-height:0;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* the recommended card: a storm-ramp rim painted as a border-box
+   background under a tinted padding-box face, the ribbon on its top edge,
+   so it reads as THE choice whatever is picked; no lift, so the four cards
+   share one top and bottom edge. */
+.acct-page label.bill-card.is-rec{border-color:transparent;background:linear-gradient(color-mix(in srgb, var(--accent) 7%, var(--elevated)),color-mix(in srgb, var(--accent) 7%, var(--elevated))) padding-box,var(--tier-pro-grad) border-box}
+.acct-page label.bill-card.is-rec:has(:checked){box-shadow:0 0 0 2px var(--accent)}
+.bill-ribbon{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;min-height:24px;padding:0 var(--sp-3);border-radius:var(--acct-r-pill);background:var(--tier-pro-grad);color:var(--accent-ink);font-size:var(--fs-xs);font-weight:600;white-space:nowrap}
+.bill-card-dot{position:absolute;top:var(--sp-3);left:var(--sp-3);width:16px;height:16px;border:2px solid var(--line);border-radius:var(--acct-r-pill);transition:border-color var(--dur-2) var(--ease-std),box-shadow var(--dur-2) var(--ease-std)}
+.bill-card:has(:checked) .bill-card-dot{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--elevated),inset 0 0 0 8px var(--accent)}
+.bill-card-mark{display:flex;align-items:center;justify-content:center;width:76px;height:60px;margin:0 0 var(--sp-1)}
+.bill-card .sb-aura{opacity:0;transition:opacity var(--dur-3) var(--ease-std)}
+.bill-card.is-rec .sb-aura,.bill-card:has(:checked) .sb-aura{opacity:var(--aura-hover-opacity)}
+/* an idle card's aura holds no animation at all (duostorm.css: animation-name
+   none, the loops named only by wake rules): a loop paused under opacity 0 stays
+   in document.getAnimations() and is re-queued every frame. The recommended and
+   the picked card wake the loops the tier marks carry (the field, the spectrum
+   and the sheen) as the kit's own wake rules do for hover and focus; they restart
+   from 0% behind the opacity fade-in. */
+.bill-card.is-rec .sb-aura-field,.bill-card:has(:checked) .sb-aura-field{animation-name:sb-aura-drift}
+.bill-card.is-rec .sb-aura-spectrum,.bill-card:has(:checked) .sb-aura-spectrum{animation-name:sb-aura-spin}
+.bill-card.is-rec .sb-aura-sheen,.bill-card:has(:checked) .sb-aura-sheen{animation-name:sb-aura-glint}
+.bill-card-name{font-size:var(--fs-base);line-height:var(--lh-base);font-weight:700;color:var(--ink);white-space:nowrap}
+.bill-card-price{display:inline-flex;align-items:baseline;gap:var(--sp-1)}
+.bill-card-amount{font-size:var(--fs-h2);line-height:1.1;font-weight:700;letter-spacing:-0.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.bill-card-per{color:var(--muted);font-size:var(--fs-sm)}
+.plan-pill{display:inline-flex;align-items:center;min-height:20px;padding:0 var(--sp-2);border:1px solid var(--line);border-radius:var(--acct-r-pill);color:var(--ink);font-size:var(--fs-xs);font-weight:500;white-space:nowrap}
+/* every card keeps the status slot, filled or empty, so the dividers and
+   checklists of the four cards sit on the same lines. */
+.bill-card-status{display:flex;align-items:center;justify-content:center;min-height:28px}
+.bill-current{background:rgba(0,0,0,.38);border-color:rgba(255,255,255,.06);box-shadow:inset 0 1px 2px rgba(0,0,0,.65)}
+.bill-card-caption{align-self:stretch;margin:var(--sp-2) 0 0;padding:var(--sp-3) 0 0;border-top:1px solid var(--line);color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs);text-align:left;white-space:nowrap}
+.bill-card-list{align-self:stretch;display:flex;flex-direction:column;gap:var(--sp-2);text-align:left}
+.bill-card-li{display:flex;align-items:flex-start;gap:var(--sp-2);color:var(--ink);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+.bill-check{flex:none;margin-top:3px;color:var(--accent)}
+.bill-dash{color:var(--muted);opacity:.6}
+
+/* the comparison table: plan columns centred, the recommended column tinted
+   at rest, the picked column tinted harder with a heavier head. */
+.bill-matrix-wrap{margin:0 0 var(--sp-4);overflow-x:auto;background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface)}
+.bill-matrix{width:100%;min-width:520px;border-collapse:collapse;font-size:var(--fs-sm);line-height:var(--lh-sm)}
+.acct-page .bill-matrix th,.acct-page .bill-matrix td{border-bottom:0;padding:var(--sp-3) var(--sp-3);text-transform:none;letter-spacing:0;font-size:var(--fs-sm);border-top:1px solid var(--line);text-align:center;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.acct-page .bill-matrix thead th,.acct-page .bill-matrix thead td{border-top:0;font-weight:600;vertical-align:bottom}
+.acct-page .bill-matrix tbody th{position:sticky;left:0;z-index:1;text-align:left;font-weight:500;color:var(--secondary);background:var(--elevated);padding-left:var(--sp-4)}
+/* the included / not-included marks are block SVGs (the page reset), which
+   text-align cannot move, so they centre on their own margins. */
+.acct-page .bill-matrix td>svg{display:block;margin:0 auto}
+.bill-matrix-ic{display:inline-flex;vertical-align:-3px;margin-right:var(--sp-2);color:var(--muted)}
+.bill-matrix-rec{display:block;margin-top:var(--sp-1);color:var(--muted);font-size:var(--fs-xs);font-weight:500}
+.bill-matrix .is-rec{background:color-mix(in srgb, var(--accent) 6%, transparent)}
+.bill:has(.bill-card:nth-of-type(1) :checked) .bill-matrix tr>:nth-child(2),
+.bill:has(.bill-card:nth-of-type(2) :checked) .bill-matrix tr>:nth-child(3),
+.bill:has(.bill-card:nth-of-type(3) :checked) .bill-matrix tr>:nth-child(4),
+.bill:has(.bill-card:nth-of-type(4) :checked) .bill-matrix tr>:nth-child(5),
+.bill:has(.bill-card:nth-of-type(5) :checked) .bill-matrix tr>:nth-child(6),
+.bill:has(.bill-card:nth-of-type(6) :checked) .bill-matrix tr>:nth-child(7){background:color-mix(in srgb, var(--accent) 13%, transparent);font-weight:600}
+/* <=560: the matrix shows the PICKED plan's column only (F2, 2026-09-25).
+   The 520px table scrolled inside a 286px card at 320, so the second column
+   sat sliced at the card edge ("10,000 beta" cut mid-word) and the others were
+   out of sight. The plan cards above are the picker; the matrix follows the
+   checked one, so every value on screen is whole. With nothing checked all
+   columns stay (the old scroll). Each row is then a wrapping flex line,
+   label left and value right: a long value ("$1 per 1M credits") drops under
+   its label, right-aligned, instead of pushing past the card. */
+@media (max-width:560px){
+  .bill:has(.bill-card :checked) .bill-matrix{display:block;min-width:0}
+  .bill:has(.bill-card :checked) .bill-matrix>thead,.bill:has(.bill-card :checked) .bill-matrix>tbody{display:block}
+  .bill:has(.bill-card :checked) .bill-matrix tr{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;column-gap:var(--sp-3);border-top:1px solid var(--line)}
+  .bill:has(.bill-card :checked) .bill-matrix thead tr{border-top:0}
+  .acct-page .bill:has(.bill-card :checked) .bill-matrix th,.acct-page .bill:has(.bill-card :checked) .bill-matrix td{border-top:0}
+  .acct-page .bill:has(.bill-card :checked) .bill-matrix tbody th{position:static;background:none}
+  .bill:has(.bill-card :checked) .bill-matrix tr>:not(:first-child){display:none}
+  .bill:has(.bill-card :checked) .bill-matrix tr>:nth-child(n+2){margin-left:auto}
+  .bill:has(.bill-card:nth-of-type(1) :checked) .bill-matrix tr>:nth-child(2),
+  .bill:has(.bill-card:nth-of-type(2) :checked) .bill-matrix tr>:nth-child(3),
+  .bill:has(.bill-card:nth-of-type(3) :checked) .bill-matrix tr>:nth-child(4),
+  .bill:has(.bill-card:nth-of-type(4) :checked) .bill-matrix tr>:nth-child(5),
+  .bill:has(.bill-card:nth-of-type(5) :checked) .bill-matrix tr>:nth-child(6),
+  .bill:has(.bill-card:nth-of-type(6) :checked) .bill-matrix tr>:nth-child(7){display:block;text-align:right;padding-right:var(--sp-4);background:none}
+  .acct-page .bill-matrix td>svg{margin:0 0 0 auto}
+}
+
+/* packs, auto-reload and the portal: one bordered list of disclosure rows. */
+.bill-extras{margin:0 0 var(--sp-5);background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);overflow:hidden}
+.bill-x+.bill-x{border-top:1px solid var(--line)}
+.bill-x>summary{list-style:none;display:flex;align-items:center;gap:var(--sp-3);min-height:max(52px,var(--target));padding:0 var(--sp-4);color:var(--ink);font-size:var(--fs-sm);font-weight:500;cursor:pointer;transition:background-color var(--dur-2) var(--ease-std)}
+.bill-x>summary::-webkit-details-marker{display:none}
+.bill-x>summary:hover{background:color-mix(in srgb, var(--ink) 4%, transparent)}
+.bill-x>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.bill-x-ic{display:inline-flex;color:var(--muted)}
+.bill-x-meta{margin-left:auto;color:var(--muted);font-size:var(--fs-xs);font-weight:400}
+.bill-x-chev{flex:none;width:var(--sp-2);height:var(--sp-2);margin:0 var(--sp-1) 0 var(--sp-2);border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);transition:transform var(--dur-2) var(--ease-std)}
+.bill-x[open]>summary .bill-x-chev{transform:rotate(-135deg)}
+.bill-x-body{padding:var(--sp-1) var(--sp-4) var(--sp-4)}
+
+/* the action bar: the picked plan and its one action, in flow right under
+   the table (a sticky bar hid the table rows it floated over, 2026-09-24). */
+.bill-bar{margin:0 0 var(--sp-4);padding:var(--sp-3) var(--sp-4);background:var(--raised);border:1px solid var(--line);border-radius:var(--acct-r-surface)}
+.bill-bar-item{display:none;align-items:center;gap:var(--sp-3)}
+.bill:has(.bill-card:nth-of-type(1) :checked) .bill-bar-item:nth-child(1),
+.bill:has(.bill-card:nth-of-type(2) :checked) .bill-bar-item:nth-child(2),
+.bill:has(.bill-card:nth-of-type(3) :checked) .bill-bar-item:nth-child(3),
+.bill:has(.bill-card:nth-of-type(4) :checked) .bill-bar-item:nth-child(4),
+.bill:has(.bill-card:nth-of-type(5) :checked) .bill-bar-item:nth-child(5),
+.bill:has(.bill-card:nth-of-type(6) :checked) .bill-bar-item:nth-child(6){display:flex}
+.bill-bar-mark{flex:none;display:flex;align-items:center;justify-content:center;width:48px;height:40px}
+.bill-bar-mark .tier-mark{transform:scale(.62)}
+.bill-bar-mark .sb-aura{opacity:0}
+.bill-bar-copy{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 var(--sp-2);min-width:0}
+.bill-bar-name{color:var(--ink);font-size:var(--fs-base);font-weight:700;white-space:nowrap}
+.bill-bar-price{color:var(--secondary);font-size:var(--fs-sm);white-space:nowrap}
+.bill-bar-note{flex-basis:100%;color:var(--muted);font-size:var(--fs-xs)}
+.bill-bar-actions{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2)}
+.bill-bar-actions form{margin:0}
+.acct-page .bill-bar-cta{display:inline-flex;align-items:center;justify-content:center;min-height:max(44px,var(--target));margin:0;padding:0 var(--sp-5);border:1px solid transparent;border-radius:var(--acct-r-control);font-size:var(--fs-sm);font-weight:600;text-decoration:none;white-space:nowrap;cursor:pointer}
+.acct-page a.bill-bar-cta.sb-action{color:var(--accent-ink)}
+.acct-page .bill-bar-cta[disabled]{background:var(--canvas);border-color:var(--line);color:var(--muted);cursor:not-allowed}
+.acct-page .bill-bar-quiet{display:inline-flex;align-items:center;min-height:max(44px,var(--target-sm));margin:0;padding:0 var(--sp-3);background:none;border:0;border-radius:var(--acct-r-control);color:var(--muted);font-size:var(--fs-sm);cursor:pointer;transition:color var(--dur-2) var(--ease-std)}
+.acct-page .bill-bar-quiet:hover{color:var(--fg)}
+@container bill (max-width:420px){
+  .bill-bar-item{flex-wrap:wrap}
+  .bill-bar-actions{flex:1 1 100%;margin-left:0}
+  .acct-page .bill-bar-cta{flex:1}
+}
+
+/* pack tiles: three of a kind, each wearing the mono cat mark at 30px (the
+   user's pick from fifteen looks, 2026-09-17; the coin drawings are gone).
+   Hover is a light sweep (the user's pick, twice narrowed, from ten effects
+   and then two rounds of seven cuts, 2026-09-17): ::after is a wide diagonal
+   band (60% of the tile, 15% white) parked off the left edge; hover slides it
+   across once in 950ms while the hairline brightens, leaving snaps it back
+   with no transition, and a press shrinks the tile onto the elevated ground.
+   overflow:hidden clips the band; isolation keeps its z-index inside. */
+.packs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin:var(--sp-3) 0}
+@media (max-width:480px){.packs{grid-template-columns:1fr}}
+.pack-btn{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);padding:var(--sp-4) var(--sp-2);border:1px solid var(--line);border-radius:var(--acct-r-control);background:var(--canvas);color:var(--ink);text-decoration:none;min-height:max(44px,var(--target));transition:border-color var(--dur-3) var(--ease-std),background-color var(--dur-3) var(--ease-std),transform var(--dur-2) var(--ease-std)}
+.pack-btn::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.15) 50%,transparent 80%);transform:translateX(-100%);transition:transform 0s}
+.pack-btn:hover{border-color:color-mix(in srgb, var(--ink) 45%, transparent)}
+.pack-btn:hover::after{transform:translateX(100%);transition:transform 950ms var(--ease-std) /* deliberate */}
+.pack-btn:active{transform:scale(.985);background:var(--elevated)}
+.pack-btn .pack-amount{font-family:var(--font-ui);font-weight:700;font-size:var(--fs-base);color:var(--ink)}
+.pack-btn .pack-price{color:var(--muted);font-size:var(--fs-xs)}
+.pack-btn .pack-value{color:var(--muted);font-size:var(--fs-xs)}
+.pack-btn .pack-pill{position:absolute;top:var(--sp-2);right:var(--sp-2)}
+.pack-btn .pack-art{display:flex;align-items:center;justify-content:center;height:36px}
+.pack-btn .pack-mark{width:30px;height:30px;opacity:.9}
+
+/* auto-reload: its own card, status sentence with an on/off dot, the form
+   always open as a three-field grid (the "Change" disclosure strip measured
+   confusing, 2026-09-11). */
+.acct-card-lede{margin:0 0 var(--sp-3);color:var(--muted);font-size:var(--fs-sm);text-wrap:pretty}
+.acct-ar-status{display:flex;gap:var(--sp-2);align-items:baseline;margin:0 0 var(--sp-1);color:var(--ink);font-size:var(--fs-sm);text-wrap:pretty}
+.acct-ar-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--muted);transform:translateY(-1px)}
+/* On: the storm orb (the owner's reference, 2026-09-17), a sphere lit from
+   its upper left -- pale blue highlight, the sweep's blue at the centre,
+   violet to magenta at the lower-right rim -- with the segment thumb's own
+   glow around it, so the status dot and the lit toggle below it read as one
+   light. */
+.acct-ar-status.is-on .acct-ar-dot{background:radial-gradient(circle at 35% 30%,var(--accent) 0%,var(--storm-1) 38%,var(--storm-2) 76%,var(--storm-3) 100%);box-shadow:0 0 8px 1px rgba(120,100,255,.5)}
+.acct-ar-cap{margin:0 0 var(--sp-3);color:var(--muted);font-size:var(--fs-xs)}
+.ar-form{margin:0}
+.ar-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin:0 0 var(--sp-3)}
+.ar-grid label{margin-top:0}
+@media (max-width:640px){.ar-grid{grid-template-columns:1fr}}
+.ar-row{display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);min-height:var(--target);margin:0 0 var(--sp-3)}
+.ar-seg-label{color:var(--ink);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+
+/* ---- the desktop's two controls, ported verbatim ---------------------------
+   .sb-seg is superbot-desktop packages/ui/src/styles.css's segment (the
+   sidebar's Chat | Code switch, lane-view-switch.tsx): a hairline pill on a 6%
+   white ground, options in the body size with a 14px mark, and ONE thumb that
+   slides to the checked option on the fold curve, lit in the teal -> blue ->
+   purple sweep with its glow. Here the options are native radios (the form
+   still posts enabled=on|off, billing.ts reads === 'on'), so the radiogroup
+   keyboard model is the browser's; the thumb is placed by the inline script
+   under the form, the desktop's placeSegmentThumb line for line (width is never
+   animated, the desktop's gate-desktop-2 rule: a change of width is a FLIP,
+   transform only, in seg.js).
+   _lit rides the well only while On is checked (the desktop's Switch,
+   switch.tsx:93), so Off sits on the unlit 14% white thumb and the sweep
+   reads as "on", never as "selected".
+   .storm-action is the desktop's filled primary (the sidebar's New chat,
+   Button variant="primary"): the blue-violet-blue ramp at 135deg painted at
+   200% on both axes over the border box, hover drifting it to 20% 20% and
+   press to 100% 100% on a 1000ms linear glide (marked deliberate on the
+   transition below: the desktop's own value), plus the scale(0.98) press on
+   the 160ms curve. The hexes are the desktop's own, not this sheet's tokens:
+   the app is the source, so the two cannot drift apart. */
+.acct-page{--super-grad:linear-gradient(135deg,var(--storm-0) 0%,var(--storm-1) 48%,var(--storm-3) 100%);--super-ease:cubic-bezier(0.32,0.72,0,1);--gradient-storm-action:linear-gradient(135deg,var(--storm-1) 0%,var(--storm-2) 50%,var(--storm-1) 100%)}
+.sb-seg{position:relative;display:inline-flex;flex-shrink:0;align-items:center;margin:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-pill);padding:2px;font-family:inherit;cursor:pointer}
+.sb-seg-input{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* Two classes on the option: the page's ".acct-page label" (block, top
+   margin) outranks a lone class and stacked the mark over the word. */
+.acct-page .sb-seg-opt{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:32px;background:none;border:none;margin:0;padding:5px 12px;font-family:inherit;font-size:var(--fs-sm);font-weight:600;line-height:1;color:var(--muted);cursor:inherit;border-radius:var(--acct-r-pill);white-space:nowrap;transition:color 220ms ease}
+.sb-seg-ic{width:14px;height:14px;flex:none}
+.acct-page .sb-seg-opt:hover{color:var(--secondary)}
+.acct-page .sb-seg-input:checked+.sb-seg-opt{color:var(--fg)}
+.acct-page .sb-seg-input:focus-visible+.sb-seg-opt{outline:2px solid var(--accent);outline-offset:1px}
+.sb-seg-thumb{position:absolute;top:2px;left:0;height:calc(100% - 4px);border-radius:var(--acct-r-pill);background:rgba(255,255,255,.14);transform-origin:left center;transition:background 240ms ease,box-shadow 240ms ease,transform 240ms var(--super-ease)}
+.sb-seg-thumb[data-flip]{transition-property:background,box-shadow}
+.sb-seg._lit .sb-seg-thumb{background:var(--super-grad);box-shadow:0 0 10px rgba(120,100,255,.45)}
+/* First paint (the user, 2026-09-17: "shows all as grey and then selects the
+   one you were last on"): the thumb is measured by seg.js after the script
+   and the fonts land, so until then the CURRENT option wears the thumb's own
+   fill itself and the unplaced thumb stays out of sight. seg.js stamps
+   is-placed once the thumb sits on that same rect, and the option's fill
+   drops -- the handoff is pixel-identical, so nothing snaps. */
+.sb-seg:not(.is-placed) .sb-seg-thumb{visibility:hidden}
+.acct-page .sb-seg:not(.is-placed) .sb-seg-opt[aria-current],.acct-page .sb-seg:not(.is-placed) .sb-seg-input:checked+.sb-seg-opt{background:rgba(255,255,255,.14)}
+.acct-page .sb-seg._lit:not(.is-placed) .sb-seg-opt[aria-current],.acct-page .sb-seg._lit:not(.is-placed) .sb-seg-input:checked+.sb-seg-opt{background:var(--super-grad);box-shadow:0 0 10px rgba(120,100,255,.45)}
+@media (hover: none){.acct-page .sb-seg-opt:hover{color:var(--muted)}}
+
+.acct-page button.storm-action,.acct-page a.storm-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--target);padding:0 16px;border:1px solid transparent;border-radius:var(--acct-r-control);font-family:inherit;font-size:var(--fs-sm);font-weight:500;line-height:var(--lh-sm);text-decoration:none;cursor:pointer;margin:0;background-color:var(--accent);background-image:var(--gradient-storm-action);background-size:200% 200%;background-position:0% 0%;background-origin:border-box;color:var(--fg)}
+@media (hover: hover){.acct-page button.storm-action:hover:not(:disabled),.acct-page a.storm-action:hover{background-position:20% 20%;color:var(--fg)}}
+.acct-page button.storm-action:active:not(:disabled),.acct-page a.storm-action:active{background-position:100% 100%;box-shadow:none;transform:scale(.98)}
+.acct-page button.storm-action:disabled{background-image:none;background-color:var(--canvas);color:var(--muted);box-shadow:none;cursor:not-allowed}
+.acct-page button.storm-action,.acct-page a.storm-action{transition:background-position 1000ms linear,transform 160ms cubic-bezier(.2,.8,.2,1),box-shadow 160ms ease /* deliberate */}
+.ar-submit{width:100%}
+.ar-submit-ic,.acct-empty-ic{width:16px;height:16px;flex:none}
+/* A field's action (Rotate key, Mint caller key, Rotate link): the New chat
+   register full width under its field, one --sp-3 of air between the two
+   (the user, 2026-09-17: "padding from it and the text box"). */
+.acct-page button.field-action{width:100%;margin-top:var(--sp-3)}
+.field-action-ic{width:16px;height:16px;flex:none}
+.acct-empty a.acct-empty-primary{margin:0;padding:0 24px}
+
+/* ---- usage: the daily chart is the one bold thing ------------------------
+   Axis + tooltip pass (U2, 2026-09-10): the SVG stays fixed-viewBox and
+   server-rendered (bars are real <a> links, gridlines/ticks are real text —
+   all of it works with JS off); `aspect-ratio` replaces the old
+   `preserveAspectRatio="none"` + literal pixel height so the chart scales
+   uniformly with its container width instead of stretching tick text. The
+   hover/focus tooltip (site/assets/usage-chart.js) is a page-level div, not
+   an SVG child, so this card's own radius/padding can never clip it. */
+.usage-chart{background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);padding:var(--sp-5);margin:0 0 var(--sp-4)}
+.usage-chart svg{width:100%;height:auto;aspect-ratio:720/200;display:block}
+.usage-chart .bar-tokens{fill:var(--storm-0)}
+.usage-chart .bar-usd{fill:var(--storm-3)}
+.usage-chart svg .grid{stroke:var(--line);stroke-width:1}
+.usage-chart svg .tick{fill:var(--muted);font:10px var(--font-ui)}
+.usage-chart .bar{cursor:pointer}
+.usage-chart .bar rect{transition:filter var(--dur-2) var(--ease-std)}
+.usage-chart .bar:hover rect,.usage-chart .bar:focus-visible rect,.usage-chart .bar.is-active rect{filter:brightness(1.35)}
+/* the hover/focus/tap tooltip: fixed to the viewport (getBoundingClientRect
+   coords need no scroll offset), never a child of .usage-chart so its own
+   border-radius/padding never clips it. No transform/margin here -- left/top
+   are set directly by usage-chart.js's position() as the tip's own top-left
+   corner (it measures the tip's real box and clamps both axes, flipping
+   below the bar near the top edge), which is what lets a tip near the
+   viewport edge clamp instead of running off it. */
+.usage-plot{position:relative}
+.usage-tip{position:absolute;z-index:30;background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-control);padding:var(--sp-2) var(--sp-3);font-size:var(--fs-xs);line-height:var(--lh-sm);color:var(--ink);white-space:nowrap;pointer-events:none}
+.usage-tip[hidden]{display:none}
+.usage-tip b{display:block;color:var(--muted);font-weight:500;margin-bottom:2px}
+.usage-toolbar{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;justify-content:space-between;margin-bottom:var(--sp-3)}
+/* the unit and range pickers are .sb-seg wells (the block above); a link
+   option needs the tag in its selector to outrank ".acct-page a" for its ink. */
+.acct-page a.sb-seg-opt{color:var(--muted);text-decoration:none}
+.acct-page a.sb-seg-opt:hover{color:var(--secondary)}
+.acct-page a.sb-seg-opt[aria-current]{color:var(--fg)}
+.acct-page a.sb-seg-opt:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.sb-seg-thumb[hidden]{display:none}
+@media (hover: none){.acct-page a.sb-seg-opt:hover{color:var(--muted)}}
+.chip-row{display:flex;flex-wrap:wrap;gap:var(--sp-1);align-items:center}
+.chip{display:inline-flex;align-items:center;min-height:var(--target-sm);padding:0 var(--sp-3);border:1px solid var(--line);border-radius:var(--acct-r-control);color:var(--muted);font-size:var(--fs-xs);text-decoration:none;background:var(--canvas)}
+.chip[aria-current]{color:var(--ink);border-color:var(--accent)}
+.usage-range-form{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+.usage-range-form input[type=date]{width:auto;margin:0}
+.export-btn{margin-left:auto}
+/* the single-day breakdown card (from === to): same acct-card anatomy as
+   the table below it, just with its own head row for the 'back to 30d' chip */
+.usage-breakdown-head{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;justify-content:space-between;margin-bottom:var(--sp-3)}
+.usage-breakdown-head h2{margin:0}
+
+/* ---- shared: scroll tables, tag pills, empty states ---------------------- */
+.scroll{overflow-x:auto}
+.acct-page table{border-collapse:collapse;width:100%;font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted)}
+.acct-page th{font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:var(--sp-2);border-bottom:1px solid var(--line);white-space:nowrap}
+.acct-page td{padding:var(--sp-2);border-top:1px solid var(--line);white-space:nowrap;color:var(--ink)}
+.acct-page tbody tr:nth-child(even){background:color-mix(in srgb, var(--elevated) 70%, transparent)}
+.acct-page th.num,.acct-page td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+
+.acct-empty{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-6) 0}
+.acct-empty p{margin:0}
+.acct-empty .sb-btn,.acct-empty a.ghost{margin:0}
+
+/* skeleton rows: match the row anatomy, never a lone text row */
+.skel-row{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) 0;border-top:1px solid var(--line)}
+.skel-row:first-child{border-top:0}
+.skel{background:var(--line);border-radius:var(--acct-r-control);height:14px;animation:acct-pulse 1.4s ease-in-out infinite /* deliberate */}
+.skel.icon{width:var(--acct-row-icon);height:var(--acct-row-icon);border-radius:50%;flex:none}
+.skel.w1{width:120px}.skel.w2{width:80px}.skel.w3{width:60px}
+@keyframes acct-pulse{0%,100%{opacity:.35}50%{opacity:.7}}
+
+/* ---- device/platform/vendor rows: icon, label, meta, action -------------- */
+.acct-page ul.rows{padding-left:0;list-style:none;display:grid;gap:0;margin:0}
+/* contract: a ul.rows li has ONE of three shapes, and this block is the seam
+   that keeps a fourth from collapsing into the 20px icon column.
+     1. icon slot | .row-main | trailing action -- the default grid below, the
+        icon being a .row-icon / .section-icon / .avatar-initial / .provider-mark
+        child (the action is optional: an unused third track is empty).
+     2. .row-main FIRST (no icon) -- the :has(>.row-main:first-child) rule right
+        after the default drops the icon track, so text | action. An li that
+        leads with .row-main can never land its text in the icon column;
+        that was the one-character-per-line audit card of 2026-10-05, and the
+        #team-context / share-list rows before it.
+     3. a DECLARED override of its own -- an id or class opt-out that restates
+        grid-template-columns (#my-context .share-row, #team-context .rows li,
+        .skel-row, .invite-row, .provider-row, #coverage and the teams notice
+        below). edge/test/account-rows-anatomy.test.ts renders every pane and
+        fails on any li that is none of the three, and on a declared
+        divergence whose selector is not in this file.
+   Orthogonal to the three shapes is the HIDDEN-ROW SEAM: a li toggled with the
+   `hidden` attribute (the audit pager, the My shared context filter) stops
+   painting and leaves no stray hairline through the two rules right after
+   `li:first-child` below. Fixed once here for every card that pages or filters
+   rows; the same test fails on a card-local copy. */
+.acct-page ul.rows li{display:grid;grid-template-columns:var(--acct-row-icon) minmax(0,1fr) auto;gap:var(--sp-3);align-items:center;padding:var(--sp-3) 0;border-top:1px solid var(--line)}
+/* shape 2. Specificity (0,4,2): :has() weighs its argument, .row-main:first-child
+   (0,2,0), on top of .acct-page ul.rows li (0,2,2). It beats the default
+   (0,2,2); every id-scoped opt-out ((1,x,x): #team-context .rows li, #my-context
+   .share-row, #coverage) still beats it, and the class-scoped ones
+   (.invite-row, .provider-row, .acct-notice li, all (0,3,2)) never meet it
+   because none of those rows leads with .row-main. */
+.acct-page ul.rows li:has(>.row-main:first-child){grid-template-columns:minmax(0,1fr) auto}
+.acct-page ul.rows li:first-child{border-top:0}
+/* the hidden-row seam. The default rule's display:grid out-weighs the UA's
+   [hidden]{display:none} (any author rule beats the UA sheet), so a row toggled
+   with the attribute kept painting, and li:first-child counts DOM order, so
+   once the leading rows were hidden the first VISIBLE row drew a top hairline
+   under the heading. Both are fixed here, once, for every ul.rows a script
+   pages or filters; no card restores either (the anatomy test fails on one).
+   1. display:none!important. The attribute must win whatever a card declares
+      for display: an id-scoped row rule (#my-context .share-row, (1,1,0))
+      out-weighs any class selector written here, and this rule is (0,3,2).
+      It is the one !important on the row list, bounded to a li of a ul.rows.
+   2. A visible li with no visible li before it drops its top hairline.
+      Specificity (0,4,4) beats the default's border-top (0,2,2); it declares
+      border-top and nothing else, so it never meets a display or columns rule.
+      A 2-column list still needs its own second-cell rule (#my-context below). */
+.acct-page ul.rows li[hidden]{display:none!important}
+.acct-page ul.rows li:not([hidden]):not(li:not([hidden]) ~ li){border-top:0}
+.row-icon{width:var(--acct-row-icon);height:var(--acct-row-icon);flex:none;color:var(--muted)}
+.row-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.row-title{color:var(--ink);font-size:var(--fs-sm);display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap}
+/* the title track is minmax(0,1fr), but a single unbreakable token in it (an
+   email, a key name) still painted past the track: measured at 320px, a
+   15-char email bled 27px into the action column and a 31-char one pushed the
+   whole page to 327px wide. overflow-wrap:anywhere breaks such a token only
+   when nothing else fits, so an ordinary title never changes. */
+.acct-page ul.rows .row-title{min-width:0;overflow-wrap:anywhere}
+/* under 560px the row keeps its three columns, mark | text | action: an action
+   dropped onto a line of its own read as a stray square under every row on a
+   phone (devices, 390px, 2026-09-23). The column gap tightens to --sp-2 so the
+   text track keeps its width; the text wraps inside it, and an over-long meta
+   item ends in an ellipsis (below) rather than pushing into the action. */
+@media (max-width:560px){
+  .acct-page ul.rows li{column-gap:var(--sp-2)}
+  /* a row whose text column holds a FORM FIELD (devices' Email row, its
+     code step) is the exception: beside Save the field was 140px at 320 and
+     showed "dev@example.c". The field takes the full text track and the
+     button drops under it, right-aligned (F2, 2026-09-25). */
+  .acct-page ul.rows li:has(>.row-main>form input:not([type=hidden])){grid-template-columns:var(--acct-row-icon) minmax(0,1fr);row-gap:var(--sp-2)}
+  .acct-page ul.rows li:has(>.row-main>form input:not([type=hidden]))>.row-action{grid-column:2;justify-self:end}
+  /* ...and a .row-main-FIRST row has no icon column to keep: the rule above
+     (0,4,4) would out-weigh the seam (0,4,2) and re-open the 20px icon track
+     under the text. Companion (0,6,4): one column, the action in column 1. */
+  .acct-page ul.rows li:has(>.row-main:first-child):has(>.row-main>form input:not([type=hidden])){grid-template-columns:minmax(0,1fr)}
+  .acct-page ul.rows li:has(>.row-main:first-child):has(>.row-main>form input:not([type=hidden]))>.row-action{grid-column:1}
+}
+.row-meta{color:var(--muted);font-size:var(--fs-sm);display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:center}
+/* a meta ITEM never breaks inside itself: the flex-wrap above already moves a
+   whole item onto the next line, and a bare span holding a date ("created
+   2026-09-19" on a caller-key row, "seen …" on a device row, "until …" on a
+   legacy session, "expires …" on a pending invite, measured splitting at the
+   first hyphen at 390px) is the widow the text-wrap rule forbids. Scoped to
+   CHILD spans that carry no <code>, on purpose: a .row-meta that is itself a
+   prose sentence (the teams key-status notice) must still wrap, and a
+   <code> item (an upstream base URL on /account/api, a device IP) is the one
+   token that must be ABLE to break, or it re-opens the 320px sideways scroll
+   api.ts already documents. :has() is already relied on in this file. */
+.acct-page .row-meta > span:not(:has(code)){white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.row-me{color:var(--acct-accent-text)}
+/* the row's third grid column, when it holds both the revoke form and (on
+   every non-current device) the "not you?" tip beside it */
+.row-action{display:flex;align-items:center;gap:var(--sp-2)}
+.row-action form{margin:0}
+
+/* ---- beta tab (account/beta.c1bff7a8.ts): the TestFlight status line leads
+   with one status dot -- ok green, wait the accent, bad the danger red, none
+   the muted line colour -- the standalone /beta page's .led, restated on the
+   account tokens. The TestFlight notice after a form post is a neutral card
+   line, not an .alert (a "saved" is not an error). --------------------------- */
+.acct-page .beta-status{display:flex;align-items:center;gap:var(--sp-2);color:var(--ink);font-weight:500;margin:var(--sp-3) 0 var(--sp-1)}
+.beta-led{width:8px;height:8px;flex:none;border-radius:var(--acct-r-pill);background:var(--line)}
+.beta-led-ok{background:var(--accent);box-shadow:0 0 8px color-mix(in srgb,var(--accent) 55%,transparent)}
+.beta-led-wait{background:var(--accent);box-shadow:0 0 8px color-mix(in srgb,var(--accent) 55%,transparent)}
+.beta-led-bad{background:var(--danger)}
+.acct-page .beta-addr{margin:var(--sp-1) 0 var(--sp-3);overflow-wrap:anywhere}
+.acct-page .beta-resend{display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-3);margin:0 0 var(--sp-2)}
+.acct-page .beta-resend button[disabled]{opacity:.5;cursor:not-allowed}
+.acct-page .beta-note{color:var(--ink);border:1px solid var(--line);border-radius:var(--acct-r-control);padding:var(--sp-2) var(--sp-3);margin:0 0 var(--sp-4)}
+
+.tag{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-pill);background:rgba(255,255,255,.06);padding:0 var(--sp-2);font-size:var(--fs-xs);font-weight:600;letter-spacing:.04em;line-height:22px;color:var(--muted)}
+
+/* connections: editable label + tag chips */
+/* connections: per-row and per-group explanatory text, and the delete
+   control in ul.rows li's third grid column (the label/tags chips are gone). */
+.conn-desc{color:var(--muted);font-size:var(--fs-sm);line-height:var(--lh-sm);margin:2px 0 0;max-width:var(--measure)}
+.conn-group>.conn-desc{margin:0 0 var(--sp-3)}
+.conn-delete{display:flex;align-items:center}
+.conn-delete form{margin:0}
+.conn-form{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-2)}
+.conn-form input{flex:1;min-width:160px;margin:0}
+
+/* recovery: the code block is the one bold thing. Rendered as a readonly
+   textarea (id="rc") so the shared data-copy script (shell.ts's acctPage)
+   can select/copy it, same as the API key and device-link rows; the class
+   selector needs the extra specificity to win over the generic
+   .acct-page textarea rule above. */
+.rec-code{font-family:var(--font-mono);font-size:var(--fs-lg);letter-spacing:.05em;background:var(--canvas);border:1px solid var(--line);border-radius:var(--acct-r-control);padding:var(--sp-3) var(--sp-4);word-break:break-all}
+.acct-page textarea.rec-code{font-family:var(--font-mono);font-size:var(--fs-lg);letter-spacing:.05em;padding:var(--sp-3) var(--sp-4);margin:0}
+/* The /account/api base URL is a real origin (https://superbot.gg/v1): at
+   phone widths the lg mono broke it mid-token onto three lines. Step it down so
+   it holds to two. */
+@media (max-width:400px){.acct-page .hero-bands textarea.rec-code{font-size:var(--fs-sm);letter-spacing:0;padding:var(--sp-2) var(--sp-3)}}
+
+@media (max-width:640px){
+  .acct-page button,.acct-page a.ghost,.acct-page a.chip,.acct-page a.pack-btn,.acct-page .sb-seg-opt{min-height:44px}
+}
+
+/* ---- teams: member/invite rows reuse ul.rows -- initials avatar in the
+   icon column, a role <select> or the plain .tag it degrades to, a status
+   .tag, and the lock/pencil marks on a pooled team-context row ------------- */
+.avatar-initial{width:var(--acct-row-icon);height:var(--acct-row-icon);flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--line);color:var(--ink);font-size:var(--fs-xs);font-weight:600}
+.acct-page ul.rows li .avatar-initial{margin:0}
+/* the in-row role select lives in .row-meta (teams.ts memberRow), not
+   .row-title: this rule used to target .row-title and so matched nothing,
+   which let the page-wide 44px min-height and sp-2 margins (account.css:176)
+   leak into a 24px meta line -- a manageable member's row stood 107px beside
+   a 70px neighbour and the status tag wrapped under ~408px. --target-sm keeps
+   the 28px mouse / 44px touch floor instead of the old min-height:0, which
+   would have shipped a 19px control under WCAG 2.5.8's 24px minimum. */
+.row-meta select{width:auto;min-height:var(--target-sm);margin:0;padding:0 var(--sp-2);font-size:var(--fs-xs)}
+.tag.status-active{border-color:var(--accent);color:var(--ink)}
+.tag.status-invited,.tag.status-accepted{color:var(--muted)}
+.tag.status-removed{color:var(--danger)}
+/* the pooled-context lock/pencil marks: sized like a toggletip glyph, never
+   larger than the row title's own line-height. */
+.team-glyph{width:var(--acct-row-icon);height:var(--acct-row-icon);flex:none;color:var(--muted);vertical-align:-4px;margin-right:var(--sp-1)}
+/* the key-status line: the one bold element on this screen, --danger where
+   every other status line on the account pages reads --muted. */
+.acct-ar-status.warn{color:var(--danger)}
+
+/* ---- teams: "My shared context" share checklist (#my-context only) -------
+   teams.ts (myKindBlock) emits, unchanged here: .share-kind > (.share-kind-
+   head > h4+.share-count) + form.share-form > (.share-bar > label.share-all>
+   input.share-all-box + button[value=1].ghost + button[value=0].ghost) +
+   ul.rows.share-list > li.share-row[data-shared] > label.share-check>input +
+   span.row-title + span.tag.share-state[data-shared]. Every rule below is
+   scoped to #my-context: no ul.rows/.row-title/.tag/label/input rule outside
+   this id is touched, and every number traces to a token above except the
+   two documented one-offs point 8 of the brief calls for: the 18px native
+   checkbox (the label around it is the real hit target, sized off
+   --target-sm same as .tip-btn/.copy-btn) and the 1100px breakpoint (this
+   card's own content-width break, not an existing token in this file). */
+#my-context{padding-top:var(--sp-4);padding-bottom:var(--sp-4)}
+#my-context .share-count{color:var(--muted);font-size:var(--fs-xs)}
+#my-context .share-form{margin:var(--sp-2) 0 var(--sp-3)}
+/* label.share-all sits on the page-wide ".acct-page label" rule (display:
+   block, margin-top:var(--sp-3), account.css:180); undone here so it sits
+   inline, left of the two verb buttons, with the auto right margin pushing
+   them to the bar's own right edge (point 5). */
+#my-context .share-bar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2)}
+#my-context .share-all{display:inline-flex;align-items:center;gap:var(--sp-2);margin:0 auto 0 0;color:var(--muted);font-size:var(--fs-sm);font-weight:500}
+
+/* the row: checkbox in the icon slot, title 1fr, state pill auto -- the same
+   three-column anatomy every other ul.rows row uses (account.css:539), so
+   the checklist reads as one more row list, not a bespoke grid. max() keeps
+   the WCAG 2.5.8 24px floor even though --acct-row-icon itself is 20px. */
+#my-context .share-row{grid-template-columns:max(24px,var(--acct-row-icon)) minmax(0,1fr) auto;min-height:44px;align-items:center;padding:var(--sp-2) 0}
+#my-context .row-title{min-width:0;overflow-wrap:anywhere}
+
+/* the hit target: the LABEL is 24px on a mouse, 44px on a finger -- the same
+   max(24px,var(--target-sm)) pair .tip-btn/.copy-btn already wear, and
+   pointer:coarse already redefines --target-sm to 44px (site.css:128), so no
+   separate media query is written here. The native box inside it is the
+   documented 18px one-off and must not inherit the page's
+   ".acct-page input{width:100%}" rule (account.css:176). */
+#my-context .share-check{display:inline-flex;align-items:center;justify-content:center;flex:none;width:max(24px,var(--target-sm));height:max(24px,var(--target-sm));margin:0}
+#my-context .share-check input,#my-context .share-all-box{width:18px;height:18px;min-height:0;margin:0;padding:0;accent-color:var(--accent)}
+/* reuse, not invent: the exact focus-visible ring .icon-btn/.ghost wear
+   (account.css:166,189). */
+#my-context .share-check input:focus-visible,#my-context .share-all-box:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
+/* shared state: the pill already carries .tag's chrome (account.css:551) --
+   this mirrors .tag.status-active / .tag.status-invited (account.css:581-582)
+   exactly: accent border+ink when shared, muted ink when personal. Personal
+   is a normal state, never --danger (point 4). */
+#my-context .share-state[data-shared="1"]{border-color:var(--accent);color:var(--ink)}
+#my-context .share-state[data-shared="0"]{color:var(--muted)}
+
+/* the list: 1 column under 1100px (this card's own content-width break), 2
+   columns at and above it. ul.rows's own gap:0 (account.css:538) survives --
+   only column-gap is added here (a longhand overrides just the sub-property
+   it names), so rows keep touching vertically and the hairline stays the
+   only vertical separator. */
+#my-context .share-list{grid-template-columns:minmax(0,1fr);column-gap:var(--sp-6)}
+@media (min-width:1100px){
+  #my-context .share-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* at 2 columns the first TWO items sit in row 1 (grid auto-flow fills
+     column 1 then column 2 before wrapping to row 2), so the base
+     ":first-child{border-top:0}" (account.css:540) only clears the left cell
+     and the right cell's hairline would read as broken. Deliberate choice:
+     zero the whole first ROW's hairline at column granularity instead.
+     Below 1100px this rule is inert and the base :first-child behaviour is
+     the only one in effect. */
+  #my-context .share-row:nth-child(-n+2){border-top:0}
+}
+
+/* a filter hides rows AHEAD of the first one still showing, and ":first-child"
+   (above, and the 1100px rule just above) counts DOM order. Below 1100px the
+   hidden-row seam (the ul.rows block) already zeroes the first VISIBLE row's
+   hairline. In two columns the second visible row sits in row 1 as well, which
+   is a layout difference of this list alone, so it keeps one rule of its own:
+   a row with fewer than two showing rows before it. */
+@media (min-width:1100px){
+  #my-context .share-row:not(.share-row:not([hidden]) ~ .share-row:not([hidden]) ~ .share-row){border-top:0}
+}
+
+/* ---- teams: the fold and filter both context cards share (.share-fold) ---
+   teams.ts contextFoldCard renders #my-context and #team-context as one
+   <details class="share-fold"> that starts closed, so every rule here hangs on
+   that class and not on either card's id: the two cannot drift. The summary is
+   the heading row ".acct-card summary" above already draws (the 44px-on-touch
+   min-height and the chevron that turns): the h3 sits inside it, the count
+   ("3 of 12 shared", "14 shared by 3 people") before the chevron. Open, a
+   filter field leads the lists and an empty state (one sentence, one action)
+   closes them. Quiet by design: the one bold thing on this page is the
+   key-status notice, so the filter drops the page's storm-sweep focus rim and
+   glow for the same 2px ring the card's checkboxes wear. Fields are already
+   16px or more (".acct-page input{font-size:max(16px,1em)}"), so iOS does not
+   zoom into it. Radius is --acct-r-control (the summary ring and, from the
+   page rule, the field); no new radius, colour or size is introduced. */
+.share-fold summary{border-radius:var(--acct-r-control)}
+.share-fold summary h3{flex:1;min-width:0;margin:0}
+.share-fold summary:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.share-fold .share-total{flex:none;color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs);font-weight:400;white-space:nowrap}
+/* a phone: the title and the chevron keep the first line and the total drops
+   under the title, indented past the heading mark so it lines up with the
+   words. Side by side, the 246px summary at 320 left the title 115px and it
+   wrapped to two lines (measured). 560px is this file's existing phone break. */
+@media (max-width:560px){
+  .share-fold summary{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--sp-2);align-items:center}
+  .share-fold summary::after{grid-column:2;grid-row:1}
+  .share-fold .share-total{grid-column:1;padding-left:calc(var(--acct-section-icon) + var(--sp-2))}
+}
+.share-fold .share-filter input{margin:0;-webkit-appearance:none;appearance:none;border-color:var(--line);color:var(--fg)}
+.share-fold .share-filter input::placeholder{color:var(--muted);opacity:1}
+.share-fold .share-filter input:focus,.share-fold .share-filter input:focus-visible{outline:2px solid var(--fg);outline-offset:2px;border-color:var(--line);background:var(--bg);box-shadow:none}
+/* a kind: its head (the kind's name, and My shared context's own selected
+   count on the right) over its list. One kind after another sits --sp-4 apart.
+   A list that is a direct child of the kind (Team context's pooled rows) sits
+   --sp-2 under the head, where My shared context's checklist form does. */
+.share-fold .share-kind+.share-kind{margin-top:var(--sp-4)}
+.share-fold .share-kind-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
+.share-fold .share-kind-head h4{margin:0}
+.share-fold .share-kind>ul.rows{margin:var(--sp-2) 0 0}
+/* the status wrapper is always on the page (a live region must exist before
+   its content does), so it takes no margin of its own while the empty state
+   inside it is hidden. */
+.share-fold .share-status{margin:0}
+.share-fold .share-empty{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-4) 0 var(--sp-2)}
+.share-fold .share-empty p{margin:0}
+/* The kind head flex and this empty state outrank the UA's
+   [hidden]{display:none}, the .tip-bubble[hidden] trap: the filter script sets
+   only the attribute, so the attribute is given its meaning back here, last,
+   at the same weight. The ROWS of either card are not restored here: a li of a
+   ul.rows gets it from the hidden-row seam in the ul.rows block. */
+.share-fold .share-kind[hidden],.share-fold .share-empty[hidden]{display:none}
+
+/* ---- teams: "Team context" pooled rows (#team-context only) --------------
+   teams.ts (teamKindBlock, teams.ts:599-638) emits an outer row whose first
+   (and, for kind mcp, only other) child is div.row-main, and for kind mcp a
+   nested ul.rows of contributor rows that are div.row-main alone too --
+   neither supplies the icon slot or the trailing action slot the base
+   ul.rows li grid expects (account.css:539), so without this override the
+   title lands in the 20px --acct-row-icon column and wraps onto the next
+   row. These rows carry no icon (who has this is inside row-main's own
+   avatar-initial marks) and no action (nothing here is edited inline), so
+   the fix is the honest opt-out the contract above calls for: one full-width
+   column, not a substitute grid. The same declaration covers both the outer
+   li and the nested ul.rows li (a descendant selector), so the contributor
+   list also gets the full width under the title block instead of a 20px
+   strip. */
+#team-context .rows li{grid-template-columns:minmax(0,1fr)}
+
+/* ---- specificity leaks (read-only sweep, 2026-09-17) ---------------------
+   Kit selectors at one class lose to the page-wide ".acct-page a / p / label
+   / textarea / ul.rows li" rules on specificity (or tie and lose by order).
+   Each row here re-asserts the property that leaked, at two selectors. */
+.acct-page a.chip{color:var(--muted)}
+.acct-page a.chip[aria-current]{color:var(--ink)}
+.acct-page a.pack-btn{color:var(--ink)}
+.acct-page p.acct-ar-status{color:var(--ink)}
+.acct-page p.acct-meter-caption,.acct-page p.acct-ar-cap{font-size:var(--fs-xs)}
+.acct-page ul.rows li.skel-row{display:flex;gap:var(--sp-3);padding:var(--sp-2) 0}
+.acct-page label.ar-row{display:flex;margin-top:0}
+.acct-page textarea.rec-code{border-color:var(--line)}
+
+/* ---- the API page (account/api.ts): the two env snippets side by side on a
+   wide screen and stacked on a phone; the limits card's plain bullet lists;
+   and the incognito checkbox, the one field that must not stretch to the
+   field width. Every value is an existing token or an existing breakpoint in
+   this file: no new radius, colour or size is invented here. ---- */
+.env-pair{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-3)}
+@media (min-width:900px){.env-pair{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.env-pair label{margin-top:0}
+/* The value row: the snippet keeps the width, the copy control is its own
+   icon square pinned to the top of the box, never a full-height slab. */
+.acct-page .env-pair .row:has(>.copy-btn){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:0;flex-wrap:nowrap}
+/* The snippet is one unbroken line per env var: a long origin scrolls inside
+   its own box instead of breaking a token mid-word at any width, and the copy
+   button still copies the whole value however the box is scrolled. */
+.acct-page .env-pair textarea{white-space:pre;overflow-wrap:normal;word-break:normal;overflow-x:auto;field-sizing:fixed;font-size:var(--fs-sm)}
+/* the square owns only the field's top-right corner, so the snippet keeps its
+   bottom-right radius where the button no longer reaches */
+.acct-page .env-pair .row:has(>.copy-btn)>textarea{border-top-right-radius:0;border-bottom-right-radius:var(--acct-r-control)}
+/* the copy control is an icon button at the system's own small-control size
+   (24px on a mouse, 44px on a finger, the same pair .tip-btn wears), so the
+   snippet keeps the width and nothing is an oversized slab */
+.acct-page .env-pair .copy-btn{width:max(24px,var(--target-sm));min-height:max(24px,var(--target-sm))}
+.acct-page ul.bullets{list-style:disc;padding-left:var(--sp-4);margin:0;display:grid;gap:var(--sp-1)}
+.acct-page .ck-check{display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-3)}
+.acct-page .ck-check label{margin:0}
+.acct-page input[type="checkbox"]{width:max(24px,var(--target-sm));height:max(24px,var(--target-sm));margin:0;accent-color:var(--accent)}
+/* the overview's one caption link is a real target: the same small-control
+   floor the rail links wear, so a 20px text line never fails the 24px check */
+/* the page's one outbound reference link: same small-control floor, and a
+   label that never wraps, so the single line stays a target */
+.ref-link{display:inline-flex;align-items:center;min-height:var(--target-sm);white-space:nowrap}
+
+/* ---- the api page's two reference cards (account/api.ts) -----------------
+   #models and #pricing only state facts, so neither wears a section mark and
+   neither is a table: Models stacks a mono id over the role sentence that
+   explains it, Pricing is a two-column rate list whose value column is mono
+   and right-aligned. Both are row lists of a different shape from the four
+   cards around them (env pairs, key rows, bullets, one line), and they differ
+   from each other in what a row is: an id and its caption, against a label and
+   a figure. Every value is an existing token: --sp-1/--sp-2/--sp-3/--sp-4 for
+   space, --line for the hairline, --fs-sm/--fs-xs for size, --font-mono for
+   the id and the figure, --muted/--ink for ink, --target-sm for the tap floor.
+   ---- */
+.dial-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-3)}
+.dial-list li{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-1);padding-top:var(--sp-3);border-top:1px solid var(--line)}
+.dial-list li:first-child{padding-top:0;border-top:0}
+.dial-id{font-size:var(--fs-sm)}
+.dial-role{color:var(--muted);font-size:var(--fs-sm)}
+.dial-sse{margin:var(--sp-4) 0 0}
+.rate-list{list-style:none;margin:0;padding:0;display:grid;gap:0}
+/* the label column takes the slack; the figure column is never squeezed, so a
+   long label wraps inside its own column instead of pushing the page sideways
+   at 320 */
+.rate-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 var(--sp-3);align-items:baseline;padding:var(--sp-2) 0;border-top:1px solid var(--line);color:var(--muted);font-size:var(--fs-sm)}
+.rate-list li:first-child{border-top:0}
+.rate-lab{min-width:0}
+.rate-val{font-family:var(--font-mono);color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.rate-sub{display:block;color:var(--muted);font-size:var(--fs-xs);font-weight:400}
+.rate-fig{color:var(--ink)}
+
+/* ---- the api page's lead, key-API note and route reference (account/api.ts)
+   #endpoint opens with four short lines that say what the URL reaches; #keys
+   closes with the three lines that say the same keys are managed over the
+   API; #routes is every public route grouped by job, one disclosure per job,
+   each row a verb badge, the path (linked to its /developers page), the
+   purpose and the scope. At 1440 a row is one line on a four-column grid;
+   under 640 the purpose and scope wrap under the path. Existing tokens only.
+   ---- */
+.ep-lead{display:grid;gap:var(--sp-1);margin:0 0 var(--sp-4)}
+.ep-lead p,.ck-api p{margin:0}
+.ep-lead p:first-child{color:var(--ink);font-size:var(--fs-base);line-height:var(--lh-base,1.5);font-weight:600}
+.ck-api{display:grid;gap:var(--sp-1);margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--line)}
+.acct-card details.rt-group{border-top:1px solid var(--line);padding-top:var(--sp-2);margin-top:var(--sp-2)}
+.acct-card details.rt-group:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.acct-card details.rt-group>summary{font-size:var(--fs-sm);line-height:var(--lh-sm);font-weight:600}
+.rt-list{list-style:none;margin:0;padding:0;display:grid}
+.rt-list li{display:grid;grid-template-columns:56px minmax(0,max-content) minmax(0,1fr) auto;align-items:center;gap:var(--sp-1) var(--sp-3);padding:var(--sp-2) 0;border-top:1px solid var(--line)}
+.rt-list li:first-child{border-top:0}
+.rt-verb{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:700;letter-spacing:.04em;color:var(--muted)}
+.rt-verb[data-verb="post"]{color:var(--acct-accent-text)}
+.rt-verb[data-verb="patch"],.rt-verb[data-verb="put"]{color:var(--warn)}
+.rt-verb[data-verb="delete"]{color:var(--danger)}
+.rt-path{display:inline-flex;align-items:center;min-height:var(--target-sm);min-width:0;text-decoration:none}
+.rt-path code{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.rt-path:hover code{border-color:var(--muted)}
+.rt-what{min-width:0}
+.acct-page code.rt-scope{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap}
+.rt-links{display:flex;flex-wrap:wrap;gap:0 var(--sp-4);margin:var(--sp-3) 0 0}
+@media (max-width:640px){
+  .rt-list li{grid-template-columns:48px minmax(0,1fr)}
+  .rt-what,.rt-list .rt-scope{grid-column:2}
+  .acct-page code.rt-scope{justify-self:start}
+}
+
+/* ---- teams: the dense pane (.acct-teams) ----------------------------------
+   teams.ts renders the whole /account/teams body inside one .acct-teams
+   scope, so every rule below is scoped to it and the shared .acct-card /
+   .acct-page rules are untouched: every other account page keeps its
+   sp-5 sp-6 card, its sp-4 card gap and its sp-4 0 sp-2 h4, and only this
+   pane densifies (card sp-4 sp-5, card+card sp-3, h3 sp-2, h4 sp-3 0 sp-1).
+   The accent is spent twice and only twice here: the key-status .acct-notice
+   border and the .check checkbox's accent-color. No new hex, radius, type
+   size or duration is introduced; every value traces to the token block at
+   account.css:26 or to site.css's scale, except the three documented
+   one-offs named inline below: the 18px native checkbox, the 40px invite
+   field floor, and the 700px / 560px breakpoints. This block declares no
+   transition and no animation, so there is no motion here to guard at all. */
+.acct-teams .acct-card{padding:var(--sp-4) var(--sp-5);margin:0 0 var(--sp-3)}
+.acct-teams .acct-card+.acct-card{margin-top:var(--sp-3)}
+.acct-teams h3{margin-bottom:var(--sp-2)}
+.acct-teams h4{margin:var(--sp-3) 0 var(--sp-1)}
+/* Policy and coverage (#coverage, teams-coverage.ts): its meta lines are
+   one-line sentences (a binding condition, a level caveat), and the nowrap +
+   ellipsis on .row-meta spans cut them off beside the trailing pill or
+   Download at 390px. Under 560px this card's action drops under the text, in
+   the TEXT column (not a stray square under the icon, the devices concern
+   above), so each sentence gets the whole row width. */
+/* the MDM download rows' meta is a stack of one-line condition sentences,
+   one per line at every width, never two packed onto one flex line */
+.acct-page #coverage .row-meta.lines{flex-direction:column;align-items:flex-start;gap:0}
+@media (max-width:560px){
+  .acct-page #coverage ul.rows li{grid-template-columns:var(--acct-row-icon) minmax(0,1fr)}
+  .acct-page #coverage ul.rows li>.row-action{grid-column:2;justify-self:start}
+}
+
+/* the zone heading's count ("1 member", "2 keys"): h3 is already a flex row
+   with an sp-2 gap, so the count rides it in muted xs ink with tabular
+   figures -- the same recipe #my-context .share-count wears (account.css:613),
+   deliberately not a pill and not a second accent spend. */
+.acct-teams .zone-count{color:var(--muted);font-size:var(--fs-xs);font-weight:400;font-variant-numeric:tabular-nums}
+
+/* the key-status banner: the page's one bold element, outside the card
+   rhythm. One slim row -- mark, two-line text, trailing ghost link -- on the
+   elevated ground with the accent hairline: the border IS the one accent
+   spend the look plan names, so the banner's 1px line is the accent rather
+   than the usual --line hairline. --sp-3 below it is the same cross-zone gap
+   the cards use, so it never sits flush on #members. */
+.acct-teams .acct-notice{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border:1px solid var(--accent);border-radius:var(--acct-r-control);background:var(--elevated);margin:0 0 var(--sp-3)}
+/* the banner's body is a ul.rows holding the one row teams.ts emits: it keeps
+   the row anatomy's three columns (mark / two-line text / trailing ghost
+   link) but gives up the list's own sp-3 row padding and its hairline, so the
+   banner stays one slim stripe inside the sp-3 sp-4 box. The mark, the
+   two-line text and the trailing ghost link need no new rule: .row-icon,
+   .row-main/.row-title/.row-meta and .row-action already carry them
+   (account.css:547-554). */
+.acct-teams .acct-notice ul.rows{display:block;flex:1;min-width:0;margin:0;padding:0}
+.acct-teams .acct-notice ul.rows li{padding:0;border-top:0}
+/* under 560px the trailing ghost link's auto column ate the text's 1fr track
+   (measured at 390px: the two sentences broke into a six-line, two-word
+   column beside a 150px button), so the link drops under the text, aligned
+   to the text column, and the mark keeps its own column. Same breakpoint the
+   invite line wraps at. */
+@media (max-width:560px){
+  .acct-teams .acct-notice ul.rows li{grid-template-columns:var(--acct-row-icon) minmax(0,1fr);row-gap:var(--sp-2)}
+  .acct-teams .acct-notice .row-action{grid-column:2}
+}
+
+/* the invite line: a ul.rows li whose only child is the form, so the
+   3-column row grid (account.css:545) collapses to one column and the form
+   owns it. One line from 560px up: email fills, role select hugs its option,
+   the send button last. Below 560 it stacks -- at 320 the three columns left
+   the email field a sliver. 40px is the documented one-off floor (the brief's
+   number; below the page-wide max(44px,--target) at account.css:176 so the
+   line stays slim on a desktop, and still over the 24px WCAG 2.5.8 minimum). */
+.acct-teams ul.rows li.invite-row{grid-template-columns:minmax(0,1fr)}
+.acct-teams .invite-form{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--sp-2);align-items:center;margin:0}
+.acct-teams .invite-form input,.acct-teams .invite-form select{min-height:40px;margin:0}
+.acct-teams .invite-form select{width:auto}
+@media (max-width:560px){
+  .acct-teams .invite-form{grid-template-columns:minmax(0,1fr)}
+}
+
+/* label/field pairs as a grid instead of the page's stacked label-above-
+   field (account.css:180-181): the label keeps its own line inside its cell
+   but gives up the top margin that spaced a stack, and the field sits one
+   --sp-1 under it. One column below 700px, two at and above; .three is the
+   mint form's key name / route / mode row, three at and above 700.
+   The label is inline-flex, not the page-wide block (account.css:180), for
+   the seam it sits on: teams.ts renders a field's helpTip as a SIBLING after
+   the label, never inside it, so the select's accessible name stays exactly
+   the label text and the tip's "?" can never reach the select through label
+   activation. A block label pushed that sibling "?" onto a line of its own
+   under the words; inline-flex keeps the two on one line. */
+.acct-teams .field-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-3)}
+@media (min-width:700px){
+  .acct-teams .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .acct-teams .field-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+.acct-teams .field-grid label{margin-top:0;display:inline-flex;align-items:center;gap:var(--sp-2)}
+.acct-teams .field-grid input,.acct-teams .field-grid select{margin:var(--sp-1) 0 0}
+/* the air under a field grid, so the form's submit verb is not glued to its
+   last field row. Both buttons that follow a grid on this page arrive at
+   margin 0 (.ghost, account.css:186; .storm-action, account.css:452) and the
+   grid itself carried no bottom margin, so the two met at 0px -- measured on
+   /account/teams at 1097px and 390px above Save settings (teams.ts:525) and
+   Mint team key (teams.ts:580). The air belongs to the grid, not to either
+   id, so the next control a settings form puts under its fields is spaced by
+   construction. --sp-3 is the grid's own row gap (account.css:869) and the
+   same step the api page's field-action gives its submit button
+   (account.css:463), so the verb reads as one more row of the form rather
+   than as an attached label. */
+.acct-teams .field-grid{margin-bottom:var(--sp-3)}
+
+/* the settings checklist: three options on one wrapping line instead of
+   three full-width rows, and the same .check is reused as one cell of the
+   settings field-grid (teams.ts:493), so the rule is scoped to .acct-teams
+   .check rather than .check-row .check and covers both. Each .check is a
+   label, so it re-asserts inline-flex and margin:0 over the page-wide
+   ".acct-page label" (block, margin-top sp-3; account.css:180). The box is
+   the documented 18px one-off, written at [type="checkbox"] specificity so
+   it never inherits ".acct-page input{width:100%}" (account.css:176) -- the
+   same pair #my-context .share-check wears (account.css:636). The focus ring
+   is the existing .icon-btn/.ghost ring, reused and not invented. */
+.acct-teams .check-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-4)}
+.acct-teams .check{display:inline-flex;align-items:center;gap:var(--sp-2);min-height:var(--target-sm);margin:0;color:var(--muted);font-size:var(--fs-sm);font-weight:500}
+.acct-teams .check input[type="checkbox"]{width:18px;height:18px;min-height:0;margin:0;padding:0;accent-color:var(--accent)}
+.acct-teams .check input[type="checkbox"]:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
+/* the verb line under a form (Save settings, Mint key, Transfer): wraps, its
+   controls keep the sp-2 gap, and a form inside contributes no margin of its
+   own. The transfer select hugs its options (width:auto) at margin 0 instead
+   of the page-wide width:100% / sp-2 0 (account.css:176). */
+.acct-teams .action-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2)}
+.acct-teams .action-row form{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2);margin:0}
+.acct-teams .action-row select{width:auto;margin:0}
+
+/* the zone that ends a card: the transfer / leave / delete cluster under a
+   hairline, one zone gap above it. The buttons keep the existing
+   .ghost / .ghost.danger recipe (account.css:186-190); only their placement
+   is set here. */
+.acct-teams .zone.danger{margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px solid var(--line)}
+
+/* the name a control carries for screen readers alone (the invite line's
+   email field, the transfer select): the standard clipping recipe, identical
+   to the one .sb-seg-input already uses in this file (account.css:430). */
+.acct-teams .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* the api zone's SDK snippets, folded away: the disclosure chrome is
+   .acct-card details/summary unchanged (account.css:126-134), plus the one
+   --sp-3 below it the contract names. */
+.acct-teams details.sdk-lines{margin-bottom:var(--sp-3)}
+
+/* ---- your data: the /account/data page (.acct-data) -----------------------
+   data.ts renders the whole /account/data body inside one .acct-data scope
+   (U5, 2026-09-19: the one "Export and delete" card became an export zone and
+   a delete zone). Every rule below is scoped to it, so the shared .acct-card /
+   .acct-page rules are untouched and every other account page keeps its
+   sp-5 sp-6 card and its sp-4 card gap; only this page densifies (card
+   sp-4 sp-5, card+card sp-3), the same one-step tightening .acct-teams does
+   (account.css:806-807).
+   One accent spend, and it is the export zone's own hairline; the delete zone
+   is quiet at rest -- the plain --line card border, no fill, no red heading,
+   and one step more air above it -- so the page's destructive control is the
+   last thing on it and never its loudest. Red appears only while a danger
+   control is hovered (the existing .ghost.danger hover, account.css:190,
+   re-keyed below to the two ids that arrive without a .danger class).
+   The page's one bold element is the export manifest: mono ink key names in a
+   fixed column over muted notes, row-separated by the same 1px hairline every
+   row idiom in this file already uses (account.css:261/545).
+   No new hex, radius, type size or duration. The one-offs, named inline where
+   they are used: the 560px wrap point (zone head, delete stage), the 700px
+   manifest split (the existing .acct-teams .field-grid breakpoint,
+   account.css:870), the code input's 8ch width, and the color-mix share the
+   accent hairline borrows from .plan-multiplier (account.css:302). Markup is
+   data.ts's; no id, class or href is invented here. */
+
+/* the card rhythm, one step down from .acct-card's sp-5 sp-6 / sp-4
+   (account.css:119-120), scoped exactly as .acct-teams scopes it. */
+.acct-data .acct-card{padding:var(--sp-4) var(--sp-5);margin:0 0 var(--sp-3)}
+.acct-data .acct-card+.acct-card{margin-top:var(--sp-3)}
+
+/* a zone IS a card (data.ts:35/52 emit .acct-card.data-zone): this is the
+   frame for a .data-zone that arrives without .acct-card, restating the
+   tightened rhythm so both spellings render identically. */
+.acct-data .data-zone{background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);padding:var(--sp-4) var(--sp-5);margin:0 0 var(--sp-3)}
+
+/* the page's one accent spend: the export zone's hairline, the same move
+   .acct-teams .acct-notice makes with a full accent border (account.css:823)
+   at the quieter share .plan-multiplier already uses. The delete zone keeps
+   the plain --line border it inherits, so the two zones differ by that one
+   colour and one step of air and nothing else. */
+.acct-data .data-zone:not(.zone-danger){border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+
+/* the zone's heading row: h3 left, its action right, one line. The h3 is the
+   page-wide flex row (account.css:105) with the section icon inside it, and
+   it is what grows, which pushes the action to the right edge; the action
+   keeps its intrinsic width (.ghost, account.css:186-189) and can never
+   stretch. Under 560px the heading takes the whole line and the button drops
+   below it, left aligned -- the same 560 the rail wraps at (account.css:83)
+   and a row's actions drop at (account.css:563). */
+.acct-data .zone-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-3)}
+.acct-data .zone-head h3{flex:1 1 auto;min-width:0;margin-bottom:0}
+.acct-data .zone-head>*:not(h3){flex:none}
+@media (max-width:560px){
+  .acct-data .zone-head{align-items:flex-start}
+  .acct-data .zone-head h3{flex-basis:100%}
+}
+
+/* the manifest: what the export actually contains, read as a list. Under 700px
+   -- the .acct-teams .field-grid breakpoint (account.css:870) -- a name sits
+   over its note; above it the two line up in columns. Hairline per row, first
+   none, the .plan-row / ul.rows li idiom. min-height is --sp-8 (32px), well
+   under --target-sm: a reading list, not a row of controls. */
+.acct-data .data-manifest{display:grid;grid-template-columns:minmax(0,1fr);gap:0;list-style:none;padding:0;margin:var(--sp-4) 0 0}
+.acct-data .manifest-item{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-1);align-content:center;min-height:var(--sp-8);padding:var(--sp-2) 0;border-top:1px solid var(--line)}
+.acct-data .manifest-item:first-child{border-top:0}
+@media (min-width:700px){
+  /* ONE column pair for the whole list, never one per row. Each item used to
+     carry its own `max-content` track, which sizes to THAT row's key, so the
+     note column started at a different x on every row: measured on the live
+     page 2026-09-19, the eight notes began between 319.16 and 369.72, 50.56px
+     of rag that tracked key length. The list owns the track pair now and each
+     row borrows it with subgrid, which keeps the row a box of its own so the
+     hairline stays on the item. The @supports arm is the pre-subgrid
+     behaviour, ragged but never broken. */
+  .acct-data .data-manifest{grid-template-columns:max-content minmax(0,1fr)}
+  .acct-data .manifest-item{grid-column:1 / -1;grid-template-columns:subgrid;gap:var(--sp-2) var(--sp-4);align-items:baseline}
+  @supports not (grid-template-columns:subgrid){
+    .acct-data .data-manifest{grid-template-columns:minmax(0,1fr)}
+    .acct-data .manifest-item{grid-template-columns:max-content minmax(0,1fr)}
+  }
+}
+/* the key name is the ink in the column, mono: --font-mono is this file's own
+   token (account.css:225/218) and every machine-read string on these pages
+   wears it (a user_id, an sbk_ key, a layer path). The note is a sentence, so
+   it wraps pretty wherever the platform supports it (text-wrap.mdc). */
+.acct-data .manifest-name{color:var(--ink);font-family:var(--font-mono);font-size:var(--fs-sm)}
+.acct-data .manifest-note{color:var(--muted);font-size:var(--fs-sm);min-width:0;text-wrap:pretty}
+
+/* the delete zone: the delete script's own zone. It keeps the card frame it
+   inherits (the brief's muted border) and adds nothing loud -- no fill, no red
+   heading, no red border -- and takes --sp-5 of air above instead of the
+   --sp-3 every other card gap uses, so the destructive action is last and set
+   slightly apart. .ghost.danger's hover (account.css:190) is re-keyed to
+   #acct-del and #acct-del-confirm below, which arrive with no danger class:
+   red only while a finger is on the control, never at rest. */
+.acct-data .acct-card.zone-danger,.acct-data .data-zone.zone-danger{margin-top:var(--sp-5)}
+/* the trigger's own air. #acct-del arrives as a .ghost (data.ts:55), so the
+   zone's control recipe below -- button:not(.ghost), account.css:1044 -- never
+   reaches it and it inherited no margin at all, while .hint (account.css:1058)
+   carries margin only on top. On the live page that left the button clipped to
+   "It cannot be undone." with nothing between them. --sp-4 is one step above
+   the confirm stage's own --sp-3 (account.css:1024), so the destructive
+   control reads as set apart from the copy rather than attached to its last
+   line. */
+.acct-data .zone-danger #acct-del{margin-top:var(--sp-4)}
+.acct-data .zone-danger #acct-del:hover,.acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn):hover{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 60%,transparent)}
+
+/* the confirm stage: hidden until the code is mailed. The rule keys on
+   :not([hidden]) rather than fighting the attribute: the stage's grid would
+   otherwise beat the UA's [hidden]{display:none} and the stage would show on
+   load -- the trap .tip-bubble[hidden] documents (account.css:170) -- and a
+   hidden attribute must never need an !important to hold. The id is the one
+   data.ts pins (account-data.test.ts); the :has() arm is the same container
+   without that id, and :has() is already relied on in this file
+   (account.css:197/578). Its own line: label, code field and confirm button
+   on one compact row from 560px up, stacked below it, every item hugging its
+   own content rather than stretching. */
+.acct-data .zone-danger #acct-del-stage:not([hidden]),
+.acct-data .zone-danger :is(div,form):has(>label):not([hidden]){display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;align-items:center;gap:var(--sp-2);margin-top:var(--sp-3)}
+@media (min-width:560px){
+  .acct-data .zone-danger #acct-del-stage:not([hidden]),
+  .acct-data .zone-danger :is(div,form):has(>label):not([hidden]){grid-template-columns:max-content max-content max-content;gap:var(--sp-3)}
+}
+.acct-data .zone-danger label,.acct-page .acct-dialog label{margin-top:0}
+/* The field sized to the eight-character code it holds, never 100%: two classes
+   and a tag beat ".acct-page input{width:100%}" (account.css:176) the way
+   [type="checkbox"] does (account.css:288), and the zone holds this one input.
+   The 8ch is the code's own length; the two --sp-3 are the field's padding
+   (account.css:176) and the 2px its two hairlines, so the text box is exactly
+   8 characters wide and the row stays compact. Mono, so the code reads as a
+   code and the ch measure is the font's own. */
+.acct-data .zone-danger input{width:calc(8ch + 2 * var(--sp-3) + 2px);margin:0;font-family:var(--font-mono)}
+
+/* the confirm control arrives with no class (data.ts:79; the id is pinned by
+   the test, the class never was), so its resting frame is the .ghost recipe
+   (account.css:187) re-keyed to "a button in a dialog that is not a .ghost",
+   same values, no new colour. It was keyed to the danger ZONE while one page
+   owned a dialog; the second confirm (teams.ts' #team-del-confirm) sits in
+   <div class="zone danger">, which carries no .zone-danger class, so the key
+   moved to .acct-dialog -- where every non-.ghost button is a confirm control
+   (data's #acct-del-continue / #acct-del-confirm, teams' #team-del-confirm).
+   Moved, not copied: one recipe for one kind of control. Give it .ghost one day
+   and .ghost takes over with the identical frame; its hover is the danger tint
+   above. */
+.acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn){display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:max(44px,var(--target-sm));padding:0 var(--sp-4);border:1px solid rgba(255,255,255,.08);border-radius:var(--acct-r-pill);background:rgba(255,255,255,.06);color:var(--secondary);font-size:var(--fs-sm);font-weight:500;font-family:inherit;cursor:pointer;margin:0;transition:color var(--dur-3) var(--ease-std),border-color var(--dur-3) var(--ease-std),background var(--dur-3) var(--ease-std),transform var(--dur-2) var(--ease-std)}
+.acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn):focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn):active{transform:scale(.98)}
+
+/* the page's notes (.hint is not a rule in this file -- the only .hint in the
+   tree is hero.css:371, a different page -- so it is currently just
+   ".acct-page p"): caption size, the size hero.css gives its own hint, so the
+   two sentence export note and the delete status line sit under their zone
+   quietly and wrap pretty. */
+.acct-data p,.acct-page .acct-dialog p{margin:0 0 var(--sp-3)}
+.acct-data .hint,.acct-page .acct-dialog .hint{color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs);margin:var(--sp-3) 0 0;text-wrap:pretty}
+
+/* ---- the delete dialog: the modal confirm #acct-del opens (data.ts:58-79) ---
+   The look plan for this unit: palette --canvas / --elevated / --line, ink --ink
+   / --muted; no accent hue spent here (--accent is already spent on the export
+   zone) and --danger only on the final Delete everything control's hover, the
+   way the zone does it today; type --font-ui, with --font-mono on the code input
+   alone; two radii only -- --acct-r-control on both fields, --acct-r-surface on
+   this frame -- and the buttons keep their existing pill recipes. The one bold
+   element while open is the dialog itself over the dimmed ::backdrop. The frame
+   is a hairline on --elevated and declares NO box-shadow in any state: a resting
+   shadow is the anti-generic tell (design/references/anti-generic.md, cards),
+   so the 1px --line border is the whole edge. The UA's dialog:not([open])
+   {display:none} is deliberately NOT restated and NOT overridden anywhere below:
+   every rule here keys the open state. No reduced-motion media block
+   on purpose -- superbot's motion-always-on policy (AGENTS.md:25,
+   .cosmos/rules/motion-always-on.mdc) makes a guard the defect, so the single
+   entrance in this block is unconditional.
+   SCOPE, widened 2026-09-19: this block used to be keyed ".acct-data
+   .zone-danger .acct-dialog", which was enough while /account/data owned the
+   only dialog. It is not enough now: /account/teams' delete-team confirm
+   (teams.ts, #team-del -> dialog#team-del-dialog.acct-dialog) renders inside
+   <div class="zone danger" id="danger"> on a .acct-teams page, so BOTH halves of
+   that prefix miss it -- .zone-danger in particular is a class no element on the
+   teams page carries. Every selector below is therefore re-keyed on ".acct-page
+   .acct-dialog" (or the dialog's own element/class where the extra specificity
+   is needed), the shared ancestor of both dialogs: acctPage wraps every account
+   page in <main class="acct-shell acct-page"> (shell.ts:194). Nothing was
+   copied -- one set of declarations serves two dialogs -- and no value, radius,
+   hue, breakpoint or motion rule changed.
+   What the markup still inherits and deliberately does NOT get restated here: a
+   modal dialog is NOT reparented (showModal only paints it in the top layer, the
+   node stays where it was written), so .acct-page button.ghost (account.css:187)
+   still reaches the Cancel buttons on both dialogs, and both confirm controls
+   take the moved .acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn) recipe (account.css:1056). The
+   added ".acct-page .acct-dialog p" and ".acct-page .acct-dialog .hint" arms on
+   account.css:1065-1066 style the consequence, the hint and #acct-del-msg
+   inside a dialog with no second rule; the teams dialog's copy is those same two
+   lines. */
+dialog.acct-dialog{background:var(--elevated);border:1px solid var(--line);border-radius:var(--acct-r-surface);padding:var(--sp-5);width:min(100% - 2 * var(--sp-4),var(--acct-dialog-w));margin:auto;color:var(--ink)}
+/* the scrim: color-mix on --canvas at --acct-scrim, since no overlay-opacity
+   token exists (see the :root note). Fades in with the dialog's own entrance. */
+dialog.acct-dialog::backdrop{background:color-mix(in srgb,var(--canvas) var(--acct-scrim),transparent)}
+/* the title: the page's h3 margin (account.css:104) is already 0 0 --sp-2; it is
+   restated here so this dialog reads standing alone, and it takes text-wrap
+   :balance per the project's text-wrap rule (dialog titles are named there).
+   The h3 markup carries no section-icon, so the flex/gap in that shared rule
+   has nothing to lay out. */
+.acct-dialog h3{margin:0 0 var(--sp-2);text-wrap:balance}
+/* the phrase step: one column, so the label, the field and the actions row stack
+   in the dialog's 440px at every width. gap --sp-3 spaces the three; the extra
+   --sp-4 above separates the step from the consequence copy above it.
+   Two things this selector has to do, both measured on the real page (chromium
+   at 1097/390, .tmp/del-dialog-shot.883e08fd.json):
+   (a) it must out-specify the zone's own stage rule, because that rule's second
+   arm -- ""div,form with a direct child label"" (account.css:1031-1035) -- also
+   matches THIS div: a bare ".acct-dialog-step" (0,1,0) lost to it (0,3,1), and at
+   560px up the phrase step rendered as the code stage's three-column row,
+   overflowing the 440px dialog. Hence a prefix with four class/attribute
+   weights -- .acct-page .acct-dialog .acct-dialog-step:not([hidden]) -- which
+   still beats that rule's (0,3,2) while reaching the teams page, where the old
+   .acct-data .zone-danger prefix no longer matches anything.
+   (b) it must be keyed :not([hidden]): a class selector beats the UA's
+   [hidden]{display:none}, so a bare "display:grid" would have kept the phrase
+   step on screen under the code stage -- the exact trap the stage's own rule
+   documents at account.css:1021. data.ts sets step.hidden = true when the code
+   goes out.
+   justify-items is restated to stretch on purpose: properties resolve one by
+   one, so the zone rule's own justify-items:start still applied to this div even
+   after this rule took grid-template-columns -- the actions row then shrank to
+   its buttons and sat left instead of right (measured, .tmp/del-dialog-shot
+   .883e08fd.json: buttons ended 182px short of the dialog's content edge). The
+   zone's align-items:center is left alone: in a single column every row is as
+   tall as its one item, so centring an item inside its own row cannot show. */
+.acct-page .acct-dialog .acct-dialog-step:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr);justify-items:stretch;gap:var(--sp-3);margin-top:var(--sp-4)}
+/* The phrase field is the page's field recipe (account.css:176: --acct-r-control,
+   --canvas fill, 44px floor, focus sweep) with ONE correction: the zone's code
+   rule ".acct-data .zone-danger input" (account.css:1045) also matches this
+   input, and it pins every zone field to 8ch and --font-mono. Two classes and an
+   id beat it, so the step's own field is 100% of the step and --font-ui, which
+   keeps --font-mono on #acct-del-code alone (look plan). The key is the step's
+   own child -- ".acct-page .acct-dialog .acct-dialog-step>input" -- not an id,
+   so the same rule covers #acct-del-phrase and teams' #team-del-phrase without
+   a second copy; a class key is also what lifts it over that zone input rule
+   (0,3,1 against 0,2,1) and over .acct-page input (0,1,1). The radius is NOT
+   restated: :176 already supplies --acct-r-control and nothing in the zone
+   overrides it. */
+.acct-page .acct-dialog .acct-dialog-step>input{width:100%;font-family:var(--font-ui)}
+/* the actions row: Cancel then the destructive control, right-aligned, tab order
+   left-to-right so the safe default is the first reachable control. gap --sp-2
+   and --sp-3 above are one step tighter than the step's own --sp-3 air. Labels
+   never wrap; below 420 the row wraps and each control takes the full width, so
+   a phone gets two stacked 44px targets instead of two squeezed ones. Same
+   .acct-page .acct-dialog prefix as the step above, so the row keeps these
+   values whatever the zone's own div-with-a-label rules do to its ancestors.
+   On teams the .acct-dialog-actions row is the form's child and the form is the
+   step's grid item, so the row still spans the step and its buttons still sit
+   right-aligned; the form itself takes no style of its own. */
+.acct-page .acct-dialog .acct-dialog-actions{display:flex;flex-wrap:nowrap;gap:var(--sp-2);justify-content:flex-end;margin-top:var(--sp-3)}
+.acct-page .acct-dialog .acct-dialog-actions button{white-space:nowrap}
+@media (max-width:420px){
+  .acct-page .acct-dialog .acct-dialog-actions{flex-wrap:wrap}
+  .acct-page .acct-dialog .acct-dialog-actions button{flex:1 1 100%}
+}
+/* The code stage (#acct-del-stage, data.ts:70) keeps its hidden-when-[hidden]
+   contract (account.css:1031) and its id key, but not the 560px one-row
+   breakpoint: this file uses NO container query anywhere, so a @container on
+   .acct-dialog would be a new pattern invented for one 440px box, and the one-row
+   form (label + 8ch field + Delete everything) measures wider than the dialog's
+   own content box. Per the brief it therefore stacks inside the dialog at every
+   width: the id rule below out-specifies both arms of account.css:1031/1034 and
+   comes later in the sheet. justify-items:stretch (the page rule's own start
+   value is narrowed to the page's inline row) keeps the actions row spanning so
+   justify-content:flex-end lines up; the field keeps its own calc() width. */
+.acct-page .acct-dialog #acct-del-stage:not([hidden]){grid-template-columns:minmax(0,1fr);justify-items:stretch;gap:var(--sp-3);margin-top:var(--sp-4)}
+/* Disabled reads as disabled: --muted ink on a --canvas fill behind the --line
+   hairline, which is this file's own disabled recipe on both other disabled
+   controls (.plan-cta[disabled], account.css:338, and button.storm-action
+   :disabled, account.css:446) rather than an invented opacity value -- there is
+   no disabled-opacity token in site.css, duostorm.css or design-tokens/
+   dist/tokens.css (the only alpha tokens are --state-layer-* and the aura
+   layers), and a literal here would fail the every-number-traces gate. No hover
+   change: the twin [disabled]:hover selector out-specifies the danger hover tint
+   above (account.css:1023) so a disabled control never goes red under the
+   pointer. cursor is not-allowed, as .plan-cta[disabled] has it. The final
+   Delete everything button wears the same rule while its request is in flight
+   (data.ts:164 disables it), and so does /account/teams' #team-del-confirm from
+   the moment the dialog opens until the team name is typed exactly: "dark until
+   earned" is this one rule. The Cancel buttons are .ghost and are never
+   disabled, so the :not(.ghost) arm leaves them out. */
+.acct-page .acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn)[disabled],
+.acct-page .acct-dialog button:not(.ghost):not(.storm-action):not(.icon-btn)[disabled]:hover{background:var(--canvas);border-color:var(--line);color:var(--muted);cursor:not-allowed}
+/* the dialog's own padding is --sp-5, but the page's last paragraph still
+   carried its --sp-3 bottom margin (account.css:1082), which read as a 32px foot
+   against a 20px head. #acct-del-msg is the last child. */
+.acct-dialog>:last-child{margin-bottom:0}
+/* Motion: ONE entrance, on open -- the dialog fades in while it settles --sp-1
+   upward, and the ::backdrop fades with it (the same open event, so this is one
+   entrance, not two). var(--dur-3) is 200ms, inside the quick band and under the
+   300ms cap, so the deliberate comment design-motion asks for above 300ms is
+   not required here; --ease-std is the
+   standard curve. Transform and opacity only, so nothing lays out. Reopening
+   re-adds [open] and replays it; the exit is the browser's own instant close,
+   deliberately not animated (exits are faster than entrances, and this one is
+   the UA's). No reduced-motion guard by policy: see the block header. */
+dialog.acct-dialog[open]{animation:acct-dialog-in var(--dur-3) var(--ease-std) both}
+@keyframes acct-dialog-in{from{opacity:0;transform:translateY(var(--sp-1))}to{opacity:1;transform:translateY(0)}}
+dialog.acct-dialog[open]::backdrop{animation:acct-dialog-scrim var(--dur-3) var(--ease-std) both}
+@keyframes acct-dialog-scrim{from{opacity:0}to{opacity:1}}
+
+/* ---- shared primitives for the devices/api redesign (2026-09-23) ------------
+   Look plan: --card/--raised/--line surfaces, --fg/--muted ink, one accent
+   (--accent), --font-ui with --font-mono only on keys, URLs and model ids;
+   radii --acct-r-control (8px: controls, rows, chips) and --acct-r-surface
+   (16px: cards, dialogs), with 50% / --acct-r-pill only on dots and pills.
+   Every helper named here lives in shell.ts. */
+
+/* cardHead(): the h2 and its one lede line, an optional action pinned right.
+   Under 560px the head is a two-column grid: the title and the action share
+   the first line (action top-right, never on a line of its own) and the lede
+   takes the full width under both, so it keeps its one line at 320px. */
+.acct-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-3);margin:0 0 var(--sp-4)}
+.acct-card-head-text{flex:1;min-width:0}
+.acct-card-head h2{margin:0 0 var(--sp-1)}
+.acct-card-head .acct-card-lede{margin:0}
+.acct-card-head-action{flex:none;display:flex;gap:var(--sp-2);align-items:center}
+@media (max-width:560px){
+  .acct-card-head{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--sp-3);row-gap:var(--sp-1);align-items:center}
+  .acct-card-head-text{display:contents}
+  .acct-card-head h2{grid-column:1;grid-row:1;margin:0;min-width:0}
+  .acct-card-head-action{grid-column:2;grid-row:1}
+  .acct-card-head .acct-card-lede{grid-column:1 / -1;grid-row:2}
+}
+
+/* fieldHint(): one muted line tucked under its field */
+.acct-page .field-hint{margin:0 0 var(--sp-2);color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs);text-wrap:pretty}
+/* A hint is a sentence: on a phone it reads at the 14px running-copy floor
+   (edge/test/mobile-matrix.test.ts smallCopy gate). */
+@media (max-width:560px),(pointer:coarse){.acct-page .field-hint{font-size:var(--fs-sm);line-height:var(--lh-sm)}}
+
+/* acctDialog(): the shared frame (dialog.acct-dialog above) holding a form.
+   The head row is the title and the visible Close square; labels get their
+   air back (the confirm dialogs zero it). The primary submit is the page's
+   .storm-action, which the confirm-button recipe above now leaves alone. */
+.acct-dialog .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);margin:0 0 var(--sp-2)}
+.acct-dialog .dialog-head h3{margin:0}
+.acct-page .acct-dialog .dialog-close{width:var(--target);height:var(--target);border-radius:var(--acct-r-control)}
+.acct-page .acct-form-dialog form{margin:0}
+.acct-page .acct-form-dialog label{margin-top:var(--sp-3)}
+.acct-page .acct-form-dialog .alert{margin:var(--sp-2) 0 var(--sp-3)}
+.acct-page .acct-form-dialog .acct-dialog-actions{margin-top:var(--sp-5)}
+.acct-page .acct-form-dialog .acct-dialog-actions .ghost{border-radius:var(--acct-r-control)}
+/* dialogAdvanced(): optional fields only, behind one quiet disclosure */
+.acct-dialog .dialog-advanced{margin-top:var(--sp-4);border-top:1px solid var(--line);padding-top:var(--sp-2)}
+.acct-dialog .dialog-advanced summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--target-sm);color:var(--muted);font-size:var(--fs-sm);font-weight:500}
+.acct-dialog .dialog-advanced summary::-webkit-details-marker{display:none}
+.acct-dialog .dialog-advanced summary::after{content:"";width:var(--sp-1);height:var(--sp-1);margin-left:var(--sp-1);border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform var(--dur-2) var(--ease-std)}
+.acct-dialog .dialog-advanced[open] summary::after{transform:rotate(-135deg)}
+.acct-dialog .dialog-advanced summary:hover{color:var(--fg)}
+.acct-dialog .dialog-advanced summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--acct-r-control)}
+
+/* seg(): a fieldset of radios with visible labels, not tabs. The radio is
+   clipped (never display:none, so it stays focusable and in the a11y tree);
+   the label wears the checked state and the focus ring. The checked option's
+   panel shows through :has(), paired by position, up to six options. */
+.acct-page .seg{border:0;margin:0 0 var(--sp-3);padding:0;min-width:0}
+.acct-page .seg>legend{padding:0;margin:0 0 var(--sp-2);color:var(--muted);font-size:var(--fs-sm);font-weight:500}
+.acct-page .seg-opts{display:inline-flex;flex-wrap:wrap;gap:var(--sp-1);padding:var(--sp-1);border:1px solid var(--line);border-radius:var(--acct-r-control);background:var(--canvas)}
+.acct-page .seg-opts>label{position:relative;display:inline-flex;align-items:center;margin:0;min-height:var(--target-sm);padding:0 var(--sp-3);border-radius:var(--acct-r-control);color:var(--muted);font-size:var(--fs-sm);cursor:pointer;transition:color var(--dur-2) var(--ease-std),background-color var(--dur-2) var(--ease-std)}
+.acct-page .seg-opts>label:hover{color:var(--fg)}
+.acct-page .seg-opts>label:has(:checked){background:var(--raised);color:var(--fg)}
+.acct-page .seg-opts>label:has(:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.acct-page .seg input[type="radio"]{position:absolute;width:1px;height:1px;min-height:0;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.acct-page .seg-panels{margin-top:var(--sp-3)}
+.acct-page .seg-panel{display:none}
+.seg:has(.seg-opts>label:nth-child(1) :checked) .seg-panels>.seg-panel:nth-child(1),
+.seg:has(.seg-opts>label:nth-child(2) :checked) .seg-panels>.seg-panel:nth-child(2),
+.seg:has(.seg-opts>label:nth-child(3) :checked) .seg-panels>.seg-panel:nth-child(3),
+.seg:has(.seg-opts>label:nth-child(4) :checked) .seg-panels>.seg-panel:nth-child(4),
+.seg:has(.seg-opts>label:nth-child(5) :checked) .seg-panels>.seg-panel:nth-child(5),
+.seg:has(.seg-opts>label:nth-child(6) :checked) .seg-panels>.seg-panel:nth-child(6){display:block}
+
+/* chip(): a small label chip on the control radius (look plan: chips are 8px) */
+span.chip{min-height:0;line-height:var(--lh-sm);padding:0 var(--sp-2);font-family:var(--font-ui)}
+
+/* liveDot(): connected right now. A solid accent dot, no glow. */
+.live-dot{display:inline-block;flex:none;width:var(--sp-2);height:var(--sp-2);border-radius:50%;background:var(--accent)}
+
+/* statusPill(): one short status word. ok is the accent, wait the warn
+   tone, bad the danger tone, off muted. */
+.status-pill{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:0 var(--sp-2);border:1px solid var(--line);border-radius:var(--acct-r-pill);font-size:var(--fs-xs);line-height:var(--lh-sm);font-weight:500;color:var(--muted)}
+.status-pill[data-tone="ok"]{color:var(--acct-accent-text);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.status-pill[data-tone="wait"]{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.status-pill[data-tone="bad"]{color:var(--danger);border-color:var(--danger-line)}
+
+/* providerRow(): mark | name over source | status | model count | action, on
+   the rows grid. Under 560px the count and action tuck under the name. */
+.acct-page ul.rows li.provider-row{grid-template-columns:var(--acct-row-icon) minmax(0,1fr) auto auto auto}
+.provider-mark{display:grid;place-items:center;width:var(--acct-row-icon);height:var(--acct-row-icon);color:var(--fg)}
+.provider-mark svg,.provider-mark img{display:block;width:100%;height:100%}
+.provider-count{color:var(--muted);font-size:var(--fs-sm);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* vendorMarkSvg() (edge/src/account/vendor-marks.ts): a provider's brand
+   TILE, the desktop rail's treatment: the vendor's app-icon ground with its
+   glyph in the vendor's ink. Radius and glyph keep the desktop tile's own
+   proportion (rail-item.tsx: a 48px tile at --radius-16 carrying a 32px
+   glyph, so a third and two thirds), which at 20px sits under
+   --acct-r-control. The hairline keeps the near-black grounds (openrouter,
+   custom, omlx) readable on the dark card. Brand pairs are asset colours,
+   used for these tiles only and never as chrome. */
+:root {
+  /* Copied verbatim from superbot-desktop packages/tokens/tokens/brand.tokens.json (color.brand.*). */
+  --brand-openai: #ffffff; --brand-openai-ink: #000000;
+  --brand-anthropic: #d97757; --brand-anthropic-ink: #ffffff;
+  --brand-google: #ffffff; --brand-google-ink: #1f1f1f;
+  --brand-xai: #000000; --brand-xai-ink: #ffffff;
+  --brand-meta: #0866ff; --brand-meta-ink: #ffffff;
+  --brand-deepseek: #4d6bfe; --brand-deepseek-ink: #ffffff;
+  --brand-ollama: #ffffff; --brand-ollama-ink: #000000;
+  --brand-omlx: #2c2c2e; --brand-omlx-ink: #ffffff;
+  --brand-lmstudio: #0ea5b7; --brand-lmstudio-ink: #ffffff;
+  --brand-openrouter: #101014; --brand-openrouter-ink: #c8ff00;
+  --brand-custom: #18181b; --brand-custom-ink: #ffffff;
+  /* Gemini's star gradient, copied verbatim from superbot-desktop packages/ui/src/marks/mark-gemini.tsx (Wikimedia Google_Gemini_logo.svg stops). */
+  --brand-google-grad-0: #439ddf; --brand-google-grad-1: #4f87ed; --brand-google-grad-2: #9476c5; --brand-google-grad-3: #bc688e; --brand-google-grad-4: #d6645d;
+}
+.brand-tile{--tile:var(--acct-row-icon);display:inline-grid;place-items:center;flex:none;width:var(--tile);height:var(--tile);border-radius:calc(var(--tile) / 3);box-shadow:inset 0 0 0 1px var(--line);background:var(--brand-custom);color:var(--brand-custom-ink)}
+.brand-tile.sz-16{--tile:16px}
+.brand-tile svg,.provider-mark .brand-tile svg{display:block;width:calc(var(--tile) * 2 / 3);height:calc(var(--tile) * 2 / 3)}
+.brand-tile[data-brand="openai"]{background:var(--brand-openai);color:var(--brand-openai-ink)}
+.brand-tile[data-brand="anthropic"]{background:var(--brand-anthropic);color:var(--brand-anthropic-ink)}
+.brand-tile[data-brand="google"]{background:var(--brand-google);color:var(--brand-google-ink)}
+.brand-tile[data-brand="xai"]{background:var(--brand-xai);color:var(--brand-xai-ink)}
+.brand-tile[data-brand="meta"]{background:var(--brand-meta);color:var(--brand-meta-ink)}
+.brand-tile[data-brand="deepseek"]{background:var(--brand-deepseek);color:var(--brand-deepseek-ink)}
+.brand-tile[data-brand="ollama"]{background:var(--brand-ollama);color:var(--brand-ollama-ink)}
+.brand-tile[data-brand="omlx"]{background:var(--brand-omlx);color:var(--brand-omlx-ink)}
+.brand-tile[data-brand="lmstudio"]{background:var(--brand-lmstudio);color:var(--brand-lmstudio-ink)}
+.brand-tile[data-brand="openrouter"]{background:var(--brand-openrouter);color:var(--brand-openrouter-ink)}
+.brand-tile[data-brand="custom"]{background:var(--brand-custom);color:var(--brand-custom-ink)}
+.brand-tile .brand-grad-0{stop-color:var(--brand-google-grad-0)}
+.brand-tile .brand-grad-1{stop-color:var(--brand-google-grad-1)}
+.brand-tile .brand-grad-2{stop-color:var(--brand-google-grad-2)}
+.brand-tile .brand-grad-3{stop-color:var(--brand-google-grad-3)}
+.brand-tile .brand-grad-4{stop-color:var(--brand-google-grad-4)}
+.acct-page ul.rows li.provider-row .row-title{font-weight:500}
+@media (max-width:560px){
+  .acct-page ul.rows li.provider-row{grid-template-columns:var(--acct-row-icon) minmax(0,1fr) auto;align-items:start}
+  .acct-page ul.rows li.provider-row>.provider-mark{grid-area:1 / 1}
+  .acct-page ul.rows li.provider-row>.row-main{grid-area:1 / 2}
+  .acct-page ul.rows li.provider-row>.provider-count{grid-area:1 / 3;justify-self:end}
+  .acct-page ul.rows li.provider-row>.status-pill{grid-area:2 / 2;justify-self:start}
+  .acct-page ul.rows li.provider-row>.row-action{grid-area:2 / 3;justify-self:end}
+}
+/* The action column is reserved whether or not a row carries a Remove, one
+   icon square wide, and the count holds a "1,234 models" width set right,
+   so every row's status pill and model count share one right edge. */
+@media (min-width:561px){
+  .acct-page ul.rows li.provider-row>.row-action{min-width:max(44px,var(--target));justify-content:flex-end}
+  .acct-page ul.rows li.provider-row>.provider-count{min-width:12ch;text-align:right}
+}
+
+/* /account/api's mono copy fields (#endpoint's base URL and env snippets,
+   #local's address): one unbroken line per value, so a narrow phone scrolls
+   the field instead of splitting a host or a key mid-token. The copy square
+   still copies the whole value. Under 400px they drop to --fs-sm like the
+   recovery code. */
+.acct-page #endpoint .row:has(>.copy-btn)>textarea,.acct-page #local .row:has(>.copy-btn)>textarea{white-space:pre;overflow-wrap:normal;word-break:normal;overflow-x:auto;field-sizing:fixed;scrollbar-width:thin}
+@media (max-width:400px){.acct-page #endpoint .row:has(>.copy-btn)>textarea,.acct-page #local .row:has(>.copy-btn)>textarea{font-size:var(--fs-sm);letter-spacing:0}}
+
+/* ---- mobile-web floors (A1 device matrix, 2026-09-23) ---------------------
+   Touch: the credits meter link was a 20px inline run (24px floor above, via
+   --sp-6); a finger gets --target. The .sb-seg options were a fixed 32px and
+   "7d" was 40 wide: on a coarse pointer each option takes --target both ways,
+   and the thumb follows (it is calc(100% - 4px) of the well). The skeleton
+   row sat in ul.rows's auto grid track, which grew to the row's min-content
+   (icon + 120 + 80 + 60 + gaps) and ran 37px off a 320 screen; min-width:0
+   lets the track hold the column and the bars shrink inside it.
+   Copy: these lines are sentences or labels a reader reads, so on a phone
+   they take the 14px running-copy floor, one rule per class. */
+.acct-page ul.rows li.skel-row{min-width:0}
+.acct-page ul.rows li.skel-row>.skel{min-width:0;max-width:100%}
+@media (pointer: coarse){
+  .acct-page a.acct-meter-link{min-height:var(--target)}
+  .acct-page .sb-seg-opt,.acct-page a.sb-seg-opt{min-height:var(--target);min-width:var(--target)}
+}
+@media (pointer: coarse) and (max-width: 599px), (pointer: coarse) and (orientation: landscape) and (max-height: 500px){
+  .acct-page dd.ov-stat-note{font-size:var(--fs-sm);line-height:var(--lh-sm)}
+  .acct-page p.acct-ar-cap{font-size:var(--fs-sm)}
+  .acct-page .acct-data p.hint{font-size:var(--fs-sm);line-height:var(--lh-sm)}
+}

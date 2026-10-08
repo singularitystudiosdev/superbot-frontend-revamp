@@ -1,0 +1,290 @@
+---
+title: "manage your team's AI agents"
+canonical_url: "https://superbot.gg/enterprise"
+last_updated: "2026-10-08"
+summary: "superbot for teams: one app that holds every member's AI agents to one signed policy, with a budget on each agent and a receipt per install."
+---
+
+> Markdown twin of https://superbot.gg/enterprise (the HTML page is canonical).
+> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+
+[superbot.gg](https://superbot.gg/) / for teams
+
+# manage the agents
+you pay for
+
+agents now pass your best tester.
+**superbot is how you manage them.**
+
+[Download](https://superbot.gg/download) [what it costs](https://superbot.gg/enterprise#pricing)
+
+holds the team key
+
+route
+
+each call goes to [a model you allow](https://superbot.gg/features#endpoints).
+
+api
+
+apps and agents use [one API key](https://superbot.gg/api).
+
+secure
+
+[signed policy](https://superbot.gg/enterprise#policy) stops denied calls.
+
+optimize
+
+[trims context](https://superbot.gg/features#optimizer) on [superbot's turns](https://superbot.gg/features#omni).
+
+team key
+
+[sealed on devices](https://superbot.gg/enterprise#teams), not at the edge.
+
+[90%](https://os-world.github.io/)
+
+of real desktop tasks, done by an agent.
+
+people new to the apps manage 72%.
+[OSWorld-Verified, 2026](https://os-world.github.io/)
+
+98%
+
+of FinOps teams now manage ai spend.
+
+[FinOps Foundation, State of FinOps 2026](https://data.finops.org/)
+
+## one signed policy
+
+one file sets models, tools, caps.
+you sign it and publish it by [API](https://superbot.gg/docs#organizations).
+the edge checks every signature.
+
+{
+  "v": 1,
+  "org_id": "org_4b1e…",
+  "rev": 2,
+  "issued_at": "2026-09-23T18:04:11Z",
+  "prev_sig": "zI5m8bIDrqLs6wHU…",
+  "policy": {
+    "models": {"allow": [
+      "claude-sonnet-5", "gpt-5-mini"
+    ]},
+    "mcp": {
+      "allow": ["github", "linear"],
+      "deny": ["gdrive"]
+    },
+    "rules": {"review-conventions": {
+      "body": "every PR names its test.",
+      "enforce": true
+    }},
+    "spend": {
+      "per_agent_monthly_tokens": 2500
+    },
+    "autonomy": {
+      "auto_run": true, "browser": true
+    }
+  }
+}
+
+- rev 1rev 2200
+- rev 1no prev_sig400 chain_break
+
+exampleeach rev is ed25519-signed on your device.
+the model list sets what the team can call.
+rules bind Claude Code on an admin install.
+
+## held where superbot routes
+
+each rev reaches every Helper.
+each install sends back a receipt.
+
+|                | Claude Code managed file | Codex managed file | every other 24 harnesses |
+| -------------- | ------------------------ | ------------------ | ------------------------ |
+| admin install  | enforced                 | enforced           | relay only               |
+| member install | advisory                 | relay only         | relay only               |
+| models         | locked                   | at the relay       | at the relay             |
+| MCP            | allow and deny           | allowlist          | at the relay             |
+| deny rules     | bypass mode off          | no                 | no                       |
+| network rules  | advisory only            | no                 | no                       |
+| team rules     | admin install only       | no                 | no                       |
+
+1 of 2 devices on rev 2
+
+- harnesslevelrevreported
+- claude-codelevel enforcedrev 2yes
+- codexlevel relayrev 1no
+
+reported receipt {"ok": true,
+"policy_rev": 2, "attested": true,
+"reported_level": "enforced",
+"sha_verified": false}
+
+exampleone of two devices is a rev behind.
+receipts are self-reported, unsigned.
+
+## the agent is a principal
+
+each agent gets its own identity.
+it gets a grant and a monthly cap.
+you mint grants through [the API](https://superbot.gg/docs#organizations).
+
+24ha grant lives this long at most.
+then it is minted again.
+
+- agent_idagt_1c07eb4e3fa53617
+- grant_idagr_224f2c2f33048838
+- expires_at2026-09-13T01:25:50.636Z
+- cap2,500 credits a month per agent
+
+exampleeach grant spends against its agent's cap.
+
+## refused at the door
+
+a denied call reaches no model.
+a denied [MCP server](https://superbot.gg/features#mcp) is dropped.
+both stop before a byte goes out.
+
+at the edge
+
+POST /v1/chat/completions
+  agent agt_1c07eb4e3fa53617
+  403 agent_not_granted
+POST /v1/chat/completions
+  model gpt-5
+  403 model_not_allowed
+  allowed: claude-sonnet-5, gpt-5-mini
+
+examplethis is the same agent after its grant lapsed.
+
+at the Helper's relay
+
+the Helper, building the MCP relay
+  gdrive  org_policy_denied
+  2 servers aggregated
+  1 dropped by org policy
+
+examplesuperbot stops serving the denied server.
+Claude Code also gets it as a deny list.
+an admin install enforces that list.
+
+## the team is a pool, not a copy
+
+invite people by email.
+everyone shares one pool of tools.
+nothing is copied per person.
+
+holds the team key
+
+invite
+
+each email gets one live invite code.
+invites stay below your own role.
+
+pool
+
+it holds [MCP servers](https://superbot.gg/features#mcp), rules and skills.
+each item is tagged with who added it.
+
+team secrets
+
+secrets are sealed with the team key.
+the key is wrapped to each device.
+the edge never holds the key.
+
+role
+
+editors and up hold the team key.
+members get the content only.
+
+content lands the moment you accept.
+team secrets wait for the key.
+a teammate hands it to you.
+
+## super mode
+
+one ask gets [a team of agents](https://superbot.gg/features#super).
+a manager splits it over vendors.
+each leg runs on their own plan.
+
+- modelpaid throughtokens
+- managerClaude Fable 5.1the member's Claude plan9.6k
+- workerClaude Opus 5.5the member's Claude plan3.7k
+- workerGPT-6 Lunatheir ChatGPT plan5.1k
+- workerGrok 4.7the member's own xAI key3.1k
+
+examplethis is one member's run, leg by leg.
+each leg's cost lands on its role.
+
+## what each member gets
+
+each keeps [the whole product](https://superbot.gg/features).
+it runs on their own account.
+your policy covers what we route.
+
+- [super mode](https://superbot.gg/features#super)
+one ask runs a team of agents.
+it spans the plans they pay for.
+- [publish](https://superbot.gg/features#publish)
+apps ship to your Cloudflare or Railway.
+it is your infrastructure, not ours.
+- [sync](https://superbot.gg/features#sync)
+projects, chats, rules and skills sync.
+MCP servers and settings sync too.
+it is all encrypted, desktop to phone.
+- [custom endpoints](https://superbot.gg/features#endpoints)
+add OpenAI- or Anthropic-compatible APIs.
+each endpoint keeps its own key.
+your model allowlist still applies.
+- [media](https://superbot.gg/features#media)
+images run on their ChatGPT plan or keys.
+video and audio run on their own keys.
+- [sessions](https://superbot.gg/features#vault)
+sign-ins are read on the device.
+each shows under Connections, with Unlink.
+- [cloud agents](https://superbot.gg/features#cloud)
+betaagents keep running in the cloud.
+
+## works with what you pay for
+
+the Helper routes eleven harnesses.
+its relay holds policy on that traffic.
+admins lock Claude Code and Codex.
+
+- Claude Code
+- Codex
+- Cursor
+- OpenCode
+- Goose
+- Continue
+- Kilo Code
+- Zed
+- Hermes
+- OpenClaw
+- omp
+
+eleven harnesses are routed today.
+six more get the MCP config only.Copilot CLIWindsurfClineKiroGemini CLIRoo Code
+
+## what it costs
+
+[download the app](https://superbot.gg/download) [contact@ezolabs.io](mailto:contact@ezolabs.io) [read what the endpoints do](https://superbot.gg/developers/teams)
+
+- ### per seat
+Teams is a per-seat plan, billed yearly.
+[see plans and prices](https://superbot.gg/api#pricing)
+- ### trial
+every new account gets a 14-day Pro trial.
+no card, one per account.
+- ### accounts
+each member uses their own account.
+- ### subscriptions
+no markup on their own subscriptions.
+- ### spend
+[AI spend](https://superbot.gg/features#spend) adds up to one number.
+- ### teams
+create a team from your account.
+org policy is invite-only in beta.
+
+[the short version](https://superbot.gg/features#organizations) is on features.
+[the API](https://superbot.gg/api) is for your own code.
+[the reference](https://superbot.gg/developers) lists every endpoint.

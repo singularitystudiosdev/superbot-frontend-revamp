@@ -1,0 +1,42 @@
+/* The product mocks' tap (mock-join.js, 2026-10-05). The mocks look the same at
+   rest: the only marks are the pointer cursor and, once pressed or focused, a
+   ring. Look plan, the page's own tokens (site.css): ink --fg, muted --muted,
+   hairline --line-strong for the press, the one accent --accent for the focus
+   ring (site.css :focus-visible), --font-ui; one radius value is used and it is
+   the sheet's --r-surface by way of the mock's own corners, none is added.
+   Nothing here animates: the press is a state, not a motion, and the sheet it
+   opens carries the motion (signin-sheet.css). No hover state: a hover is not
+   an input, and the cursor already says it. The press is a class (mock-join.js),
+   not :active, so a control inside a mock does not press the mock. */
+
+/* the mock is a control: the pointer cursor, and no 300ms tap flash */
+.mj { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+/* pressed: a hairline ring inside the mock's own edge, painted over it. A ring
+   and not a scale: the hero stage is already scaled by hero-wstop.css, and a
+   scroll that starts on a mock this tall must not make it flinch */
+.mj:not(.mj-svg).is-pressed { outline: 2px solid var(--line-strong); outline-offset: -2px; }
+
+/* focused from the keyboard: the site's ring (site.css :focus-visible), inset
+   so the figure that clips its mock (overflow: clip) keeps it in view */
+.mj:focus-visible { outline-offset: -2px; }
+/* a mock that holds a control gets its key as a hidden child: the ring goes on
+   the whole mock while that key has focus */
+.mj:has(> .mj-key:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* an armed SVG element (the hero diagram's tidy switch): an outline on a <g> would
+   box its whole extent, which browsers paint, so the press ring above skips .mj-svg
+   and the press and the focus are a stroke on the shape the markup names .mj-ring,
+   in the same two inks. The focus comes from the hidden key button that
+   mock-join.js places after the drawing (a <g> cannot take focus inside an
+   aria-hidden <svg>) */
+.mj-svg.is-pressed .mj-ring { stroke: var(--line-strong); stroke-width: 2px; }
+.mj-svg.is-focus .mj-ring { stroke: var(--accent); stroke-width: 2px; }
+
+/* the line the sheet shows when a mock opened it: what the app does there,
+   under the title, over the providers. Muted, one line, centred like the title */
+.sb-sheet-line {
+  margin: 0 0 var(--sp-4); text-align: center; white-space: nowrap;
+  color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm);
+}
+.sb-sheet-line[hidden] { display: none; }

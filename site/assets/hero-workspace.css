@@ -1,0 +1,321 @@
+/* hero-workspace: the lander's `?hero=workspace` option (hero-workspace.js). Two parts:
+   .hw-browser, the ad's first act (a dark browser whose tab strip fills with
+   every agent app), drawn inside hero-sphere's .hs-canvas in its design px so
+   each favicon sits exactly where its sphere tile lifts from; and .hw-card,
+   the ads' black text card over the whole stage once the frontend has shown,
+   with the storm gradient and white shine on "one" (the module writes the
+   card's opacity, each word's rise and the gradient every frame). */
+
+/* ---------- the browser (design px; the module sets width, transform, opacity) ---------- */
+.hero-sphere .hw-browser {
+  --hw-strip: #1b1b1d; --hw-tab: #2a2a2e; --hw-page: #111113; --hw-ink: #e6e8ee; --hw-dim: #9a9ca6;
+  position: absolute; left: 0; top: 0;
+  width: 1536px; height: 864px;
+  transform-origin: 0 0;
+  background: var(--hw-page);
+  font: 500 12px/1 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--hw-ink);
+  overflow: hidden;
+}
+
+/* the strip: 40 px, the favicon row at y 23 (hero-sphere HS.FAV_Y) */
+.hero-sphere .hw-strip { position: absolute; left: 0; top: 0; right: 0; height: 40px; background: var(--hw-strip); }
+.hero-sphere .hw-dot { position: absolute; top: 17px; width: 12px; height: 12px; border-radius: 50%; }
+.hero-sphere .hw-dot:nth-child(1) { left: 16px; background: #ff5f57; }
+.hero-sphere .hw-dot:nth-child(2) { left: 36px; background: #febc2e; }
+.hero-sphere .hw-dot:nth-child(3) { left: 56px; background: #28c840; }
+.hero-sphere .hw-tabs { position: absolute; inset: 0; }
+.hero-sphere .hw-tab {
+  position: absolute; left: 0; top: 6px; height: 34px;
+  border-radius: 9px 9px 0 0;
+  color: var(--hw-dim);
+  white-space: nowrap; overflow: hidden;
+}
+/* the separator between two inactive tabs */
+.hero-sphere .hw-tab::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 8px; width: 1px;
+  background: #3a3b40;
+}
+.hero-sphere .hw-tab.on { background: var(--hw-tab); color: var(--hw-ink); }
+.hero-sphere .hw-tab.on::before, .hero-sphere .hw-tab.on + .hw-tab::before { display: none; }
+.hero-sphere .hw-fav {
+  position: absolute; left: 12px; top: 9px;
+  width: 16px; height: 16px; border-radius: 4px; object-fit: cover; display: block;
+}
+.hero-sphere .hw-tt {
+  position: absolute; left: 36px; right: 28px; top: 11px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.hero-sphere .hw-x { position: absolute; right: 10px; top: 10px; font-size: 13px; color: var(--hw-dim); }
+.hero-sphere .hw-tab[data-size="s"] .hw-x,
+.hero-sphere .hw-tab[data-size="xs"] .hw-x,
+.hero-sphere .hw-tab[data-size="xs"] .hw-tt { display: none; }
+.hero-sphere .hw-tab[data-size="s"] .hw-tt { right: 6px; }
+.hero-sphere .hw-new {
+  position: absolute; left: 0; top: 10px;
+  width: 26px; height: 22px; line-height: 22px; text-align: center;
+  font-size: 18px; color: var(--hw-dim);
+}
+
+/* the toolbar and omnibox */
+.hero-sphere .hw-bar {
+  position: absolute; left: 0; right: 0; top: 40px; height: 44px;
+  background: var(--hw-tab); border-bottom: 1px solid #1f1f22;
+}
+.hero-sphere .hw-nav { position: absolute; top: 14px; font-size: 15px; color: var(--hw-dim); }
+.hero-sphere .hw-nav:nth-child(1) { left: 18px; }
+.hero-sphere .hw-nav:nth-child(2) { left: 46px; }
+.hero-sphere .hw-nav:nth-child(3) { left: 74px; }
+.hero-sphere .hw-omni {
+  position: absolute; left: 110px; right: 110px; top: 7px; height: 30px;
+  border-radius: 15px; background: var(--hw-strip);
+  display: flex; align-items: center; gap: 10px; padding: 0 16px;
+  font-size: 13px; color: var(--hw-ink);
+}
+.hero-sphere .hw-lock {
+  width: 9px; height: 7px; margin-top: 4px; border-radius: 2px; background: var(--hw-dim); position: relative;
+}
+.hero-sphere .hw-lock::before {
+  content: ""; position: absolute; left: 1.5px; top: -5px; width: 4px; height: 5px;
+  border: 1.5px solid var(--hw-dim); border-bottom: 0; border-radius: 3px 3px 0 0;
+}
+
+/* the page: the active tab's app, cut in on every new tab */
+.hero-sphere .hw-page { position: absolute; left: 0; right: 0; top: 84px; bottom: 0; }
+.hero-sphere .hw-app {
+  position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+}
+.hero-sphere .hw-app-icon { width: 72px; height: 72px; border-radius: 24%; object-fit: cover; display: block; }
+.hero-sphere .hw-app-name { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
+.hero-sphere .hw-compose {
+  position: relative; width: 620px; height: 58px; margin-top: 10px;
+  border-radius: 29px; border: 1px solid #3a3b40; background: #19191c;
+  display: flex; align-items: center; padding: 0 24px;
+  font-size: 16px; color: var(--hw-dim);
+}
+.hero-sphere .hw-send {
+  position: absolute; right: 12px; top: 12px; width: 34px; height: 34px;
+  border-radius: 50%; background: #3a3b40;
+}
+.hero-sphere .hw-count {
+  position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%);
+  padding: 9px 16px; border-radius: 999px;
+  background: #1f1f23; border: 1px solid #3a3b40;
+  font-size: 14px; font-variant-numeric: tabular-nums; color: var(--hw-ink);
+  opacity: 0;
+}
+
+/* ---------- the card: black over the stage, the headline centred ---------- */
+.stage .hw-card {
+  position: absolute; inset: 0; z-index: 60;
+  display: grid; place-items: center;
+  background: #000;
+  container-type: size;
+  opacity: 0; visibility: hidden;
+  pointer-events: none;
+}
+.hw-card .hw-title {
+  margin: 0; padding: 0 8%;
+  max-width: 16ch;
+  text-align: center;
+  font-size: clamp(22px, 7.2cqw, 92px);
+  font-weight: 600; line-height: 1.06; letter-spacing: -0.035em;
+  color: #fff;
+  text-wrap: balance;
+}
+/* the words wait for their beat; the module writes each one's rise */
+.hw-card .hw-w { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
+/* "one": a white shine band over the storm gradient (the ad's renderGrads),
+   both clipped to the glyphs; the band draws on top, no-repeat, so it only
+   shows while it sweeps */
+.hw-card .hw-one {
+  padding: 0 0.04em; margin: 0 -0.04em;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.92) 50%, rgba(255, 255, 255, 0) 100%),
+    linear-gradient(90deg, #2b6bff 0%, #7b3cf0 25%, #c026d3 50%, #ff3d9a 75%, #2b6bff 100%);
+  background-repeat: no-repeat, repeat-x;
+  background-size: 0 100%, 300px 100%;
+  background-position: -100px 0, 0 0;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+/* ---------- the ad's HUD discs (hero-workspace.js swapHud(), workspace only) ----------
+   the image disc: an agent whose mark is the app's own icon, not a glyph.
+   hub-boot.css already fills a disc's (and a menu art's) img edge to edge,
+   round and cover (the app's .hud-face > img); here the disc's raised ground
+   is dropped so no fringe shows at the image's edge. Scoped to the workspace
+   host so the shared HUD is untouched. */
+.stage[data-hero-host="workspace"] .hud .hud-disc.logo,
+.stage[data-hero-host="workspace"] .hud .hud-menu-art.logo { background: transparent; }
+
+/* ---------- no phone (2026-09-26, the user: "remove the phone syncing element") ----------
+   The phone mock, its sync beam and its label are not drawn in this arm.
+   hub-handoff.js prepStage reads the phone's display (noPhone), so the beam is
+   never placed and the phone beat never docks: the hub keeps the whole arena
+   at every width, as the phone cut below 640px always did. */
+.stage[data-hero-host="workspace"] .phone,
+.stage[data-hero-host="workspace"] .phone-label,
+.stage[data-hero-host="workspace"] .beam { display: none; }
+
+/* ---------- the story ends on the app's new chat screen (hero-workspace.js newChat()) ----------
+   superbot-desktop hub/new-chat.css + ThreadIdle.tsx variant="hero" +
+   NewChatChips.tsx, at the miniature's em scale: the mark INLINE with a serif
+   greeting on one line at the feed's foot, the composer at mid-pane, the five
+   start chips under it. The feed and the tail under the composer split the
+   lane's free height, as the app's open .new-chat-tail does. */
+.stage[data-hero-host="workspace"] .feed.hw-nc { display: flex; flex-direction: column; justify-content: flex-end; padding: 0 8%; }
+.hw-nc-hero { display: flex; align-items: center; justify-content: center; gap: calc(var(--k) * 16); padding-bottom: 1.6em; min-width: 0; } /* the hero's --size-hero-mark box and its 16 gap to the greeting (new-chat.css) */
+.hw-nc-mark { flex: none; width: calc(var(--k) * 48); height: calc(var(--k) * 48); display: block; }
+.hw-nc-greet { margin: 0; min-width: 0; font: 400 calc(var(--k) * 32) / calc(var(--k) * 36) var(--font-serif); letter-spacing: calc(var(--k) * -0.85); color: var(--fg); text-wrap: balance; } /* --text-display: the serif at 32 on a 36 line, -0.85px */
+.hw-nc-greet span { white-space: nowrap; }
+.hw-nc-tail { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.hw-nc-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: calc(var(--k) * 8); padding: .6em 8% 0; }
+.hw-nc-chip { display: inline-flex; align-items: center; gap: calc(var(--k) * 8); min-height: calc(var(--k) * 36.65); padding: 0 calc(var(--k) * 16); border: 0; border-radius: var(--radius-8); background: var(--raised); color: var(--fg); font-size: calc(var(--k) * 13); white-space: nowrap; } /* NewChatChips: 36.65 tall at the 8 radius on the raised fill, a 16 glyph and 13px label */
+.hw-nc-chip svg { flex: none; width: calc(var(--k) * 16); height: calc(var(--k) * 16); }
+/* New chat draws no open state: the app's ghost row (hub.css
+   .hub-side-new-chat-item, 72d19defd) has hover and press only, and the
+   [aria-expanded] pressed paint the outlined row held is gone, so the empty chat
+   leaves the row as it rests (the base ghost row, hub-boot.css .row.new) */
+/* the empty chat's context reading is the ContextRing's aria-label alone
+   (hero-workspace.js NEW_CHAT_CTX): the Superbot thread state draws no footer
+   line, so there is no bar or detail clause left to size here */
+/* a narrow seat (new-chat.css @container thread-column <= 560px): the
+   greeting steps down to the headline size and the mark with it */
+@container stage (max-width: 820px) {
+  .hw-nc-hero { gap: .8em; padding-bottom: 1.2em; }
+  .hw-nc-mark { width: 2.4em; height: 2.4em; }
+  .hw-nc-greet { font-size: 1.6em; }
+}
+/* a phone's stage: the greeting stays ONE line for its longest bucket
+   ("Good afternoon. Where do we go?"), so the type follows the stage width
+   (cqi, the stage container) under a 1.35em cap and the feed gives back its
+   8% gutters; the per-sentence spans only break it on a seat narrower still.
+   Measured 2026-09-26: the line is 14.97em wide and has the stage less 61px
+   (the hub's insets, these gutters, the mark and its gap), so /16 against
+   the stage less 64px keeps ~7% of slack for a wider serif, the 16.2px cap
+   from ~390 up. The type floor (--fs-sm, 14px) holds under it: 13.9px at a
+   320px viewport becomes 14px, and the line still fits with ~6% to spare */
+@container stage (max-width: 480px) {
+  .stage[data-hero-host="workspace"] .feed.hw-nc { padding: 0 var(--sp-2); }
+  .hw-nc-hero { gap: .6em; }
+  .hw-nc-mark { width: 2em; height: 2em; }
+  .hw-nc-greet { font-size: max(var(--fs-sm), min(1.35em, calc((100cqi - 64px) / 16))); }
+  .hw-nc-chips { gap: .4em; padding: .5em 10px 0; }
+  .hw-nc-chip { min-height: 0; padding: .35em .75em; }
+}
+/* the mock's type floor on a touch surface (hub-boot.css's coarse block):
+   the chip labels are the reader's text there, not a scaled picture */
+@media (pointer: coarse) and (max-width: 1400px) {
+  #hub .hw-nc-chip { font-size: 12px; line-height: 16px; }
+}
+
+/* ---------- the sidebar's two lanes (hero-workspace.js sidebarLanes()) ----------
+   Each lane's list is its own panel between the tabs and the account bar; it
+   clips under the bar the way the app's list scrolls under its footer. */
+.stage[data-hero-host="workspace"] .hw-lane { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.stage[data-hero-host="workspace"] .hw-lane[hidden] { display: none; }
+/* the switch as buttons: the rail tiles' look kept (hub-boot.css .rail-tile
+   already gives the pointer, the hover and the focus ring), and a hit area
+   grown from the tile's middle up to --target-sm (28px on a mouse, 44px under
+   a coarse pointer) when the tile itself is smaller; it never shrinks below
+   the tile (the two areas meet across the 6px gap and the later one takes the
+   overlap) */
+.stage[data-hero-host="workspace"] .rail button.rail-tile { position: relative; }
+.stage[data-hero-host="workspace"] .rail button.rail-tile::before { content: ""; position: absolute; inset: min(0px, calc((100% - var(--target-sm)) / 2)); }
+/* the vendor tiles the new rows wear, on the brand grounds the HUD's own
+   discs use (hub-boot.css --brand-*): ChatGPT's white tile, Cursor's black
+   one, and Devin, which has no brand ground here, on the raised tile */
+.chats .row .sp.app-openai, .chats .row .sp.app-cursor, .chats .row .sp.app-devin { border-radius: calc(var(--r-control) / 2); box-shadow: inset 0 0 0 1px var(--line); }
+.chats .row .sp.app-openai { background: var(--brand-openai); color: var(--brand-openai-ink); }
+.chats .row .sp.app-cursor { background: var(--brand-cursor); color: var(--brand-cursor-ink); }
+.chats .row .sp.app-devin { background: var(--raised); color: var(--fg); }
+.chats .row .sp.hw-git { background: transparent; color: var(--muted); }
+
+/* ---------- the Code lane, the flat project list (superbot-desktop spec §15.530; Sidebar.tsx .hub-side-new-project, ProjectRows.tsx, project-rows.css) ----------
+   One ghost 'New project' row (no border or fill, a FolderPlus; no Import), then ONE
+   row per project, newest first, no date headers: [mark][name]......[count pill].
+   Nothing nests while a project is shut. The open project (one at a time) shows its
+   chats, five at most, one muted line each on the name's column under a faint guide
+   line down the mark's axis, and its pill is a small up chevron. The selected project
+   wears the soft active fill and a 2px accent bar on its leading edge; a running one
+   a still accent dot and muted 'Running 4:20' (the UI face, tabular figures, never
+   mono) in the status seat before the pill. Two radii: --radius-8 on the row fill,
+   --r-pill on the pill, the chevron's disc and the bar. Every row's first glyph shares
+   the 16px mark column at the rows' 8px pad. The row is a button (a press opens a shut
+   project, hero-workspace.js sidebarLanes), so it carries the hub's pointer and the
+   rail tiles' focus ring and nothing else: the app's hover wash is not drawn here. */
+.stage[data-hero-host="workspace"] .chats .row.hw-newproj { margin: calc(var(--k) * 4) calc(var(--k) * 16) 0 calc(var(--k) * 8); border: 0; background: transparent; font: 500 calc(var(--k) * 13) / calc(var(--k) * 19) var(--ui); color: var(--muted); }
+.hw-newproj .nc-mark { flex: none; display: grid; place-items: center; width: calc(var(--k) * 16); height: calc(var(--k) * 16); font-style: normal; }
+.hw-newproj .nc-mark svg { width: calc(var(--k) * 16); height: calc(var(--k) * 16); }
+.stage[data-hero-host="workspace"] .hw-proj { display: flex; flex-direction: column; }
+.stage[data-hero-host="workspace"] .chats .row.hw-proj-head { padding: 0 calc(var(--k) * 8); border: 0; border-radius: var(--radius-8); background: transparent; font: 500 calc(var(--k) * 13) / calc(var(--k) * 19) var(--ui); text-align: left; cursor: pointer; appearance: none; }
+.stage[data-hero-host="workspace"] .chats .row.hw-proj-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.chats .row.hw-proj-head .sp { width: calc(var(--k) * 16); height: calc(var(--k) * 16); }
+.chats .row.hw-proj-head .sp.hw-git svg { width: 13px; height: 13px; }
+.stage[data-hero-host="workspace"] .row.hw-proj-head .t { flex: 1 1 auto; color: var(--fg); font-weight: 600; }
+.stage[data-hero-host="workspace"] .chats .row.hw-proj-head.sel { background: color-mix(in srgb, var(--fg) 14%, transparent); } /* --overlay-row-active: fg at 14% */
+.stage[data-hero-host="workspace"] .row.hw-proj-head.sel::after { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: var(--r-pill); background: var(--accent); }
+.stage[data-hero-host="workspace"] .row.hw-proj-head em.hw-run { flex: none; display: inline-flex; align-items: center; gap: 4px; margin-left: 0; font: 400 calc(var(--k) * 11) / calc(var(--k) * 16) var(--ui); font-variant-numeric: tabular-nums; color: var(--muted); }
+.hw-run > i { flex: none; width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--accent); }
+/* the trail: the chat-count pill on a shut row (the 20px floor, the caption step, the raised
+   ground), the small up chevron in its 24px disc on the open one */
+.hw-trail { flex: none; display: inline-flex; align-items: center; }
+.hw-pill { min-width: calc(var(--k) * 20); height: calc(var(--k) * 16); padding: 0 calc(var(--k) * 6); border-radius: var(--r-pill); background: var(--raised); color: var(--muted); font: 400 calc(var(--k) * 11) / calc(var(--k) * 16) var(--ui); font-variant-numeric: tabular-nums; text-align: center; }
+.hw-up { display: none; place-items: center; width: calc(var(--k) * 24); height: calc(var(--k) * 24); border-radius: var(--r-pill); background: var(--raised); color: var(--muted); font-style: normal; }
+.hw-up svg { width: calc(var(--k) * 14); height: calc(var(--k) * 14); }
+.hw-proj.open > .row.hw-proj-head .hw-pill { display: none; }
+.hw-proj.open > .row.hw-proj-head .hw-up { display: grid; }
+@media (hover: hover) { .stage[data-hero-host="workspace"] .row.hw-proj-head:hover .hw-pill, .stage[data-hero-host="workspace"] .row.hw-proj-head:hover .hw-up { color: var(--fg); } }
+/* the open project's chats: one line each, the title on the name's column (8 pad + 16 mark + 8 gap),
+   the date on the right, a 1px guide down the mark's axis (8 margin + 8 pad + half the mark) */
+.hw-proj-chats { display: none; position: relative; }
+.hw-proj.open > .hw-proj-chats { display: block; animation: hw-chats-in 150ms cubic-bezier(0.2, 0, 0, 1); }
+@keyframes hw-chats-in { from { opacity: 0; } }
+.hw-proj-chats::before { content: ""; position: absolute; left: calc(var(--k) * 24); top: calc(var(--k) * 2); bottom: calc(var(--k) * 2); width: 1px; background: var(--line-strong); opacity: .6; }
+.stage[data-hero-host="workspace"] .hw-proj-chats .row.chat { padding-left: calc(var(--k) * 32); }
+.stage[data-hero-host="workspace"] .hw-proj-chats .row.chat .t { color: var(--secondary); }
+.stage[data-hero-host="workspace"] .hw-proj-chats .row.chat em { flex: none; padding-left: 6px; font: .82em/1 var(--ui); font-variant-numeric: tabular-nums; color: var(--muted); }
+/* the tab strip's "N tabs open" pill (.hero-sphere .hw-count above) has
+   always taken these from the unscoped rule the old project count pill
+   shared with it; kept so the browser act draws exactly as before */
+.hw-count { flex: none; min-width: 16px; margin-left: 6px; padding: 0 4px; border-radius: var(--r-pill); background: var(--raised); color: var(--muted); font: 500 .75em/14px var(--font-mono); text-align: center; }
+
+/* ---------- the account footer, one row (superbot-desktop fa679ec97, v00-crisper) ----------
+   On the sidebar's own ground under a hairline, no card: [avatar][address]
+   ......[gear]. The tier line, Invite, Report a bug, More and UPGRADE live
+   in the app's account popover now, so they are not drawn. */
+.stage[data-hero-host="workspace"] .acct .acct-plan,
+.stage[data-hero-host="workspace"] .acct .acct-tool.invite,
+.stage[data-hero-host="workspace"] .acct .acct-tool.bug,
+.stage[data-hero-host="workspace"] .acct .acct-tool.more,
+.stage[data-hero-host="workspace"] .acct .upg { display: none; }
+.stage[data-hero-host="workspace"] .acct .acct-tool.settings { background: transparent; border-color: transparent; }
+
+/* ---------- a tablet's stage keeps the sidebar in this arm ----------
+   Below a 900px viewport or an 820px stage the shared hub folds its sidebar
+   into a HUD header (hub-boot.css breakpoints), which leaves no Chat | Code
+   to press. From a 700px stage up this arm keeps the column: the lane rail
+   (its two tiles are the live Chat | Code tabs, hero-workspace.js
+   sidebarLanes) and the full 240 app px sidebar back, 312 in all (hub-boot.css --side-track), the lists
+   clipping under the account bar. Phones keep the header cut. */
+@container stage (min-width: 700px) {
+  .stage[data-hero-host="workspace"] .hub { grid-template-columns: var(--side-track) minmax(0, 1fr); grid-template-rows: none; }
+  .stage[data-hero-host="workspace"] .hub > .side { grid-template-columns: var(--rail-w) minmax(0, 1fr); }
+  .stage[data-hero-host="workspace"] .rail { display: flex; }
+  .stage[data-hero-host="workspace"] .side .chats { display: flex; }
+  .stage[data-hero-host="workspace"] .side .hud { padding: calc(var(--k) * 30) calc(var(--k) * 4) calc(var(--k) * 12) calc(var(--k) * 16); box-shadow: none; }
+  .stage[data-hero-host="workspace"] .hud-text { flex-direction: column; align-items: stretch; gap: calc(var(--k) * 4); }
+  .stage[data-hero-host="workspace"] .hud .hud-menu { top: calc(100% - 1.8em); }
+  .stage[data-hero-host="workspace"] .hub > .main { margin-left: var(--gutter); }
+  .stage[data-hero-host="workspace"] .hub > .main::before { display: block; }
+  .stage[data-hero-host="workspace"] .chat-head { --head-r: calc(var(--k) * 149); }
+}
+@container stage (min-width: 700px) and (max-width: 820px) {
+  /* the stepped-in column's own trade (hub-boot.css .hub.slim): the rows
+     give up their stamps so a title reads rather than "checko…"; a running
+     project keeps its status, the row's live fact (project-rows.css: the
+     stamp yields, never the running status) */
+  .stage[data-hero-host="workspace"] .hw-lane .row em:not(.hw-run) { display: none; }
+}

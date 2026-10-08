@@ -1,0 +1,446 @@
+/* hero-wschat-chat.css: the chat beat's thread (hero-wschat-chat.js).
+   Desktop MAIN's thread anatomy in main's own CSS px (the 1200px-wide design box
+   the hero scales once, hero-wschat-frontend.js DESIGN_W). Values cite /tmp/sbd-main.7580bba1 and the live
+   capture .tmp/hero-ref.7580bba1/main/dom/thread-streaming.json. Tokens are
+   main's dark scheme (packages/tokens/tokens/color.tokens.json), held locally
+   so the beat never depends on the page's own --color-* names.
+   Every animated value is written by render(t); nothing here keyframes, so
+   the beat scrubs. No reduced-motion guard (project rule). */
+
+.hwc {
+  --hwc-fg: #e6e8ee;
+  --hwc-fg-2: #c9ccd4;
+  --hwc-muted: #aeb1bc;
+  --hwc-bg: #0d0d0d;
+  --hwc-raised: #1a1a1c;
+  --hwc-line: #1e1e21;
+  --hwc-line-strong: #3a3b40;
+  --hwc-line-control: #6b6f76;
+  --hwc-accent: #2b6bff;
+  --hwc-ok: #23a559;
+  --hwc-ui: "SF Pro Rounded", ui-rounded, Inter, system-ui, sans-serif;
+  --hwc-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --hwc-shimmer-base: .55;            /* overlay.switch-shimmer-base */
+
+  /* The thread is main's scroll viewport: the feed's whole padding box
+     (.hub-feed scrolls under its own 16px padding, hub-chat.css:100-124), so
+     the box reaches up over the feed's top padding and carries main's 24px
+     scroll-edge fade there; its bottom stays 16 above the composer, where
+     main's pinned content ends. render(t) scrolls the column inside it
+     (the bottom pin, following the newest content from the send on: see
+     hero-wschat-chat.js target()). */
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  margin-top: calc(-1 * var(--hwc-top, 16px));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  zoom: var(--hwc-zoom, 1);
+  font-family: var(--hwc-ui);
+  font-size: 15px;                    /* --size-chat-font-size */
+  line-height: 20px;
+  color: var(--hwc-fg);
+  -webkit-font-smoothing: antialiased;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* the thread column, measured off main/dom/thread.json (a 1091 box; the rule holds at any
+   width, and in the 1200 box's 880 pane the same 600 column centres the same way): .hub-feed
+   is the pane's full 843.7 with padding 16 and `scrollbar-gutter: stable`
+   (hub-chat.css:100-111, an 8px gutter on the right); every row is capped at
+   --size-measure 600 and centred in what is left (x 365.9..965.9, so 117.9 in
+   from the pane's left, 125.8 from its right). The composer stays at 736
+   (768 - 2 x 16), centred on the whole pane, so the thread reads narrower. */
+.hwc {
+  padding-inline-end: var(--hwc-gutter, 8px);
+  box-sizing: border-box;
+}
+.hwc-in {
+  position: relative;                 /* the rows' offsetTop origin (render's measure) */
+  flex: none;
+  width: 100%;
+  max-width: calc(var(--hwc-measure, 600px) + 2 * var(--hwc-pad, 16px));
+  margin: 0 auto;                     /* the column's top; render(t) scrolls it */
+  padding: 0 var(--hwc-pad, 16px);
+  box-sizing: border-box;
+  display: flow-root;
+  will-change: transform;
+}
+
+/* a zero-specificity reset, so the answer line's own margin (below) wins */
+.hwc :where(p) { margin: 0; }
+.hwc img { display: block; }
+
+/* ---- date divider: my-16, gap 8, caption 500 muted; chip pill raised px 8 py 4 */
+.hwc-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--hwc-muted);
+}
+.hwc-date-line { flex: 1 1 0; min-width: 0; height: 1px; background: var(--hwc-line); }
+.hwc-date-chip { white-space: nowrap; border-radius: 9999px; background: var(--hwc-raised); padding: 4px 8px; }
+
+/* ---- message rows: py 2 (message-row.tsx) */
+.hwc-row { position: relative; padding: 2px 0; }
+/* the assistant row sits 24 under the ask (main/dom/thread.json: user row ends
+   148.7, assistant row starts 172.7) */
+.hwc-bot { margin-top: 24px; }
+
+/* user: bubble variant, right, max min(85%,75ch), radius 16, raised, px 16 py 4.
+   The sent ask rises in place (the apps' Rise motion, their default): render(t) writes this
+   row's opacity and translateY over the 450ms after the send beat and clears both at rest;
+   nothing here keyframes or transitions, so the beat scrubs. */
+.hwc-user { display: flex; justify-content: flex-end; }
+.hwc-bubble {
+  display: block;
+  max-width: min(85%, 75ch);
+  border-radius: 16px;
+  background: var(--hwc-raised);
+  padding: 4px 16px;
+}
+
+/* text-body 13/19 400 (markdown-para) */
+.hwc-p { font-size: 13px; line-height: 19px; font-weight: 400; color: var(--hwc-fg); }
+
+/* assistant: prose variant, no avatar; blocks stack 8 apart (markdown gap-8) */
+.hwc-prose { display: flex; flex-direction: column; align-items: stretch; }
+.hwc-sw[data-head='think'] { margin-top: 8px; }  /* live: mt-8 under the thinking line (Thread.tsx:2503) */
+.hwc-say, .hwc-slot, .hwc-cap { margin-top: 8px; }
+
+/* ---- the thought: live, the apps' thought bubble (Spotlight look); settled,
+   its step row. The two share one grid cell so the settle folds one into the
+   other in place (render(t) closes the cell's height). The sonar trace's
+   figures and lanes are not drawn (owner, 2026-09-27). */
+.hwc-think {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  width: 100%;
+  max-width: 600px;                   /* --size-measure */
+  padding-inline-end: 10px;           /* --size-status-sm */
+  box-sizing: border-box;
+  font-family: var(--hwc-ui);
+}
+.hwc-think > * { grid-area: 1 / 1; min-width: 0; }
+
+/* the bubble: raised ground, the bubble radius 16 (the ask's own), px 12 py 8,
+   the label line over a three-line window of the thought */
+.hwc-tb {
+  border-radius: 16px;
+  background: var(--hwc-raised);
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+.hwc-tb-head {
+  display: flex;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 19px;
+  white-space: nowrap;
+  color: var(--hwc-muted);
+}
+.hwc-sonar-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;                   /* --text-title--font-weight */
+  color: var(--hwc-fg-2);
+}
+.hwc-tb-sep { white-space: pre; color: var(--hwc-muted); }
+.hwc-tb-clock { flex: none; font-family: var(--hwc-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.hwc-tb-win {
+  margin-top: 4px;
+  height: calc(3 * 19px);             /* TB_LINES x TB_LH */
+  overflow: hidden;
+}
+.hwc-tb-text {
+  position: relative;                 /* the words' offsetTop origin (their line ranks) */
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 400;
+  color: var(--hwc-fg);
+  will-change: transform;
+}
+
+/* the activity line: "Thought 3s" in the muted ink and one chevron, one line
+   with an ellipsis */
+.hwc-thought {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 19px;
+  font-size: 13px;
+  line-height: 19px;
+  white-space: nowrap;
+}
+.hwc-thought-check { flex: none; width: 12px; height: 12px; margin-inline-end: 8px; color: var(--hwc-muted); }
+.hwc-thought-open { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--hwc-muted); }
+/* ---- the provider switch (provider-switch.tsx:143-257, provider-switch.css) */
+.hwc-sw { display: flex; min-width: 0; max-width: 100%; flex-direction: column; align-items: flex-start; gap: 8px; }
+
+/* pill: h 32, pl 6 pr 12, gap 8, pill radius, raised, hairline, 13/19 600 */
+.hwc-pill {
+  display: inline-flex;
+  height: 32px;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  border-radius: 9999px;
+  border: 1px solid var(--hwc-line);
+  background: var(--hwc-raised);
+  padding: 0 12px 0 6px;
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.hwc-pill-tile,
+.hwc-who-tile { flex: none; width: 20px; height: 20px; border-radius: 8px; object-fit: cover; overflow: hidden; }
+.hwc-pill-label { min-width: 0; overflow: hidden; color: var(--hwc-fg); }
+.hwc-sweep, .hwc-mask, .hwc-ink { display: block; }
+.hwc-ink { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* the switching line's travelling alpha mask (render(t) slides sweep + ink) */
+.hwc-pill:not([data-check='true']) .hwc-mask {
+  margin-inline-start: -250%;
+  padding-inline-start: 250%;
+  -webkit-mask-image: linear-gradient(to right,
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)),
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)),
+    #000,
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)),
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)));
+  mask-image: linear-gradient(to right,
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)),
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)),
+    #000,
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)),
+    rgb(0 0 0 / var(--hwc-shimmer-base)), rgb(0 0 0 / var(--hwc-shimmer-base)));
+  -webkit-mask-size: 250% auto;
+  mask-size: 250% auto;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-origin: content-box;
+  mask-origin: content-box;
+  -webkit-mask-position: right;
+  mask-position: right;
+}
+
+/* 16px status slot: the spinner stacked on the check */
+.hwc-status { position: relative; flex: none; width: 16px; height: 16px; }
+.hwc-status svg { position: absolute; inset: 0; width: 16px; height: 16px; }
+.hwc-spin { color: var(--hwc-muted); }
+.hwc-check { color: var(--hwc-ok); opacity: 0; }
+
+/* nest: ml 35 (--size-switch-nest), gap 6; rail 1px line at 17px from the pill's left */
+.hwc-nest {
+  position: relative;
+  margin-left: 35px;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  align-self: stretch;
+}
+.hwc-nest::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  bottom: 0;
+  left: -18.5px;                      /* 17 - 35 - 1/2 */
+  width: 1px;
+  background: var(--hwc-line);
+}
+
+/* who: 20 tile r8, label 13/19 600 fg, caption 11/16 500 muted */
+.hwc-who { display: flex; min-width: 0; max-width: 100%; align-items: center; gap: 8px; white-space: nowrap; height: 20px; }
+.hwc-who-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; line-height: 19px; font-weight: 600; color: var(--hwc-fg); }
+.hwc-who-sub, .hwc-cap { flex: none; font-size: 11px; line-height: 16px; font-weight: 500; color: var(--hwc-muted); }
+/* the reply's ONE footer caption (ReplyFooter.tsx: the outcome "12s · 5 steps", muted caption
+   ink on the message column's text edge, no chip, no "Worked for"); it opens with the settle */
+.hwc-cap { display: block; align-self: flex-start; white-space: nowrap; }
+
+/* ---- the picture's slot: while live main's generating square (w-full max
+   --size-image-max, square, r8, hairline, raised: provider-switch.tsx:239),
+   settled the image card (image-card.tsx:145-180: r8, hairline, raised, the
+   picture at its natural aspect under .sb-image's max-height). One box, sized
+   by render(t) (the image-max cap taken at the hero's box), so the square
+   resolves into the picture in place: the picture is laid out and painted
+   under the opaque placeholder, which fades off it. */
+.hwc-slot {
+  position: relative;
+  max-width: 100%;
+  align-self: flex-start;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--hwc-line);
+  background: var(--hwc-raised);
+  box-sizing: border-box;
+}
+.hwc-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hwc-gen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--hwc-raised);
+}
+.hwc-gen-band { position: absolute; inset: 0; overflow: hidden; }
+.hwc-gen-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250%;                        /* --size-switch-shimmer-span */
+  height: 100%;
+  background-image: linear-gradient(to right, transparent, transparent,
+    color-mix(in oklch, var(--hwc-fg) 12%, transparent), transparent, transparent); /* overlay.switch-band .12 */
+}
+/* chip: bottom 8 left 8, h 24, gap 6, pill, hairline, bg, pr 8 pl 4, caption 600 */
+.hwc-gen-chip {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: inline-flex;
+  height: 24px;
+  box-sizing: border-box;
+  max-width: 100%;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid var(--hwc-line);
+  background: var(--hwc-bg);
+  padding: 0 8px 0 4px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--hwc-fg);
+}
+.hwc-gen-tile { flex: none; width: 16px; height: 16px; border-radius: 9999px; object-fit: cover; }
+
+/* ---- the answer lead (p[data-slot=answer-lead], thread.json): 22/28 500; its
+   line streams over the reserved rest of itself */
+.hwc-say { font-size: 22px; line-height: 28px; font-weight: 500; letter-spacing: -0.4px; color: var(--hwc-fg); }
+.hwc-say-hid { visibility: hidden; }
+/* typing caret: ml 2, 16 tall, --size-caret 2 wide, down 2, pill, fg */
+.hwc-caret { display: inline-block; width: 2px; height: 16px; margin-left: 2px; transform: translateY(2px); border-radius: 9999px; background: var(--hwc-fg); vertical-align: baseline; }
+
+/* ---- the later asks (hero-wschat-chat-more.js): the ad's scrape and
+   burger turns in the same anatomy as turn 1 (bubble, switch pill + nested
+   who, answer lead), their tool rows as main's switch pill at the tool size.
+   Every node is laid out from the start; render(t) writes opacity only, so the
+   column's geometry never moves under the scroll marks. */
+.hwc-turn { margin-top: 24px; }
+.hwc-sw + .hwc-sw { margin-top: 8px; }
+.hwc-sbtile { display: inline-grid; place-items: center; background: #000; border: 1px solid var(--hwc-line-strong); box-sizing: border-box; }
+.hwc-sbtile img { width: 12px; height: 12px; }
+.hwc-beat { margin-top: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+
+/* tool row: h 28, the switch pill's grammar at the caption size */
+.hwc-tool {
+  display: inline-flex; align-items: center; gap: 8px; height: 28px; box-sizing: border-box;
+  border-radius: 9999px; border: 1px solid var(--hwc-line); background: var(--hwc-raised);
+  padding: 0 12px 0 6px; font-size: 13px; line-height: 19px; font-weight: 500; color: var(--hwc-fg-2); white-space: nowrap;
+}
+.hwc-tool-n {
+  margin-left: 2px; padding: 0 8px; border-radius: 9999px; background: var(--hwc-line-strong);
+  font: 600 11px/18px var(--hwc-mono); font-variant-numeric: tabular-nums; color: var(--hwc-fg);
+}
+.hwc-tool[data-done='true'] .hwc-tool-n { background: color-mix(in oklch, var(--hwc-ok) 22%, transparent); color: #3ddc84; }
+
+/* subreddit pills: h 26, the reddit tile, a mono count that reserves its width */
+.hwc-subs { display: flex; flex-wrap: wrap; gap: 6px; }
+.hwc-sub {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; box-sizing: border-box; padding: 0 4px 0 4px;
+  border-radius: 9999px; border: 1px solid var(--hwc-line); background: var(--hwc-raised);
+  font-size: 12px; line-height: 16px; font-weight: 600; color: var(--hwc-fg-2); white-space: nowrap;
+}
+.hwc-sub img { width: 16px; height: 16px; border-radius: 9999px; }
+.hwc-sub b {
+  min-width: 3ch; text-align: right; padding: 1px 6px; border-radius: 9999px; background: var(--hwc-line-strong);
+  font: 600 11px/16px var(--hwc-mono); font-variant-numeric: tabular-nums; color: var(--hwc-muted);
+}
+.hwc-sub[data-on='true'] { border-color: rgba(255, 69, 0, .55); color: var(--hwc-fg); }
+.hwc-sub[data-on='true'] b { background: rgba(255, 69, 0, .16); color: #ff8a5c; }
+
+/* the DoorDash order card (the ad's ports.css .dd-card, on main's ground and type scale) */
+.hwc-dd {
+  position: relative; width: min(420px, 100%); margin-top: 4px; border-radius: 12px; overflow: hidden;
+  background: var(--hwc-bg); border: 1px solid var(--hwc-line-strong); box-sizing: border-box; color: var(--hwc-fg);
+}
+.hwc-dd-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--hwc-line); font-size: 12px; line-height: 16px; }
+.hwc-dd-head img { width: 20px; height: 20px; border-radius: 6px; }
+.hwc-dd-head b { font-weight: 600; }
+.hwc-dd-tag { margin-left: auto; padding: 0 8px; border-radius: 9999px; background: var(--hwc-raised); color: var(--hwc-fg-2); font-size: 11px; line-height: 18px; font-weight: 600; }
+.hwc-dd-photo { position: relative; height: 96px; overflow: hidden; background: #fff; border-bottom: 1px solid var(--hwc-line); }
+.hwc-dd-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 52%; }
+.hwc-dd-place {
+  position: absolute; left: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px;
+  border-radius: 9999px; background: rgba(0, 0, 0, .72); color: #fff; font-size: 11px; line-height: 16px; font-weight: 600;
+}
+.hwc-dd-place i { display: inline-flex; align-items: center; gap: 2px; font-style: normal; color: #ffd166; }
+.hwc-dd-place i svg { width: 10px; height: 10px; fill: currentColor; }
+.hwc-dd-place em { font-style: normal; color: var(--hwc-fg-2); font-weight: 500; }
+.hwc-dd-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--hwc-line); }
+.hwc-dd-thumb { flex: none; width: 36px; height: 36px; border-radius: 8px; background: #fff 50% 55% / 150% auto no-repeat; }
+.hwc-dd-meta { min-width: 0; flex: 1; }
+.hwc-dd-meta b { display: block; font-size: 13px; line-height: 19px; font-weight: 600; }
+.hwc-dd-meta small { display: block; font-size: 11px; line-height: 16px; color: var(--hwc-muted); }
+.hwc-dd-qty { font-size: 11px; line-height: 16px; font-weight: 600; color: var(--hwc-muted); }
+.hwc-dd-price { font-size: 13px; line-height: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hwc-dd-fees { padding: 6px 12px 8px; border-bottom: 1px solid var(--hwc-line); font-size: 12px; line-height: 17px; color: var(--hwc-muted); font-variant-numeric: tabular-nums; }
+.hwc-dd-fees > div { display: flex; justify-content: space-between; }
+.hwc-dd-fees .hwc-dd-total { margin-top: 4px; padding-top: 4px; border-top: 1px dashed var(--hwc-line-strong); font-size: 13px; line-height: 19px; font-weight: 700; color: var(--hwc-fg); }
+.hwc-dd-addr { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.hwc-dd-pin { flex: none; width: 24px; height: 24px; border-radius: 9999px; background: rgba(255, 48, 8, .14); color: #ff3008; display: grid; place-items: center; }
+.hwc-dd svg:not(.hwc-dd-check):not(.hwc-dd-bag) { width: 12px; height: 12px; }
+.hwc-dd-where { min-width: 0; flex: 1; }
+.hwc-dd-where b { display: block; font-size: 12px; line-height: 16px; font-weight: 600; }
+.hwc-dd-where small { display: block; font-size: 11px; line-height: 16px; color: var(--hwc-muted); }
+.hwc-dd-eta {
+  --lit: 0; flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px;
+  font-size: 11px; line-height: 16px; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, rgba(52, 211, 153, .16) calc(var(--lit) * 100%), var(--hwc-raised));
+  color: color-mix(in srgb, #34d399 calc(var(--lit) * 100%), var(--hwc-muted));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, rgba(52, 211, 153, .5) calc(var(--lit) * 100%), var(--hwc-line-strong));
+}
+.hwc-dd-btn {
+  position: relative; height: 44px; margin: 4px 12px 0; border-radius: 9999px; isolation: isolate; overflow: hidden;
+  background: linear-gradient(90deg, #5ec8e6 0%, #6e7cf2 52%, #a86ef0 100%); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+.hwc-dd-grp { position: absolute; left: 50%; top: 50%; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; transform: translate(-50%, -50%); }
+.hwc-dd-a { font-size: 13px; line-height: 16px; font-weight: 700; }
+.hwc-dd-lab { display: inline-block; width: 104px; }
+.hwc-dd-bag { width: 14px; height: 14px; stroke-width: 2.3; }
+.hwc-dd-b { font-size: 18px; line-height: 22px; font-weight: 800; letter-spacing: -.01em; opacity: 0; }
+.hwc-dd-check { width: 18px; height: 18px; }
+.hwc-dd-check-p { stroke-dasharray: 23; stroke-dashoffset: 23; }
+.hwc-dd-shine {
+  position: absolute; top: -30%; bottom: -30%; left: 0; width: 42%; z-index: 1; opacity: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .6) 50%, rgba(255, 255, 255, 0) 100%);
+}
+.hwc-dd-etaline { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px 10px; font-size: 12px; line-height: 16px; color: var(--hwc-muted); }
+.hwc-dd-etaline b { color: #34d399; font-weight: 700; }
+.hwc-dd-etaline svg { color: #34d399; }

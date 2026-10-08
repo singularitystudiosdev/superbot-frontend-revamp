@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>benchmark figures - superbot.gg</title>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="site/assets/bench.css?v=15"/>
+<!-- page-scoped: the shared bench.css figure is built for CSS bars; here the
+     figure holds a rendered SVG, so this only sizes the image inside the same
+     card. No new colour, no new radius: tokens from site.css/bench.css. -->
+<style>
+  .fig .shot { display: block; width: 100%; height: auto; border-radius: var(--r-sm); background: var(--raised); }
+  .fig .cap .src { display: inline-flex; align-items: center; min-height: max(24px, var(--target)); margin-top: var(--sp-2); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .fig .cap .src:hover, .fig .cap .src:focus-visible { color: var(--fg); border-bottom-color: var(--accent); }
+  /* the hero card is wider than the three-up grid, so the 1800-wide SVG still
+     reads: one figure per row, image capped to the measure. */
+  .figs.hero { grid-template-columns: minmax(0, 1fr); }
+  .fig.hero .shot { max-width: 1100px; }
+  .fig.pending { border-style: dashed; }
+  .bench .sources li { scroll-margin-top: var(--sp-16); }
+  .bench .sources code { overflow-wrap: anywhere; }
+</style>
+<meta name="description" content="superbot benchmark figures: judged pass rate, median wall time, SUPER against plain Superbot, and the tidy context result."/>
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <main class="bench" id="main" tabindex="-1">
+    <div class="crumb"><a href="index.html">superbot<span class="gg">.gg</span></a> / benchmarks / figures</div>
+    <h1>benchmark figures</h1>
+    <p class="lede"><b>two finished runs behind the charts, and a context run behind the last one.</b><br/>
+      latency: internal run, 2026-10-02.<br/>
+      quality: internal run, 2026-10-02 (corrected), judge threshold T=95.<br/>
+      context: internal run, 2026-10-02.<br/>
+      every SVG is vector, published at 2x.</p>
+
+    <div class="figs hero">
+      <figure class="fig hero">
+        <figcaption class="cap">
+          <b>Judged pass rate by setup</b>
+          <span>share of prompts whose single answer scored 95 or higher on the per-prompt checklist, with 95% Wilson intervals</span>
+          <a class="src" href="#src-quality">Quality run, 2026-10-02 (corrected)</a>
+        </figcaption>
+        <img class="shot" src="./quality-bar.svg" width="1800" height="972"
+             alt="Horizontal bars of the share of prompts passed: Superbot 57.5%, Superbot Fast 57.5%, Claude Code 52.5%, Superbot SUPER (on) 52.5%, Superbot SUPER (auto) 47.5%, Codex CLI 45.0%, Opus 5.5 (API) 45.0%, Sonnet 5.5 high (API) 40.0%, GPT-5.5 (API) 37.5%, Cursor CLI 37.5%."/>
+      </figure>
+    </div>
+
+    <div class="figs">
+      <figure class="fig">
+        <figcaption class="cap">
+          <b>Median wall time by setup</b>
+          <span>SUPER is the multi-model mode, run here with no extra workers, so its bars are not a single-model number</span>
+          <a class="src" href="#src-latency">Latency run, 2026-10-02</a>
+        </figcaption>
+        <img class="shot" src="./latency-chevron.svg" width="1800" height="832"
+             alt="Median wall time bars: Sonnet 5.5 high (API) 1457 ms, Superbot Fast 1782 ms, Opus 5.5 (API) 1901 ms, Superbot Omni 1976 ms, Superbot 2447 ms, GPT-5.5 (API) 2591 ms, Superbot SUPER (auto) 3854 ms, Superbot SUPER (on) 4218 ms."/>
+      </figure>
+      <figure class="fig">
+        <figcaption class="cap">
+          <b>SUPER vs plain Superbot</b>
+          <span>SUPER (on) and SUPER (auto) against plain Superbot; SUPER ran with no extra workers, so it is not a single-model number</span>
+          <a class="src" href="#src-both">Latency run and quality run</a>
+        </figcaption>
+        <img class="shot" src="./super-vs-plain.svg" width="1800" height="804"
+             alt="Two panels: median wall time Superbot 2.45 s, Superbot SUPER (on) 4.22 s, Superbot SUPER (auto) 3.85 s; pass rate Superbot 57.5%, SUPER (on) 52.5%, SUPER (auto) 47.5%."/>
+      </figure>
+      <figure class="fig">
+        <figcaption class="cap">
+          <b>Tidy rule tokens vs full, on the first call</b>
+          <span>tidy sends 77% fewer rule tokens than full, which inlines every rule.<br/>Tools and the system prompt are not counted.</span>
+          <a class="src" href="#src-context">Context run, 2026-10-02</a>
+        </figcaption>
+        <img class="shot" src="./kit/wins/x1-context-tokens.png" width="2400" height="1260"
+             alt="Rule tokens on the first call: tidy 9,582, full 42,352. Lower is better. Tools and the system prompt are not counted."/>
+      </figure>
+    </div>
+
+    <p class="note"><b>how these charts are made.</b> the first quality run happened before this page existed; six of its 40 prompts were re-measured afterwards, once the test setup was fixed (how tool use is recorded, and the rival CLIs' network and permission settings), and those cells replace the originals. That is a correction, not a fresh full run. The pass test is the per-prompt checklist at the frozen threshold T=95, and the latency run supplies the median wall time per setup. SUPER is the multi-model mode; in these runs it answered with no extra workers, so its bars are not a single model's and the charts say so. The GPT row is named by the model its answers say served them, GPT-5.5. <code>README.md</code> next to this page lists every asset.</p>
+
+    <p class="lede">six answer-level comparisons from the quality run are browsable as a contact sheet: <a href="./answers/answers.html">answers/answers.html</a>.</p>
+    <p class="lede">every winning metric on one page: <a href="./results.html">results.html</a>.<br/>
+      one card per metric, plus the hero, social and comparison graphics: <a href="./kit/index.html">kit/index.html</a>.</p>
+
+    <section class="sources">
+      <h2>sources</h2>
+      <ul>
+        <li id="src-quality"><b>quality-bar.svg, answers sheet.</b> Quality run, 2026-10-02 (corrected): the first quality run with six of its 40 prompts re-measured. Judged pass rate on the per-prompt checklist, T=95, 40 prompts with one judged answer each.</li>
+        <li id="src-latency"><b>latency-chevron.svg.</b> Latency run, 2026-10-02: 543 rows, median wall time per setup.</li>
+        <li id="src-both"><b>super-vs-plain.svg.</b> both runs above: wall time from the latency run, pass rate from the quality run.</li>
+        <li id="src-context"><b>kit/wins/x1-context-tokens.png.</b> Context run, 2026-10-02: 24 tasks on Sonnet 5, tidy paired with full by task. Run on Superbot's context, with the task-aware tidy render.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "rev": 2,
+  "devices": [
+    {
+      "device_id": "dev_8f2c",
+      "user_id": "usr_ac0ceb7b-e350-40e2-ae02-3853dbbb0e54",
+      "harness": "claude-code",
+      "policy_rev": 2,
+      "level": "enforced",
+      "applied_at": "2026-09-13T00:25:50.630Z",
+      "attested": true
+    },
+    {
+      "device_id": "dev_9b10",
+      "user_id": "usr_ac0ceb7b-e350-40e2-ae02-3853dbbb0e54",
+      "harness": "codex",
+      "policy_rev": 1,
+      "level": "advisory",
+      "applied_at": "2026-09-13T00:25:50.632Z",
+      "attested": false
+    }
+  ],
+  "coverage": {
+    "applied": 1,
+    "total": 2
+  }
+}

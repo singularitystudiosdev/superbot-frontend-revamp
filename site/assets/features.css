@@ -1,0 +1,1928 @@
+/* /features: real captures of the shipped product where one exists, a drawn
+   figure where the thing is easier read as a diagram, one paragraph each.
+   Look plan (from the design review, refreshed 2026-09-23):
+   - Palette: canvas #000000, card #0d0d0d, elevated #181818, line #262626,
+     ink #ececec, muted #9a9a9a, all shared site tokens (--bg/--card/--raised/
+     --line/--fg/--muted). No new hex in this sheet.
+   - Accent: one hue, --accent #4d8aff, the text-safe step of the app's
+     storm-1 blue #2b6bff (the desktop app's color tokens: color.accent,
+     "focus rings, selected borders, tinted chips, meters"). Owner, 2026-09-24: "add some more color to our
+     examples, using signature superbot blue", so the old "never on a
+     figure" line is retired. Blue goes where the app itself paints it: the
+     article icon glyphs, selected and active states (picked preset, on
+     segment, foreground mode), live and running dots, primary fills
+     (Publish, the sent text), meter and progress fills (omni's own bars,
+     fleet coverage) and the superbot.sh zone. Never body text, never a
+     card edge at rest, never a second blue; the storm gradient stays only
+     where the app wears it (#super's On, #spend's on segments). The block
+     at the foot of this sheet ("blue pass") holds every figure rule.
+   - Type: --font-ui for titles and sentences, --font-mono for the cli
+     terminal, the url pill, the deploy addresses, model ids and the cloud
+     figure's folder file names only.
+   - Radius: --r-control (8px) on controls, chips and table frames,
+     --r-surface (16px) on the figure cells. No third radius (--r-pill stays
+     the one shape exception the mcp client chips already used).
+   - The one bold thing (2026-09-23 pass): the hero hub, the superbot mark
+     in the centre joined by hairline strokes to the monochrome marks of the
+     tools it manages, a slow pulse travelling out along each stroke. The
+     storm ramp shows only where the app uses it: the hub's root border and
+     the mark itself. Vendor marks everywhere are simple-icons (Iconify)
+     paths in the page sprite, monochrome currentColor, never brand hues,
+     except the super mode figure's model tiles, which wear the desktop
+     rail's vendor tile pair so a mixed-family team reads at a glance.
+     Each article spends its own boldness on one figure.
+   - Rhythm: one section gap token, --f-gap (--sp-12), above and below every
+     section hairline; icon chip to h2 --sp-4, h2 to body --sp-2; every
+     figcaption is the shared .feature figcaption rule.
+   Figure anatomies, each used once: .fig-pair (sync), .fig-tree (super mode:
+   the super mode root, manager and workers org chart, shared with the
+   lander's #pillar-agentic cell via the shared swarm tree stylesheet),
+   .fig-deploy (publish: Publish, the live superbot.sh address, managed rows), .fig-terminal (cli),
+   .fig-url (mcp: the url, client list and plain-english ask rows; the
+   endpoints figure carries this class too, on purpose, so the label, pill,
+   padding and hairline row anatomy are reused rather than retyped, and adds
+   only its provider chip rule below), .fig-media (media: a kind by source
+   matrix that runs edge to edge), .fig-meter (optimizer, tidy mode: four tidy-against-full bar
+   pairs), .fig-plan (plan: the plan card, its three actions and its undo row),
+   .fig-routines (routines:
+   a list led by each next run), .fig-sync (cloud:
+   the phone, cloud and laptop schematic), .fig-vault (vault: a grouped
+   connections list), .fig-park (daemon: the parked-wait banner on a card
+   stack), .fig-live (remote: a phone showing the desktop, and the approval
+   switch under it), .fig-fleet (fleet: the board as one banded list),
+   .fig-voice (voice: a voice bar over a row of voices), .fig-ask (quick: the
+   ask panel floating over a window outline; these five are the core round
+   two block at the foot of this sheet), .f-glance (the at-a-glance panel:
+   one row per feature, a drawing on the four full rows). Ambient loops, all always on
+   (the always-on motion rule, no guard, transform and opacity only):
+   the hub pulses and .fig-sync's dashed device links, drifting slowly, with
+   the synced file rows landing in its laptop folder on the same figure; and
+   in the at-a-glance panel, quieter than the hub pulse, the daemon loop's
+   blue dot riding its circle (8s, linear), the resumes tag's dot and the tidy
+   link chips breathing in opacity (3s, the chips staggered), a faint pulse
+   travelling the team tree from root to workers, and a slow cursor dot
+   mirrored on the remote laptop and phone; the page script pauses the
+   panel's loops while it is off screen. The core round two figures add one
+   quiet loop each, all transform or opacity and paused off screen by
+   the page script through data-loop: the daemon card's meter counting down
+   to its next check-in (8s, linear), the live dots on the remote phone and
+   the fleet's running rows breathing (3s and 2.4s, the rows staggered), a
+   cursor dot drifting over the remote phone's desktop (9s), the voice bar's
+   seven bars rising and falling (1.2s, staggered) and the quick ask caret
+   blinking (1.1s). Nothing else moves. No eyebrows, no
+   numbered markers, no trailing arrows, no entrance animation; hover
+   transitions live only on the .features-docs / foot links and the install
+   button (the shared site stylesheet owns that one), never on a figure. */
+
+/* inline-size query container: a reader's text zoom changes this box's
+   width, never the viewport, so the anatomy breakpoints at the foot of this
+   sheet are measured on it as well as on the viewport. */
+.features { max-width: var(--container); margin: 0 auto; padding: var(--sp-10) var(--gutter-r) var(--sp-12) var(--gutter-l); container-type: inline-size; }
+.features .crumb { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-4); }
+.features .crumb a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: max(24px, var(--target-sm)); border-radius: var(--r-control); }
+.features .crumb a:hover { color: var(--fg); }
+.features .crumb .gg { color: var(--accent); }
+
+.features h1 { font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem); line-height: 1.15; font-weight: 550; letter-spacing: -0.02em; }
+.features .lede { color: var(--muted); max-width: var(--measure); margin-top: var(--sp-3); margin-bottom: var(--sp-10); }
+
+.feature { padding-top: var(--sp-10); border-top: 1px solid var(--line); display: grid; gap: var(--sp-6); grid-template-columns: minmax(0, 360px) minmax(0, 1fr); align-items: start; }
+.feature:first-of-type { padding-top: 0; border-top: none; }
+.feature h2 { font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 550; letter-spacing: -0.01em; margin-bottom: var(--sp-2); }
+.feature p.body { color: var(--muted); max-width: var(--measure); }
+.feature .text { display: grid; align-content: start; }
+
+/* a wide article is one full-width column read top to bottom: the heading
+   block (icon, h2, body, its list), then the figure under it (owner,
+   2026-09-24: "move these kind of images UNDER their header section").
+   .text takes order -2 so it leads at every width, even where a figure
+   carries its own negative order (#sync .fig-dev has order: -1 in the
+   page's inline style). */
+.feature.wide { grid-template-columns: minmax(0, 1fr); }
+.features-page .feature.wide > .text { order: -2; }
+/* an article held back for now keeps its markup under [hidden]; .feature's
+   display: grid would otherwise override the attribute. When the held one
+   is the column's first, the next article takes the first one's top. */
+.feature[hidden] { display: none; }
+.features-page .features-body > .feature[hidden]:first-of-type + .feature { padding-top: 0; margin-top: 0; border-top: none; }
+
+/* ---- figure cells: 1px hairline on --card, --r-surface radius, no resting
+   shadow, no gradient wash, no icons, the one shape every figure shares ---- */
+.feature figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); overflow: hidden; }
+.feature figcaption { padding: var(--sp-3) var(--sp-4); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); border-top: 1px solid var(--line); }
+
+/* .fig-pair: two captures side by side (sync, desktop + phone), in an
+   inner .pair-row so the figure's own figcaption stays a normal block
+   below the row instead of becoming a third flex item beside it (that was
+   the first attempt's own bug: display:flex directly on the figure pulled
+   the figcaption into the row and left it floating as stray text). Inside
+   .pair-row, the phone cell takes a flex-basis the calc() below SOLVES for
+   the equal-height pairing, so the pairing holds at every row width with no
+   aspect-ratio on the row and no measured percentage to go stale (the 28%
+   basis under the 1908x1600 captures did, when the captures were replaced
+   by the current 2944x1624 / 1206x2622 pair). Both cells are border-box
+   (set by the shared site stylesheet), so the desktop image is (desktop cell - 2px) wide and
+   1624/2944 of that tall, the phone screen (phone cell - 2px - 2 *
+   --sp-2) wide and 2622/1206 of that tall; putting the two heights equal
+   and solving for the phone width gives phone = (row - --sp-6 - 2px) *
+   k/(1+k) + (2px + 2 * --sp-2) * 1/(1+k), k = (1624/2944) / (2622/1206) =
+   0.253725 -- the two constants in the rule below. Both fill, neither
+   letterboxes. (min-height alone, tried first, does not give a
+   child's height:100% a real percentage base to resolve against, so the
+   phone image fell back to its own huge intrinsic pixel size and blew the
+   row up, owner fix, 2026-09-10.) */
+/* two devices on the card, separated: the desktop capture in a hairline window
+   frame, the phone capture inside a bezel (black body, --r-surface, the screen
+   inset at --r-control), a --sp-6 gap between them. The phone's own width is
+   solved for by the calc() on .cell--phone below, so the bezel's height
+   matches the desktop frame's at any row width (2944x1624 desktop, 1206x2622
+   screen, re-measured 2026-09-12 for the current-GUI captures). Shape after
+   the magicui `iphone` mockup, drawn here in CSS. */
+.pair-row { display: flex; align-items: flex-start; gap: var(--sp-6); padding: var(--sp-5); }
+.pair-row .cell--desktop { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; background: var(--bg); }
+.pair-row .cell--phone { flex: 0 0 calc((100% - var(--sp-6) - 2px) * 0.202377 + (2px + 2 * var(--sp-2)) * 0.797623); min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-surface); padding: var(--sp-2); }
+.pair-row .cell--phone .screen { border-radius: var(--r-control); overflow: hidden; }
+.pair-row img { width: 100%; height: auto; display: block; }
+@media (max-width: 640px) {
+  .pair-row { flex-direction: column; align-items: center; }
+  .pair-row .cell--desktop { width: 100%; }
+  .pair-row .cell--phone { flex: none; width: calc(var(--sp-16) * 4); }
+}
+
+/* .fig-terminal: a real terminal window (owner, 2026-09-10: the plain
+   wire-output excerpt read as "random code vomit", not the real coloured
+   terminal output the product prints), a title bar (three dots on the
+   line/raised tokens, the command as a mono window title) over a
+   canvas-token body. No new radius: the frame is clipped by the figure's
+   own --r-surface. */
+.fig-terminal .term-bar {
+  display: flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 var(--sp-4);
+  border-bottom: 1px solid var(--line); background: var(--card);
+}
+.fig-terminal .term-bar i { width: 7px; height: 7px; border-radius: 50%; flex: none; border: 1px solid var(--line); background: var(--raised); }
+.fig-terminal .term-bar span {
+  margin-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted);
+}
+.fig-terminal pre { margin: 0; padding: var(--sp-4); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-sm); color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 332px; overflow-y: auto; background: var(--bg); }
+
+/* #cli .term-cli: the real `superbot` start screen (owner, 2026-09-24: the
+   old --help dump soft-wrapped its descriptions mid-phrase, which a real
+   terminal never does). Every row is a hard terminal row: white-space: pre,
+   no wrapping. The font holds the 12px floor (the mobile design rule: nothing
+   under 12) instead of shrinking to fit the widest row (52 columns, the
+   model line): on a phone the pre scrolls sideways on its own, the SC 1.4.10
+   exemption for code, and tabindex=0 keeps that scroll reachable by key.
+   The ask below the prompt replays its steps one row at a time (clip, no
+   layout shift), and the cursor blinks like the real block cursor. */
+#cli .fig-terminal { container-type: inline-size; }
+#cli .term-cli {
+  white-space: pre; overflow-wrap: normal; overflow-x: auto; max-height: none; line-height: 1.5;
+  font-size: var(--fs-xs);
+}
+#cli .term-cli .term-stream { display: block; animation: term-stream 11s step-end infinite; /* deliberate */ }
+#cli .term-cli .term-cursor {
+  display: inline-block; width: 0.6em; height: 1.1em; vertical-align: text-bottom;
+  background: var(--a-8); animation: term-blink 1.1s step-end infinite; /* deliberate */
+}
+@keyframes term-stream {
+  0%   { clip-path: inset(0 0 calc(100% - 1lh) 0); }
+  9%   { clip-path: inset(0 0 calc(100% - 2lh) 0); }
+  16%  { clip-path: inset(0 0 calc(100% - 3lh) 0); }
+  23%  { clip-path: inset(0 0 calc(100% - 4lh) 0); }
+  32%  { clip-path: inset(0 0 calc(100% - 5lh) 0); }
+  35%  { clip-path: inset(0 0 calc(100% - 6lh) 0); }
+  40%, 100% { clip-path: inset(0 0 0 0); }
+}
+@keyframes term-blink { 50% { opacity: 0; } }
+
+/* .fig-url: replaces the mcp article's raw JSON-RPC tool-list terminal dump
+   (owner, 2026-09-11: "super confusing and weird ... it shouldn't even expose
+   the full schema. That's really unnecessary. It's more just flexing the
+   overall MCP style.") with three stacked, hairline-separated rows a
+   non-developer reads without decoding JSON: the url itself, the real client
+   list from the install page as text chips, and a plain-english
+   ask/answer exchange. No brace, no schema field name, no icon. New anatomy
+   (not a repeat of .fig-terminal/.fig-pair/.fig-meter/.fig-tree): every child
+   row shares the figure's own --r-surface via the existing `.feature figure`
+   rule, so nothing here declares a third radius beyond --r-control (the url
+   pill, the chip's 9999px exception) already on the look plan. */
+
+.fig-url > div { padding: var(--sp-4); }
+.fig-url > div + div { border-top: 1px solid var(--line); }
+
+.fig-url .row-label {
+  display: block;
+  margin-bottom: var(--sp-1);
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+}
+
+/* row 1: the url, static, mono, on a raised pill. nothing to click or copy */
+.fig-url .url-pill {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  color: var(--fg);
+}
+
+/* row 2: every client the install page documents, as plain text chips */
+.fig-url .client-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.fig-url .client-chips li {
+  padding: var(--sp-1) var(--sp-3);
+  background: var(--raised);
+  border: 1px solid var(--line-strong, #5c5c5c);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--fg);
+}
+
+/* row 3: a two-line plain-english exchange, not a code block. the who label
+   is a narrow first column so "you"/"superbot" line up without a fixed px width */
+.fig-url .ask-exchange {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+}
+.fig-url .ask-who {
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+}
+.fig-url .ask-msg {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+}
+.fig-url .ask-msg.you { color: var(--fg); }
+.fig-url .ask-msg.bot { color: var(--muted); }
+
+/* #mcp .manage-row: a replica of the desktop Tools & MCP pane: the one
+   calm summary sentence, then a grouped server list, each row tile | name over its source/tool
+   line | status word, the same row grid as .fig-endpoints' added list. The
+   fixed row opens its log tail (the relay's own restart note) and
+   the manager's two row actions. Working rows are neutral in the app, so no
+   status ink here either; the fixed row's word is --fg, the rest --muted.
+   The summary dot alone takes the accent (blue pass, foot of sheet).
+   Static: nothing on this row moves. */
+#mcp .mg-sum { display: flex; align-items: center; gap: var(--sp-2); margin: 0 0 var(--sp-2); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#mcp .mg-sum i { width: var(--sp-2); height: var(--sp-2); border-radius: var(--r-pill); background: var(--muted); flex: none; }
+#mcp .mg-rows { list-style: none; margin: 0; padding: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#mcp .mg-rows li { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; align-items: center; column-gap: var(--sp-3); padding: var(--sp-3); }
+#mcp .mg-rows li + li { border-top: 1px solid var(--line); }
+#mcp .mg-tile { grid-row: 1 / span 2; display: grid; place-items: center; width: var(--sp-6); height: var(--sp-6); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+#mcp .mg-tile svg { width: 14px; height: 14px; }
+#mcp .mg-name { grid-column: 2; min-width: 0; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#mcp .mg-meta { grid-column: 2; display: flex; flex-wrap: wrap; gap: 0 var(--sp-3); min-width: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#mcp .mg-meta code { font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); background: none; border: 0; border-radius: 0; padding: 0; }
+#mcp .mg-state { grid-column: 3; grid-row: 1 / span 2; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#mcp .mg-fix .mg-state { color: var(--fg); }
+#mcp .mg-log { grid-column: 2 / span 2; margin: var(--sp-2) 0 0; padding: var(--sp-2) var(--sp-3); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+#mcp .mg-acts { grid-column: 2 / span 2; display: flex; gap: var(--sp-2); margin-top: var(--sp-2); }
+#mcp .mg-acts span { padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+
+@media (max-width: 640px) {
+  .fig-url > div { padding: var(--sp-3); }
+  .fig-url .url-pill { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  /* phone pass (2026-09-25): the preset's host sat beside its name and was
+     cut to "router.huggi…" at 320-390; under 640px it takes its own row under
+     the name, so every host reads whole */
+  .fig-endpoints .ep-presets li { grid-template-columns: max-content minmax(0, 1fr); row-gap: 0; }
+  .fig-endpoints .ep-presets .ep-tile { grid-row: span 2; }
+  .fig-endpoints .ep-presets code, .fig-endpoints .ep-any { grid-column: 2; justify-self: start; }
+  /* the id breaks only at its slashes (<wbr/>), never inside a model name */
+  .fig-url .url-pill .url-seg { white-space: nowrap; }
+}
+
+/* .fig-endpoints: a replica of the desktop Endpoints pane (Settings,
+   Subscriptions & keys). Top
+   block: the added endpoints as one grouped list (tile, label, host in mono,
+   dialect pill, model count, probe state), closed by a dashed "your next
+   one" slot that says the list has no cap, then the Auto import control with
+   the app's own caption. Middle block: the Add endpoint provider picker
+   (the four presets and Other, any endpoint, picked) and the dialect
+   segmented control. Last row: the id a caller types with the one key. It
+   carries .fig-url's class on purpose: the row label, the mono url pill, the
+   --sp-4 padding, the hairline between rows and the 640px padding rule
+   above are that block's, reused rather than retyped. Marks are monochrome
+   currentColor; the picked preset and the on dialect take the accent, as
+   the app selects (blue pass, foot of sheet). */
+.fig-endpoints .ep-head { display: flex; align-items: baseline; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+.fig-endpoints .ep-title { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.fig-endpoints .ep-count, .fig-endpoints .ep-jump, .fig-endpoints .ep-cap { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fig-endpoints .ep-jump { margin-left: auto; }
+.fig-endpoints .ep-rows, .fig-endpoints .ep-presets { list-style: none; margin: 0; padding: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+.fig-endpoints .ep-tile { display: grid; place-items: center; flex: none; width: var(--sp-6); height: var(--sp-6); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+.fig-endpoints .ep-tile svg { width: 14px; height: 14px; }
+.fig-endpoints .ep-name { min-width: 0; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.fig-endpoints li code { font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); background: none; border: 0; border-radius: 0; padding: 0; } /* the app prints the host as plain mono, not the shared site stylesheet's li code chip */
+
+/* the added endpoints: tile | label over its meta line | probe state */
+.fig-endpoints .ep-rows li { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; align-items: center; column-gap: var(--sp-3); padding: var(--sp-3); }
+.fig-endpoints .ep-rows li + li { border-top: 1px solid var(--line); }
+.fig-endpoints .ep-rows .ep-tile { grid-row: 1 / span 2; }
+.fig-endpoints .ep-meta { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); min-width: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fig-endpoints .ep-meta code { overflow-wrap: anywhere; }
+.fig-endpoints .ep-pill { padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-pill); }
+.fig-endpoints .ep-state { grid-column: 3; grid-row: 1 / span 2; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fig-endpoints .ep-next .ep-tile { background: transparent; border-style: dashed; border-color: var(--muted); color: var(--muted); }
+.fig-endpoints .ep-next .ep-name { color: var(--muted); font-weight: 400; }
+
+.fig-endpoints .ep-import { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-3); }
+.fig-endpoints .ep-btn { padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* the provider picker: rows inside one framed group, the picked one ringed */
+.fig-endpoints .ep-presets { display: grid; gap: var(--sp-1); padding: var(--sp-1); }
+.fig-endpoints .ep-presets li { display: grid; grid-template-columns: max-content max-content minmax(0, 1fr); align-items: center; column-gap: var(--sp-3); padding: var(--sp-2); border: 1px solid transparent; border-radius: var(--r-control); }
+.fig-endpoints .ep-presets .ep-tile { background: transparent; border-color: transparent; color: var(--muted); }
+.fig-endpoints .ep-presets .ep-name { font-weight: 400; }
+.fig-endpoints .ep-presets code, .fig-endpoints .ep-any { justify-self: end; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fig-endpoints .ep-presets .is-on { border-color: var(--muted); }
+.fig-endpoints .ep-presets .is-on .ep-tile { color: var(--fg); }
+
+.fig-endpoints .ep-dialect { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-3); }
+.fig-endpoints .ep-seg { display: inline-flex; padding: calc(var(--sp-1) / 2); background: var(--raised); border: 1px solid var(--line-strong, #5c5c5c); border-radius: var(--r-pill); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fig-endpoints .ep-seg span { padding: var(--sp-1) var(--sp-3); border-radius: var(--r-pill); color: var(--muted); }
+.fig-endpoints .ep-seg .is-on { background: var(--line); color: var(--fg); }
+
+/* .fig-meter (optimizer, now tidy mode): tidy against full, four measured
+   bar pairs and one muted line, no capture. The pairs reuse the rows below
+   (.tb-row, .tb-lab, .tb-bar), see the .tb block. */
+#optimizer .fig-meter { width: 100%; }
+/* .fig-sync: replaces .fig-meter-stat's queue-of-prompts card on the cloud
+   article (owner, 2026-09-10: "that visual really sucks. Let's do something
+   more clear to the user of how magical it is. They're a computer laptop
+   device, they're mobile, and the fact that it's syncing through the cloud
+   in real time and that they can even dispatch code and tasks from their
+   phone on your repository."). A schematic, not a screenshot: the sync
+   article above already owns the one real capture pair (desktop+phone), so
+   this figure is drawn entirely in CSS and inline SVG, never a raster image.
+   New anatomy (not a repeat of .fig-pair/.fig-terminal/.fig-meter/.fig-tree):
+   three hairline device nodes (phone, cloud, laptop) in a row, joined by two
+   dashed links that drift slowly, one continuous cue and the only motion in
+   this figure. The 2.4s duration is named here, not in the shared site stylesheet's discrete
+   --dur-1..5 ladder, because those cover the default 100-300ms transition
+   band and the 500ms "deliberate" band (the motion design review's duration
+   bands); this is a non-entrance, non-directional, indefinitely looping
+   ambient drift, which that review places outside those bands by
+   definition ("Linear is for progress, meters and marquees, not for
+   entrances"), so its one number is documented in this comment instead of
+   invented silently. Two radii only, both shared site tokens: --r-control on the
+   inset screens and the cloud pill's own radius nowhere else, --r-surface on
+   every device body and (inherited from .feature figure) the card itself. No
+   accent hue, no colour wash, no soft halo: every color here is --line /
+   --card / --raised / --bg / --fg / --muted, already on the page's look plan. */
+
+/* padding lives on .sync-body, not .fig-sync itself, so the figcaption
+   below stays a direct child of the figure and its border-top (the shared
+   .feature figcaption rule) runs edge to edge like every other figure on
+   the page instead of stopping short at the figure's own inset. */
+.sync-body { padding: var(--sp-8) var(--sp-6) var(--sp-6); }
+
+.sync-row { display: flex; align-items: center; gap: var(--sp-2); }
+
+.sync-link {
+  flex: 1 1 0;
+  min-width: var(--sp-4); /* one dash period (6+6) still reads */
+  width: auto;
+  height: var(--sp-2);
+  align-self: center;
+  overflow: visible;
+}
+.sync-link line {
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  animation: sync-dash 2.4s linear infinite; /* deliberate */
+}
+@keyframes sync-dash {
+  to { stroke-dashoffset: -24; }
+}
+
+/* The row has to survive the narrowest figure column it can land in: in the
+   two-column .feature grid the 1fr column is only 592 CSS px at the widest
+   (and 427 CSS at the narrowest), while phone + link + cloud + link + laptop
+   and the four gaps want 624 and 555 CSS px respectively, so the laptop used
+   to poke past the card and .feature figure's own overflow:hidden sliced it
+   (found at the default axis). So the devices give ground instead of
+   the card: no device is pinned any more, each carries its own floor and the
+   row shrinks proportionally between them. At the widest figure (688 CSS at
+   >=1400px) nothing shrinks and the row renders exactly as drawn. */
+.device { display: flex; flex-direction: column; align-items: center; }
+
+/* phone: black body (device-body radius), a card-toned inset screen holding
+   a raised chat-bubble chip */
+.device-phone {
+  width: calc(var(--sp-16) * 2.5);
+  min-width: calc(var(--sp-16) + var(--sp-4)); /* 80px: the bubble still wraps, never a sliver */
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-surface);
+  padding: var(--sp-2);
+}
+.device-phone .device-screen {
+  background: var(--card);
+  border-radius: var(--r-control);
+  padding: var(--sp-3) var(--sp-2);
+  display: grid;
+  gap: var(--sp-2);
+  justify-items: stretch;
+  min-height: calc(var(--sp-16) * 1.3);
+  align-content: center;
+}
+.sync-bubble {
+  margin: 0;
+  text-wrap: pretty; /* the bubble's left-aligned copy in this row (the wrapping rule) */
+  background: var(--raised);
+  border-radius: var(--r-control);
+  padding: var(--sp-2);
+  color: var(--fg);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  text-align: left;
+}
+
+/* cloud: a raised pill, --r-surface like the other device bodies, then the
+   label and status. The cloud shape is drawn the way the brand mark
+   (the swarm tree's root) is: one path stroked
+   three times, a cyan ghost (--storm-0) offset up-left, a magenta ghost
+   (--storm-3) offset down-right, and the ink stroke on top, so the cloud
+   carries the same palette as the mark instead of a lone muted outline
+   (owner, 2026-09-11: "the Superbot cloud needs the stroke and color
+   palette so that it kind of rounds out the page"). The offsets are the
+   mark's, scaled to this viewBox (1 unit = 0.625px at the rendered 40px). */
+.device-cloud {
+  width: calc(var(--sp-16) * 2.5);
+  min-width: calc(var(--sp-16) + var(--sp-4)); /* 80px: the cloud label still holds one line */
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-surface);
+  padding: var(--sp-4) var(--sp-3);
+  gap: var(--sp-1);
+  align-items: center;
+}
+.cloud-shape { width: var(--sp-10); height: var(--sp-6); margin-bottom: var(--sp-1); overflow: visible; }
+.cloud-shape use { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cloud-shape .cloud-cyan { stroke: var(--storm-0); }
+.cloud-shape .cloud-magenta { stroke: var(--storm-3); }
+.cloud-shape .cloud-ink { stroke: var(--fg); }
+.cloud-label { margin: 0; text-wrap: balance; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* laptop: a wide card-toned screen (--r-control) plus a thin line-toned
+   base bar; no separate outer body, the screen itself is the outline */
+/* 128px floor, not the old 224: that floor was the clamp the row could not
+   get under, and it is what pushed the laptop past the figure at the default
+   axis. The laptop still grows (flex-grow) so it stays the widest body on a
+   wide figure. */
+.device-laptop { flex: 1 1 auto; min-width: calc(var(--sp-16) * 2); }
+.device-laptop .device-screen {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  padding: var(--sp-3) var(--sp-2);
+  display: grid;
+  gap: var(--sp-1);
+  justify-items: center;
+  min-height: calc(var(--sp-16) * 1.15);
+  align-content: center;
+}
+.device-laptop-base {
+  /* a hair wider than the screen above it, the deck peeking out past the
+     lid, so the shape reads as a laptop and not a second phone card */
+  width: calc(100% + var(--sp-2));
+  margin: -1px calc(var(--sp-1) * -1) 0;
+  height: var(--sp-1);
+  background: var(--line);
+  border-radius: 0 0 var(--r-control) var(--r-control);
+}
+
+/* the two centred labels inside a device card wrap once the row shrinks to the
+   128px floor: balance keeps the break off a runt last line (the wrapping rule) */
+.sync-line { margin: 0; color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); text-align: center; text-wrap: balance; }
+.sync-meta { margin: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); text-align: center; text-wrap: balance; }
+
+/* the laptop end is the project FOLDER, not a git host (owner, 2026-09-24:
+   "point out visually that it directly syncs to desktop even if there's no
+   git involved"). What the Helper does: a plain folder is mirrored through a
+   shadow git-dir outside it, the cloud run publishes its changes, and the
+   desktop's sync pass merges them into the folder on disk. So the screen shows the folder path, the
+   changed files with + (added) and ~ (changed) markers, and the count. The
+   rows arrive one after another on a 6s loop: the "files land" cue, and with
+   the link dashes the only motion in this figure (motion always on, per the
+   page). */
+.fold-head { margin: 0; justify-self: stretch; display: flex; align-items: center; gap: var(--sp-1); min-width: 0; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.fold-head span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fold-ic { flex: none; width: var(--sp-3); height: var(--sp-3); fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.fold-files { list-style: none; margin: 0 0 var(--sp-1); padding: var(--sp-2) 0 0; justify-self: stretch; display: grid; gap: var(--sp-1); border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--fg); }
+.fold-files li { display: flex; gap: var(--sp-2); min-width: 0; overflow-wrap: anywhere; animation: fold-land 6s ease-out infinite both; /* deliberate */ }
+.fold-files li:nth-child(2) { animation-delay: 0.4s; }
+.fold-files li:nth-child(3) { animation-delay: 0.8s; }
+.fm { flex: none; width: 1ch; font-weight: 550; }
+.fm-new { color: var(--storm-0); }
+.fm-mod { color: var(--muted); }
+@keyframes fold-land {
+  0%, 6% { opacity: 0; transform: translateY(calc(var(--sp-1) * -1)); }
+  14%, 100% { opacity: 1; transform: none; }
+}
+.fold-done { font-weight: 550; }
+.cloud-note { margin: 0; padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); text-wrap: pretty; }
+
+@media (max-width: 640px) {
+  .sync-row { flex-direction: column; gap: var(--sp-3); }
+  .sync-link { display: none; }
+  .device-phone,
+  .device-cloud,
+  .device-laptop { flex: none; width: calc(var(--sp-16) * 3); max-width: 100%; }
+}
+
+/* .fig-capture: a full screenshot of one surface */
+.fig-capture img { width: 100%; height: auto; display: block; }
+
+/* the old #agentic anchor, kept inside the super mode article so links
+   written before the rename still land on it; html's scroll-padding-top
+   (the shared site stylesheet) clears the nav for it like any other target. */
+.anchor-alias { display: block; }
+
+/* .sync-what: what follows you between devices, as one plain wrapped list
+   under the sync paragraph. Text only, no chip, no icon: the chips belong to
+   the endpoints figure, and this list is a footnote to the pair above it. A
+   hairline tops it so it reads as the paragraph's detail, not a new block. */
+.sync-what { list-style: none; margin: var(--sp-4) 0 0; padding: var(--sp-3) 0 0; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); max-width: var(--measure); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.sync-what li { text-wrap: pretty; }
+
+/* .fig-deploy: the frame the publish flow below sits in. The "example" tag
+   is the same muted xs label the org cards use: the app is illustrative,
+   the mechanism ships. */
+.deploy-body { padding: var(--sp-5); }
+/* publish (2026-09-24 pass, owner: "emphasize the superbot.sh domain"):
+   the figure is the desktop's own flow, top to bottom. The Code-mode project
+   head (name, mono path, Preview, Publish with its rocket),
+   Publish filled --fg as the one click, a hairline down into the live address, then
+   the Manage panel's sections as rows. The live address is the figure's one
+   bold thing: mono, sized to the figure (the cqi term fits its 22 columns),
+   and the page's ONE accent spent on the .superbot.sh zone and the live dot,
+   the look plan's single exception to "no accent on a figure". The dot's slow
+   ring is the page's third ambient loop, always on (the always-on motion rule).
+   Rows copy the app's Manage panel section names and button words:
+   Versions / Roll back, Domains / Edit, Live log / Pause, Keys / Add a key. */
+.pub-go { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); }
+.pub-proj { flex: none; padding-left: var(--sp-1); color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.pub-path { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.pub-btn { display: inline-flex; flex: none; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-3); background: var(--fg); color: var(--bg); border: 1px solid var(--fg); border-radius: var(--r-control); font-weight: 550; font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.pub-btn .ic { display: block; flex: none; width: 14px; height: 14px; }
+.pub-live { position: relative; margin-top: var(--sp-4); padding: var(--sp-5); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); }
+.pub-live::before { content: ""; position: absolute; right: var(--sp-10); top: calc(-1 * var(--sp-4) - 1px); width: 1px; height: var(--sp-4); background: var(--line); }
+.pub-state { margin: 0; display: flex; align-items: center; gap: var(--sp-2); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.pub-dot { position: relative; display: block; flex: none; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--accent); }
+.pub-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--accent); animation: pub-ring 2.4s ease-out infinite; /* deliberate */ }
+@keyframes pub-ring { 0% { transform: scale(1); opacity: 0.8; } 70%, 100% { transform: scale(3); opacity: 0; } }
+.pub-url {
+  margin: var(--sp-2) 0 0; font-family: var(--font-mono); font-weight: 550; letter-spacing: -0.02em; line-height: 1.2; overflow-wrap: anywhere;
+  font-size: min(var(--fs-h1), calc((100cqi - 4 * var(--sp-5) - 2px) / 12.5));
+}
+.pub-name { color: var(--fg); }
+.pub-zone { color: var(--accent); }
+.pub-acts { margin: var(--sp-4) 0 0; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.pub-chip { display: inline-flex; align-items: center; padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+.pub-group { margin: var(--sp-5) 0 var(--sp-2); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.pub-rows { list-style: none; margin: 0; padding: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+.pub-rows li { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; align-items: center; column-gap: var(--sp-3); padding: var(--sp-3); }
+.pub-rows li + li { border-top: 1px solid var(--line); }
+.pub-ic { grid-row: 1 / span 2; display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+.pub-ic svg { width: 16px; height: 16px; }
+.pub-t { grid-column: 2; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.pub-d { grid-column: 2; grid-row: 2; min-width: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); text-wrap: pretty; }
+.pub-rows .pub-chip { grid-column: 3; grid-row: 1 / span 2; }
+/* phone pass (2026-09-25): at 320 the bar's Publish button ran 10px past
+   its frame, and each row's line was squeezed to two lines beside its chip.
+   Under 640px the path gives way and both buttons drop under the name,
+   right-aligned so Publish still meets the connector;
+   the chip sits beside the title and the line takes the row's full width. */
+@media (max-width: 640px) {
+  .pub-go { flex-wrap: wrap; }
+  .pub-go { justify-content: flex-end; }
+  .pub-proj { flex: 1 0 100%; }
+  .pub-path { display: none; }
+  .pub-rows .pub-chip { grid-row: 1; }
+  .pub-d { grid-column: 2 / span 2; }
+}
+
+/* .fig-media: media's one bold thing, a kind by source matrix. Rows are
+   the three kinds (image, video, audio), columns are "your plan" (a sign-in,
+   no key) and "your key". Unlike the framed deploy table it runs edge to
+   edge in the figure with hairlines between every cell, a grid you read
+   across and down, so the two tables on the page never share an anatomy.
+   The kind labels are the row heads in --fg 550; a cell with nothing to
+   offer says so in --muted instead of standing empty. */
+.media-grid { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.media-grid th, .media-grid td { padding: var(--sp-3) var(--sp-4); text-align: left; vertical-align: top; font-weight: 400; color: var(--fg); }
+.media-grid thead th, .media-grid thead td { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); background: var(--raised); }
+.media-grid tbody tr { border-top: 1px solid var(--line); }
+.media-grid th + th, .media-grid th + td, .media-grid td + td, .media-grid td + th { border-left: 1px solid var(--line); }
+.media-grid tbody th { font-weight: 550; width: 1%; white-space: nowrap; }
+.media-grid .is-none { color: var(--muted); }
+
+/* .fig-vault: the vault's one bold thing, a grouped connections list in
+   the shape of the app's own Connections pane: a muted group label
+   (sessions, logins, 2FA codes) over a --r-control hairline group of rows,
+   each row the host in --fg with its source under it in --muted and its
+   state on the right. Grouped two-line rows, no header row and no columns,
+   so it shares no anatomy with the deploy table or the media matrix. The
+   only row set in --fg on the right is the live 2FA code, the one state
+   that is never kept. The "example" tag is the org cards' muted xs label.
+   .vault-from is the two-term list under the paragraph: a term column and
+   a names column, wrapped names, never a sentence. */
+.vault-from { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-1) var(--sp-3); margin: var(--sp-4) 0 0; padding-top: var(--sp-3); border-top: 1px solid var(--line); max-width: var(--measure); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.vault-from > div { display: contents; }
+.vault-from dt { color: var(--fg); }
+.vault-from dd { margin: 0; color: var(--muted); text-wrap: pretty; }
+.vault-body { padding: var(--sp-5); }
+.vault-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+.vault-label { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.vault-eg { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.vault-group { margin: var(--sp-4) 0 var(--sp-2); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.vault-rows { list-style: none; margin: 0; padding: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+.vault-rows li { display: grid; grid-template-columns: minmax(0, 1fr) max-content; column-gap: var(--sp-3); padding: var(--sp-3); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.vault-rows li + li { border-top: 1px solid var(--line); }
+.vault-host { color: var(--fg); font-weight: 550; overflow-wrap: anywhere; }
+.vault-state { color: var(--muted); text-align: right; white-space: nowrap; }
+.vault-state.is-live { color: var(--fg); }
+.vault-src { grid-column: 1 / -1; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+
+@media (max-width: 640px) {
+  .deploy-body { padding: var(--sp-3); }
+  .pub-live { padding: var(--sp-4); }
+  .media-grid th, .media-grid td { padding: var(--sp-3); }
+  .vault-body { padding: var(--sp-3); }
+}
+
+.features-docs { color: var(--muted); margin-top: var(--sp-4); }
+/* inline links keep the UA underline at rest: the accent is 1.16:1 against
+   the muted copy, so colour cannot be the only cue (axe link-in-text-block).
+   Each page tunes thickness and offset in its own sheet. */
+.features-docs a, .feature p.body a { color: var(--accent); }
+
+.features .foot { margin-top: var(--sp-12); padding-top: var(--sp-8); border-top: 1px solid var(--line); text-align: center; }
+/* the foot's install control is the lander's download primary (.dl-cta,
+   in the lander's hero stylesheet: 52px tall, --fs-lg label, --r-control
+   corners) restated here because this page never loads it. Not the header's
+   Install Now pill: that one is the small --r-pill size and stays small
+   (owner, 2026-09-11: "the stronger, larger size of like download for
+   macOS ... it shouldn't be that button mirrored bigger"). */
+.features .foot .sb-btn { min-height: 52px; padding: 0 var(--sp-8); font-size: var(--fs-lg); border-radius: var(--r-control); }
+@media (max-width: 600px) { .features .foot .sb-btn { width: 100%; } }
+
+@media (max-width: 860px) {
+  .feature { grid-template-columns: minmax(0, 1fr); }
+  .feature .text { order: -1; }
+}
+
+/* The figure anatomy above is keyed on the VIEWPORT, which is the wrong
+   ruler once a reader raises text size: the shared site stylesheet raises the root zoom, so
+   the layout width halves (640 CSS px at a 1280px window) while every
+   `@media (max-width: ...)` above keeps seeing the 1280px viewport and never
+   fires. The .feature grid therefore stayed two-column, its 1fr column
+   collapsed to 208 CSS px, and the figures were sliced by their own
+   overflow: hidden, .fig-tree's worker row and .fig-sync's device row worst
+   (23 descendants past a figure edge at 200% text). The .features box
+   is an inline-size query container now, and the two breakpoints that
+   actually govern the figure anatomy are mirrored on it, so the schematic
+   stacks exactly as it does in a 640px window. The viewport queries stay: a
+   viewport that is genuinely narrow is still narrow, and the two rulers
+   agree everywhere except under a root zoom. */
+@container (max-width: 860px) {
+  .feature { grid-template-columns: minmax(0, 1fr); }
+  .feature .text { order: -1; }
+}
+@container (max-width: 640px) {
+  .deploy-body { padding: var(--sp-3); }
+  .pub-live { padding: var(--sp-4); }
+  .sync-row { flex-direction: column; gap: var(--sp-3); }
+  .sync-link { display: none; }
+  .device-phone,
+  .device-cloud,
+  .device-laptop { flex: none; width: calc(var(--sp-16) * 3); max-width: 100%; }
+}
+
+/* ---- the index (2026-09-23): sections run in impact order and an "on this
+   page" rail names them in four groups, each link carrying the same lucide
+   symbol as its section's icon chip. From 1100px the rail is a sticky column
+   beside the sections; under that it is one sticky row of chips under the
+   site header that scrolls sideways (its own overflow, the reflow exception
+   for a single line of controls). The link for the section in view is marked
+   aria-current by the page's inline script. Look plan unchanged: --raised
+   chip on --line hairline, --muted ink, --fg when current, --r-control only,
+   no accent (links and the one filled control keep it). */
+.features-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
+.features-body { min-width: 0; }
+.features-body > .feature, .features-body > .org { scroll-margin-top: calc(var(--nav-h, 62px) + var(--sp-16)); }
+.ftoc { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.ftoc ul { list-style: none; margin: 0; padding: 0; }
+.ftoc a { display: flex; align-items: center; gap: var(--sp-2); min-height: var(--target); padding: 0 var(--sp-3); border-radius: var(--r-control); color: var(--muted); text-decoration: none; white-space: nowrap; transition: color var(--dur-2, 150ms) ease, background-color var(--dur-2, 150ms) ease; }
+.ftoc a:hover { color: var(--fg); background: var(--raised); }
+.ftoc a[aria-current="true"] { color: var(--fg); background: var(--raised); }
+.ftoc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ftoc .ic { display: block; flex: none; width: 16px; height: 16px; }
+.ftoc-h { color: var(--fg); font-weight: 550; padding: 0 var(--sp-3); margin-bottom: var(--sp-1); }
+.ftoc-g { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); padding: 0 var(--sp-3); margin: var(--sp-4) 0 var(--sp-1); }
+
+/* the section's icon chip: the org block's chip anatomy (--raised, hairline,
+   --r-control, one 20px symbol on --muted), above each heading */
+.f-ic { display: grid; place-items: center; width: var(--sp-10); height: var(--sp-10); margin-bottom: var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+.f-ic .ic { display: block; width: 20px; height: 20px; }
+.org > .f-ic { margin-bottom: var(--sp-3); }
+
+@media (min-width: 1100px) {
+  .features-layout { grid-template-columns: calc(var(--sp-16) * 3) minmax(0, 1fr); gap: var(--sp-8); }
+  .ftoc { position: sticky; top: calc(var(--nav-h, 62px) + var(--sp-6)); align-self: start; max-height: calc(100vh - var(--nav-h, 62px) - var(--sp-12)); max-height: calc(100dvh - var(--nav-h, 62px) - var(--sp-12)); overflow-y: auto; }
+  .features-body > .feature, .features-body > .org { scroll-margin-top: calc(var(--nav-h, 62px) + var(--sp-6)); }
+}
+@media (max-width: 1099px) {
+  .ftoc { position: sticky; top: var(--nav-h, 62px); z-index: 5; display: flex; gap: var(--sp-2); overflow-x: auto; margin: 0 calc(var(--sp-4) * -1); padding: var(--sp-2) max(var(--sp-4), env(safe-area-inset-right, 0px)) var(--sp-2) max(var(--sp-4), env(safe-area-inset-left, 0px)); padding-left: max(var(--sp-4), env(safe-area-inset-left, 0px)); padding-right: max(var(--sp-4), env(safe-area-inset-right, 0px)); background: var(--bg); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .ftoc::-webkit-scrollbar { display: none; }
+  .ftoc-h, .ftoc-g { display: none; }
+  .ftoc ul { display: contents; }
+  .ftoc a { border: 1px solid var(--line); }
+}
+/* the phone bar (2026-09-25): 19 chips in one sideways row always left a
+   label sliced by the screen edge ("per mode" | "every device" | "signe"),
+   which read as text spilling out of its button. From 641px up nothing
+   changes: .ftoc-btn is not rendered and .ftoc-panel is display: contents, so
+   the 768 row and the 1100 rail lay out exactly as before. Under 640px the
+   row becomes one sticky bar holding a single whole chip, the section in view
+   (icon and label, kept current by the page's scroll-spy), and a chevron;
+   the bar opens a panel under it with every section as a wrapped chip under
+   its group heading, so no label is ever partly off screen, open or closed.
+   Disclosure, not a modal: the page stays live, Escape, a tap outside or a
+   chip closes it. Same look plan: --bg surface, --line hairlines, --raised on
+   the current chip, --r-control only, no accent at rest. */
+.ftoc-btn { display: none; }
+.ftoc-panel { display: contents; }
+@media (max-width: 640px) {
+  .ftoc { display: block; overflow: visible; }
+  .ftoc-btn { display: flex; align-items: center; gap: var(--sp-2); width: 100%; min-height: var(--target); padding: 0 var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ftoc-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ftoc-btn:active { background: var(--line); }
+  .ftoc-cur { display: flex; flex: 1 1 auto; align-items: center; gap: var(--sp-2); min-width: 0; white-space: nowrap; }
+  .ftoc-lab { color: var(--muted); }
+  .ftoc-chev { flex: none; width: 16px; height: 16px; color: var(--muted); transition: transform var(--dur-2, 150ms) ease; }
+  .ftoc-btn[aria-expanded="true"] .ftoc-chev { transform: rotate(180deg); }
+  .ftoc-panel { display: none; }
+  .ftoc[data-open] .ftoc-panel { display: block; position: absolute; left: 0; right: 0; top: 100%; max-height: calc(100vh - var(--nav-h, 62px) - var(--target) - var(--sp-4) - 1px); max-height: calc(100dvh - var(--nav-h, 62px) - var(--target) - var(--sp-4) - 1px); overflow-y: auto; overscroll-behavior: contain; padding: 0 max(var(--sp-4), env(safe-area-inset-right, 0px)) var(--sp-3) max(var(--sp-4), env(safe-area-inset-left, 0px)); background: var(--bg); border-bottom: 1px solid var(--line); }
+  .ftoc .ftoc-g { display: block; padding: 0; margin: var(--sp-3) 0 var(--sp-1); }
+  .ftoc ul { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  /* 8px chip padding in the panel: the whole list fits an 844px-tall phone
+     at 320-390 without the panel scrolling, so no chip peeks half-cut at
+     its foot; the 8px gap between 44px targets stays */
+  .ftoc .ftoc-panel a { display: inline-flex; padding: 0 var(--sp-2); }
+}
+/* a phone on its side lands in the 641-1099 sticky row: header 56 + row 52
+   covered ~40% of a 280px view with Safari's toolbars out, and the last chip
+   was sliced at the edge (iPhone 17 Pro landscape, 2026-09-26). There the
+   index sits in the flow and wraps, so every chip is whole and nothing pins
+   over the copy; the lander's spliced copy carries the same rule inline. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 641px) {
+  .ftoc { position: static; flex-wrap: wrap; justify-content: center; overflow-x: visible; }
+}
+
+/* ---- super mode (2026-09-23): the figure is the app's own Super menu, drawn
+   in site tokens (SUPER on, AUTO with its
+   recommended tag, the MANAGER and WORKER pickers, the worker stepper, the
+   REVIEW switch), then the run that menu starts with every model named in
+   full, never truncated. The panel's labels are small caps, as in the app.
+   The ON segment is the one storm fill, as it is in the app; everything else
+   is --raised / --line / --muted. Radii: --r-surface on the panel,
+   --r-control on the rows and marks, --r-pill on the segments and switch
+   (the page's existing shape exception). */
+/* the frame and figcaption are the shared .feature figure rules; the padded
+   stack sits in .sm-body so the caption runs edge to edge like the others */
+.fig-super .sm-body { display: grid; gap: var(--sp-4); padding: var(--sp-5); }
+.sm-panel { display: grid; width: 100%; max-width: calc(var(--sp-16) * 5.5); margin: 0 auto; padding: var(--sp-2) var(--sp-4); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-surface); }
+.sm-row, .sm-pick { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); min-height: var(--sp-12); }
+.sm-pick { flex-direction: column; align-items: stretch; justify-content: center; gap: var(--sp-1); padding: var(--sp-2) 0; }
+.sm-row + .sm-row, .sm-row + .sm-pick, .sm-pick + .sm-pick, .sm-pick + .sm-row { border-top: 1px solid var(--line); }
+.sm-lab { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--muted); font-size: var(--fs-sm); font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.06em; }
+.sm-row:first-child .sm-lab { color: var(--fg); }
+.sm-dot { width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--storm-1); }
+.sm-tag { padding: 0 var(--sp-2); border: 1px solid var(--storm-1); border-radius: var(--r-pill); color: var(--storm-1); font-size: var(--fs-xs); letter-spacing: 0.04em; }
+.sm-seg { display: inline-flex; padding: 3px; background: var(--raised); border: 1px solid var(--line-strong, #5c5c5c); border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.04em; }
+.sm-seg span { padding: var(--sp-1) var(--sp-3); border-radius: var(--r-pill); color: var(--muted); }
+.sm-seg .is-on { background: var(--storm-action); color: #fff; }
+.sm-seg .is-off { background: var(--line); color: var(--fg); }
+.sm-model { display: flex; align-items: center; gap: var(--sp-3); color: var(--fg); font-size: var(--fs-base); }
+.sm-model > span:not(.sm-mark) { flex: 1; min-width: 0; }
+.sm-mark { display: inline-grid; place-items: center; flex: none; width: var(--sp-8); height: var(--sp-8); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+.sm-mark svg { width: 18px; height: 18px; }
+/* vendor tiles, the pair the desktop rail and the swarm's agent marks paint
+   (the desktop app's brand tokens: --color-brand-openai #ffffff / -ink
+   #000000, --color-brand-anthropic #d97757 / -ink #ffffff), so one team
+   reads as two model families */
+.fig-super { --sm-brand-openai: #ffffff; --sm-brand-openai-ink: #000000; --sm-brand-anthropic: #d97757; --sm-brand-anthropic-ink: #ffffff; }
+.fig-super .sm-mark[data-brand="openai"] { background: var(--sm-brand-openai); color: var(--sm-brand-openai-ink); border-color: transparent; }
+.fig-super .sm-mark[data-brand="anthropic"] { background: var(--sm-brand-anthropic); color: var(--sm-brand-anthropic-ink); border-color: transparent; }
+.sm-chev { width: 16px; height: 16px; color: var(--muted); flex: none; }
+.sm-step { display: inline-flex; align-items: center; gap: var(--sp-3); padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line-strong, #5c5c5c); border-radius: var(--r-pill); color: var(--muted); font-variant-numeric: tabular-nums; }
+.sm-step b { color: var(--fg); font-weight: 550; }
+.sm-switch { width: var(--sp-10); height: var(--sp-6); padding: 3px; background: var(--raised); border: 1px solid var(--line-strong, #5c5c5c); border-radius: var(--r-pill); }
+.sm-switch::before { content: ""; display: block; width: calc(var(--sp-6) - 8px); height: calc(var(--sp-6) - 8px); border-radius: var(--r-pill); background: var(--muted); }
+/* the run: one row per agent, the model's full name, never truncated */
+.sm-run { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+.sm-run li { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto auto; align-items: center; column-gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--raised); border-radius: var(--r-control); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.sm-run .sm-mark { width: var(--sp-6); height: var(--sp-6); background: var(--bg); }
+.sm-run .sm-mark svg { width: 14px; height: 14px; }
+.sm-role { color: var(--muted); }
+.sm-name { color: var(--fg); }
+.sm-tok { color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); }
+.sm-usd { color: var(--fg); font-family: var(--font-mono); }
+.sm-total { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.sm-total b { color: var(--fg); font-family: var(--font-mono); font-weight: 400; }
+@container (max-width: 480px) {
+  .sm-run li { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: 0; }
+  .sm-run .sm-role { grid-column: 2; grid-row: 1; }
+  .sm-run .sm-name { grid-column: 2; grid-row: 2; }
+  .sm-run .sm-mark { grid-row: 1 / span 2; }
+  .sm-run .sm-tok { grid-column: 3; grid-row: 1; text-align: right; }
+  .sm-run .sm-usd { grid-column: 3; grid-row: 2; text-align: right; }
+}
+
+/* ==== features page pass (2026-09-23): hero hub, at-a-glance strip, the
+   text/figure split, one section rhythm, vendor marks, two small drawings.
+   Scoped to .features-page (the page's <main>) so /enterprise, which
+   links this sheet for .feature/.text/.body, keeps its own layout. Every
+   length is a shared site token; the only literals are the 1px hairline, the
+   icon boxes (12/14/16/20/24px, the lucide grid the page already uses) and
+   the hub's own SVG user units. ==== */
+.features-page { --f-gap: var(--sp-12); }
+
+/* -- hero: the title beside the hub, stacked under 860px of container -- */
+.f-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); align-items: center; }
+.features-page h1 { font-size: var(--fs-h1); line-height: 1.05; letter-spacing: var(--tracking-tight); }
+.f-hero .lede { margin-bottom: 0; font-size: var(--fs-lg); line-height: var(--lh-lg); }
+.f-hero-fig { margin: 0; container-type: inline-size; }
+.f-hub { display: block; width: 100%; height: auto; overflow: visible; }
+/* two drawings of one story: .f-hub-wide reads left to right (two input
+   columns on right-angle buses into the mark, one line out to deploy);
+   .f-hub-m, for a figure under 520px (a phone), reads top to bottom with
+   named chips in two panels, so no label ever shrinks below 12px */
+.f-hub-m { display: none; }
+@container (max-width: 520px) { .f-hub-wide { display: none; } .f-hub-m { display: block; } }
+.f-hub-lines { fill: none; stroke: var(--line); }
+/* the pulse: one short dash per route, travelling from an input into the
+   mark over the first half of a 6s loop and resting the second half; the
+   nine loops are staggered by 0.6s. pathLength="100" on each path makes
+   the dash lengths route-relative. All motion here is always on, no
+   reduced-motion guard (the always-on motion rule). */
+.f-hub-pulses path { fill: none; stroke: var(--fg); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 6 200; stroke-dashoffset: 6; animation: f-hub-pulse 6s linear infinite; /* deliberate */ }
+.f-hub-pulses path:nth-child(2) { animation-delay: -0.6s; }
+.f-hub-pulses path:nth-child(3) { animation-delay: -1.2s; }
+.f-hub-pulses path:nth-child(4) { animation-delay: -1.8s; }
+.f-hub-pulses path:nth-child(5) { animation-delay: -2.4s; }
+.f-hub-pulses path:nth-child(6) { animation-delay: -3s; }
+.f-hub-pulses path:nth-child(7) { animation-delay: -3.6s; }
+.f-hub-pulses path:nth-child(8) { animation-delay: -4.2s; }
+.f-hub-pulses path:nth-child(9) { animation-delay: -4.8s; }
+.f-hub-m-pulses path { stroke-dasharray: 30 200; stroke-dashoffset: 30; animation-duration: 1.6s; /* deliberate */ }
+.f-hub-m-pulses path:nth-child(2) { animation-delay: -0.8s; }
+@keyframes f-hub-pulse { 0% { stroke-dashoffset: 6; } 50%, 100% { stroke-dashoffset: -100; } }
+.f-hub-nodes { color: var(--fg); }
+.f-hub-nodes rect { fill: var(--card); stroke: var(--line); }
+.f-hub-labels text { fill: var(--muted); font-family: var(--font-ui); font-size: var(--fs-xs); }
+.f-hub .f-hub-group { fill: var(--fg); font-family: var(--font-ui); font-size: var(--fs-xs); }
+.f-hub-panel { fill: none; stroke: var(--line); }
+.f-hub-chips { color: var(--fg); }
+.f-hub-chips rect { fill: var(--card); stroke: var(--line); }
+.f-hub-chips text { fill: var(--fg); font-family: var(--font-ui); font-size: var(--fs-xs); }
+/* the mark: the bare brand tile, black with the duotone face on it and no
+   stroke (the turning storm-gradient border and the blurred copy that breathed
+   behind it are retired 2026-10-06: the tile wears no ring anywhere) */
+.f-hub-core { fill: var(--tile-bg); }
+@keyframes f-hub-breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; } }
+/* mark → deploy is the strong stroke: 3px storm gradient over a blurred
+   copy, with bright dashes streaming toward the button */
+.f-hub-out, .f-hub-out-glow { fill: none; stroke-width: 3; stroke-linecap: round; }
+.f-hub-out-glow { stroke-width: 6; opacity: 0.8; }
+.f-hub-flow { fill: none; stroke: var(--fg); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 3 9; animation: f-hub-flow 0.6s linear infinite; /* deliberate */ }
+@keyframes f-hub-flow { to { stroke-dashoffset: -12; } }
+/* the button's box is the pill (the sweep is a gradient, not a moving path),
+   and it draws no outline at rest or tap highlight of its own: the pill
+   answers the pointer itself, lifting on hover and sinking on press about
+   its centre (transform-box view-box; each pill sets its centre as
+   transform-origin). Keyboard focus gets the accent ring below. */
+.f-hub-deploy { cursor: pointer; outline: 2px solid transparent; outline-offset: 2px; -webkit-tap-highlight-color: transparent; }
+.f-hub-deploy:focus-visible { outline-color: var(--accent); }
+.f-hub-press { transform-box: view-box; transition: transform 160ms cubic-bezier(0.2, 0, 0, 1), filter 160ms ease-out; }
+.f-hub-deploy:hover .f-hub-press { transform: scale(1.03); filter: brightness(1.08); }
+.f-hub-deploy:active .f-hub-press { transform: scale(0.96); filter: brightness(0.94); transition-duration: 80ms; }
+.f-hub-deploy-glow { animation: f-hub-breathe 2.4s ease-in-out infinite; /* deliberate */ }
+.f-hub-deploy:active .f-hub-deploy-glow { animation: none; opacity: 1; }
+.f-hub-sheen { pointer-events: none; }
+/* ink on the storm gradient, not white: white on the teal end fails contrast */
+.f-hub-deploy text { fill: var(--bg); font-family: var(--font-ui); font-size: 15px; font-weight: 600; }
+.f-hub-m .f-hub-deploy text { font-size: 18px; }
+.f-hub-arrow { fill: none; stroke: var(--bg); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.f-hub-dest { color: var(--fg); }
+.f-hub-dest .mf { fill: var(--fg); }
+.f-hub-dest circle { fill: var(--card); stroke: var(--bg); stroke-width: 2; }
+.f-hub-dest text { fill: var(--muted); font-family: var(--font-ui); font-size: var(--fs-xs); }
+.f-hub .st0 { stop-color: var(--storm-0); }
+.f-hub .st2 { stop-color: var(--storm-1); }
+.f-hub .st3 { stop-color: var(--storm-3); }
+.f-hub-mark .m0 { fill: var(--storm-0); }
+.f-hub-mark .m3 { fill: var(--storm-3); }
+.f-hub-mark .mf { fill: var(--fg); }
+/* tidy (2026-10-02, mockup v1): the mark's own switch, a tile-styled pill
+   with the measured figure under it. Its track is the turning storm gradient;
+   the knob switches on once as the page lands (ease-out under 300ms, no
+   overshoot) and then holds still; the broom never moves (its looping sweep
+   read as a wiggle across the hero, removed 2026-10-04). Transform and
+   opacity only, always on, no reduced-motion guard (the always-on motion rule). */
+.f-hub-tidy { color: var(--fg); }
+.f-hub-tidy-pill { fill: var(--card); stroke: var(--line); }
+.f-hub-tidy text { fill: var(--fg); font-family: var(--font-ui); font-size: var(--fs-xs); }
+.f-hub-tidy .f-hub-tidy-note { fill: var(--muted); }
+.f-hub-tidy-off { fill: var(--line); }
+.f-hub-tidy-on { opacity: 0; animation: f-hub-tidy-lit 240ms ease-out 900ms forwards; }
+.f-hub-tidy-knob { fill: var(--fg); transform: translateX(-10px); animation: f-hub-tidy-knob 280ms cubic-bezier(0.2, 0, 0, 1) 900ms forwards; }
+@keyframes f-hub-tidy-lit { to { opacity: 1; } }
+@keyframes f-hub-tidy-knob { to { transform: translateX(0); } }
+@container (min-width: 860px) {
+  .f-hero { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: var(--sp-10); }
+}
+
+/* -- at a glance (2026-10-02, the approved list design): one rounded
+   panel, one full-width row per feature, split by --line hairlines. Full rows (remote, team,
+   daemon, tidy): the text block at the left (icon above the title, then the
+   proof line, the same alignment on every one) and a drawing at the right,
+   stacked under the text once the panel is narrower than 560px (daemon and
+   tidy carry a wider drawing and stack from 860px). Slim rows (every chat,
+   signed in, unlimited apis): icon, label and a muted proof on one line, the
+   proof under the label on a phone. A row is a link only where a section
+   covers the feature; the rest are plain rows. The panel is its own
+   inline-size container, so every break below is measured on it. The
+   drawings are inline SVG, thin --muted/--fg strokes on --bg/--card fills,
+   the accent on the riding dot, the resumes tag outline, the tree root and
+   the tidy link chips only. Ambient loops (transform and opacity only, no
+   guard, the page script pauses them off screen through --fg-play):
+   fg-orbit (the dot round the daemon loop), fg-breathe (the resumes tag's dot
+   and the tidy chips), fg-flow and fg-lit (a pulse from the tree root down to
+   the workers), fg-cursor (a cursor dot mirrored on the laptop and phone). -- */
+.f-glance { container: fglance / inline-size; margin: var(--sp-10) 0 var(--f-gap); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); overflow: hidden; --fg-play: running; }
+.f-glance[data-off] { --fg-play: paused; }
+.f-glance ul { list-style: none; margin: 0; padding: 0; }
+.f-glance li + li { border-top: 1px solid var(--line); }
+.f-glance .fg-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--sp-8); padding: var(--sp-6) var(--sp-8); color: var(--fg); text-decoration: none; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.f-glance a.fg-row:hover { background: var(--raised); }
+.f-glance a.fg-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.f-glance .ic { display: block; flex: none; width: var(--sp-6); height: var(--sp-6); color: var(--muted); }
+.f-glance .fg-text { display: grid; justify-items: start; min-width: 0; }
+.f-glance .fg-full .ic { margin-bottom: var(--sp-3); }
+.f-glance .fg-l { color: var(--fg); font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 550; }
+.f-glance .fg-p { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.f-glance .fg-l + .fg-p { margin-top: var(--sp-1); }
+/* slim rows: icon and label on the left, the proof where the full rows'
+   drawings begin */
+.f-glance .fg-slim { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); padding-top: var(--sp-4); padding-bottom: var(--sp-4); }
+.f-glance .fg-slim .fg-text { display: flex; align-items: center; gap: var(--sp-4); }
+.f-glance .fg-slim .ic { width: var(--sp-5); height: var(--sp-5); margin: 0; }
+.f-glance .fg-slim .fg-l { font-size: var(--fs-base); line-height: var(--lh-base); }
+/* drawings */
+.f-glance .fg-draw { justify-self: end; min-width: 0; }
+.f-glance .fg-art { display: block; width: calc(var(--sp-16) * 3); max-width: 100%; height: auto; margin-right: var(--sp-12); }
+.f-glance .fg-dev { fill: var(--bg); stroke: var(--fg); stroke-width: 1.5; }
+.f-glance .fg-phone { fill: var(--card); }
+.f-glance .fg-ink { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.f-glance .fg-dot-s { fill: var(--muted); }
+.f-glance .fg-cur { fill: var(--fg); }
+.f-glance .fg-cur-l { animation: fg-cursor-l 12s ease-in-out infinite; /* deliberate */ }
+.f-glance .fg-cur-p { animation: fg-cursor-p 12s ease-in-out infinite; /* deliberate */ }
+/* team: the existing .fg-tree drawing, a pulse from the root to the workers */
+.f-glance .fg-tree rect { fill: var(--bg); stroke: var(--line); }
+.f-glance .fg-tree .fg-tree-root { stroke: var(--accent); }
+.f-glance .fg-tree-lines { fill: none; stroke: var(--muted); stroke-opacity: 0.5; }
+.f-glance .fg-flow { fill: none; stroke: var(--fg); opacity: 0; animation: fg-flow 4.5s ease-in-out infinite backwards; /* deliberate */ }
+.f-glance .fg-flow-2 { animation-delay: 0.6s; }
+.f-glance .fg-lit { color: var(--fg); animation: fg-lit 4.5s ease-in-out 1.2s infinite backwards; /* deliberate */ }
+/* daemon: the loop, then the three conditions joined to the resumes tag */
+.f-glance .fg-loop { display: flex; align-items: center; gap: var(--sp-10); }
+.f-glance .fg-ring { display: grid; justify-items: center; gap: var(--sp-2); }
+.f-glance .fg-ring svg { display: block; width: calc(var(--sp-16) * 2); height: calc(var(--sp-16) * 2); }
+.f-glance .fg-ring-c { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.f-glance .fg-inf { fill: none; stroke: var(--fg); stroke-linecap: round; stroke-linejoin: round; }
+.f-glance .fg-orbit { transform-origin: 64px 64px; animation: fg-orbit 8s linear infinite; /* deliberate */ }
+.f-glance .fg-rider { fill: var(--accent); }
+.f-glance .fg-cap { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.f-glance .fg-conds { position: relative; display: grid; grid-template-columns: auto auto auto; grid-template-rows: repeat(3, var(--sp-10)); column-gap: var(--sp-3); row-gap: var(--sp-2); align-items: center; }
+.f-glance .fg-cond { grid-column: 1; display: flex; align-items: center; gap: var(--sp-3); color: var(--fg); white-space: nowrap; }
+.f-glance .fg-cond .ic { width: var(--sp-5); height: var(--sp-5); margin: 0; }
+.f-glance .fg-join { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.f-glance .fg-join-h { grid-column: 2; grid-row: 1 / span 3; align-self: start; display: block; width: var(--sp-10); height: calc(var(--sp-10) * 3 + var(--sp-2) * 2); }
+.f-glance .fg-join-v { display: none; }
+.f-glance .fg-tag { grid-column: 3; grid-row: 2; justify-self: start; display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-4); border: 1px solid var(--accent); border-radius: var(--r-control); background: var(--bg); color: var(--accent); }
+/* the tag's text stays at full ink on every frame (axe measured 3.7:1 while the whole tag breathed in opacity); the breathe lives on the dot */
+.f-glance .fg-tag-dot { display: block; flex: none; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--accent); animation: fg-breathe 3s ease-in-out infinite; /* deliberate */ }
+/* tidy: full to tidy, then the two measured ratios */
+.f-glance .fg-tidy-art { display: flex; align-items: center; gap: var(--sp-8); }
+.f-glance .fg-flowrow { display: grid; grid-template-columns: auto auto auto; align-items: center; justify-items: center; column-gap: var(--sp-6); row-gap: var(--sp-2); }
+.f-glance .fg-doc { display: block; width: calc(var(--sp-16) * 1.5); height: auto; }
+.f-glance .fg-doc-a { grid-area: 1 / 1; }
+.f-glance .fg-cap-a { grid-area: 2 / 1; }
+.f-glance .fg-arrow { grid-area: 1 / 2; display: block; width: var(--sp-8); height: var(--sp-4); fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.f-glance .fg-doc-b { grid-area: 1 / 3; }
+.f-glance .fg-cap-b { grid-area: 2 / 3; }
+.f-glance .fg-flowrow .fg-cap { display: grid; justify-items: center; white-space: nowrap; }
+.f-glance .fg-cap b { color: var(--fg); font-weight: 500; }
+.f-glance .fg-ink-m, .f-glance .fg-ink-f { fill: none; stroke-width: 2; }
+.f-glance .fg-ink-m { stroke: var(--muted); }
+.f-glance .fg-ink-f { stroke: var(--fg); }
+.f-glance .fg-chip { animation: fg-breathe 3.6s ease-in-out infinite; /* deliberate */ }
+.f-glance .fg-chip:nth-of-type(2) { animation-delay: 0.6s; }
+.f-glance .fg-chip:nth-of-type(3) { animation-delay: 1.2s; }
+.f-glance .fg-chip rect { fill: var(--bg); stroke: var(--accent); }
+.f-glance .fg-chip path { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; }
+.f-glance .fg-stats { display: grid; align-self: stretch; align-content: center; gap: var(--sp-4); padding-left: var(--sp-8); border-left: 1px solid var(--line); }
+.f-glance .fg-stat { display: grid; }
+.f-glance .fg-stat b { color: var(--fg); font-size: var(--fs-h2); line-height: var(--lh-xl); font-weight: 550; letter-spacing: var(--tracking-tight); }
+.f-glance .fg-stat span { color: var(--muted); white-space: nowrap; }
+/* the loops pause together off screen (the page script sets data-off) */
+.f-glance .fg-cur-l, .f-glance .fg-cur-p, .f-glance .fg-flow, .f-glance .fg-lit, .f-glance .fg-orbit, .f-glance .fg-tag-dot, .f-glance .fg-chip { animation-play-state: var(--fg-play); }
+@keyframes fg-orbit { to { transform: rotate(360deg); } }
+@keyframes fg-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+@keyframes fg-flow { 0%, 100% { opacity: 0; } 12%, 24% { opacity: 0.8; } 44% { opacity: 0; } }
+@keyframes fg-lit { 0%, 100% { opacity: 0.6; } 12%, 24% { opacity: 1; } 44% { opacity: 0.6; } }
+@keyframes fg-cursor-l { 0%, 8% { transform: translate(0, 0); } 28%, 36% { transform: translate(44px, 0); } 56%, 64% { transform: translate(60px, 12px); } 82%, 90% { transform: translate(36px, 24px); } 100% { transform: translate(0, 0); } }
+@keyframes fg-cursor-p { 0%, 8% { transform: translate(0, 0); } 28%, 36% { transform: translate(28px, 0); } 56%, 64% { transform: translate(36px, 12px); } 82%, 90% { transform: translate(22px, 24px); } 100% { transform: translate(0, 0); } }
+/* daemon and tidy carry the wide drawings: under 860px the drawing drops
+   under the text and takes the row's width */
+@container (max-width: 859px) {
+  .f-glance .fg-daemon .fg-row, .f-glance .fg-tidy .fg-row { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-5); }
+  .f-glance .fg-daemon .fg-draw, .f-glance .fg-tidy .fg-draw { justify-self: stretch; justify-content: space-between; }
+}
+/* a phone: the drawing stacks under the text on every full row, the slim rows
+   put the proof under the label, and the daemon and tidy drawings re-lay as
+   columns so no label wraps at 320 */
+@container (max-width: 559px) {
+  .f-glance .fg-row { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-4); padding: var(--sp-4); }
+  .f-glance .fg-draw { justify-self: start; justify-content: flex-start; }
+  .f-glance .fg-art { margin-right: 0; }
+  .f-glance .fg-l { font-size: var(--fs-base); line-height: var(--lh-base); }
+  .f-glance .fg-p { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .f-glance .fg-slim { grid-template-columns: auto minmax(0, 1fr); column-gap: var(--sp-3); row-gap: 0; }
+  .f-glance .fg-slim .fg-text { display: contents; }
+  .f-glance .fg-slim .ic { grid-row: span 2; }
+  .f-glance .fg-slim .fg-l { grid-column: 2; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .f-glance .fg-slim .fg-p { grid-column: 2; }
+  .f-glance .fg-loop { flex-direction: column; align-items: flex-start; gap: var(--sp-5); }
+  .f-glance .fg-ring { justify-items: start; }
+  .f-glance .fg-ring svg { width: calc(var(--sp-16) * 1.5); height: calc(var(--sp-16) * 1.5); }
+  .f-glance .fg-cap, .f-glance .fg-cond, .f-glance .fg-tag { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .f-glance .fg-conds { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(3, var(--sp-8)) auto; row-gap: var(--sp-2); }
+  .f-glance .fg-cond { padding-left: calc(var(--sp-6) + var(--sp-1)); }
+  .f-glance .fg-join-h { display: none; }
+  .f-glance .fg-join-v { display: block; position: absolute; left: 0; top: 0; width: var(--sp-6); height: calc(var(--sp-8) * 3 + var(--sp-2) * 3); }
+  .f-glance .fg-tag { grid-column: 1; grid-row: 4; }
+  .f-glance .fg-tidy-art { flex-direction: column; align-items: flex-start; gap: var(--sp-4); }
+  .f-glance .fg-doc { width: calc(var(--sp-16) + var(--sp-2)); }
+  .f-glance .fg-flowrow { column-gap: var(--sp-3); }
+  .f-glance .fg-flowrow .fg-cap { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .f-glance .fg-stats { display: flex; flex-wrap: wrap; justify-content: start; gap: var(--sp-6); align-self: auto; padding: var(--sp-4) 0 0; border-left: 0; border-top: 1px solid var(--line); width: 100%; }
+  .f-glance .fg-stat b { font-size: var(--fs-lg); line-height: var(--lh-lg); }
+}
+
+/* -- rhythm: the same --f-gap above and below every section hairline -- */
+.features-page .features-body > .feature { padding-top: var(--f-gap); margin-top: var(--f-gap); gap: var(--sp-6); }
+.features-page .features-body > .feature:first-of-type { padding-top: 0; margin-top: 0; }
+.features-page .f-ic { margin-bottom: var(--sp-4); }
+.features-page .feature h2 { font-size: var(--fs-h2); line-height: var(--lh-xl); letter-spacing: var(--tracking-tight); }
+
+/* -- the split: the lede reads at --fs-lg from 820px of container. The 5/7
+   grid, the text column holding the lede and the figure filling its column,
+   starts where that text column can hold the longest lede line (318px at
+   --fs-lg) with a 2% margin; under that, text over a full-width figure. The
+   index rail takes 192px plus a 32px gap from a 1100px viewport, so the split
+   needs 1038px of container there: (1038 - 224 - 32) * 5/12 = 326px. Without
+   the rail the 820px floor already gives the column 328px. The container
+   cannot see the rail, so the two cases are told apart by the viewport query.
+   The sync pair stays one full-width column. -- */
+@container (min-width: 820px) {
+  .features-page .feature p.body { font-size: var(--fs-lg); line-height: var(--lh-lg); }
+}
+@media (max-width: 1099px) {
+  @container (min-width: 820px) {
+    .features-page .features-body > .feature:not(.wide) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--sp-8); }
+    /* the sync article keeps its full-width capture pair; under it the text
+       takes the same 5/7 split, the heading and lede left, what syncs right */
+    .features-page .feature.wide .text { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--sp-8); }
+    .features-page .feature.wide .text > :not(.sync-what) { grid-column: 1; }
+    .features-page .feature.wide .sync-what { grid-column: 2; grid-row: 1 / span 3; align-self: end; margin-top: 0; }
+  }
+}
+@media (min-width: 1100px) {
+  @container (width < 1038px) {
+    .feature { grid-template-columns: minmax(0, 1fr); }
+    .feature .text { order: -1; }
+  }
+  @container (width >= 1038px) {
+    .features-page .features-body > .feature:not(.wide) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--sp-8); }
+    .features-page .feature.wide .text { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--sp-8); }
+    .features-page .feature.wide .text > :not(.sync-what) { grid-column: 1; }
+    .features-page .feature.wide .sync-what { grid-column: 2; grid-row: 1 / span 3; align-self: end; margin-top: 0; }
+  }
+}
+
+/* -- vendor marks: simple-icons symbols, 24-unit grid, currentColor -- */
+.features-page .mk { display: inline-block; flex: none; width: 16px; height: 16px; color: var(--fg); }
+
+/* sync: the desktop, account, phone strip under the capture pair */
+.sync-strip { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-5); border-top: 1px solid var(--line); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.sync-strip .ic { display: block; flex: none; width: 16px; height: 16px; }
+.ss-end, .ss-mid { display: inline-flex; align-items: center; gap: var(--sp-2); white-space: nowrap; }
+.ss-mid { padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line-strong, #5c5c5c); border-radius: var(--r-pill); color: var(--fg); }
+.ss-wire { position: relative; flex: 1 1 0; min-width: var(--sp-4); height: 1px; background: var(--line); }
+.ss-wire::before, .ss-wire::after { content: ""; position: absolute; top: calc(var(--sp-1) / -2 + 0.5px); width: var(--sp-1); height: var(--sp-1); border-radius: 50%; background: var(--muted); }
+.ss-wire::before { left: 0; }
+.ss-wire::after { right: 0; }
+
+/* vault: the browser and login lists as rows of marks with names; each
+   connection row leads with the site's mark, its source line with the
+   source's */
+.vault-from .mk-row { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
+.vault-from .mk-row li { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.vault-from .mk { width: 14px; height: 14px; color: var(--fg); }
+.vault-rows li { grid-template-columns: max-content minmax(0, 1fr) max-content; }
+.vault-site { grid-row: 1 / span 2; align-self: center; display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+.vault-site svg { width: 16px; height: 16px; }
+.vault-rows .vault-src { grid-column: 2 / -1; display: inline-flex; align-items: center; gap: var(--sp-1); }
+.vault-src svg { flex: none; width: 12px; height: 12px; color: var(--muted); }
+
+/* ---- vault, how it works (2026-09-24): the second figure under the
+   Connections card, spanning both columns. Where a sign-in goes and who can
+   open it, drawn as the page's line diagram: nodes are the vault rows'
+   anatomy (--bg on the card, --line hairline, --r-control, a --raised
+   --sp-8 tile holding one 16px sprite glyph), joined by 1px wires that meet
+   each tile's centre (--sp-3 padding + half the --sp-8 tile). Three wide
+   columns: your browsers, the Helper, your agent on top; superbot servers
+   and your phone under the Helper and the agent, a key legend bottom left.
+   The one accent is spent on the sealed path: the lock glyph and the two
+   "sealed copy" wires in --storm-1, the key chips' glyph in --accent. Under
+   a 780px figure it stacks (three columns wrap their labels below that) on a left spine at the tile centre, the agent
+   hanging off it as a branch so it never reads as a hop to the servers.
+   Claims and their code: the comment above .fig-seal in features.html. */
+.features-page .fig-seal { grid-column: 1 / -1; container-type: inline-size; }
+.sl-stage { display: grid; grid-template-columns: minmax(0, 1fr) var(--sp-12) minmax(0, 1fr) var(--sp-12) minmax(0, 1fr); grid-template-areas: "src in hlp use agt" ". . sync . ." "leg . srv phone phn"; padding: var(--sp-5); }
+.sl-src { grid-area: src; } .sl-hlp { grid-area: hlp; } .sl-agt { grid-area: agt; }
+.sl-srv { grid-area: srv; } .sl-phn { grid-area: phn; } .sl-leg { grid-area: leg; }
+.sl-w-in { grid-area: in; } .sl-w-use { grid-area: use; } .sl-w-sync { grid-area: sync; } .sl-w-phone { grid-area: phone; }
+.sl-node { position: relative; display: grid; align-self: start; grid-template-columns: var(--sp-8) minmax(0, 1fr); column-gap: var(--sp-3); align-content: start; min-width: 0; padding: var(--sp-3); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.sl-node > p { grid-column: 2; margin: 0; text-wrap: pretty; }
+.sl-tile { grid-column: 1; grid-row: 1 / span 6; align-self: start; display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+.sl-tile svg { width: 16px; height: 16px; }
+.sl-tile.is-lock { color: var(--storm-1); }
+.sl-t { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.sl-key { justify-self: start; display: inline-flex; align-items: center; gap: var(--sp-1); margin: var(--sp-1) 0; padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--fg); white-space: nowrap; }
+.sl-key svg { flex: none; width: 12px; height: 12px; color: var(--accent); }
+.sl-key.is-none { color: var(--muted); }
+.sl-node > .sl-key { margin-bottom: var(--sp-2); }
+/* wires: an empty grid cell whose ::before is the 1px line. Wide, the three
+   across meet the tile centre and carry no label (the nodes say it); the one
+   down from the Helper names the sealed copy beside it. */
+.sl-w { position: relative; display: block; min-width: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-style: normal; }
+.sl-w::before { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--sp-3) + var(--sp-4)); height: 1px; background: var(--line); }
+.sl-w span { display: none; }
+.sl-w-sync { min-height: var(--sp-10); padding: var(--sp-3) 0 var(--sp-3) calc(var(--sp-8) + var(--sp-3)); }
+.sl-w-sync::before { left: calc(var(--sp-3) + var(--sp-4)); right: auto; top: 0; bottom: 0; width: 1px; height: auto; }
+.sl-w-sync span { display: block; white-space: nowrap; }
+.sl-w-sync::before, .sl-w-phone::before { background: var(--storm-1); }
+.sl-leg { align-self: center; display: grid; gap: var(--sp-2); padding-right: var(--sp-3); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.sl-leg p { margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2); }
+.sl-leg .sl-key { margin: 0; }
+@container (max-width: 779px) {
+  .sl-stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "src" "in" "hlp" "use" "agt" "sync" "srv" "phone" "phn" "leg"; padding: var(--sp-3); }
+  .sl-w { min-height: var(--sp-10); padding: var(--sp-3) 0 var(--sp-3) calc(var(--sp-8) + var(--sp-3)); }
+  .sl-w::before { left: calc(var(--sp-3) + var(--sp-4)); right: auto; top: 0; bottom: 0; width: 1px; height: auto; }
+  .sl-w span { display: block; white-space: nowrap; }
+  .sl-agt { margin-left: var(--sp-12); }
+  .sl-agt::before, .sl-agt::after { content: ""; position: absolute; left: calc(var(--sp-3) + var(--sp-4) - var(--sp-12) - 1px); background: var(--line); }
+  .sl-agt::before { top: -1px; bottom: -1px; width: 1px; }
+  .sl-agt::after { top: calc(var(--sp-3) + var(--sp-4) - 1px); width: calc(var(--sp-12) - var(--sp-3) - var(--sp-4)); height: 1px; }
+  .sl-leg { margin-top: var(--sp-4); padding-right: 0; }
+}
+/* privacy (2026-09-24): the statement band after the vault, one column:
+   heading, the five lines, the chat-sync disclosure, then the chip list of
+   the app's real settings under them (the wide article's two-column text
+   split left the chips floating beside dead space). */
+.features-page #privacy .text { grid-template-columns: minmax(0, 1fr); }
+.features-page #privacy .sync-what { grid-column: 1; grid-row: auto; align-self: start; margin-top: var(--sp-4); }
+
+
+/* media: each vendor cell a short list of mark + name */
+.media-grid .mv { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); }
+.media-grid .mv li { display: flex; align-items: center; gap: var(--sp-2); }
+.media-grid .mk { width: 14px; height: 14px; }
+
+/* publish: the Publish glyph wears the button's ink */
+.pub-btn .ic { color: var(--bg); }
+
+/* mcp: client marks inside the pill, where simple-icons has one */
+.fig-url .client-chips li { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.fig-url .client-chips .mk { width: 14px; height: 14px; }
+
+/* optimizer (tidy mode): the context run's four measured wins as tidy-against-
+   full bar pairs (the published benchmark's treatment: tidy in the accent, the
+   one meter fill the page allows, full in --muted, each bar from zero to its
+   own value against the larger of the two, the value in text ink at the end).
+   Rows keep this anatomy's grid (a label, the bar, a value), --r-control on the
+   bar ends. One muted line under the pairs says the quality result is level
+   with full. Static, no entrance, no hover. */
+.tb { display: grid; gap: var(--sp-5); padding: var(--sp-5) var(--sp-5) var(--sp-3); }
+.tb-set { display: grid; gap: var(--sp-2); }
+.tb-h { display: grid; margin: 0 0 var(--sp-1); }
+.tb-h b { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.tb-h span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.tb-row { display: grid; grid-template-columns: var(--sp-10) minmax(0, 1fr) var(--sp-12); align-items: center; column-gap: var(--sp-3); }
+.tb-lab { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.tb-bar { display: flex; height: var(--sp-4); }
+.tb-fill { display: block; flex: 0 0 var(--w); height: 100%; background: var(--muted); border-radius: 0 var(--r-control) var(--r-control) 0; }
+.tb-row.is-us .tb-fill { background: var(--accent); }
+.tb-v { text-align: right; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tb-row.is-us .tb-lab, .tb-row.is-us .tb-v { color: var(--fg); }
+.tb-note { margin: 0; padding: var(--sp-2) var(--sp-5) var(--sp-5); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+@media (max-width: 640px) {
+  .tb { padding: var(--sp-4) var(--sp-3) var(--sp-3); }
+  .tb-note { padding: var(--sp-2) var(--sp-3) var(--sp-4); }
+  .sync-strip { padding: var(--sp-3); gap: var(--sp-2); }
+}
+/* publish: the figure is its own inline-size container, so the live
+   address (.pub-url's cqi term) is sized to the figure, not the viewport */
+.features-page .fig-deploy { container-type: inline-size; }
+/* super: at a 320 phone the menu replica keeps its rows inside the figure */
+@container (max-width: 400px) {
+  .fig-super .sm-body { padding: var(--sp-3); }
+  .fig-super .sm-panel { padding: var(--sp-2) var(--sp-3); }
+  .fig-super .sm-row { flex-wrap: wrap; row-gap: var(--sp-1); padding: var(--sp-2) 0; }
+}
+/* sync strip at a 320 phone: the two end glyphs carry desktop and phone */
+@container (max-width: 400px) { .sync-strip .ss-t { display: none; } }
+
+/* ---- omni engine (2026-09-24): the loop against claude-agent-sdk, four
+   measured pairs as small multiples, each on its own zero-based scale (a bar
+   is the value over the larger of its pair, or over the ceiling for a rate
+   or a score). New anatomy (.fig-omni, used once): a stack of metric cells
+   split by 1px --line gaps (2x2 only once the figure itself is wider than
+   480 CSS px; at 1440 the root zoom leaves it about 476, so it stacks), each a title, a model/direction note and
+   two direct-labelled rows. Omni's bar is --fg ink, the sdk's --muted, so
+   identity never rides a hue and the accent stays off the figure; values
+   are tabular and in text ink. Bars are --sp-2 tall with a square baseline
+   end and a --r-control data end. Static: no entrance, no hover. */
+#omni .fig-omni { width: 100%; container-type: inline-size; }
+#omni .om-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); }
+#omni .om-m { display: grid; align-content: start; gap: var(--sp-2); padding: var(--sp-4) var(--sp-5); background: var(--card); }
+#omni .om-h { display: grid; margin: 0 0 var(--sp-1); }
+#omni .om-h b { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#omni .om-h span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#omni .om-row { display: grid; grid-template-columns: calc(var(--sp-16) + var(--sp-2)) minmax(0, 1fr) var(--sp-12); align-items: center; column-gap: var(--sp-3); margin: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#omni .om-t { display: block; height: var(--sp-2); }
+#omni .om-t i { display: block; width: var(--w); height: 100%; background: var(--muted); border-radius: 0 var(--r-control) var(--r-control) 0; }
+#omni .om-v { text-align: right; font-variant-numeric: tabular-nums; }
+#omni .is-us .om-n, #omni .is-us .om-v { color: var(--fg); }
+#omni .is-us .om-t i { background: var(--fg); }
+@container (max-width: 480px) {
+  #omni .om-grid { grid-template-columns: minmax(0, 1fr); }
+  #omni .om-m { padding: var(--sp-3) var(--sp-4); }
+}
+
+/* #tools (built-in tools, 2026-09-24): one run trace in the shape of the
+   desktop app's turn activity header, expanded (a header with the run and
+   its elapsed time, the ask, then one row per tool call with a state
+   mark, the tool's icon and name, its token count and time in mono, and
+   the result under it). Each result slot carries a different artifact (a mono address, a
+   count, a locus chip, a drawn thumbnail, a file chip) so the seven rows
+   read as seven tools, not a uniform card wall. The rows sit in one
+   --r-control hairline frame on --bg, the deploy table's framing, but as
+   two-line list rows with no header row, so the two never share an
+   anatomy. No hue: done is a --muted ring with a check, the live row a
+   --fg arc turning (always on, the always-on motion rule, no guard) on --raised.
+   Every length is a shared site token; the 12/16px marks and the 48x32
+   thumbnail sit on the lucide grid the page already uses.
+   2026-09-29: the shape was first taken from the right-hand Activity panel,
+   retired that day; each turn in the thread now carries its own activity
+   header, and the trace reads as that header opened. */
+#tools .tl-body { padding: var(--sp-5); }
+#tools .tl-head { display: flex; align-items: baseline; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+#tools .tl-title { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#tools .tl-title::before { content: ""; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--fg); }
+#tools .tl-run { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#tools .tl-time { margin-left: auto; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#tools .tl-ask { margin: 0 0 var(--sp-3) auto; max-width: 36ch; width: fit-content; padding: var(--sp-2) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#tools .tl-steps { list-style: none; margin: 0; padding: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#tools .tl-steps li { display: grid; grid-template-columns: 12px 16px minmax(0, 1fr) max-content; grid-template-areas: "state ic name meta" ". . out out"; column-gap: var(--sp-3); row-gap: var(--sp-1); align-items: center; padding: var(--sp-3); }
+#tools .tl-steps li + li { border-top: 1px solid var(--line); }
+#tools .tl-steps li.is-live { background: var(--raised); }
+#tools .tl-state { grid-area: state; position: relative; width: 12px; height: 12px; border: 1px solid var(--muted); border-radius: 50%; }
+#tools .tl-state::after { content: ""; position: absolute; left: 3px; top: 1px; width: 3px; height: 6px; border: solid var(--fg); border-width: 0 1px 1px 0; transform: rotate(45deg); }
+#tools .is-live .tl-state { border-color: var(--line); border-top-color: var(--fg); animation: tl-spin 1s linear infinite; /* deliberate */ }
+#tools .is-live .tl-state::after { content: none; }
+@keyframes tl-spin { to { transform: rotate(360deg); } }
+#tools .tl-ic { grid-area: ic; width: 16px; height: 16px; color: var(--fg); }
+#tools .tl-name { grid-area: name; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#tools .tl-meta { grid-area: meta; display: inline-flex; gap: var(--sp-2); color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#tools .tl-out { grid-area: out; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#tools .tl-out code { color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); overflow-wrap: anywhere; }
+#tools .tl-where { padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#tools .tl-out-media { gap: var(--sp-3); }
+#tools .tl-thumb { width: 48px; height: 32px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); fill: none; stroke: var(--muted); stroke-width: 1; }
+#tools .tl-file { display: inline-flex; align-items: baseline; gap: var(--sp-2); padding: var(--sp-1) var(--sp-2); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+#tools .tl-file span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+@container (max-width: 480px) {
+  #tools .tl-body { padding: var(--sp-3); }
+  #tools .tl-steps li { grid-template-areas: "state ic name name" ". . meta meta" ". . out out"; }
+}
+
+/* #reader (the web reader, 2026-09-24): one read per row, and under it the
+   trail of what it tried, left to right, until one answered. A step is a
+   --line chip in --muted, a step that met a wall is dashed, and the step that
+   got through is a chip on --raised in --fg. So the figure is the fallback itself, not
+   a list of tools: no icons, no tokens, bare rows on the card with hairlines
+   between them, a different anatomy from #tools' framed step list beside it.
+   One blue: the run's dot, and the dot on the read still going (an opacity
+   pulse, always on, the always-on motion rule, no guard). Every length is a
+   shared site token. */
+#reader .wr-body { padding: var(--sp-5); }
+#reader .wr-head { display: flex; align-items: baseline; gap: var(--sp-2); padding-bottom: var(--sp-3); }
+#reader .wr-title { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#reader .wr-title::before { content: ""; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--accent); }
+#reader .wr-run { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#reader .wr-time, #reader .wr-t { margin-left: auto; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#reader .wr-rows { list-style: none; margin: 0; padding: 0; }
+#reader .wr-rows li { display: grid; grid-template-columns: minmax(0, 1fr) max-content; grid-template-areas: "name t" "trail trail"; gap: var(--sp-2) var(--sp-3); align-items: baseline; padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+#reader .wr-rows li:last-child { padding-bottom: 0; }
+#reader .wr-name { grid-area: name; display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#reader .wr-t { grid-area: t; }
+#reader .is-live .wr-name::after { content: ""; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--accent); animation: wr-pulse 2.4s ease-in-out infinite; /* deliberate */ }
+@keyframes wr-pulse { 50% { opacity: 0.3; } }
+#reader .wr-trail { grid-area: trail; display: flex; flex-wrap: wrap; gap: var(--sp-2); min-width: 0; }
+#reader .wr-try { display: inline-flex; align-items: baseline; gap: var(--sp-2); padding: var(--sp-1) var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#reader .wr-try b { font-weight: 550; color: var(--muted); }
+#reader .wr-try.is-wall { border-style: dashed; }
+#reader .wr-try.is-hit { background: var(--raised); color: var(--fg); }
+#reader .wr-try.is-hit b { color: var(--fg); }
+@container (max-width: 480px) {
+  #reader .wr-body { padding: var(--sp-3); }
+}
+
+/* #build (edit and preview, 2026-09-24): the Code-mode project pane in
+   miniature. The head copies the project head (name, mono path, the Preview
+   badge running on a localhost port, Publish), then the
+   pane splits: the project chat on the left with the edit row's diff, and on
+   the right the file open in its sheet (path, dirty dot, Save with its
+   accelerator) above the preview the side pane browser opened (auto-open
+   once). The one bold thing is
+   line 12: the same line changed in the chat, open in the editor with a
+   blinking caret, and rendered live as the page title. Tokens only, no
+   accent: the running dot is --fg like #tools' title dot. The caret reuses
+   term-blink, always on (the always-on motion rule, no guard). */
+#build .fig-build { container-type: inline-size; }
+#build .bd-body { padding: var(--sp-5); }
+#build .bd-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); padding: var(--sp-2); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); }
+#build .bd-proj { flex: none; padding-left: var(--sp-1); color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#build .bd-path { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#build .bd-chip { display: inline-flex; flex: none; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#build .bd-chip .ic { display: block; width: 12px; height: 12px; }
+#build .bd-port { color: var(--muted); font-family: var(--font-mono); }
+#build .bd-dot { display: block; flex: none; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--fg); }
+#build .bd-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: var(--sp-4); margin-top: var(--sp-4); align-items: start; }
+#build .bd-chat { display: grid; gap: var(--sp-3); align-content: start; }
+#build .bd-ask { margin: 0 0 0 auto; width: fit-content; max-width: 100%; padding: var(--sp-2) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#build .bd-diff, #build .bd-sheet, #build .bd-view { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#build .bd-dh, #build .bd-bar, #build .bd-url { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--line); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#build .bd-file, #build .bd-tab { color: var(--fg); font-family: var(--font-mono); }
+#build .bd-dir { flex: 1 1 0; min-width: 0; color: var(--muted); font-family: var(--font-mono); }
+#build .bd-count { display: inline-flex; gap: var(--sp-1); font-family: var(--font-mono); }
+#build .bd-count b { color: var(--fg); font-weight: 400; }
+#build .bd-count s { color: var(--muted); text-decoration: none; }
+#build .bd-line, #build .bd-code { display: grid; grid-template-columns: var(--sp-6) var(--sp-3) minmax(0, 1fr); align-items: baseline; padding: var(--sp-1) var(--sp-3) var(--sp-1) 0; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: pre; overflow: hidden; }
+#build .bd-code { grid-template-columns: var(--sp-6) minmax(0, 1fr); column-gap: var(--sp-2); }
+#build .bd-code > span:last-child, #build .bd-line > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+#build .bd-ln { text-align: right; padding-right: var(--sp-2); color: var(--muted); }
+#build .bd-line.is-del > span:last-child { text-decoration: line-through; }
+#build .bd-line.is-add, #build .bd-code.is-cur { background: var(--raised); color: var(--fg); box-shadow: inset 2px 0 0 var(--fg); }
+#build .bd-note { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#build .bd-side { display: grid; gap: var(--sp-3); align-content: start; }
+#build .bd-bar .ic { display: block; flex: none; width: 14px; height: 14px; color: var(--muted); }
+#build .bd-tab { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#build .bd-dirty { display: block; flex: none; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--muted); }
+#build .bd-save { flex: none; color: var(--muted); white-space: nowrap; }
+#build .bd-save kbd { font-family: var(--font-mono); color: var(--fg); }
+#build .bd-sheet .bd-code:last-child { padding-bottom: var(--sp-2); }
+#build .bd-sheet .bd-bar + .bd-code { padding-top: var(--sp-2); }
+#build .bd-caret { display: inline-block; width: 1px; height: 1em; vertical-align: text-bottom; background: var(--fg); animation: term-blink 1.1s step-end infinite; /* deliberate */ }
+#build .bd-url { color: var(--fg); font-family: var(--font-mono); }
+#build .bd-url span:first-of-type { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#build .bd-page { padding: var(--sp-4); background: var(--card); }
+#build .bd-h1 { margin: 0 0 var(--sp-3); color: var(--fg); font-weight: 550; font-size: var(--fs-lg); line-height: var(--lh-lg); letter-spacing: -0.01em; }
+#build .bd-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+#build .bd-list li { padding: var(--sp-2) 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+/* the split holds from 441 query px (about 474 at 1440 under the root zoom,
+   see the tools note above), where a code line may wrap under its number */
+#build .bd-line > span:last-child, #build .bd-code > span:last-child { white-space: pre-wrap; overflow-wrap: anywhere; }
+@container (max-width: 440px) {
+  #build .bd-body { padding: var(--sp-3); }
+  #build .bd-split { grid-template-columns: minmax(0, 1fr); }
+}
+/* the head's mono path only where it reads whole beside the badges */
+@container (max-width: 560px) { #build .bd-path { display: none; } }
+
+/* #calls (calls and texts, 2026-09-24): one ask, the call it placed and the
+   text it sent, in reading order. The ask is the chat bubble #tools uses; the
+   call is one --r-control card on --raised (who, mono number and duration,
+   the "from your iPhone" locus, then the opener the callee hears, verbatim
+   from the app's call opener); the answers are a two-column
+   question/answer list in a hairline frame on --bg, an unanswered question
+   named as unanswered (as the plan's answers report does); the text is an outgoing bubble
+   right-aligned in --fg on --bg ink-reversed so it reads as a message, not a
+   fourth card. No hue, no animation. Every length is a shared site token; the
+   16px marks sit on the lucide grid the page already uses. */
+#calls .cl-body { display: grid; gap: var(--sp-3); padding: var(--sp-5); }
+#calls .cl-ask { margin: 0 0 0 auto; max-width: 36ch; width: fit-content; padding: var(--sp-2) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#calls .cl-call { display: grid; gap: var(--sp-2); padding: var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+#calls .cl-who { display: grid; grid-template-columns: var(--sp-8) minmax(0, 1fr) max-content; grid-template-areas: "av name dur" "av num dur"; column-gap: var(--sp-3); align-items: center; }
+#calls .cl-av { grid-area: av; display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); border: 1px solid var(--line); border-radius: 50%; background: var(--bg); color: var(--fg); }
+#calls .cl-av svg { width: 16px; height: 16px; }
+#calls .cl-name { grid-area: name; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#calls .cl-num { grid-area: num; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#calls .cl-dur { grid-area: dur; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; }
+#calls .cl-from, #calls .cl-to { display: inline-flex; align-items: center; gap: var(--sp-2); width: fit-content; margin: 0; color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#calls .cl-from { padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-control); }
+#calls .cl-from svg, #calls .cl-to svg { width: 12px; height: 12px; color: var(--muted); }
+#calls .cl-open { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#calls .cl-ans { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#calls .cl-ans div { display: grid; grid-template-columns: minmax(0, 1fr) max-content; column-gap: var(--sp-4); padding: var(--sp-2) var(--sp-3); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#calls .cl-ans div + div { border-top: 1px solid var(--line); }
+#calls .cl-ans dt { color: var(--muted); }
+#calls .cl-ans dd { margin: 0; color: var(--fg); font-weight: 550; }
+#calls .cl-ans .is-open dd { color: var(--muted); font-weight: 400; }
+#calls .cl-text { display: grid; justify-items: end; gap: var(--sp-1); }
+#calls .cl-to { color: var(--muted); }
+#calls .cl-bubble { margin: 0; max-width: 32ch; padding: var(--sp-2) var(--sp-3); background: var(--fg); color: var(--bg); border-radius: var(--r-control); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#calls .cl-sent { margin: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+@container (max-width: 480px) {
+  #calls .cl-body { padding: var(--sp-3); }
+}
+
+/* #computer .fig-computer: the deep version of #tools' browser and screen
+   rows. Two hairline-split parts on the one figure cell: the browser tasks
+   as bare rows on the card (no inner frame, unlike #tools' .tl-steps), then
+   the computer-use strip: two mini screens (background: your window in front
+   keeps its caret while the app behind fills; foreground: one window with a
+   pointer driving it) and the consent tier as a three-way segment. Only
+   --r-control inside; the figure cell keeps --r-surface. Motion is always on
+   (the always-on motion rule): the row icons light in turn, the caret blinks, the
+   back window's cells fill, the pointer drives. */
+#computer .pc-part { padding: var(--sp-5); }
+#computer .pc-part + .pc-part { border-top: 1px solid var(--line); }
+#computer .pc-head { display: flex; align-items: baseline; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+#computer .pc-label { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#computer .pc-where { margin-left: auto; padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#computer .pc-ic { width: var(--sp-4); height: var(--sp-4); flex: none; color: var(--muted); }
+#computer .pc-tasks { list-style: none; margin: 0; padding: 0; }
+#computer .pc-tasks li { display: grid; grid-template-columns: var(--sp-4) minmax(0, 1fr) max-content; grid-template-areas: "ic ask time" ". res res"; column-gap: var(--sp-3); row-gap: var(--sp-1); align-items: center; padding: var(--sp-3) 0; }
+#computer .pc-tasks li + li { border-top: 1px solid var(--line); }
+#computer .pc-tasks li:last-child { padding-bottom: 0; }
+#computer .pc-tasks .pc-ic { grid-area: ic; animation: pc-turn 8s step-end infinite; /* deliberate */ }
+#computer .pc-tasks li:nth-child(2) .pc-ic { animation-delay: -6s; }
+#computer .pc-tasks li:nth-child(3) .pc-ic { animation-delay: -4s; }
+#computer .pc-tasks li:nth-child(4) .pc-ic { animation-delay: -2s; }
+@keyframes pc-turn { 0% { color: var(--accent); } 25%, 100% { color: var(--muted); } }
+#computer .pc-ask { grid-area: ask; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#computer .pc-time { grid-area: time; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#computer .pc-res { grid-area: res; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#computer .pc-res code { color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+
+#computer .pc-modes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-5); }
+#computer .pc-mode { display: grid; align-content: start; gap: var(--sp-2); }
+#computer .pc-screen { position: relative; height: var(--sp-16); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#computer .pc-win { position: absolute; display: flex; align-items: center; gap: var(--sp-1); padding: 0 var(--sp-2); height: calc(var(--sp-8) + var(--sp-1)); border: 1px solid var(--line); border-radius: var(--r-control); }
+#computer .pc-win-back { left: var(--sp-2); top: var(--sp-2); width: 58%; background: var(--card); }
+#computer .pc-win-front { right: var(--sp-2); bottom: var(--sp-2); width: 58%; background: var(--raised); }
+#computer .pc-win-solo { inset: var(--sp-2); height: auto; flex-direction: column; align-items: flex-start; justify-content: center; background: var(--raised); }
+#computer .pc-win i { flex: 1; height: var(--sp-1); background: var(--line); animation: pc-fill 3s step-end infinite; /* deliberate */ }
+#computer .pc-win i:nth-child(2) { animation-delay: 1s; }
+#computer .pc-win i:nth-child(3) { animation-delay: 2s; }
+@keyframes pc-fill { 0% { background: var(--line); } 33%, 100% { background: var(--muted); } }
+#computer .pc-win b { display: block; width: 40%; height: var(--sp-1); background: var(--muted); }
+#computer .pc-win-solo b + b { width: 64%; margin-top: var(--sp-2); background: var(--line); }
+#computer .pc-win .pc-caret { width: 1px; height: var(--sp-3); background: var(--fg); animation: pc-blink 1.1s step-end infinite; /* deliberate */ }
+@keyframes pc-blink { 50% { opacity: 0; } }
+#computer .pc-mode:last-child .pc-screen { border-color: var(--muted); }
+#computer .pc-pointer { position: absolute; left: 0; top: 0; width: var(--sp-4); height: var(--sp-4); fill: var(--fg); stroke: var(--bg); stroke-width: 1.5; stroke-linejoin: round; animation: pc-drive 4s ease-in-out infinite; /* deliberate */ }
+@keyframes pc-drive {
+  0%, 100% { transform: translate(var(--sp-12), var(--sp-3)); }
+  35% { transform: translate(calc(var(--sp-16) * 2), var(--sp-8)); }
+  65% { transform: translate(var(--sp-16), calc(var(--sp-8) + var(--sp-2))); }
+}
+#computer .pc-mode-h { display: inline-flex; align-items: center; gap: var(--sp-2); margin: 0; color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#computer .pc-mode-h .pc-ic { color: var(--fg); }
+#computer .pc-mode-d { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#computer kbd { padding: 0 var(--sp-1); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#computer .pc-consent { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+#computer .pc-seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#computer .pc-seg span { padding: 0 var(--sp-3); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-sm); }
+#computer .pc-seg span + span { border-left: 1px solid var(--line); }
+#computer .pc-seg .is-on { background: var(--raised); color: var(--fg); }
+#computer .pc-note { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+@container (max-width: 480px) {
+  #computer .pc-part { padding: var(--sp-3); }
+  #computer .pc-modes { grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
+}
+
+/* #spend .fig-spend: a miniature of the account usage page's All AI view,
+   every figure invented. The provider hues are the real page's own, so the
+   storm ramp shows here because the app uses it: s0..s4 are --storm-0,
+   --storm-1, --storm-3, --storm-4, --storm-2. The provenance lives in the
+   fill the way the usage page draws it: measured solid, estimated hatched at
+   45deg, plan banded, the gaps at the series hue 28%. The bars are
+   HTML so the textures stay crisp at any width; a segment's height is its
+   --v over the $20 scale. The lead number wears --storm-0,
+   the on segments --storm-action as #super's menu does. Only --r-control
+   and --r-pill inside; the figure cell keeps --r-surface. Motion is always
+   on (the always-on motion rule): today's bar breathes, it is still filling. */
+#spend .fig-spend { container-type: inline-size; }
+#spend .sp-body { padding: var(--sp-5); }
+#spend .sp-title { margin: 0; color: var(--fg); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-lg); }
+#spend .sp-sub { margin: 0 0 var(--sp-3); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#spend .sp-card { padding: var(--sp-4); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+#spend .s0 { --c: var(--storm-0); }
+#spend .s1 { --c: var(--storm-1); }
+#spend .s2 { --c: var(--storm-3); }
+#spend .s3 { --c: var(--storm-4); }
+#spend .s4 { --c: var(--storm-2); }
+
+#spend .sp-segs { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+#spend .sp-seg { display: inline-flex; padding: calc(var(--sp-1) / 2); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-pill); font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 600; }
+#spend .sp-seg span { padding: var(--sp-1) var(--sp-3); border-radius: var(--r-pill); color: var(--muted); }
+#spend .sp-seg .is-on { background: var(--storm-action); color: var(--fg); }
+#spend .sp-range { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+#spend .sp-when { display: grid; margin: 0; }
+#spend .sp-when b { color: var(--fg); font-weight: 600; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#spend .sp-when span, #spend .sp-field > span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#spend .sp-dates { display: none; align-items: flex-end; gap: var(--sp-2); }
+#spend .sp-field { display: grid; gap: var(--sp-1); }
+#spend .sp-field code { padding: 0 var(--sp-2); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-sm); }
+#spend .sp-apply { padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-sm); }
+
+#spend .sp-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 0 var(--sp-4); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+#spend .sp-kpis > div { min-width: 0; padding: var(--sp-3) 0; }
+#spend .sp-kpis > div:nth-child(even) { padding-left: var(--sp-4); border-left: 1px solid var(--line); }
+#spend .sp-kpis > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+#spend .sp-kpis dt { margin: 0 0 var(--sp-1); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#spend .sp-kpis dd { display: grid; gap: var(--sp-1); margin: 0; min-width: 0; }
+#spend .sp-kpis b { color: var(--fg); font-weight: 600; font-size: var(--fs-xl); line-height: var(--lh-xl); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+#spend .sp-kpis .is-lead b { color: var(--storm-0); }
+#spend .sp-kpis dd span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+
+#spend .sp-plot { position: relative; height: calc(var(--sp-16) * 2); margin-left: var(--sp-8); }
+#spend .sp-y > span { position: absolute; left: calc(var(--sp-8) * -1); right: 0; bottom: calc(var(--t) / 20 * 100% - var(--lh-xs) / 2); display: grid; grid-template-columns: var(--sp-8) minmax(0, 1fr); align-items: center; padding-right: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; }
+#spend .sp-y > span::after { content: ""; border-top: 1px solid var(--line); }
+#spend .sp-bars { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(30, minmax(0, 1fr)); gap: calc(var(--sp-1) / 2); align-items: end; margin: 0; padding: 0; list-style: none; }
+#spend .sp-bars li { display: flex; flex-direction: column-reverse; gap: 1px; height: 100%; }
+#spend .sp-bars i { display: block; flex: none; height: calc(var(--v) / 20 * 100%); }
+#spend .sp-bars .m { background: var(--c); }
+#spend .sp-bars .p { background: repeating-linear-gradient(0deg, var(--c) 0 2px, color-mix(in oklab, var(--c) 28%, transparent) 2px 5px); }
+#spend .sp-bars .e { background: repeating-linear-gradient(45deg, var(--c) 0 2px, color-mix(in oklab, var(--c) 28%, transparent) 2px 6px); }
+#spend .sp-bars li:last-child { animation: sp-live 2.4s ease-in-out infinite; /* deliberate */ }
+@keyframes sp-live { 50% { opacity: 0.55; } }
+#spend .sp-x { position: relative; height: var(--lh-xs); margin: var(--sp-2) 0 0 var(--sp-8); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#spend .sp-x span { position: absolute; left: calc((var(--i) + 0.5) / 30 * 100%); transform: translateX(-50%); white-space: nowrap; }
+#spend .sp-x span:first-child { left: 0; transform: none; }
+#spend .sp-x span:last-child { left: auto; right: 0; transform: none; }
+
+#spend .sw { display: inline-block; flex: none; width: var(--sp-2); height: var(--sp-2); border-radius: var(--r-pill); background: var(--c, var(--muted)); }
+#spend .sp-legend { width: 100%; margin-top: var(--sp-4); border-collapse: collapse; font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; }
+#spend .sp-legend th, #spend .sp-legend td { padding: var(--sp-1) 0; text-align: right; color: var(--fg); font-weight: 400; }
+#spend .sp-legend thead th { color: var(--muted); }
+#spend .sp-legend tbody tr { border-top: 1px solid var(--line); }
+#spend .sp-legend tbody th { display: flex; align-items: center; gap: var(--sp-2); text-align: left; color: var(--muted); }
+#spend .sp-legend td { width: calc(var(--sp-16) + var(--sp-4)); }
+#spend .sp-key { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: var(--sp-3) 0 0; padding: 0; list-style: none; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#spend .sp-key li { display: inline-flex; align-items: center; gap: var(--sp-2); }
+#spend .sw.k-m, #spend .sw.k-e, #spend .sw.k-p { width: var(--sp-3); }
+#spend .sw.k-e { background: repeating-linear-gradient(45deg, var(--muted) 0 2px, transparent 2px 4px); box-shadow: inset 0 0 0 1px var(--muted); }
+#spend .sw.k-p { background: repeating-linear-gradient(0deg, var(--muted) 0 2px, transparent 2px 4px); box-shadow: inset 0 0 0 1px var(--muted); }
+
+#spend .sp-rh { margin: var(--sp-5) 0 var(--sp-2); color: var(--fg); font-weight: 600; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#spend .sp-recon { margin: 0; padding: 0; list-style: none; }
+#spend .sp-recon li { display: grid; grid-template-columns: minmax(0, 1fr) max-content max-content; grid-template-areas: "name stat tot" "src src src"; gap: var(--sp-1) var(--sp-4); align-items: center; padding: var(--sp-2) 0; border-top: 1px solid var(--line); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#spend .sp-recon li:last-child { border-bottom: 1px solid var(--line); }
+#spend .sp-rname { grid-area: name; display: flex; align-items: center; gap: var(--sp-2); min-width: 0; color: var(--fg); }
+#spend .sp-rstat { grid-area: stat; color: var(--fg); white-space: nowrap; }
+#spend .sp-rstat.is-est { color: var(--muted); }
+#spend .sp-rsrc { grid-area: src; display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); padding-left: var(--sp-4); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#spend .sp-rsrc span { white-space: nowrap; }
+#spend .sp-rtot { grid-area: tot; color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+@container (min-width: 640px) {
+  #spend .sp-dates { display: flex; }
+}
+@container (max-width: 639px) {
+  #spend .sp-x .is-minor { display: none; }
+}
+@container (min-width: 520px) {
+  #spend .sp-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #spend .sp-kpis > div:nth-child(n+2) { padding-left: var(--sp-4); border-left: 1px solid var(--line); }
+  #spend .sp-kpis > div:nth-child(n+3) { border-top: 0; }
+  #spend .sp-recon li { grid-template-columns: calc(var(--sp-16) * 2) max-content minmax(0, 1fr) max-content; grid-template-areas: "name stat src tot"; }
+  #spend .sp-rsrc { padding-left: 0; }
+}
+@container (max-width: 400px) {
+  #spend .sp-body, #spend .sp-card { padding: var(--sp-3); }
+  #spend .sp-x .is-minor { display: none; }
+}
+
+/* ---- blue pass (2026-09-24, owner: "add some more color to our examples,
+   using signature superbot blue ... throughout, some blue accent colors").
+   One blue, --accent #4d8aff, the text-safe step of the app's
+   color.accent #2b6bff. Measured (WCAG 2): 5.92:1 on --card, 5.41:1 on
+   --raised, 6.40:1 on --bg, so it clears 3:1 for every glyph, dot, border
+   and fill below; --accent-ink #0d0d0d on the flat accent is 5.92:1, the
+   only text painted on it. The tint (accent 22% over the surface) carries
+   --fg at 12:1. #super, #spend and #cli already wear the app's own hues and
+   are left alone; #sync belongs to its own pass. Scoped to .features-page
+   or an article id so enterprise.html, which also loads this sheet, is
+   untouched. ---- */
+.features-page .f-ic { color: var(--accent); }
+
+/* #tools: the run's live dot and the running step's spinner arc */
+#tools .tl-title::before { background: var(--accent); }
+#tools .is-live .tl-state { border-top-color: var(--accent); }
+
+/* #calls: the dialing mark, and the sent text in the Messages blue */
+#calls .cl-av { color: var(--accent); border-color: var(--accent); }
+#calls .cl-bubble { background: var(--accent); color: var(--accent-ink); }
+
+/* #computer: the task running now, the picked mode, the on segment */
+#computer .pc-mode:last-child .pc-screen { border-color: var(--accent); }
+#computer .pc-mode:last-child .pc-mode-h .pc-ic { color: var(--accent); }
+#computer .pc-seg .is-on { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--fg); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* #endpoints: the picked preset and the on dialect, as the app selects */
+#endpoints .ep-presets .is-on { border-color: var(--accent); }
+#endpoints .ep-presets .is-on .ep-tile { color: var(--accent); }
+#endpoints .ep-seg .is-on { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* #build: Preview running, the editor's current line, Publish filled */
+#build .bd-dot { background: var(--accent); }
+#build .bd-code.is-cur { box-shadow: inset 2px 0 0 var(--accent); }
+#build .bd-head > .bd-chip:last-child { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 550; }
+
+/* #publish: the one click is the app's filled primary */
+#publish .pub-btn { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+/* #cloud: the device links carry the sync */
+#cloud .sync-link line { stroke: var(--accent); }
+
+/* #omni: omni's own bars; agent sdk stays --muted */
+#omni .is-us .om-t i { background: var(--accent); }
+
+/* #mcp: the all-working status dot */
+#mcp .mg-sum i { background: var(--accent); }
+
+/* ==== the core, round two (2026-10-02, owner: "build out the top features"):
+   #daemon, #remote, #fleet, #voice and #quick join the core group. Each is
+   one article in the page's anatomy (icon chip, h2, p.body, one figure) and
+   each figure is its own anatomy, used once: .fig-park (daemon: the app's
+   parked-wait banner on a drawn card stack, the front card carrying the
+   words the app prints, Parked:, Resume now and Cancel wait, two parked
+   threads peeking out behind it), .fig-live (remote: a phone showing the
+   desktop with Observe and Control, the desktop's approval switch under it),
+   .fig-fleet (fleet: the app's board as one banded list, a header band per
+   group and flat rows, no card per group), .fig-voice (voice: a voice bar
+   with the mic round, a waveform and the state word, over a row of voices)
+   and .fig-ask (quick: a window outline with the ask panel floating over it).
+   Look plan is the page's own: --bg/--card/--raised/--line/--fg/--muted, the
+   one accent on live dots, selected states, primary fills and meters only,
+   --r-control and --r-surface (50% and --r-pill on dots and bars), --font-ui
+   on every label, no mono. Every length is a shared site token; the page's
+   16px and 20px icon grid is --sp-4 and --sp-5. Loops, always on (no guard,
+   transform and opacity only): the daemon card's meter counts down to its
+   next check-in (8s, linear), the live dots on the phone and the running
+   rows breathe (3s and 2.4s, the rows staggered), a cursor dot drifts over
+   the phone's desktop (9s), the voice bar's seven bars rise and fall (1.2s,
+   staggered) and the ask field's caret blinks (1.1s). Each figure carries
+   data-loop; the page script sets data-off while it is off screen and
+   --loop-play pauses its loops with it. ---- */
+.feature figure[data-off] { --loop-play: paused; }
+@keyframes pk-count { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes core-live { 50% { opacity: 0.45; } }
+@keyframes rm-cur {
+  0%, 8% { transform: translate(0, 0); }
+  30%, 38% { transform: translate(calc(var(--sp-8) * 3), 0); }
+  60%, 68% { transform: translate(calc(var(--sp-16) + var(--sp-4)), var(--sp-6)); }
+  86%, 92% { transform: translate(var(--sp-6), var(--sp-8)); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes vc-wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+@keyframes qk-caret { 50% { opacity: 0; } }
+
+/* #daemon .fig-park: the banner is the front card (the app's own words, the
+   countdown meter, the primary Resume now), and two parked threads peek out
+   under it, each a card narrower than the one above. Siblings, never
+   nested; the three are one list, so the figure is one anatomy. */
+#daemon .pk-body { padding: var(--sp-5); }
+#daemon .pk-stack { list-style: none; margin: 0; padding: 0; display: grid; }
+#daemon .pk-card { position: relative; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+#daemon .pk-front { z-index: 3; display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); }
+#daemon .pk-head { display: flex; align-items: center; gap: var(--sp-2); margin: 0; }
+#daemon .pk-glyph { flex: none; display: block; width: var(--sp-4); height: var(--sp-4); color: var(--muted); }
+#daemon .pk-title { flex: 1 1 auto; min-width: 0; color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 550; white-space: nowrap; }
+#daemon .pk-clock { flex: none; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; }
+#daemon .pk-detail { margin: 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#daemon .pk-meter { display: block; height: var(--sp-1); border-radius: var(--r-pill); background: var(--line); overflow: hidden; }
+#daemon .pk-meter i { display: block; height: 100%; background: var(--accent); transform-origin: left center; animation: pk-count 8s linear infinite; animation-play-state: var(--loop-play, running); /* deliberate */ }
+#daemon .pk-act { display: flex; gap: var(--sp-2); margin: 0; }
+#daemon .pk-btn { display: inline-flex; align-items: center; height: var(--sp-8); padding: 0 var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-control); background: var(--bg); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#daemon .pk-btn.is-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 550; }
+#daemon .pk-back { display: flex; align-items: center; gap: var(--sp-2); margin-top: calc(var(--sp-3) * -1); padding: var(--sp-4) var(--sp-3) var(--sp-2); }
+#daemon .pk-back .pk-title { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 400; }
+#daemon .pk-back:nth-of-type(2) { z-index: 2; margin-inline: var(--sp-2); }
+#daemon .pk-back:nth-of-type(3) { z-index: 1; margin-inline: var(--sp-4); }
+
+/* #remote .fig-live: the phone's own viewer drawn small (the letterbox, a
+   close chip and the live pill in the corners, the caption "<app> on
+   <device>", Observe and Control) and, under it, the one desktop setting
+   that makes it ask first. Control is the picked segment (the page's selected
+   state), the live dot the one blink. */
+#remote .rm-body { display: grid; justify-items: center; gap: var(--sp-4); padding: var(--sp-5); }
+#remote .rm-phone { width: calc(var(--sp-16) * 3 + var(--sp-8)); max-width: 100%; padding: var(--sp-2); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-surface); }
+#remote .rm-screen { display: grid; gap: var(--sp-2); padding: var(--sp-3); background: var(--card); border-radius: var(--r-control); }
+#remote .rm-top { display: flex; align-items: center; justify-content: space-between; margin: 0; }
+#remote .rm-x { display: grid; place-items: center; width: var(--sp-6); height: var(--sp-6); border: 1px solid var(--line); border-radius: 50%; background: var(--raised); color: var(--fg); }
+#remote .rm-x svg { display: block; width: var(--sp-3); height: var(--sp-3); }
+#remote .rm-live { display: inline-flex; align-items: center; gap: var(--sp-1); height: var(--sp-6); padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--raised); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#remote .rm-live i { width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--accent); animation: core-live 3s ease-in-out infinite; animation-play-state: var(--loop-play, running); /* deliberate */ }
+#remote .rm-desk { position: relative; aspect-ratio: 16 / 10; display: grid; align-content: start; gap: var(--sp-2); padding: var(--sp-2); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+#remote .rm-dots { display: flex; gap: var(--sp-1); }
+#remote .rm-dots i { width: var(--sp-1); height: var(--sp-1); border-radius: 50%; background: var(--line-strong); }
+#remote .rm-ln { display: block; height: var(--sp-1); border-radius: var(--r-pill); background: var(--line); }
+#remote .rm-ln:nth-of-type(1) { width: 70%; }
+#remote .rm-ln:nth-of-type(2) { width: 92%; background: var(--line-strong); }
+#remote .rm-ln:nth-of-type(3) { width: 54%; }
+#remote .rm-ln:nth-of-type(4) { width: 80%; }
+#remote .rm-cur { position: absolute; left: var(--sp-4); top: calc(var(--sp-6) + var(--sp-2)); width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--fg); animation: rm-cur 9s ease-in-out infinite; animation-play-state: var(--loop-play, running); /* deliberate */ }
+#remote .rm-cap { margin: 0; text-align: center; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#remote .rm-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-1); margin: 0; padding: var(--sp-1); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); }
+#remote .rm-seg span { display: grid; place-items: center; height: var(--sp-6); border-radius: var(--r-control); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#remote .rm-seg .is-on { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--fg); box-shadow: inset 0 0 0 1px var(--accent); }
+#remote .rm-appr { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); width: 100%; max-width: calc(var(--sp-16) * 5); margin: 0; padding: var(--sp-3) var(--sp-4); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); }
+#remote .rm-appr-t { display: grid; color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#remote .rm-appr-t span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#remote .rm-sw { position: relative; flex: none; width: var(--sp-8); height: var(--sp-4); border-radius: var(--r-pill); background: var(--accent); }
+#remote .rm-sw::after { content: ""; position: absolute; top: calc(var(--sp-1) / 2); right: calc(var(--sp-1) / 2); width: var(--sp-3); height: var(--sp-3); border-radius: 50%; background: var(--accent-ink); }
+
+/* #fleet .fig-fleet: the app's board as one list. A header band per group
+   (the group word, its count, the count of Needs you in the accent), flat
+   rows under it (vendor mark, title and its status glyph, one muted line,
+   the clock). The bands and the rows hairline to the figure's edges, so
+   there is no card per group. */
+#fleet .fl-gh { display: flex; align-items: baseline; justify-content: space-between; margin: 0; padding: var(--sp-2) var(--sp-4); background: var(--raised); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 550; }
+#fleet .fl-body > .fl-gh:first-child { border-top: 0; }
+#fleet .fl-gh b { color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+#fleet .fl-gh b.is-need { color: var(--accent); font-weight: 550; }
+#fleet .fl-rows { list-style: none; margin: 0; padding: 0; }
+#fleet .fl-rows li { display: grid; grid-template-columns: var(--sp-6) minmax(0, 1fr) auto; column-gap: var(--sp-3); align-items: center; padding: var(--sp-3) var(--sp-4); }
+#fleet .fl-rows li + li { border-top: 1px solid var(--line); }
+#fleet .fl-mark { display: grid; place-items: center; width: var(--sp-6); height: var(--sp-6); border-radius: var(--r-control); background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); color: var(--fg); }
+#fleet .fl-mark svg { display: block; width: var(--sp-4); height: var(--sp-4); }
+#fleet .fl-main { display: grid; min-width: 0; }
+#fleet .fl-t { display: flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#fleet .fl-m { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#fleet .fl-clock { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#fleet .fl-dot { flex: none; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--line-strong); }
+#fleet .fl-dot.is-need, #fleet .fl-dot.is-run { background: var(--accent); }
+#fleet .fl-dot.is-run { animation: core-live 2.4s ease-in-out infinite; animation-play-state: var(--loop-play, running); /* deliberate */ }
+#fleet .fl-rows li:nth-child(2) .fl-dot.is-run { animation-delay: -1.2s; }
+#fleet .fl-hg { flex: none; display: block; width: var(--sp-3); height: var(--sp-3); color: var(--muted); }
+
+/* #voice .fig-voice: the bar (mic round in the primary fill, seven bars,
+   the state word) and the voices under it, the picked one in the selected
+   state. */
+#voice .vc-body { display: grid; gap: var(--sp-3); padding: var(--sp-5); }
+#voice .vc-bar { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-3) var(--sp-4); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+#voice .vc-mic { flex: none; display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
+#voice .vc-mic svg { display: block; width: var(--sp-5); height: var(--sp-5); }
+#voice .vc-wave { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: space-between; height: var(--sp-8); }
+#voice .vc-wave i { flex: none; width: var(--sp-1); height: 100%; border-radius: var(--r-pill); background: var(--fg); transform: scaleY(0.3); animation: vc-wave 1.2s ease-in-out infinite; animation-play-state: var(--loop-play, running); /* deliberate */ }
+#voice .vc-wave i:nth-child(1) { animation-delay: -1.1s; }
+#voice .vc-wave i:nth-child(2) { animation-delay: -0.8s; }
+#voice .vc-wave i:nth-child(3) { animation-delay: -0.5s; }
+#voice .vc-wave i:nth-child(4) { animation-delay: -0.2s; }
+#voice .vc-wave i:nth-child(5) { animation-delay: -0.7s; }
+#voice .vc-wave i:nth-child(6) { animation-delay: -1s; }
+#voice .vc-wave i:nth-child(7) { animation-delay: -0.4s; }
+#voice .vc-state { flex: none; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#voice .vc-h { margin: var(--sp-1) 0 0; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#voice .vc-pick { display: flex; gap: var(--sp-2); margin: 0; }
+#voice .vc-pick span { padding: var(--sp-1) var(--sp-3); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#voice .vc-pick .is-on { background: color-mix(in srgb, var(--accent) 22%, transparent); border-color: var(--accent); }
+
+/* #quick .fig-ask: a window outline (title dots, ink lines, one selected
+   line in the page's selected state) and the ask panel floating over its
+   lower half: raised, hairline, the typed ask, the send in the primary fill. */
+#quick .qk-body { position: relative; padding: var(--sp-5); }
+#quick .qk-win { display: grid; align-content: start; gap: var(--sp-3); min-height: calc(var(--sp-16) * 3); padding: var(--sp-3) var(--sp-4); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); }
+#quick .qk-dots { display: flex; gap: var(--sp-1); }
+#quick .qk-dots i { width: var(--sp-1); height: var(--sp-1); border-radius: 50%; background: var(--line-strong); }
+#quick .qk-ln { display: block; height: var(--sp-2); border-radius: var(--r-pill); background: var(--line); }
+#quick .qk-ln:nth-of-type(1) { width: 62%; }
+#quick .qk-ln:nth-of-type(2) { width: 88%; }
+#quick .qk-ln:nth-of-type(3) { width: 46%; }
+#quick .qk-ln:nth-of-type(4) { width: 74%; }
+#quick .qk-ln.is-sel { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
+#quick .qk-panel { position: absolute; left: var(--sp-8); right: var(--sp-8); bottom: calc(var(--sp-5) + var(--sp-6)); display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--raised); border: 1px solid var(--line-strong); border-radius: var(--r-control); }
+#quick .qk-field { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#quick .qk-caret { display: inline-block; height: var(--sp-4); margin-left: var(--sp-1); border-left: 1px solid var(--fg); animation: qk-caret 1.1s steps(1, end) infinite; animation-play-state: var(--loop-play, running); /* deliberate */ }
+#quick .qk-send { flex: none; display: grid; place-items: center; width: var(--sp-6); height: var(--sp-6); border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
+#quick .qk-send svg { display: block; width: var(--sp-4); height: var(--sp-4); }
+
+@container (max-width: 480px) {
+  #daemon .pk-body, #remote .rm-body, #voice .vc-body, #quick .qk-body { padding: var(--sp-3); }
+  #daemon .pk-front { padding: var(--sp-3); }
+  #remote .rm-appr { padding: var(--sp-3); gap: var(--sp-3); }
+  #fleet .fl-gh, #fleet .fl-rows li { padding-inline: var(--sp-3); }
+  #voice .vc-bar { gap: var(--sp-3); padding: var(--sp-3); }
+  #quick .qk-panel { left: var(--sp-5); right: var(--sp-5); bottom: calc(var(--sp-3) + var(--sp-6)); }
+}
+
+/* ==== ship it and under the hood additions (2026-10-02): #plan, #routines,
+   and the tidy pairs above. One figure each, an anatomy of its own (the plan
+   card with its action bar and checkpoint row, a routine list led by each
+   next run), flat on the figure's --card, hairlines only, no gradient, no
+   shadow. The accent lands where the app paints it: the primary Build fill,
+   the On dots. Every length is a shared site token. Static: nothing here
+   moves. ==== */
+
+/* #plan .fig-plan: the plan card. Head (the word plan, the title), the steps
+   as open rings, the action bar in the app's own words with Build the primary
+   fill, then the checkpoint row under a hairline with its undo control. */
+#plan .fig-plan { container-type: inline-size; }
+#plan .pl-body { display: grid; gap: var(--sp-4); padding: var(--sp-5); }
+#plan .pl-head { display: grid; gap: var(--sp-1); margin: 0; }
+#plan .pl-label { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#plan .pl-title { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#plan .pl-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+#plan .pl-steps li { display: flex; align-items: center; gap: var(--sp-3); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#plan .pl-steps i { flex: none; display: block; width: var(--sp-3); height: var(--sp-3); border-radius: 50%; border: 1px solid var(--muted); }
+#plan .pl-acts { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 0; }
+#plan .pl-btn { display: inline-flex; align-items: center; padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#plan .pl-btn.is-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 550; }
+#plan .pl-undo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-3); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+#plan .pl-ck { display: flex; align-items: center; gap: var(--sp-3); }
+#plan .pl-ck .ic { flex: none; display: block; width: var(--sp-5); height: var(--sp-5); color: var(--muted); }
+#plan .pl-ck-t { display: grid; }
+#plan .pl-ck-t b { color: var(--fg); font-weight: 400; font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#plan .pl-ck-t span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+
+/* #routines .fig-routines: the pane's list. A head (the title, New routine),
+   then one hairline row each: the next run as the large figure with its small
+   line, the title over its trigger line, the kind and the On state. A webhook
+   or GitHub routine has no clock, so its figure names what starts it. */
+#routines .fig-routines { container-type: inline-size; }
+#routines .rt-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); }
+#routines .rt-title { color: var(--fg); font-weight: 550; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+#routines .rt-new, #routines .rt-kind { display: inline-flex; align-items: center; padding: var(--sp-1) var(--sp-3); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#routines .rt-rows { list-style: none; margin: 0; padding: 0; }
+#routines .rt-rows li { display: grid; grid-template-columns: calc(var(--sp-16) + var(--sp-2)) minmax(0, 1fr) auto; align-items: center; column-gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); }
+#routines .rt-rows li + li { border-top: 1px solid var(--line); }
+#routines .rt-when { display: grid; }
+#routines .rt-when b { color: var(--fg); font-weight: 550; font-size: var(--fs-base); line-height: var(--lh-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#routines .rt-when span { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#routines .rt-main { display: grid; min-width: 0; }
+#routines .rt-t { color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+#routines .rt-m { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+#routines .rt-tags { display: flex; align-items: center; gap: var(--sp-3); }
+#routines .rt-on { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+#routines .rt-on::before { content: ""; display: block; width: var(--sp-2); height: var(--sp-2); border-radius: 50%; background: var(--accent); }
+
+/* the figures are 457 CSS px wide at a 1358px window (the root zoom, the shared site
+   stylesheet's 1200px tier) and 286 at a phone, so the break sits between the two */
+@container (max-width: 420px) {
+  #plan .pl-body { padding: var(--sp-3); }
+  #routines .rt-head, #routines .rt-rows li { padding-inline: var(--sp-3); }
+  #routines .rt-tags { grid-column: 2; grid-row: 2; margin-top: var(--sp-1); }
+}

@@ -1,0 +1,295 @@
+/* superbot brand tokens: the duostorm mark, 2026-09-08.
+   Source of truth for the brand chrome chosen in chat 61e9f99e (creative-aggregate §15.5).
+   The surface ladder, text tones and the action accent still come from the app themes
+   (src/design-system/themes.ts); this file adds the brand layer on top: the storm palette,
+   the duotone offset, the flat mono ring, and the mono fallbacks. Numbers are px at 1x unless noted.
+   Served copy of harness-notes/brand/duostorm/duostorm.css — the account pages (B2, 2026-09-10)
+   are the first edge surface to link it; keep the two files identical by hand until a build
+   step vendors it. Re-synced 2026-09-10 (B7 tier-mark ladder repair pass): this mirror had
+   drifted behind the source since the living-aura section landed there on 2026-09-08/09 and
+   carried none of it; the two files are identical again as of this pass. The storm-gradient
+   tile ring was retired from both on 2026-10-06 (the tile rule and the aura section match). */
+
+:root {
+  /* ── Storm palette (the anti-rainbow). Brand chrome only: the mark's ghosts, the aura, the
+     composer glow, the .gg suffix's neighbour. Never a surface, never a text colour. */
+  --storm-0: #00e5c3;   /* teal */
+  --storm-1: #2b6bff;   /* electric blue */
+  --storm-2: #6a1fd8;   /* violet */
+  --storm-3: #c026d3;   /* magenta */
+  --storm-4: #ff3d9a;   /* pink */
+  --storm-gradient: linear-gradient(135deg,
+    var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+  --storm-gradient-x: linear-gradient(90deg,
+    var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+
+  --duo-a: var(--storm-0);
+  --duo-b: var(--storm-3);
+  --duo-offset: 0.012em;
+  --duo-offset-whisper: 0.005em;
+  --duo-offset-strong: 0.024em;
+
+  --tile-bg: #000000;
+  --tile-radius: 22.5%;
+  --ring-width: 2.73%;
+  --ring-radius: 21.1%;
+  --face: #ffffff;
+  --eye: var(--tile-bg);
+
+  --composer-glow: var(--storm-gradient-x);
+  --composer-glow-opacity: 0.38;
+  --composer-glow-blur: 28px;
+
+  --aurora-a: 9s;
+  --aurora-b: 13s;
+  --aurora-c: 17s;
+
+  --mono-fg: #ffffff;
+  --mono-bg: #000000;
+  --mono-ring: #ffffff;
+  --mono-offset-a: #8a8a8a;
+  --mono-offset-b: #3a3a3a;
+
+  --canvas: #000000;
+  --sidebar: #0d0d0d;
+  --elevated: #181818;
+  --line: #262626;
+  --ink: #ececec;
+  --secondary: #cfcfcf;
+  --muted: #9a9a9a;
+  --accent: var(--storm-1);
+  --accent-ink: #ffffff;
+  --storm-action: linear-gradient(135deg, var(--storm-1) 0%, var(--storm-2) 55%, var(--storm-3) 100%);
+  --action-glow: 0 6px 18px -6px rgb(43 107 255 / 0.55), 0 2px 10px -4px rgb(192 38 211 / 0.35);
+
+  --font-ui: "SF Pro Rounded", "SF Pro Display", -apple-system, system-ui, sans-serif;
+  --font-mono: Menlo, "SF Mono", ui-monospace, monospace;
+  --radius-control: 8px;
+  --radius-surface: 16px;
+  --radius-pill: 9999px;
+}
+
+[data-mono="light"] {
+  --mono-fg: #000000;
+  --mono-bg: #ffffff;
+  --mono-ring: #000000;
+  --mono-offset-a: #bdbdbd;
+  --mono-offset-b: #6e6e6e;
+}
+
+.sb-tile {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  aspect-ratio: 1;
+  background: var(--tile-bg);
+  border-radius: var(--tile-radius);
+  overflow: hidden;
+}
+.sb-tile > img { width: 72%; height: 72%; }
+.sb-tile.is-mono { background: var(--mono-bg); }
+/* The only ring a tile can wear: the flat mono ring, one colour (--mono-ring,
+   white on dark, black on light), drawn as a masked ::before so it stays sharp
+   at every size. The storm-gradient ring that used to be every tile's default
+   is retired (2026-10-06): a plain .sb-tile is the bare black tile holding the
+   face, and the storm shows only as the aura behind the face. */
+.sb-tile.is-mono::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: var(--ring-width);
+  background: var(--mono-ring);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+/* .is-ringless opts a mono tile out of its flat ring; on a plain tile there is
+   no ring to drop, so old markup that still carries the class stays valid. */
+.sb-tile.is-ringless::before { display: none; }
+
+.sb-wordmark { font: 700 1em/1 var(--font-ui); letter-spacing: -0.02em; color: var(--ink); }
+.sb-wordmark .gg { color: var(--ink); }
+
+.sb-action {
+  background-color: var(--accent);
+  background-image: var(--storm-action);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  /* border-box: the 200% ramp is sized to the whole control, border included.
+     Sized to the padding box (the default) it tiles under a host that re-adds
+     a transparent border (.plan-cta's 1px, account.css), so the left edge
+     showed the tile's far end -- the ramp's magenta -- as a stray hairline
+     (the Pro Subscribe control). The desktop's .storm-action carries the same
+     line for the same reason. */
+  background-origin: border-box;
+  color: var(--accent-ink);
+  border: 0;
+  transition: background-position 300ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1), transform 350ms cubic-bezier(0.27, 1.06, 0.18, 1) /* deliberate */;
+}
+.sb-action:hover:not(:disabled) { background-position: 100% 50%; box-shadow: var(--action-glow); }
+.sb-action:active:not(:disabled) { background-position: 100% 50%; box-shadow: none; transform: scale(0.96); }
+.sb-action:disabled { background-image: none; background-color: var(--elevated); color: var(--muted); box-shadow: none; }
+
+/* A storm-gradient outline on any control (focus ring, selected rail item). */
+.sb-storm-outline {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--elevated), var(--elevated)) padding-box,
+    var(--storm-gradient) border-box;
+}
+
+/* ── The living aura ───────────────────────────────────────────────────────
+   Synced from harness-notes/brand/duostorm/duostorm.css (repair pass, B7
+   tier-mark ladder, 2026-09-10): this served mirror had drifted behind the
+   canonical source since the aura shipped there on 2026-09-08/09, so no
+   .sb-aura rule existed on this file at all and the billing storefront's
+   tier marks rendered with no aura whatsoever. Copied verbatim, byte for
+   byte, per this file's own header note ("keep the two files identical by
+   hand"); no new keyframe, no new custom property, nothing invented here.
+   Added 2026-09-08. Idle is the BARE TILE: the black tile holding the
+   face, no motion (the storm-gradient ring that used to frame it is retired
+   2026-10-06). The mark's background is a blurred storm field, NOT
+   a hard ring, and it only wakes when the surface is alive: hover, focus,
+   the selected rail lane, and a turn in flight. Five layers, all behind the
+   face, all cheap (transform + opacity only, no filter animation):
+     .sb-aura           the container (clips to the tile)
+     .sb-aura-field     a 200% storm gradient that drifts
+     .sb-aura-spectrum  the conic storm wheel that rotates (the spectrum spin,
+                        added 2026-09-08 / 2026-09-09: the holographic-foil
+                        look of a rare card, present on the selected lane at
+                        all times it is awake, never a hue-rotate filter)
+     .sb-aura-orb       two blurred orbs that wander on their own periods
+     .sb-aura-sheen     a glint band that sweeps across on its own period
+   The spectrum wheel rotates with a transform (never an animated custom
+   property), so it and the sheen stay compositor-only.
+   The aura rests at opacity 0, so at idle the tile is the bare black square
+   with the face on it. On wake the aura fades in behind the face, inside the
+   tile's own rounded clip, and nothing frames it: a tile draws no stroke in
+   any state. (2026-09-09 had kept a ::before storm ring above the field "in
+   EVERY state" and forbade .is-ringless while idle; both retired 2026-10-06,
+   when the ring went. Mobile's SuperbotMark still swaps tile-512 for the
+   face-only mark-512 over StormAura.) The mark itself never moves. */
+:root {
+  --aura-blur: 26px;
+  --aura-idle-opacity: 0;   /* idle is the bare tile with the face, so the aura rests invisible */
+  --aura-hover-opacity: 0.85;
+  --aura-live-opacity: 1;
+  --aura-drift: 18s;      /* the field's slow sweep */
+  --aura-spin: 7s;        /* one full turn of the spectrum wheel (deliberate ambient loop, far over the 300ms band) */
+  --aura-sheen: 3.4s;     /* the glint's crossing period; not a multiple of 7 so they never phase-lock */
+  --aura-wander-a: 13s;   /* orb A */
+  --aura-wander-b: 17s;   /* orb B, deliberately coprime so they never sync */
+  --aura-settle: 480ms;   /* opacity ease when a surface wakes or sleeps */
+  --aura-spectrum-opacity: 0.9;
+  --aura-sheen-opacity: 0.35;
+}
+.sb-aura {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  opacity: var(--aura-idle-opacity);
+  transition: opacity var(--aura-settle) cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+.sb-aura-field {
+  position: absolute; inset: -40%;
+  background: var(--storm-gradient);
+  background-size: 200% 200%;
+  filter: blur(var(--aura-blur));
+  /* idle holds NO animation: the loop is named only by the wake rules below */
+  animation-name: none;
+  animation-duration: var(--aura-drift);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.sb-aura-orb {
+  position: absolute;
+  width: 70%; aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(var(--aura-blur));
+  mix-blend-mode: screen;
+  animation-name: none;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.sb-aura-orb.a { background: var(--storm-0); top: -18%; left: -12%; animation-duration: var(--aura-wander-a); }
+.sb-aura-orb.b { background: var(--storm-3); bottom: -20%; right: -14%; animation-duration: var(--aura-wander-b); }
+
+/* The spectrum spin (2026-09-09): a conic wheel of the five storm stops that
+   rotates around the tile's centre, plus a glint band sweeping across. It is
+   added to the field and the orbs, never replacing them, and the field is
+   still the bottom layer. The disc is 1.6x the tile so it covers the square
+   at every angle. Transform and opacity only; the rotation is a transform,
+   not an animated custom property, so it is compositor-only. */
+.sb-aura-spectrum {
+  position: absolute; inset: -30%;      /* a disc 1.6x the tile: covers the square through every angle */
+  border-radius: 50%;
+  background: conic-gradient(from 0deg at 50% 50%,
+    var(--storm-0) 0deg, var(--storm-1) 72deg, var(--storm-2) 144deg, var(--storm-3) 216deg, var(--storm-4) 288deg, var(--storm-0) 360deg);
+  filter: blur(calc(var(--aura-blur) * 0.6));
+  opacity: var(--aura-spectrum-opacity);
+  animation-name: none;
+  animation-duration: var(--aura-spin);  /* deliberate */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.sb-aura-sheen {
+  position: absolute; inset: -40%;
+  background: linear-gradient(115deg, transparent 42%, #fff 50%, transparent 58%);
+  mix-blend-mode: screen;
+  opacity: var(--aura-sheen-opacity);
+  animation-name: none;
+  animation-duration: var(--aura-sheen);  /* deliberate */
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Wake conditions: pointer over it, keyboard focus inside it, the lane is
+   selected, or a turn is in flight on it. Motion starts with the brightness,
+   so a sleeping tile costs nothing: literally nothing, because an idle layer
+   holds no animation at all (animation-name: none above) and the loops are
+   NAMED only by the wake rules below. A paused loop is not free: it stays in
+   document.getAnimations() and Blink re-queues it on every main frame
+   (superbot-desktop b525f3e7d, the closed account popover's aura: 8 queued
+   with the pause, 0 with none). The loops restart from 0% on each wake, behind
+   the opacity fade-in. A surface with its own wake state (account.css's plan
+   cards) names the same loops in its own rules. The `working` duration rules
+   below set only a duration, so they stay after these. */
+.sb-tile:hover .sb-aura,
+.sb-tile:focus-visible .sb-aura,
+.sb-tile[data-state="active"] .sb-aura { opacity: var(--aura-hover-opacity); }
+.sb-tile[data-state="working"] .sb-aura { opacity: var(--aura-live-opacity); }
+:is(.sb-tile:hover, .sb-tile:focus-visible, .sb-tile[data-state="active"], .sb-tile[data-state="working"]) .sb-aura-field { animation-name: sb-aura-drift; }
+:is(.sb-tile:hover, .sb-tile:focus-visible, .sb-tile[data-state="active"], .sb-tile[data-state="working"]) .sb-aura-orb.a { animation-name: sb-aura-wander-a; }
+:is(.sb-tile:hover, .sb-tile:focus-visible, .sb-tile[data-state="active"], .sb-tile[data-state="working"]) .sb-aura-orb.b { animation-name: sb-aura-wander-b; }
+:is(.sb-tile:hover, .sb-tile:focus-visible, .sb-tile[data-state="active"], .sb-tile[data-state="working"]) .sb-aura-spectrum { animation-name: sb-aura-spin; }
+:is(.sb-tile:hover, .sb-tile:focus-visible, .sb-tile[data-state="active"], .sb-tile[data-state="working"]) .sb-aura-sheen { animation-name: sb-aura-glint; }
+/* A turn in flight moves faster than a hover: the drift IS the heartbeat. */
+.sb-tile[data-state="working"] .sb-aura-field { animation-duration: calc(var(--aura-drift) / 2.4); }
+.sb-tile[data-state="working"] .sb-aura-orb.a { animation-duration: calc(var(--aura-wander-a) / 2.4); }
+.sb-tile[data-state="working"] .sb-aura-orb.b { animation-duration: calc(var(--aura-wander-b) / 2.4); }
+.sb-tile[data-state="working"] .sb-aura-spectrum { animation-duration: calc(var(--aura-spin) / 2.4); }
+.sb-tile[data-state="working"] .sb-aura-sheen { animation-duration: calc(var(--aura-sheen) / 2.4); }
+/* The mark sits above the aura, so the face stays crisp over the field in every state. */
+.sb-tile > img, .sb-tile > svg { position: relative; z-index: 1; }
+
+@keyframes sb-aura-drift {
+  0%   { background-position: 0% 50%;   transform: rotate(0deg)   scale(1.04) }
+  50%  { background-position: 100% 50%; transform: rotate(6deg)   scale(1.12) }
+  100% { background-position: 0% 50%;   transform: rotate(0deg)   scale(1.04) }
+}
+@keyframes sb-aura-wander-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) }
+  33%      { transform: translate3d(22%, 16%, 0) scale(1.15) }
+  66%      { transform: translate3d(8%, 30%, 0) scale(0.92) }
+}
+@keyframes sb-aura-wander-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05) }
+  40%      { transform: translate3d(-26%, -14%, 0) scale(0.9) }
+  75%      { transform: translate3d(-10%, -28%, 0) scale(1.2) }
+}
+@keyframes sb-aura-spin  { to { transform: rotate(360deg) } }
+@keyframes sb-aura-glint { 0% { transform: translateX(-70%) } 100% { transform: translateX(70%) } }

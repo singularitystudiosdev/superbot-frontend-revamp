@@ -1,0 +1,35 @@
+<!-- billing-figures:start -->
+<section class="doc-block" id="credits">
+  <h3>Credits</h3>
+  <p>superbot bills in credits: {{CREDIT_UNIT}}. Each token type is priced as a multiple of the input rate (on superbot: {{WEIGHT_LADDER}}). A vendor model called on credits, with none of your own accounts attached, costs its own list price. Models on your own subscriptions and keys spend no credits. Credits are held and charged by the billing service behind superbot: the balance, the plan and every charge are its records, and the app and the API show what it reports.</p>
+  <div class="doc-callout">{{FAST_FAIR_USE_TERMS}}</div>
+  <h4>Read your balance</h4>
+  <p><code>GET /v1/credits</code> returns the balance as <code>balance_credits</code>, with the pots in <code>credits</code>, and the plan and auto-recharge state. It needs the <code>billing:read</code> scope, which <strong>Models</strong> and <strong>Read-only query</strong> keys hold. <code>low</code> is true at a balance of zero or less, and <code>reason</code> appears with it. The route reads the balance from billing and holds none itself, so while billing cannot be reached it answers 503 <code>billing_unavailable</code> with a retry hint.</p>
+  <pre class="doc-code" data-lang="bash"><code>curl {{API_BASE}}/credits \
+  -H "Authorization: Bearer {{KEY_PREFIX}}…"</code></pre>
+  <p>Related: <a href="#api-models">Models</a>, <a href="api.html">The API page</a></p>
+</section>
+
+<section class="doc-block" id="plans">
+  <h3>Plans and packs</h3>
+  <ul class="doc-list">
+    <li>Free {{FREE_PLAN_CLAUSE}}.</li>
+    <li>Superbot Plus {{PLAN_PLUS_CLAUSE}}.</li>
+    <li>Pro {{PLAN_PRO_CLAUSE}}.</li>
+    <li>Max {{PLAN_MAX_CLAUSE}}.</li>
+    <li>Superbot Teams {{PLAN_TEAMS_CLAUSE}}.</li>
+  </ul>
+  <p>Every paid plan also sells a yearly term at the yearly price, and a yearly plan still releases its allowance monthly. {{TRIAL_CLAUSE}}. Overage on any plan bills at the pack rate, and the frontier models are open on every tier including Free.</p>
+  <p>The run limits on a plan are limits on hosted cloud runs: a run on your own machine is never limited. A plan's scheduled runs are its routine runs, on a cron or an interval.</p>
+  <p>The plan allowance is paced: a week uses at most a quarter of it.</p>
+  <p>Packs are one-time purchases: {{PACK_LIST}}. A pack's credits never expire, and a plan does not reprice the {{PACK_PRICES}} packs. Plans and packs are bought on the billing page. <strong>Account &gt; Billing</strong> opens it, and so does the <code>topup_url</code> or <code>subscribe_url</code> of a 402 or of <code>GET /v1/credits</code>: each is a signed link made for your account, and it expires.</p>
+  <h4>Auto-recharge</h4>
+  <p>Auto-recharge charges your card for more credits when the balance falls to a level you set. It is off until you turn it on, then {{RECHARGE_DEFAULTS}}. Declined charges count toward the monthly limit. <code>GET /v1/credits</code> reports its state as <code>auto_recharge</code>, and the <code>reason</code> of a 402 says when it is off, capped or failed.</p>
+  <p>Related: <a href="#usage">Usage and spend</a></p>
+</section>
+<!-- billing-figures:end -->
+
+<section class="doc-block" id="billing-tiers">
+  <h3>Which credits are spent first</h3>
+  <p>From first to last: beta pot, plan allowance, promo credits, auto-recharge credits, packs. The beta pot expires on the 1st (UTC) and the plan allowance at renewal; neither rolls over. Packs and auto-recharge credits never expire.</p>
+</section>

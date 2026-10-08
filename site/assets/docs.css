@@ -1,0 +1,490 @@
+/* /docs (site/docs.html): the feature-sectioned documentation page.
+   Every value traces to site/assets/site.css tokens: nothing here invents a
+   colour, a size or a radius. Two radii only, --r-control for controls and
+   --r-surface for the connection strip; one accent, on links, the current
+   nav row and focus rings. The page's one bold thing is the "Your connection"
+   strip, the only --r-surface card on the first screen. */
+
+.doc-shell {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--sp-10) var(--gutter-r) 0 var(--gutter-l);
+  display: grid;
+  grid-template-columns: 232px minmax(0, var(--content)) 200px;
+  gap: var(--sp-10);
+  align-items: start;
+}
+.doc-shell > main { min-width: 0; }
+
+/* ---- left nav: sticky, labelled, filter at its top ---- */
+.doc-aside { position: sticky; top: calc(var(--nav-h) + var(--sp-6)); align-self: start; }
+.doc-rail { display: grid; gap: var(--sp-6); max-height: calc(100vh - var(--nav-h) - var(--sp-10)); max-height: calc(100dvh - var(--nav-h) - var(--sp-10)); overflow: auto; }
+/* above 900px the rail is not a disclosure at all: the summary is gone and its
+   children always show, whatever the `open` attribute says */
+@media (min-width: 901px) {
+  .doc-rail > summary { display: none; }
+  .doc-rail > .doc-nav, .doc-rail > .doc-filter { display: grid; }
+}
+.doc-filter label { display: inline-block; min-height: 24px; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); margin-bottom: var(--sp-2); }
+.doc-filter-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-2); align-items: center; }
+.doc-filter input {
+  width: 100%; min-width: 0; min-height: var(--target); padding: 0 var(--sp-3);
+  background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: var(--r-control);
+  font: inherit; font-size: var(--fs-sm); line-height: var(--lh-sm);
+  transition: border-color var(--dur-2) var(--ease-std);
+}
+.doc-filter input::placeholder { color: var(--muted); }
+.doc-filter input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.doc-filter input:hover, .doc-filter input:focus-visible { border-color: var(--accent); }
+.doc-filter-note { margin-top: var(--sp-2); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.doc-filter-clear {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: max(24px, var(--target)); padding: 0 var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--r-control);
+  background: var(--card); color: var(--fg); cursor: pointer;
+  font: inherit; font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap;
+}
+.doc-filter-clear:active { border-color: var(--accent); color: var(--accent); }
+@media (hover: hover) { .doc-filter-clear:hover { border-color: var(--accent); color: var(--accent); } }
+
+.doc-nav { display: grid; gap: var(--sp-2); }
+.doc-nav-label { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); margin-top: var(--sp-4); }
+.doc-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.doc-nav a {
+  display: flex; align-items: center; min-height: max(28px, var(--target-sm));
+  padding: var(--sp-1) var(--sp-2); margin-left: calc(-1 * var(--sp-2));
+  border-radius: var(--r-control); color: var(--muted); text-decoration: none;
+  font-size: var(--fs-sm); line-height: var(--lh-sm);
+  transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std);
+}
+.doc-nav a:hover { color: var(--fg); background: var(--raised); }
+.doc-nav a[aria-current='true'] { color: var(--fg); background: var(--raised); }
+.doc-nav a[aria-current='true']::before { content: ''; width: 3px; height: 16px; margin-right: var(--sp-2); border-radius: var(--r-control); background: var(--accent); }
+.doc-nav li[hidden] { display: none; }
+
+/* ---- the "on this page" rail ---- */
+.doc-toc { position: sticky; top: calc(var(--nav-h) + var(--sp-6)); display: grid; gap: var(--sp-2); }
+.doc-toc ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-left: 1px solid var(--line); }
+.doc-toc a {
+  display: block; padding: var(--sp-1) 0 var(--sp-1) var(--sp-3);
+  margin-left: -1px; border-left: 2px solid transparent;
+  color: var(--muted); text-decoration: none; font-size: var(--fs-sm); line-height: var(--lh-sm);
+  transition: color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+.doc-toc a:hover { color: var(--fg); }
+.doc-toc a[aria-current='true'] { color: var(--fg); border-color: var(--accent); }
+
+/* ---- hero ---- */
+.doc-hero { padding-bottom: var(--sp-10); }
+.doc-crumb { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-4); }
+.doc-crumb a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: max(24px, calc(var(--target-sm) + 1px)); border-radius: var(--r-control); }
+.doc-crumb a:hover { color: var(--fg); }
+.doc-crumb .sb-gg { color: var(--fg); }
+.doc-hero h1 { font-size: var(--fs-h1); line-height: 1.1; letter-spacing: var(--tracking-tight); margin-bottom: var(--sp-3); }
+.doc-lede { color: var(--muted); max-width: var(--measure); }
+.doc-mut { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.doc-hero .doc-lede { font-size: var(--fs-lg); line-height: var(--lh-lg); }
+
+/* ---- group + block rhythm. The rule between groups is the only divider:
+   every block under it is prose, so nothing else needs a box. ---- */
+.doc-group { padding-top: var(--sp-12); scroll-margin-top: calc(var(--nav-h) + var(--sp-8)); }
+.doc-group + .doc-group { border-top: 1px solid var(--line); }
+.doc-group > h2 { font-size: var(--fs-h2); line-height: 1.2; letter-spacing: var(--tracking-tight); margin-bottom: var(--sp-3); }
+.doc-group > .doc-lede { margin-bottom: var(--sp-6); }
+/* Start here's own headings under the picker (Install, Verify) */
+.doc-group > h3 { font-size: var(--fs-xl); line-height: var(--lh-xl); letter-spacing: var(--tracking-tight); margin: var(--sp-10) 0 var(--sp-2); scroll-margin-top: calc(var(--nav-h) + var(--sp-8)); }
+.doc-group > p:not(.doc-lede) { max-width: var(--measure); margin-bottom: var(--sp-3); text-wrap: pretty; }
+.doc-block { padding-top: var(--sp-10); scroll-margin-top: calc(var(--nav-h) + var(--sp-8)); }
+.doc-block h3 { font-size: var(--fs-xl); line-height: var(--lh-xl); letter-spacing: var(--tracking-tight); margin-bottom: var(--sp-2); }
+.doc-block h4 { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 500; margin: var(--sp-6) 0 var(--sp-2); }
+.doc-block p { max-width: var(--measure); margin-bottom: var(--sp-3); }
+.doc-block p.doc-lede { color: var(--muted); }
+.doc-block ul.doc-list, .doc-block ol.doc-steps { max-width: var(--measure); color: var(--secondary); margin: 0 0 var(--sp-4); padding-left: var(--sp-5); display: grid; gap: var(--sp-2); }
+.doc-block ol.doc-steps { counter-reset: step; list-style: none; padding-left: 0; }
+/* The li stays a block: a grid would blockify each child, and an inline code
+   chip inside a step must stay inline (a chip as a 24px column squeezed
+   "credits" into "cre/dis" and overlapped the text beside it). The marker is
+   positioned in the gutter instead, so the step's own text keeps normal inline
+   flow and a long command still wraps inside the step, not past it. */
+.doc-block ol.doc-steps > li { position: relative; padding-left: 36px; }
+/* The marker carries the step's kind: a number while the list is a sequence
+   (mint a key: open, name, choose), a check once the list is a run of
+   instructions. `data-mark="check"` on the <ol> picks the check. */
+.doc-block ol.doc-steps > li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: 0; top: 0;
+  width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line);
+  display: grid; place-items: center; font-size: var(--fs-xs); color: var(--accent);
+}
+.doc-block ol.doc-steps[data-mark='check'] > li::before {
+  content: '';
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background-color: var(--accent);
+  /* lucide "check" (ISC), 24-unit grid, drawn through a mask so it takes the
+     token colour and never becomes a glyph a font can restyle */
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+}
+/* an inline code chip keeps site.css's own wrap recipe (a chip holding a long
+   route must be able to break on a phone); .sb-nowrap is the exception, as it
+   is everywhere else */
+.doc-block code.sb-nowrap { overflow-wrap: normal; word-break: normal; }
+.doc-block :is(h4, h3) + p { margin-top: 0; }
+/* underlined at rest: the accent alone is 2.77:1 against --fg, under axe's
+   3:1 link-in-text-block floor, so colour cannot be the only cue */
+.doc-block a:not(.doc-action) { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.doc-block a:not(.doc-action):hover { text-decoration-thickness: 2px; }
+.doc-links { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-4); }
+
+/* ---- code: commands, blocks, tabs ---- */
+/* a command: a hairline box holding ONE line, never wrapped (owner, 2026-09-06:
+   never wrap the command) and never scrolled with a bar (owner, 2026-10-05: "no
+   scroll bars, they look terrible"; mockup download-token-one-liner-20261005-1710,
+   variant 3, "Fade"). The same recipe as /download's .cmd (site/download.html),
+   ported here because /docs does not load the lander's widget and these rows are
+   server-rendered. A line wider than its box is clipped, and its last --doc-fade
+   fades out into the box, so the cut reads as a soft end, not an error; a line
+   that fits shows no fade (docs.js sets data-fits on the box when scrollWidth
+   fits clientWidth; with no script the box clips with the fade, which is safe).
+   The whole box is the copy control: ONE button holds the muted "click to copy"
+   label and a copy glyph at the box's end, and its ::after stretches over the
+   box, so a press anywhere copies. It copies the code's whole text, never the
+   clipped part on screen (docs.js). The code does not scroll, so it is not
+   focusable: the button is the one stop, and its ring is the box's. The line and
+   the control are two flex items of one row: the code is flex: 1 with min-width: 0
+   and overflow: hidden, the control flex: none, and the mask is on the code's own
+   box, solid until --doc-fade from the box's end and fully clear --sp-1 BEFORE
+   it, so no letter, faded or not, is ever under the glyph or the label. */
+.doc-cmd {
+  --doc-fade: var(--sp-8);
+  position: relative; display: flex; align-items: center; gap: 0; min-width: 0;
+  min-height: var(--target); padding: var(--sp-1) var(--sp-3); margin-bottom: var(--sp-4);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control);
+  transition: border-color var(--dur-2) var(--ease-std);
+}
+.doc-cmd code {
+  flex: 1; min-width: 0; overflow: hidden; white-space: nowrap;
+  font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--fg);
+  background: none; border: 0; padding: var(--sp-1) 0;
+  -webkit-mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--doc-fade)), transparent calc(100% - var(--sp-1)));
+  mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--doc-fade)), transparent calc(100% - var(--sp-1)));
+}
+.doc-cmd[data-fits] code { -webkit-mask-image: none; mask-image: none; }
+.doc-copy {
+  flex: none; display: inline-flex; align-items: center; gap: var(--sp-2);
+  min-height: var(--target-sm); padding: 0; background: none; border: 0;
+  color: var(--muted); font: inherit; font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur-2) var(--ease-std);
+}
+.doc-copy::after { content: ''; position: absolute; inset: 0; border-radius: var(--r-control); }
+.doc-copy-label { min-width: calc(var(--sp-16) + var(--sp-2)); text-align: right; } /* "copied" does not pull the line sideways */
+.doc-copy-ico { flex: none; width: var(--sp-4); height: var(--sp-4); }
+.doc-copy-ico .doc-copy-g-ok, .doc-copy-ico .doc-copy-g-no { display: none; }
+.doc-copy.copied .doc-copy-g-ok, .doc-copy.blocked .doc-copy-g-no { display: inline; }
+.doc-copy.copied .doc-copy-g-copy, .doc-copy.blocked .doc-copy-g-copy { display: none; }
+@media (hover: hover) { .doc-copy:hover { color: var(--fg); } .doc-cmd:has(.doc-copy:hover) { border-color: var(--line-strong); } }
+.doc-copy:active { color: var(--fg); }
+.doc-copy.copied { color: var(--accent); }
+.doc-copy.blocked { color: var(--fg); }
+/* the ring is the whole box's, drawn on the stretched ::after (the button's own would hug the label) */
+.doc-copy:focus-visible { outline-color: transparent; }
+.doc-copy:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* a phone (480px, the page's phone breakpoint): the label would take 72px of a 272px box, so the box holds the
+   copy glyph alone. The label stays in the markup as the button's name and as the text docs.js flips to "copied"
+   (the page's visually-hidden recipe, site.css .sb-visually-hidden, which a class in the markup could not apply
+   to the phone alone), "copied" is the glyph turning to a check and the live region saying it, the hit area is
+   still the whole box and the ring still goes around it. The padding steps in a --sp-1 each side and the fade
+   narrows to --sp-4, so the faded end is never against the glyph. */
+@media (max-width: 480px) {
+  .doc-cmd { --doc-fade: var(--sp-4); padding-inline: var(--sp-2); }
+  .doc-copy-label { position: absolute; width: 1px; height: 1px; min-width: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* the glyph alone is 16px wide, under the target floor (24px WCAG 2.5.8; 44px under a finger, the mobile matrix's rule, which
+     measures the button's own box): the button holds it centred in a --target square, 20px of line given up at 44, and its
+     ::after still stretches the hit area over the whole box */
+  .doc-cmd .doc-copy { min-width: var(--target); justify-content: center; }
+}
+/* the multi-line command box: the paste-to-agent prompt of the MCP panel (docs.html #mode-mcp) and of features-core's #tool, three lines
+   copied as one block. It is the command row's anatomy (a hairline on the card, --r-control, ONE button whose ::after stretches over the
+   box, every line clipped with the fade, never wrapped and never scrolled with a bar) around a code element that holds several lines, and
+   it is NOT .doc-cmd: that is the one-line row, and every rule about it (one line, the line's box ends where the control begins, the
+   phone's glyph-alone row) stays as strict for the rows that are one line, the server URL's among them. The button is the page's one
+   .doc-copy, the ring and the label rules are its own, and docs.js measures this box for the fade the way it measures a row. What a press
+   copies is the code's whole text, line breaks included. The copy control sits beside the first line. */
+.doc-cmd-lines {
+  --doc-fade: var(--sp-8);
+  position: relative; display: flex; align-items: flex-start; gap: 0; min-width: 0;
+  min-height: var(--target); padding: var(--sp-1) var(--sp-3); margin-bottom: var(--sp-4);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control);
+  transition: border-color var(--dur-2) var(--ease-std);
+}
+.doc-cmd-lines code {
+  flex: 1; min-width: 0; overflow: hidden; white-space: pre;
+  font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--fg);
+  background: none; border: 0; padding: var(--sp-1) 0;
+  -webkit-mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--doc-fade)), transparent calc(100% - var(--sp-1)));
+  mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--doc-fade)), transparent calc(100% - var(--sp-1)));
+}
+.doc-cmd-lines[data-fits] code { -webkit-mask-image: none; mask-image: none; }
+.doc-cmd-lines .doc-copy { align-self: flex-start; }
+@media (hover: hover) { .doc-cmd-lines:has(.doc-copy:hover) { border-color: var(--line-strong); } }
+/* a phone (480px): the same two steps the one-line row takes, the fade narrows to end at the glyph and the padding gives way, and the
+   glyph alone is held in a --target square (its label is hidden by the .doc-copy-label rule above) */
+@media (max-width: 480px) {
+  .doc-cmd-lines { --doc-fade: var(--sp-4); padding-inline: var(--sp-2); }
+  .doc-cmd-lines .doc-copy { min-width: var(--target); justify-content: center; }
+}
+.doc-code {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control);
+  padding: var(--sp-4); margin: 0 0 var(--sp-4); overflow-x: auto;
+}
+/* the code colour is the shiki theme's foreground (site.css --shiki-foreground = --fg): the
+   token spans edge/src/docs-page.ts highlightDocCode writes carry their own --shiki-token-*
+   roles, so this is only the ink of plain text, punctuation and a block that stays unpainted */
+.doc-code code { color: var(--shiki-foreground); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: 1.6; }
+@media (pointer: coarse) { .doc-code { white-space: pre-wrap; overflow-wrap: anywhere; } }
+/* a multi-line block that scrolls sideways is a tab stop (docs-page.ts focusScrollers): the keyboard
+   reader scrolls it with the arrow keys, so the ring has to show; site.css's global ring is the same
+   2px accent, here it is the block's own so a later site.css change cannot take it away. A command
+   row is not one: it clips and never scrolls, so its one stop is the copy button. */
+.doc-code:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.doc-tabs { margin-bottom: var(--sp-4); }
+.doc-tablist { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-bottom: var(--sp-2); }
+.doc-tablist button {
+  min-height: max(28px, var(--target-sm)); padding: 0 var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card);
+  color: var(--muted); font: inherit; font-size: var(--fs-xs); line-height: var(--lh-xs); cursor: pointer;
+  transition: color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+.doc-tablist button:hover { color: var(--fg); }
+.doc-tablist button[aria-selected='true'] { color: var(--fg); border-color: var(--accent); }
+.doc-tabs .doc-code { margin-bottom: 0; }
+
+/* ---- reference tables: the row rhythm, never cards ---- */
+.doc-table { width: 100%; border-collapse: collapse; margin: 0 0 var(--sp-4); font-size: var(--fs-sm); line-height: var(--lh-sm); table-layout: fixed; }
+.doc-table th { text-align: left; font-weight: 400; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); padding: 0 var(--sp-3) var(--sp-2) 0; border-bottom: 1px solid var(--line); }
+.doc-table td { padding: var(--sp-2) var(--sp-3) var(--sp-2) 0; border-bottom: 1px solid var(--line); color: var(--muted); vertical-align: top; }
+.doc-table tbody tr:last-child td { border-bottom: 0; }
+.doc-table code { color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-xs); overflow-wrap: anywhere; }
+.doc-table td:first-child, .doc-table th:first-child { color: var(--fg); }
+
+/* ---- the Endpoints route tables ({{ENDPOINTS_TABLE}}, docs-page.ts): one
+   per job, the path linked to its /developers page. On a phone each row
+   stacks like /api's: the verb beside the path, purpose and scope under. ---- */
+.doc-routes-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); max-width: none; }
+.doc-routes-head a { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); white-space: nowrap; display: inline-flex; align-items: center; min-height: var(--target-sm); }
+.doc-routes-head a:hover { color: var(--accent); }
+.doc-routes th:nth-child(1) { width: 5em; }
+.doc-routes th:nth-child(2) { width: 36%; }
+.doc-routes th:nth-child(4) { width: 11em; }
+.doc-routes .doc-route-verb { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 600; color: var(--muted); white-space: nowrap; }
+.doc-routes .doc-route-verb[data-verb="post"] { color: var(--fg); }
+.doc-routes .doc-route-path a { color: var(--fg); text-decoration: none; display: inline-flex; align-items: center; min-height: var(--target-sm); max-width: 100%; }
+.doc-routes td { vertical-align: middle; }
+.doc-routes .doc-route-path a:hover code { color: var(--accent); }
+.doc-routes .doc-route-dialect { display: block; font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.doc-routes .doc-route-scope code { color: var(--muted); }
+@media (max-width: 640px) {
+  .doc-routes, .doc-routes tbody { display: block; }
+  .doc-routes thead { display: none; }
+  .doc-routes tr { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); column-gap: var(--sp-2); row-gap: 2px; border-bottom: 1px solid var(--line); padding: var(--sp-2) 0; }
+  .doc-routes tbody tr:last-child { border-bottom: 0; }
+  .doc-routes td { border-bottom: 0; padding: 0; }
+  .doc-routes .doc-route-role, .doc-routes .doc-route-scope { grid-column: 2; }
+}
+/* the rate cards ({{MODELS_TABLE}}, docs-page.ts modelsTable): five columns
+   cannot share 288px, so on a phone each row is two lines, the model id whole
+   across the top and the four figures under it, the header the same grid so
+   every figure keeps its label above it */
+@media (max-width: 640px) {
+  .doc-prices, .doc-prices thead, .doc-prices tbody { display: block; }
+  .doc-prices tr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--sp-2); row-gap: 2px; padding: var(--sp-2) 0; border-bottom: 1px solid var(--line); }
+  .doc-prices thead tr { padding-top: 0; }
+  .doc-prices tbody tr:last-child { border-bottom: 0; }
+  .doc-prices th, .doc-prices td { padding: 0; border-bottom: 0; }
+  .doc-prices th { white-space: nowrap; }
+  .doc-prices tr > :first-child { grid-column: 1 / -1; }
+  .doc-prices tbody tr > :first-child code { overflow-wrap: normal; }
+}
+
+.doc-callout {
+  background: var(--card); border: 1px solid var(--line); border-left: 2px solid var(--accent);
+  border-radius: var(--r-control); padding: var(--sp-3) var(--sp-4);
+  margin: 0 0 var(--sp-4); color: var(--secondary); font-size: var(--fs-sm); line-height: var(--lh-sm); max-width: var(--measure);
+}
+
+/* ---- start: "How do you work?", a picker. Four outlined tiles, a line icon
+   over a short label, and ONE detail panel under them. The chosen tile carries
+   the accent ring (the one bold thing on the first screen); the other three are
+   hairline outlines. The tiles are controls, one chosen, not content cards.
+   Radii: --r-surface on the tiles, --r-control on the command wells and
+   buttons. The default here is the picker (docs.js, "the picker"); the head's
+   <noscript> rule stacks the panels for a browser with no scripts. ---- */
+.doc-modes { margin: 0 0 var(--sp-8); container-name: doc-modes; container-type: inline-size; }
+.doc-mode-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-3); }
+.doc-mode {
+  display: grid; justify-items: center; align-content: center; gap: var(--sp-4);
+  min-height: calc(var(--sp-16) + var(--sp-12)); padding: var(--sp-8) var(--sp-1);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface);
+  color: var(--muted); text-align: center; text-decoration: none;
+  scroll-margin-top: calc(var(--nav-h) + var(--sp-8));
+  transition: color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std), box-shadow var(--dur-2) var(--ease-std);
+}
+.doc-mode-ico { width: var(--sp-10); height: var(--sp-10); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.doc-mode-label { font-size: var(--fs-base); line-height: var(--lh-base); text-wrap: balance; }
+@media (hover: hover) { .doc-mode:hover { color: var(--fg); border-color: var(--line-strong); } }
+.doc-mode:active { border-color: var(--accent); }
+/* chosen: a 2px accent ring (1px border plus 1px inset, so the tile never changes size) */
+.doc-mode[aria-selected='true'], .doc-mode[aria-current='true'] { color: var(--fg); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* the panel under the tiles: plain lines, one sentence each, no second box */
+.doc-mode-panel { position: relative; display: grid; gap: var(--sp-3); justify-items: start; margin-top: var(--sp-6); min-width: 0; }
+.doc-mode-panel[data-off] { display: none; }
+.doc-modes[data-picked] .doc-mode-panel { animation: doc-mode-in var(--dur-3) var(--ease-out); }
+@keyframes doc-mode-in { from { opacity: 0; transform: translateY(var(--sp-1)); } }
+/* the heading is the tile's label again and the "on this page" entry: heard
+   and listed, not shown beside the tile that already says it. The head's
+   <noscript> rule shows it when the panels are stacked. */
+.doc-mode-panel > h3 {
+  position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 500; letter-spacing: var(--tracking-tight);
+}
+.doc-mode-panel p { margin: 0; color: var(--secondary); font-size: var(--fs-base); line-height: var(--lh-base); max-width: var(--measure); text-wrap: pretty; }
+.doc-mode-panel p code { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--fg); }
+.doc-mode-panel > .doc-cmd, .doc-mode-panel > .doc-cmd-lines, .doc-mode-panel > .doc-tabs { width: 100%; margin: 0; }
+.doc-mode-panel .doc-cmd { margin: 0; background: var(--bg); }
+.doc-mode-panel .doc-cmd-lines { margin: 0; background: var(--bg); }
+.doc-mode-panel .doc-tabs .doc-tablist { margin-bottom: var(--sp-2); }
+.doc-mode-panel .doc-tabs .doc-tabpanel { display: grid; gap: var(--sp-3); }
+.doc-mode-panel .doc-tabs .doc-tabpanel[hidden] { display: none; }
+/* the quiet lines: a flag, the Remote Omni command */
+.doc-mode-panel p.doc-mode-note { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.doc-mode-panel p.doc-mode-note code { font-size: var(--fs-xs); }
+.doc-mode-panel p.doc-mode-note a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; white-space: nowrap; }
+.doc-mode-panel p.doc-mode-note a:hover { text-decoration-thickness: 2px; }
+.doc-mode-panel p.doc-mode-stack { display: grid; gap: var(--sp-1); justify-items: start; }
+.doc-mode-more { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); }
+.doc-mode-more a, .doc-mode-link {
+  display: inline-flex; align-items: center; min-height: max(24px, var(--target-sm));
+  color: var(--accent); font-size: var(--fs-sm); line-height: var(--lh-sm);
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; white-space: nowrap;
+}
+.doc-mode-more a:hover, .doc-mode-link:hover { text-decoration-thickness: 2px; }
+/* the actions row: the app's solid primary beside its text link; also the open-beta invite (app.ts docsTemplateForViewer) */
+.doc-tile-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-5); }
+.doc-action {
+  display: inline-flex; align-items: center; align-self: start; min-height: max(32px, var(--target));
+  padding: 0 var(--sp-4); border: 1px solid transparent; border-radius: var(--r-control);
+  background: var(--accent); color: var(--accent-ink); text-decoration: none; font-size: var(--fs-sm); font-weight: 500;
+  transition: opacity var(--dur-2) var(--ease-std);
+}
+.doc-action:hover { opacity: 0.9; }
+/* a phone (480px): the panel's lines step down to 14px so the longest (38 characters) fits the 272px column at 320. */
+@media (max-width: 480px) {
+  .doc-mode-panel p { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .doc-mode-panel p code { font-size: var(--fs-xs); }
+}
+/* The tiles lay out by the PICKER's width, not the viewport's: the page's rail, and its 1.25 zoom tier from 1200px, change the room a tile gets at
+   viewport widths no media query could list. A label never wraps and never shrinks (one-line-sentences.mdc): the words are already few, so the
+   layout changes and the label keeps its base size, the one /download's route tiles use (download.html .route-tile-label). Four across, the label
+   slot is (picker - 3 gaps) / 4 less the tile's padding and border: 132px, 8% over the 122px "I use my harness" takes in the site face, needs a
+   604px picker. Under 604px (every desktop width from 1199px up, where the rail and the outline take the room) the four tiles become rows, the
+   icon left and the label right, two to a line: the slot is then (picker - 1 gap) / 2 less the icon, the paddings, the gap and the border, 148px
+   at the 452px picker where this starts. Under 452px (a 500px phone, and a 1200px desktop at its 1.25 zoom) one full-width row per tile. Rows
+   rather than two tall tiles keep the chosen panel on the first screen. Arial (Segoe UI and Roboto run about as wide) fits in every one of them.
+   Same outline, same chosen ring, same keys. */
+@container doc-modes (max-width: 603px) {
+  .doc-mode-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); }
+  .doc-mode {
+    grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; text-align: left;
+    gap: var(--sp-4); min-height: calc(var(--sp-12) + var(--sp-2)); padding: var(--sp-3) var(--sp-4);
+  }
+  .doc-mode-ico { width: var(--sp-6); height: var(--sp-6); }
+}
+@container doc-modes (max-width: 451px) {
+  .doc-mode-tiles { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- verify probe ---- */
+.doc-probe { padding: var(--sp-4); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); margin: var(--sp-4) 0 var(--sp-6); }
+.doc-probe-state { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-sm); line-height: var(--lh-sm); min-width: 0; }
+.doc-led { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; transition: background-color var(--dur-4) var(--ease-std), box-shadow var(--dur-4) var(--ease-std); }
+.doc-probe.on .doc-led { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+.doc-probe.off .doc-led { background: var(--danger); }
+.doc-probe.wait .doc-led { animation: docpulse 1.2s var(--ease-std) infinite; /* deliberate */ }
+@keyframes docpulse { 50% { opacity: 0.35; } }
+.doc-probe-state b { font-weight: 500; }
+.doc-probe-state .mut { color: var(--muted); }
+.doc-probe-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-2); align-items: center; min-width: 0; }
+.doc-ask { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+.doc-ask code { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; font-size: var(--fs-sm); padding: 6px 10px; }
+.doc-ask .sb-btn, .doc-probe-row > .sb-btn { flex: none; }
+@media (max-width: 560px) {
+  .doc-probe-row { grid-template-columns: minmax(0, 1fr); }
+  .doc-probe-row > .sb-btn { justify-self: stretch; }
+}
+
+/* ---- the one bold thing: the live connection strip ---- */
+.doc-connect {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface);
+  padding: var(--sp-5); margin-top: var(--sp-6);
+}
+.doc-connect-head h3 { font-size: var(--fs-lg); line-height: var(--lh-lg); margin: 0 0 var(--sp-4); }
+.doc-connect-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-4); margin: 0; }
+.doc-connect-grid dt { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); margin-bottom: var(--sp-1); }
+.doc-connect-grid dd { margin: 0; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--fg); min-width: 0; overflow-wrap: anywhere; }
+.doc-connect-grid code { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--fg); }
+.doc-keys { border-top: 1px solid var(--line); margin-top: var(--sp-4); padding-top: var(--sp-4); display: grid; gap: var(--sp-3); }
+.doc-keys-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-3); }
+.doc-keys-head h4 { margin: 0; font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; }
+.doc-keys-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+.doc-keys-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-2); align-items: center; }
+.doc-keys-list code { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--fg); }
+.doc-keys-meta { display: block; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.doc-keys-empty { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* ---- responsive: two columns under 1100px (TOC goes), one under 900px ---- */
+@media (max-width: 1100px) {
+  .doc-shell { grid-template-columns: 216px minmax(0, 1fr); }
+  .doc-toc-aside { display: none; }
+}
+@media (max-width: 900px) {
+  .doc-shell { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: var(--sp-8); }
+  /* the rail folds into a disclosure: collapsed it is one row tall, opened it
+     shows the same links and the same filter. <details> is the mechanism, so a
+     keyboard or a screen reader gets the same thing a tap does. */
+  .doc-aside { position: static; margin-bottom: var(--sp-6); }
+  .doc-rail { max-height: none; gap: var(--sp-3); }
+  .doc-nav { max-height: 60vh; overflow: auto; }
+  .doc-filter { order: -1; }
+  .doc-rail:not([open]) > .doc-nav, .doc-rail:not([open]) > .doc-filter { display: none; }
+  .doc-rail > summary {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+    min-height: var(--target); padding: 0 var(--sp-3);
+    border: 1px solid var(--line); border-radius: var(--r-control); background: var(--card);
+    color: var(--fg); font-size: var(--fs-sm); cursor: pointer; list-style: none;
+  }
+  .doc-rail > summary::-webkit-details-marker { display: none; }
+  .doc-rail > summary::after { content: '▾'; color: var(--muted); transition: transform var(--dur-3) var(--ease-out); }
+  .doc-rail[open] > summary::after { transform: rotate(180deg); }
+  .doc-group, .doc-block { scroll-margin-top: calc(var(--nav-h) + var(--sp-8)); }
+}
+/* ---- touch (2026-09-23 mobile pass): the docs <main> names the notch inset
+   itself (restored: the 2026-09-17 rule was lost in the docs rebuild), the shorthand ALONE: with env() in it
+   Chromium keeps it pending-substitution, and a longhand after it in the same
+   rule breaks its serialisation, so the matrix (which reads `padding:` from
+   cssText) saw nothing; the longhands are site.css's bare `main` floor; the link rows and the outline rail are
+   lists of standalone links, not inline sentence links, so each row is a
+   full touch target. env() is 0 off a notch; pointer:coarse keeps desktop
+   untouched. ---- */
+@media (pointer: coarse) {
+  main#main {
+    padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+  }
+  .doc-links a { display: inline-flex; align-items: center; min-height: var(--target); }
+  .doc-toc a { display: flex; align-items: center; min-height: var(--target); }
+  /* no rule for the command rows: they used to wrap here ("show the whole command",
+     mobile-web-design.mdc), and the owner's 2026-10-05 decision replaced that. A row is
+     one clipped, faded line under every pointer; the click-to-copy label is the way to
+     the whole line, and --target is already 44px under a finger */
+}

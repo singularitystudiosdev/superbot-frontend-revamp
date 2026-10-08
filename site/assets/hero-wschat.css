@@ -1,0 +1,628 @@
+/* hero-workspace: the lander's `?hero=workspace` option (hero-wschat.js). Two parts:
+   .hw-browser, the ad's first act (a dark browser whose tab strip fills with
+   every agent app), drawn inside hero-sphere's .hs-canvas in its design px so
+   each favicon sits exactly where its sphere tile lifts from; and .hw-card,
+   the ads' black text card over the whole stage once the frontend has shown,
+   with the storm gradient and white shine on "one" (the module writes the
+   card's opacity, each word's rise and the gradient every frame). */
+
+/* ---------- the browser (design px; the module sets width, transform, opacity) ---------- */
+.hero-sphere .hw-browser {
+  --hw-strip: #1b1b1d; --hw-tab: #2a2a2e; --hw-page: #111113; --hw-ink: #e6e8ee; --hw-dim: #9a9ca6;
+  position: absolute; left: 0; top: 0;
+  width: 1536px; height: 864px;
+  transform-origin: 0 0;
+  background: var(--hw-page);
+  font: 500 12px/1 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--hw-ink);
+  overflow: hidden;
+}
+
+/* the strip: 40 px, the favicon row at y 23 (hero-sphere HS.FAV_Y) */
+.hero-sphere .hw-strip { position: absolute; left: 0; top: 0; right: 0; height: 40px; background: var(--hw-strip); }
+.hero-sphere .hw-dot { position: absolute; top: 17px; width: 12px; height: 12px; border-radius: 50%; }
+.hero-sphere .hw-dot:nth-child(1) { left: 16px; background: #ff5f57; }
+.hero-sphere .hw-dot:nth-child(2) { left: 36px; background: #febc2e; }
+.hero-sphere .hw-dot:nth-child(3) { left: 56px; background: #28c840; }
+.hero-sphere .hw-tabs { position: absolute; inset: 0; }
+/* A tab's boxes never change size: the module moves only transform and
+   opacity. .hw-tab is Chrome's widest tab (HW.TAB_MAX 240) slid so its right
+   edge is the tab's; .hw-in counter-slides to the tab's left; their two
+   rounded clips leave exactly the tab's width (hero-wschat.js, the tabs). */
+.hero-sphere .hw-tab {
+  position: absolute; left: 0; top: 6px; width: 240px; height: 34px;
+  border-radius: 9px 9px 0 0;
+  color: var(--hw-dim);
+  white-space: nowrap; overflow: hidden;
+}
+.hero-sphere .hw-in { position: absolute; inset: 0; border-radius: 9px 9px 0 0; overflow: hidden; }
+/* the separator between two inactive tabs */
+.hero-sphere .hw-in::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 8px; width: 1px;
+  background: #3a3b40;
+}
+.hero-sphere .hw-tab.on { color: var(--hw-ink); }
+.hero-sphere .hw-tab.on .hw-in { background: var(--hw-tab); }
+.hero-sphere .hw-tab.on .hw-in::before, .hero-sphere .hw-tab.on + .hw-tab .hw-in::before { opacity: 0; }
+.hero-sphere .hw-fav {
+  position: absolute; left: 12px; top: 9px;
+  width: 16px; height: 16px; border-radius: 4px; object-fit: cover; display: block;
+}
+/* the title: a fixed clip the module slides to the last whole character
+   that fits, the text counter-slid in it, then the '…' (text-overflow's) */
+.hero-sphere .hw-tt { position: absolute; left: 36px; top: 11px; width: 204px; overflow: hidden; }
+.hero-sphere .hw-tx { display: block; }
+.hero-sphere .hw-el { position: absolute; left: 36px; top: 11px; opacity: 0; }
+.hero-sphere .hw-x { position: absolute; right: 10px; top: 10px; font-size: 13px; color: var(--hw-dim); }
+.hero-sphere .hw-tab[data-size="s"] .hw-x,
+.hero-sphere .hw-tab[data-size="xs"] .hw-x,
+.hero-sphere .hw-tab[data-size="xs"] .hw-tt,
+.hero-sphere .hw-tab[data-size="xs"] .hw-el { visibility: hidden; }
+.hero-sphere .hw-new {
+  position: absolute; left: 0; top: 10px;
+  width: 26px; height: 22px; line-height: 22px; text-align: center;
+  font-size: 18px; color: var(--hw-dim);
+}
+
+/* the toolbar and omnibox */
+.hero-sphere .hw-bar {
+  position: absolute; left: 0; right: 0; top: 40px; height: 44px;
+  background: var(--hw-tab); border-bottom: 1px solid #1f1f22;
+}
+.hero-sphere .hw-nav { position: absolute; top: 14px; font-size: 15px; color: var(--hw-dim); }
+.hero-sphere .hw-nav:nth-child(1) { left: 18px; }
+.hero-sphere .hw-nav:nth-child(2) { left: 46px; }
+.hero-sphere .hw-nav:nth-child(3) { left: 74px; }
+.hero-sphere .hw-omni {
+  position: absolute; left: 110px; right: 110px; top: 7px; height: 30px;
+  border-radius: 15px; background: var(--hw-strip);
+  display: flex; align-items: center; gap: 10px; padding: 0 16px;
+  font-size: 13px; color: var(--hw-ink);
+}
+.hero-sphere .hw-lock {
+  width: 9px; height: 7px; margin-top: 4px; border-radius: 2px; background: var(--hw-dim); position: relative;
+}
+.hero-sphere .hw-lock::before {
+  content: ""; position: absolute; left: 1.5px; top: -5px; width: 4px; height: 5px;
+  border: 1.5px solid var(--hw-dim); border-bottom: 0; border-radius: 3px 3px 0 0;
+}
+
+/* the page: the active tab's app, cut in on every new tab */
+.hero-sphere .hw-page { position: absolute; left: 0; right: 0; top: 84px; bottom: 0; }
+.hero-sphere .hw-app {
+  position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+}
+.hero-sphere .hw-app-icon { width: 72px; height: 72px; border-radius: 24%; object-fit: cover; display: block; }
+.hero-sphere .hw-app-name { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
+.hero-sphere .hw-compose {
+  position: relative; width: 620px; height: 58px; margin-top: 10px;
+  border-radius: 29px; border: 1px solid #3a3b40; background: #19191c;
+  display: flex; align-items: center; padding: 0 24px;
+  font-size: 16px; color: var(--hw-dim);
+}
+.hero-sphere .hw-send {
+  position: absolute; right: 12px; top: 12px; width: 34px; height: 34px;
+  border-radius: 50%; background: #3a3b40;
+}
+.hero-sphere .hw-count {
+  position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%);
+  padding: 9px 16px; border-radius: 999px;
+  background: #1f1f23; border: 1px solid #3a3b40;
+  font-size: 14px; font-variant-numeric: tabular-nums; color: var(--hw-ink);
+  opacity: 0;
+}
+
+/* ---------- the card: black over the stage, the headline centred ---------- */
+.stage .hw-card {
+  position: absolute; inset: 0; z-index: 60;
+  display: grid; place-items: center;
+  background: #000;
+  container-type: size;
+  opacity: 0; visibility: hidden;
+  pointer-events: none;
+}
+.hw-card .hw-title {
+  margin: 0; padding: 0 8%;
+  max-width: 16ch;
+  text-align: center;
+  font-size: clamp(22px, 7.2cqw, 92px);
+  font-weight: 600; line-height: 1.06; letter-spacing: -0.035em;
+  color: #fff;
+  text-wrap: balance;
+}
+/* the words wait for their beat; the module writes each one's rise */
+.hw-card .hw-w { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
+/* "one": a white shine band over the storm gradient (the ad's renderGrads),
+   both clipped to the glyphs; the band draws on top, no-repeat, so it only
+   shows while it sweeps */
+.hw-card .hw-one {
+  padding: 0 0.04em; margin: 0 -0.04em;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.92) 50%, rgba(255, 255, 255, 0) 100%),
+    linear-gradient(90deg, #2b6bff 0%, #7b3cf0 25%, #c026d3 50%, #ff3d9a 75%, #2b6bff 100%);
+  background-repeat: no-repeat, repeat-x;
+  background-size: 0 100%, 300px 100%;
+  background-position: -100px 0, 0 0;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+/* ---------- the ad's HUD discs (hero-wschat.js swapHud(), workspace only) ----------
+   the image disc: an agent whose mark is the app's own icon, not a glyph.
+   hub-boot.css already fills a disc's (and a menu art's) img edge to edge,
+   round and cover (the app's .hud-face > img); here the disc's raised ground
+   is dropped so no fringe shows at the image's edge. Scoped to the workspace
+   host so the shared HUD is untouched. */
+.stage[data-hero-host="workspace"] .hud .hud-disc.logo,
+.stage[data-hero-host="workspace"] .hud .hud-menu-art.logo { background: transparent; }
+
+/* ---------- no phone (2026-09-26, the user: "remove the phone syncing element") ----------
+   The phone mock, its sync beam and its label are not drawn in this arm.
+   hub-handoff.js prepStage reads the phone's display (noPhone), so the beam is
+   never placed and the phone beat never docks: the hub keeps the whole arena
+   at every width, as the phone cut below 640px always did. */
+.stage[data-hero-host="workspace"] .phone,
+.stage[data-hero-host="workspace"] .phone-label,
+.stage[data-hero-host="workspace"] .beam { display: none; }
+
+/* ---------- Inter, main's bundled UI face ----------
+   Main's UI stack is "SF Pro Rounded", ui-rounded, Inter, system-ui
+   (packages/tokens type.tokens.json:10), and main bundles Inter 400/500/600/700
+   for every platform the SF faces cannot reach (apps/desktop/src/renderer/src/
+   index.css:23-49, font-display swap, no unicode-range). Chromium resolves
+   neither of the first two names, so main's own Electron window draws Inter.
+   These are main's four files (assets/fonts/Inter-*.ttf, SIL OFL 1.1, the
+   licence beside them in site/assets/fonts/LICENSE-Inter.txt), repacked to
+   WOFF2 with no glyph or metric change. */
+@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("site/assets/fonts/Inter-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+/* ---------- the frontend: superbot-desktop main's new chat screen (hero-wschat-frontend.js) ----------
+   Main, measured live at a 1200 x 750 CSS viewport (.tmp/gui-sync-geo/
+   desktop-geometry.json, superbot-desktop origin/main d3b0f6efb; the first
+   capture was 77f02910, .tmp/hero-ref.7580bba1/main/new-chat.png). The module
+   lays .hwf out at main's own 1200px width (the grid 72 | 240 | 8 | 880) and
+   scales it once to the hub, k = hub width / 1200, so every number below is the
+   spec's CSS px, pasted from the measure's computed styles and rects; colours
+   are main's dark tokens (packages/tokens color.tokens.json). Scoped to #hub[data-hwf],
+   which only this hero sets, so the shared hub (boot, chaos, sphere,
+   realui) is untouched. No transitions: the hero scrubs (?t=), so every
+   frame is a pure function of the story clock. */
+#hub[data-hwf] {
+  --hwf-bg: #0d0d0d; --hwf-card: #0a0a0a; --hwf-raised: #1a1a1c; --hwf-sunken: #0a0a0b;
+  --hwf-line: #1e1e21; --hwf-strong: #3a3b40; --hwf-control: #6b6f76;
+  --hwf-fg: #e6e8ee; --hwf-fg2: #c9ccd4; --hwf-muted: #aeb1bc;
+  --hwf-accent: #2b6bff; --hwf-danger: #f23f42;
+  /* the lane showing's tile ground: main's color.accent-wash, the accent at 14% over the card
+     (#2b6bff over #0a0a0a = #0f182c), made here from those two so it holds no new hex */
+  --hwf-accent-wash: color-mix(in srgb, var(--hwf-accent) 14%, var(--hwf-card));
+  --hwf-grad: linear-gradient(135deg, #3fd6d0 0%, #4f7bff 48%, #c45cff 100%);
+  --hwf-glow: #7864ff;
+  /* the lane rail's ground: main's color.rail, one lifted step above the sidebar's card,
+     as the desktop spec measured it (#121213); its sizes are main's layout.tokens.json
+     size.rail 72, size.rail-item 40, size.rail-icon 22 and size.avatar 32, and the rail's
+     right hairline (--hwf-hair, main's size.hairline) is the 1px the tiles centre clear of */
+  --hwf-rail: #121213;
+  --hwf-rail-w: 72px; --hwf-rail-item: 40px; --hwf-rail-icon: 22px; --hwf-avatar: 32px; --hwf-hair: 1px;
+  --hwf-ui: "SF Pro Rounded", ui-rounded, Inter, system-ui, sans-serif;
+  --hwf-serif: ui-serif, "New York", "Iowan Old Style", Charter, Georgia, serif;
+  --hwf-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  /* main is a flush window, no inset card: the hub fills the stage under
+     its title bar (the stage's own chrome, the traffic lights and title) */
+  inset: 0; border: 0; border-radius: 0 0 var(--r-lg) var(--r-lg);
+  display: block; background: var(--hwf-bg);
+}
+#hub[data-hwf] > .hwf {
+  /* hub-boot.css sizes the lander's own hub by --k (its 11/14 em) and derives --radius-8 and --radius-16 from it
+     on .hub; in this frame one design px is one app px (DESIGN_W 1200, scaled once), so the scale is 1 and
+     main's two radii are main's, whatever the hub's own scale is */
+  --k: 1; --radius-8: 8px; --radius-16: 16px;
+  position: absolute; left: 0; top: 0;
+  display: flex; flex-direction: row;
+  transform-origin: 0 0;
+  font: 400 13px/19px var(--hwf-ui); color: var(--hwf-fg);
+  -webkit-font-smoothing: antialiased; text-align: left;
+}
+#hub[data-hwf] .hwf *, #hub[data-hwf] .hwf *::before, #hub[data-hwf] .hwf *::after { box-sizing: border-box; transition: none; }
+#hub[data-hwf] .hwf svg { display: block; flex: none; max-width: none; }
+#hub[data-hwf] .hwf i, #hub[data-hwf] .hwf em { font-style: normal; }
+#hub[data-hwf] .hwf button { margin: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; }
+
+/* a 24px icon button: bare (the Recent tools, the header's actions) or boxed
+   (Hide sidebar: card ground, a line-control hairline) */
+#hub[data-hwf] .hwf-ib { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-ib svg { width: 14px; height: 14px; }
+#hub[data-hwf] .hwf-ib.boxed { background: var(--hwf-card); border: 1px solid var(--hwf-control); color: var(--hwf-fg); }
+
+/* ---- the lane rail (72; CollapsedRail.tsx + collapsed-rail.css, f2fbe329c) ----
+   The activity-bar column left of the sidebar: the rail ground with a line hairline on its
+   right edge, a 34px drag band (the spec's .hub-rail-band), then the Chat and Code tiles
+   directly under it (40 square, 22px line icons, 12 apart, so a 52 pitch, a --sp-1 step below
+   the band so the first tile's focus ring stays off it: collapsed-rail.css .hub-rail-lanes,
+   the first tile at y 38), and the foot (Fleet, Settings, the 32px account avatar, 8 apart). The mascot and the hairline rule that sat between the band and the lanes left the
+   rail on 2026-10-01: the mark is the sidebar HUD's now (see the title line below). Icons are muted
+   ink at the app's 2.25 stroke; the lane showing (data-current in the app, .on here) is the
+   "Notched Pill" (collapsed-rail.css, 3f7389dc5): an accent-wash tile wearing the accent glyph,
+   and beside it the NOTCH, a 4 by 20 accent bar level with the tile, flush with the rail's outer
+   (left) edge in the gap the centred tile leaves, rounded on its inner end only. It is the rail's
+   one bold shape. The other lane is a bare muted glyph; no project is open, so the Code lane's
+   pill around the project tools is not drawn. Tiles change state instantly (no transition), as
+   the app's do. Two radii on the rail: 8 on the tiles, a full round on the avatar and the notch. */
+/* the tiles centre in the rail less its hairline (the spec's x 15.58 of a 71.17 box), so the padding is the hairline's */
+#hub[data-hwf] .hwf-rail { position: relative; isolation: isolate; z-index: 3; flex: none; width: var(--hwf-rail-w); padding-right: var(--hwf-hair); display: flex; flex-direction: column; align-items: center; }
+/* the rail's ground and hairline are their own .inner child, so the ground and the tiles wait for
+   the lane's fade-up (hub-handoff.js revealInners) */
+#hub[data-hwf] .hwf-rail-ground { position: absolute; inset: 0; z-index: -1; background: var(--hwf-rail); border-right: var(--hwf-hair) solid var(--hwf-line); pointer-events: none; }
+#hub[data-hwf] .hwf-rail-band { flex: none; align-self: stretch; height: 34px; }
+#hub[data-hwf] .hwf-rail-lanes { flex: none; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: var(--sp-1); }
+#hub[data-hwf] .hwf-rail-tile { flex: none; display: grid; place-items: center; width: var(--hwf-rail-item); height: var(--hwf-rail-item); border-radius: var(--r-control); color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-rail-tile svg { width: var(--hwf-rail-icon); height: var(--hwf-rail-icon); }
+#hub[data-hwf] .hwf-rail-tile.on { position: relative; background: var(--hwf-accent-wash); color: var(--hwf-accent); }
+#hub[data-hwf] .hwf-rail-tile.on::before { content: ""; position: absolute; top: calc((var(--hwf-rail-item) - var(--sp-5)) / 2); left: calc((var(--hwf-rail-w) - var(--hwf-hair) - var(--hwf-rail-item)) / -2); width: var(--sp-1); height: var(--sp-5); border-radius: 0 var(--r-pill) var(--r-pill) 0; background: var(--hwf-accent); pointer-events: none; }
+#hub[data-hwf] button.hwf-rail-tile { cursor: pointer; color: var(--hwf-muted); }
+@media (hover: hover) { #hub[data-hwf] .hwf-rail-tile:hover { background: var(--hwf-raised); color: var(--hwf-fg); } #hub[data-hwf] .hwf-rail-tile.on:hover { background: var(--hwf-accent-wash); color: var(--hwf-accent); } }
+#hub[data-hwf] .hwf-rail-tile:focus-visible { outline: 2px solid var(--hwf-accent); outline-offset: 2px; }
+#hub[data-hwf] .hwf-rail-foot { flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: auto; padding: 12px 0 16px; }
+#hub[data-hwf] .hwf-rail-av { flex: none; display: grid; place-items: center; width: var(--hwf-avatar); height: var(--hwf-avatar); border-radius: var(--r-pill); background: var(--hwf-line); font: 600 16px/1 var(--hwf-ui); color: var(--hwf-fg); }
+
+/* ---- the sidebar (240; SidebarHud.tsx + sidebar-hud.css) ---- */
+#hub[data-hwf] .hwf-side { position: relative; flex: none; width: 240px; display: flex; flex-direction: column; min-height: 0; }
+#hub[data-hwf] .hwf[data-side="0"] .hwf-rail, #hub[data-hwf] .hwf[data-side="0"] .hwf-side, #hub[data-hwf] .hwf[data-side="0"] .hwf-split { display: none; }
+#hub[data-hwf] .hwf-band { position: absolute; left: 0; top: 0; z-index: 3; width: 240px; height: 40px; display: flex; justify-content: flex-end; align-items: center; padding-right: 4px; }
+/* the HUD: 30 above the title line + the 56 row (the 28 line, 4, the 24 disc row) + 12 = 98, the
+   spec's sidebar-hud rect (y 0, h 97.99; the title line at y 30, the disc row at y 62). The end band
+   is the app's --spacing-12 since 272b5f844 (sidebar-hud.css .hud:not(:has(.hud-import-row))):
+   the --spacing-32 it was only held the history import's row, and with no
+   import it read as a void between the disc stack and New chat */
+#hub[data-hwf] .hud { flex: none; position: relative; display: block; height: 98px; padding: 30px 0 12px; background: var(--hwf-card); border: 0; z-index: 2; }
+#hub[data-hwf] .hwf-hud-row { display: flex; align-items: flex-start; height: 56px; padding: 0 4px 0 16px; }
+#hub[data-hwf] .hud-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+/* the title line (sidebar-hud.css .hud-title-line, f2fbe329c): ONE height, the wordmark's own line
+   box (main's --text-wordmark--line-height, type.tokens.json text.wordmark 22/28), carrying the mark,
+   the 8px gap (the frame scales it with everything else) and the bold word */
+#hub[data-hwf] .hwf-title-line { display: flex; align-items: center; gap: 8px; height: 28px; min-width: 0; }
+#hub[data-hwf] .hud-word { font: 700 22px/28px var(--hwf-ui); letter-spacing: -.44px; color: #fff; }
+/* the mark (SidebarHud.tsx hud-mark): the page's own .hud-mark node, moved into the title line ahead of
+   the word. hub-boot.css draws it as the desktop's default skin does (abca8cb9b, plain, bare: the living
+   head alone on the sidebar's own surface, no tile, no ground, seated on the bare crop so the head fills
+   its box edge to edge, the --r-control corner), and the heroes' flying tile lands on its box. Here only
+   its size and its 8px corner are the frame's: a square the title line's own height, the line's 100% with a 1:1 aspect (the
+   line is the wordmark's 28px line box, so there is no second number to keep and the mark never grows
+   the line); hub-boot.css sizes it in the lander's own em. */
+#hub[data-hwf] .hwf-title-line > .hud-mark { width: auto; height: 100%; aspect-ratio: 1; border-radius: var(--r-control); }
+#hub[data-hwf] .hud-discs { display: flex; align-items: center; height: 24px; padding: 0; }
+#hub[data-hwf] .hud .hud-disc { width: 24px; height: 24px; box-shadow: 0 0 0 2px var(--hwf-card); translate: none; }
+#hub[data-hwf] .hud .hud-disc + .hud-disc { margin-left: -8px; }
+#hub[data-hwf] .hud .hud-disc::after { box-shadow: inset 0 0 0 1px var(--hwf-line); }
+/* the open destination: a 2px fg ring on the disc, the cutout outside it */
+#hub[data-hwf] .hud .hud-disc.sel { box-shadow: 0 0 0 2px var(--hwf-fg), 0 0 0 4px var(--hwf-card); }
+
+#hub[data-hwf] .hud .hud-disc.hwf-exp,
+#hub[data-hwf] .hud .hud-disc.add { margin-left: 4px; box-shadow: none; }
+#hub[data-hwf] .hud .hud-disc.hwf-exp { background: transparent; color: var(--hwf-muted); }
+#hub[data-hwf] .hud .hud-disc.add { background: var(--hwf-raised); color: var(--hwf-muted); }
+#hub[data-hwf] .hud .hud-disc.hwf-exp::after, #hub[data-hwf] .hud .hud-disc.add::after { content: none; }
+#hub[data-hwf] .hud .hud-disc.hwf-exp svg, #hub[data-hwf] .hud .hud-disc.add svg { width: 12px; height: 12px; }
+
+/* the lists: the lane (the lane switch is the rail's, so no tab row). Main's
+   side scroller reserves its scrollbar's gutter at the right edge
+   (scrollbars.css:101-107 .hub-side-scroll { scrollbar-gutter: stable }, the
+   bar --size-scrollbar 8px, layout.tokens.json:166), so everything in it is
+   8px narrower than the sidebar: New chat 200, rows 216
+   (dom/new-chat.json side-tools 232.1 wide). The gutter is written as padding
+   so it holds where the platform draws overlay scrollbars. */
+#hub[data-hwf] .hwf-lanes { flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding-right: 8px; background: var(--hwf-card); }
+#hub[data-hwf] .hwf-lane { flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 4px 8px 16px; }
+#hub[data-hwf] .hwf-lane[hidden] { display: none; }
+/* New chat: the ghost row (new-chat-row.tsx; hub.css .hub-side-new-chat-item,
+   72d19defd): a chat row with no chat in it. No border, no fill, no corner,
+   the chat row's own band (28 tall, 4/8 inset, 8 gap) on the lane's own 8px
+   edge, so the SquarePen (16px, the mark slot) lands on the chats' mark
+   column and the label on their titles' column, at the titles' weight, in the
+   muted ink. The picture draws no hover on any row, so the app's hover and
+   press layers are not drawn. */
+#hub[data-hwf] .hwf-newchat { flex: none; display: flex; align-items: center; gap: 8px; min-height: 28px; margin: 0; padding: 4px 8px; border: 0; border-radius: 0; background: transparent; color: var(--hwf-muted); font-weight: 500; white-space: nowrap; }
+#hub[data-hwf] .hwf-newchat > i { flex: none; display: grid; place-items: center; width: 16px; height: 16px; }
+#hub[data-hwf] .hwf-newchat svg { width: 16px; height: 16px; }
+#hub[data-hwf] .hwf-sect { flex: none; display: flex; flex-direction: column; gap: 4px; }
+#hub[data-hwf] .hwf-sect.recent { gap: 2px; }
+#hub[data-hwf] .hwf-bucket { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 24px; padding: 4px 8px; font: 400 11px/16px var(--hwf-ui); color: var(--hwf-muted); }
+/* the row's tools are hover-only, as the app draws them since 272b5f844 (hub.css
+   .hub-chat-list .hub-side-bucket-actions): transparent at rest, painted while
+   the row is hovered or holds focus. Opacity only, so the row never shifts. No
+   (hover: none) fallback: the app's touch rule lets a finger reach them, and this
+   picture has no finger to. */
+#hub[data-hwf] .hwf-bucket-tools { display: flex; align-items: center; gap: 4px; opacity: 0; transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1); }
+#hub[data-hwf] .hwf-bucket:hover .hwf-bucket-tools, #hub[data-hwf] .hwf-bucket:focus-within .hwf-bucket-tools { opacity: 1; }
+#hub[data-hwf] .hwf-bucket-tools .hwf-ib { margin: -4px 0; }
+/* a chat row (chat-row.tsx, the spec's [data-testid=chat-row]): 28 tall on a 30 pitch (the section's 2px
+   gap), the 16 mark, the title 500, the mono stamp in a 45 column; no corner at rest, because the
+   selected row's wash is full-bleed */
+#hub[data-hwf] .hwf-row { position: relative; display: flex; align-items: center; gap: 8px; min-height: 28px; padding: 4px 8px; border-radius: 0; color: var(--hwf-muted); min-width: 0; }
+/* the row's one hover tool, the "..." (hub.css .hub-chat-row-actions, chat-row-menu.tsx):
+   a 24px square at the row's trailing edge, transparent at rest and painted while the row
+   is hovered or holds focus, the stamp yielding its seat to it. Opacity only, so the row
+   never shifts; the picture's own hover is the pointer's, so a touch screen never shows it. */
+#hub[data-hwf] .hwf-rmore { position: absolute; top: 50%; right: 4px; display: grid; place-items: center; width: 24px; height: 24px; margin-top: -12px; border-radius: var(--r-control); color: var(--hwf-muted); opacity: 0; pointer-events: none; }
+#hub[data-hwf] .hwf-rmore svg { width: 16px; height: 16px; }
+@media (hover: hover) {
+  #hub[data-hwf] .hwf-row:hover .hwf-rmore, #hub[data-hwf] .hwf-row:focus-within .hwf-rmore { opacity: 1; }
+  #hub[data-hwf] .hwf-row:hover > em { visibility: hidden; }
+}
+#hub[data-hwf] .hwf-tx { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+#hub[data-hwf] .hwf-tx .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+#hub[data-hwf] .hwf-row em { flex: none; min-width: 45px; text-align: right; font: 400 9px/10.8px var(--hwf-mono); font-variant-numeric: tabular-nums; opacity: .8; }
+/* the open chat (hub.css:701-726, chat-row.tsx:470-490): fg text, the title
+   at the title weight, an accent state layer (--overlay-row-active .14,
+   color.tokens.json:231) reaching 4px past the row on each side with no
+   radius, and a 3px accent spine inset 4px top and bottom. The hero adds it
+   at the head of Recent once the chat has a thread (the module's .hwf-live). */
+#hub[data-hwf] .hwf-row.hwf-live { position: relative; isolation: isolate; color: var(--hwf-fg); }
+#hub[data-hwf] .hwf-row.hwf-live[hidden] { display: none; }
+#hub[data-hwf] .hwf-row.hwf-live::before { content: ""; position: absolute; inset: 0 -4px; z-index: -1; background: color-mix(in oklch, var(--hwf-accent) 14%, transparent); pointer-events: none; }
+#hub[data-hwf] .hwf-row.hwf-live::after { content: ""; position: absolute; top: 4px; bottom: 4px; left: 0; width: 3px; border-radius: 9999px; background: var(--hwf-accent); pointer-events: none; }
+#hub[data-hwf] .hwf-row.hwf-live .hwf-tx .t { font-weight: 500; }
+#hub[data-hwf] .hwf-row.hwf-live em { color: var(--hwf-fg); }
+#hub[data-hwf] .hwf-mk { flex: none; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 5.33px; overflow: hidden; }
+/* the Superbot cat: bare, in the muted ink, the head art 13.4px wide in its 16px box (the spec's chat-row-mark;
+   the svg's art spans 72 of its 100 units, so the mask is 116% of the box) */
+#hub[data-hwf] .hwf-mk.sb { background: var(--hwf-muted); -webkit-mask: url(/site/assets/brand/mono-mark-white.svg) center / 116% no-repeat; mask: url(/site/assets/brand/mono-mark-white.svg) center / 116% no-repeat; }
+#hub[data-hwf] .hwf-mk svg { width: 70%; height: 70%; }
+#hub[data-hwf] .hwf-mk.app-openai { background: var(--brand-openai); color: var(--brand-openai-ink); }
+#hub[data-hwf] .hwf-mk.app-openai svg { width: 86%; height: 86%; }
+#hub[data-hwf] .hwf-mk.app-claude { background: var(--brand-claude); color: var(--brand-claude-ink); }
+#hub[data-hwf] .hwf-mk.app-cursor { background: var(--brand-cursor); color: var(--brand-cursor-ink); box-shadow: inset 0 0 0 1px var(--hwf-line); }
+#hub[data-hwf] .hwf-mk.app-devin { background: var(--hwf-raised); color: var(--hwf-fg); box-shadow: inset 0 0 0 1px var(--hwf-line); }
+#hub[data-hwf] .hwf-mk.git { color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-mk.git svg { width: 100%; height: 100%; }
+/* the Code lane, the flat project list (superbot-desktop spec §15.530;
+   Sidebar.tsx .hub-side-new-project, ProjectRows.tsx, project-rows.css). Column
+   plan: the New project FolderPlus and every project mark share the rows' 8px
+   pad, and an open project's chat titles start on the project name's own text
+   column (8 pad + 19 mark + 8 gap). One row per project, newest first, no date
+   headers: [mark][name]......[count pill]. The pill is the raised ground at the
+   caption step (11/16, tabular, the UI face, never mono); the open project's is
+   a small up chevron in a 24px disc. Times, dates and the running clock share
+   the trailing column in the UI face with tabular figures, muted. The accent is
+   spent on the selected project's 2px bar and the running dot alone; the
+   selected head wears the soft active fill (fg at 14%, --overlay-row-active).
+   Two radii: 8px on the row fill, 9999px on the pill, the disc, the bar and the
+   dot. */
+#hub[data-hwf] .hwf-sect.code { gap: 0; }
+/* New project is New chat's ghost row with a FolderPlus (hub.css
+   .hub-side-new-project, 72d19defd): borderless, no fill, no corner, the chat
+   row's 28px band and 4/8 inset, the titles' weight */
+#hub[data-hwf] .hwf-newproj { flex: none; display: flex; align-items: center; gap: 8px; min-height: 28px; padding: 4px 8px; border: 0; border-radius: 0; background: transparent; color: var(--hwf-muted); font-weight: 500; white-space: nowrap; }
+#hub[data-hwf] .hwf-newproj > i { flex: none; display: grid; place-items: center; width: 19px; height: 19px; }
+#hub[data-hwf] .hwf-newproj svg { width: 16px; height: 16px; }
+/* a project: ONE line, [mark][name]......[pill] */
+#hub[data-hwf] .hwf-row.proj { position: relative; min-height: 32px; padding: 0 8px; gap: 8px; border-radius: 8px; }
+#hub[data-hwf] .hwf-row.proj .hwf-mk { width: 19px; height: 19px; border-radius: 6px; }
+#hub[data-hwf] .hwf-row.proj > .t,
+#hub[data-hwf] .hwf-row.pchat > .t { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#hub[data-hwf] .hwf-row.proj > .t { font-weight: 600; color: var(--hwf-fg); }
+#hub[data-hwf] .hwf-row.pchat > em,
+#hub[data-hwf] .hwf-run { flex: none; min-width: 0; font: 400 11px/16px var(--hwf-ui); font-variant-numeric: tabular-nums; color: var(--hwf-muted); opacity: 1; text-align: right; }
+/* the pill: the 20px floor, 6px each side, the raised ground; open, the up chevron */
+#hub[data-hwf] .hwf-pill-n { flex: none; min-width: 20px; height: 16px; padding: 0 6px; border-radius: 9999px; background: var(--hwf-raised); color: var(--hwf-muted); font: 400 11px/16px var(--hwf-ui); font-variant-numeric: tabular-nums; text-align: center; }
+#hub[data-hwf] .hwf-up { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 9999px; background: var(--hwf-raised); color: var(--hwf-muted); font-style: normal; }
+#hub[data-hwf] .hwf-up svg { width: 14px; height: 14px; transform: rotate(180deg); }
+/* the selected project: the soft active fill and a 2px accent bar on the leading edge */
+#hub[data-hwf] .hwf-row.proj.sel { background: color-mix(in oklch, var(--hwf-fg) 14%, transparent); }
+#hub[data-hwf] .hwf-row.proj.sel::after { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: 9999px; background: var(--hwf-accent); }
+/* running: a still accent dot, then plain muted 'Running 4:20' */
+#hub[data-hwf] .hwf-run { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+#hub[data-hwf] .hwf-run > i { flex: none; width: 6px; height: 6px; border-radius: 9999px; background: var(--hwf-accent); }
+/* the open project's chats: one line, the title on the name's column, the date
+   on the times' column, a 1px guide down the mark's axis (8 lane pad + 8 row
+   pad + half the 19px mark) */
+#hub[data-hwf] .hwf-proj-chats { position: relative; display: flex; flex-direction: column; }
+#hub[data-hwf] .hwf-proj-chats::before { content: ""; position: absolute; left: 17px; top: 2px; bottom: 2px; width: 1px; background: var(--hwf-strong); }
+#hub[data-hwf] .hwf-row.pchat { min-height: 30px; padding: 0 8px 0 35px; color: var(--hwf-fg2); }
+
+/* the account footer, v00-crisper as the quiet sidebar draws it: ONE row on
+   the sidebar's own ground under a hairline, [avatar][address]......[gear];
+   the list scrolls under it */
+#hub[data-hwf] .hwf-acct { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background: var(--hwf-card); }
+#hub[data-hwf] .hwf-acct-card { padding: 8px; border-top: 1px solid var(--hwf-line); }
+#hub[data-hwf] .hwf-acct-bar { display: flex; align-items: center; gap: 4px; min-height: 32px; min-width: 0; }
+#hub[data-hwf] .hwf-acct-btn { flex: 1 1 auto; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 32px; padding: 0 4px; border-radius: 8px; }
+#hub[data-hwf] .hwf-avatar { position: relative; flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 9999px; background: var(--hwf-raised); border: 1px solid rgba(230, 232, 238, .12); font: 600 11px/1 var(--hwf-ui); color: var(--hwf-fg); }
+/* the health dot (.awc-avatar-dot): 8px, the accent, a 2px ring in the sidebar's ground, its box 18px in from the avatar's corner */
+#hub[data-hwf] .hwf-avatar i { position: absolute; right: -2px; bottom: -2px; width: 8px; height: 8px; border-radius: 9999px; background: var(--hwf-accent); box-shadow: 0 0 0 2px var(--hwf-card); }
+#hub[data-hwf] .hwf-email { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 13px/16px var(--hwf-ui); color: var(--hwf-fg); }
+#hub[data-hwf] .hwf-tool { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-tool svg { width: 16px; height: 16px; }
+
+/* the 8px splitter, its 1px line centred (hub.css .hub-splitter) */
+#hub[data-hwf] .hwf-split { position: relative; flex: none; width: 8px; }
+#hub[data-hwf] .hwf-split::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; transform: translateX(-50%); background: var(--hwf-line); }
+
+/* ---- the pane (MainPane.tsx, Thread.tsx, new-chat.css) ---- */
+#hub[data-hwf] .hwf-pane { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--hwf-card); container: hwf-pane / inline-size; }
+/* the header: one 48px row, title | search | actions (hub-header.css .hub-main-head). The spec's search is
+   315 x 32 at x 536 of the 1200 window, 200 in from the title's x 336: a 192 title column, the 8 gap,
+   then the field; the actions (a thread's) take the rest, never less than their own 120, and sit at the row's right end
+   (a 602px pane, the wstop crop's, gives the field what is left, as it did) */
+#hub[data-hwf] .hwf-head { flex: none; display: grid; grid-template-columns: minmax(0, 192px) minmax(0, 315px) minmax(min-content, 1fr); align-items: center; gap: 8px; height: 48px; padding: 0 16px; border-bottom: 1px solid var(--hwf-line); }
+#hub[data-hwf] .hwf-head-lead { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#hub[data-hwf] .hwf-title { display: inline-flex; align-items: center; gap: 4px; min-width: 0; padding: 2px 4px 2px 6px; border-radius: 8px; font: 500 15px/20px var(--hwf-ui); color: var(--hwf-fg); }
+#hub[data-hwf] .hwf-title-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the thread title's chevron keeps its box at rest, invisible, and shows only
+   under the pointer (chat-title-menu.css:42-58) */
+#hub[data-hwf] .hwf-title svg { width: 12px; height: 12px; color: var(--hwf-muted); opacity: 0; }
+@media (hover: hover) { #hub[data-hwf] .hwf-pane[data-new="0"] .hwf-title:hover svg { opacity: 1; } }
+#hub[data-hwf] .hwf-search { display: flex; align-items: center; gap: 8px; min-width: 0; height: 32px; padding: 0 8px 0 12px; border: 1px solid var(--hwf-line); border-radius: 8px; background: var(--hwf-raised); color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-search svg { width: 16px; height: 16px; }
+#hub[data-hwf] .hwf-search-l { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; font: 400 11px/16px var(--hwf-ui); }
+#hub[data-hwf] .hwf-search kbd { flex: none; padding: 0 4px; border: 1px solid var(--hwf-line); border-radius: 4px; background: none; box-shadow: none; font: 400 11px/16px var(--hwf-mono); color: var(--hwf-muted); }
+/* the chat's actions (Thread.tsx headChips: Resync, Share, Move to a project, Browser),
+   bare muted 24px glyph tools in the header's trailing group, no boxes, no second toolbar
+   row. They belong to a chat with a thread: the module writes --hwf-band (0 -> 1 on the
+   tail's own 400ms emphasized-decelerate), so they fade in as the composer glides down and
+   take no space from it (the header's height never moves). */
+#hub[data-hwf] .hwf-head-act { --hwf-band: 1; display: flex; justify-content: flex-end; align-items: center; gap: 8px; min-width: 0; opacity: var(--hwf-band); }
+
+/* the feed: its own scroll box, rows bottom-anchored (the spacer grows),
+   the row column the composer's 736 (768 less the row's 16px gutters) */
+#hub[data-hwf] .hwf-feed { position: relative; flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 16px max(16px, calc((100% - 736px) / 2)); }
+#hub[data-hwf] .hwf-feed::before { content: ""; flex: 1 1 0; }
+/* the chat beat's thread (hero-wschat-chat.js .hwc, flex 1 1 0) pins its
+   own rows to the bottom, so once the pane is a thread (data-new 0: the
+   greeting gone) it takes the whole feed and the spacer goes; on the new chat
+   screen it is empty and takes no room, so the greeting sits where the
+   frontend put it. Its 600 column stays main's (the .hwc 8px gutter inside
+   the feed's 736 lands it 4px left of the pane's centre, as in main). */
+#hub[data-hwf] .hwf-pane[data-new="0"] .hwf-feed::before { display: none; }
+#hub[data-hwf] .hwf-pane[data-new="1"] .hwf-feed > .hwc { display: none; }
+/* the greeting (ThreadIdle variant="hero"): the live mark inline with the serif line */
+#hub[data-hwf] .hwf-hero { flex: none; display: flex; align-items: center; justify-content: center; gap: 16px; padding-bottom: 24px; }
+#hub[data-hwf] .hwf-hero[hidden] { display: none; }
+/* on send main unmounts the greeting; here it fades out with the tail's
+   collapse (the module writes its opacity), held off the flow at exactly the
+   seat it had (the feed's bottom, above its 16px padding) so it rides down
+   with the composer and the thread's rows never wait on it */
+#hub[data-hwf] .hwf-pane[data-new="0"] .hwf-hero { position: absolute; left: max(16px, calc((100% - 736px) / 2)); right: max(16px, calc((100% - 736px) / 2)); bottom: 16px; pointer-events: none; }
+#hub[data-hwf] .hwf-hero-mark { flex: none; width: 48px; height: 48px; }
+#hub[data-hwf] .hwf-glitch { width: 100%; height: 100%; overflow: visible; }
+#hub[data-hwf] .hwf-glitch-a { transform: translate(-.8px, -.6px); }
+#hub[data-hwf] .hwf-glitch-b { transform: translate(.8px, .8px); }
+#hub[data-hwf] .hwf-greet { margin: 0; min-width: 0; font: 400 32px/36px var(--hwf-serif); letter-spacing: -.85px; color: var(--hwf-fg); text-wrap: balance; }
+#hub[data-hwf] .hwf-greet span { white-space: nowrap; }
+
+/* the composer row: max 768, padding 0 16 8; the box, then the context line */
+#hub[data-hwf] .hwf-crow { flex: none; width: 100%; max-width: 768px; margin: 0 auto; padding: 0 16px 8px; }
+/* the box: raised, r16, px 4, gap 4; the ring is v3 "Tide", main's
+   composer-ring-variants.css: a flat storm-1 hairline, at its focus reading
+   (.8) since a new chat opens with the composer focused */
+#hub[data-hwf] .hwf-composer { position: relative; display: flex; flex-direction: column; gap: 4px; min-height: 44px; padding: 0 4px; border: 1px solid transparent; border-radius: 16px; background: var(--hwf-raised); box-shadow: inset 0 0 0 1px rgba(43, 107, 255, .8); }
+#hub[data-hwf] .hwf-input { display: grid; min-height: 44px; }
+#hub[data-hwf] .hwf-ph, #hub[data-hwf] .hwf-draft { grid-area: 1 / 1; padding: 12px 8px; min-width: 0; }
+#hub[data-hwf] .hwf-ph { font: 400 13px/20px var(--hwf-ui); color: var(--hwf-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#hub[data-hwf] .hwf-composer[data-draft] .hwf-ph { visibility: hidden; }
+#hub[data-hwf] .hwf-draft { font: 400 15px/20px var(--hwf-ui); color: var(--hwf-fg); white-space: pre-wrap; overflow-wrap: anywhere; }
+/* the text caret: the native one main shows in its focused composer, 1px of fg, blinking */
+#hub[data-hwf] .hwf-caret { display: none; width: 1px; height: 18px; margin-left: 1px; vertical-align: -3px; background: var(--hwf-fg); animation: hwf-blink 1s step-end infinite; /* deliberate */ }
+#hub[data-hwf] .hwf-composer[data-caret] .hwf-caret { display: inline-block; }
+@keyframes hwf-blink { 50% { opacity: 0; } }
+/* the foot: + and SUPER left; the model chip, computer use, voice and send right (gap 4 + 6) */
+#hub[data-hwf] .hwf-foot { display: flex; align-items: center; gap: 10px; padding: 8px 6px 8px 8px; min-width: 0; }
+#hub[data-hwf] .hwf-cl { width: 12px; height: 12px; stroke-width: 1.2; }
+#hub[data-hwf] .hwf-plus { flex: none; display: inline-flex; align-items: center; height: 28px; padding: 0 4px; border-radius: 6px; color: var(--hwf-muted); }
+/* the SUPER chip, the HALF PILL (superbot-desktop 9634ac086, packages/ui
+   styles.css .bc-super / -cap / -spark / -tag / -chev) at main's own 1:1
+   scale: one 28px pill split at a straight seam. LEFT a 34px cap holding a
+   14px four-point sparkle (lucide Sparkle, filled): fg at 8% with a muted
+   sparkle while unarmed (OFF, an idle AUTO), the storm gradient with a white
+   sparkle when [data-on] (ON, a lit AUTO; a faded-in ::before, opacity only).
+   RIGHT a dark half on the line-strong hairline reading the mode in title
+   case at 13px, then a 14px down chevron. No "SUPER" word, no switch. The
+   hero draws it OFF. */
+#hub[data-hwf] .hwf-pill { flex: none; display: inline-flex; align-items: stretch; height: 28px; transition: opacity .2s ease; }
+#hub[data-hwf] .hwf-super { flex: none; display: inline-flex; align-items: stretch; height: 28px; border-radius: 999px; color: var(--hwf-fg); font: 500 13px/1 var(--hwf-ui); white-space: nowrap; }
+#hub[data-hwf] .hwf-super-cap { position: relative; flex: none; display: grid; place-items: center; width: 34px; border-radius: 999px 0 0 999px; background: rgba(230, 232, 238, .08); overflow: hidden; }
+#hub[data-hwf] .hwf-super-cap::before { content: ""; position: absolute; inset: 0; background: var(--hwf-grad); opacity: 0; transition: opacity .26s ease; }
+#hub[data-hwf] .hwf-super[data-on] .hwf-super-cap::before { opacity: 1; }
+#hub[data-hwf] .hwf-super-spark { position: relative; width: 14px; height: 14px; color: var(--hwf-muted); opacity: .7; transition: opacity .26s ease; }
+#hub[data-hwf] .hwf-super[data-on] .hwf-super-spark { color: #fff; opacity: 1; }
+#hub[data-hwf] .hwf-super-tag { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px 0 10px; border: 1px solid var(--hwf-strong); border-left: 0; border-radius: 0 999px 999px 0; background: rgba(230, 232, 238, .03); }
+#hub[data-hwf] .hwf-super-chev { flex: none; width: 14px; height: 14px; color: var(--hwf-muted); }
+/* the mode segment (composer-mode.tsx:143-232, styles.css .bc-super-mode, 2026-10-01): the
+   pill's second half after a hairline seam, inside the same outline. The Half's right end
+   squares off and the segment rounds its own trailing end, on the same 28px height, hairline
+   and 3% fill as the tag. Idle (Agent) it is icon only: a dim cursor glyph (muted at .7)
+   and a caret in the muted tone, no word, named "Mode: Agent"; the seam is an inset hairline
+   from the pill's top and bottom edges, so it reads as two halves and not as a second outline. */
+#hub[data-hwf] .hwf-pill .hwf-super { border-radius: var(--r-pill) 0 0 var(--r-pill); }
+#hub[data-hwf] .hwf-pill .hwf-super-tag { border-right: 0; border-radius: 0; }
+#hub[data-hwf] .hwf-mode { position: relative; flex: none; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border: 1px solid var(--hwf-strong); border-left: 0; border-radius: 0 var(--r-pill) var(--r-pill) 0; background: rgba(230, 232, 238, .03); }
+#hub[data-hwf] .hwf-mode::before { content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: var(--hwf-strong); }
+#hub[data-hwf] .hwf-mode-glyph { flex: none; width: 14px; height: 14px; color: var(--hwf-muted); opacity: .7; }
+#hub[data-hwf] .hwf-mode-chev { flex: none; width: 14px; height: 14px; color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-pill { opacity: .4; }
+#hub[data-hwf] .hwf-right { display: flex; align-items: center; gap: 10px; margin-left: auto; min-width: 0; }
+#hub[data-hwf] .hwf-plat { display: inline-flex; align-items: center; gap: 5px; min-width: 0; height: 28px; padding: 0 6px; border-radius: 6px; color: var(--hwf-muted); font: 400 11px/16.5px var(--hwf-ui); }
+#hub[data-hwf] .hwf-plat-mark { flex: none; display: grid; }
+#hub[data-hwf] .hwf-platglitch { display: grid; width: 16px; height: 16px; }
+#hub[data-hwf] .hwf-platicon { display: grid; place-items: center; width: 14px; height: 14px; border-radius: 24%; background: #fff; box-shadow: 0 0 0 1px rgba(230, 232, 238, .12); overflow: hidden; }
+#hub[data-hwf] .hwf-platicon svg { width: 10px; height: 10px; }
+#hub[data-hwf] .hwf-platicon img { display: block; width: 100%; height: 100%; object-fit: cover; }
+#hub[data-hwf] .hwf-plat-l { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#hub[data-hwf] .hwf-computer { flex: none; display: grid; place-items: center; width: 28px; height: 28px; color: var(--hwf-muted); }
+#hub[data-hwf] .hwf-mic { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; border: 1px solid rgba(230, 232, 238, .08); background: rgba(230, 232, 238, .06); color: var(--hwf-muted); }
+/* send: idle (the empty draft's _wait: an fg 8% well, the line-control
+   arrow), armed (the storm gradient, white, its glow), sending (main's
+   composer-cancel: the same gradient round holding the lucide stop square) */
+#hub[data-hwf] .hwf-send { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(230, 232, 238, .08); color: var(--hwf-control); }
+#hub[data-hwf] .hwf-send > svg { grid-area: 1 / 1; width: 12px; height: 12px; }
+#hub[data-hwf] .hwf-send .hwf-cl { stroke-width: 1.6; }
+#hub[data-hwf] .hwf-send > svg:not(.hwf-cl) { display: none; }
+#hub[data-hwf] .hwf-send[data-armed],
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-send { background: var(--hwf-grad); color: #fff; box-shadow: 0 0 10px rgba(120, 100, 255, .35); }
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-send .hwf-cl { display: none; }
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-send > svg:not(.hwf-cl) { display: block; }
+/* sending also wears main's Stop Trace (packages/ui styles.css .bc-stop-*, 2026-10-01): the
+   square rests at 40% ink while a bright segment laps its outline (1.5s), and a light band
+   crosses the round (2.7s, then rests off it). Transform-only; idle and armed mount nothing
+   that animates (display: none). Geometry is the 12px lucide square: a 10px outer edge, a
+   1px stroke, a 1.5px corner. */
+#hub[data-hwf] .hwf-send { position: relative; }
+#hub[data-hwf] .hwf-stop-shimmer, #hub[data-hwf] .hwf-stop-trace { display: none; }
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-send > svg:not(.hwf-cl) { position: relative; opacity: .4; }
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-stop-shimmer { display: block; position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; }
+#hub[data-hwf] .hwf-stop-band { position: absolute; inset: 0; background: linear-gradient(45deg, transparent 34%, rgba(255, 255, 255, .25) 42%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .25) 58%, transparent 66%); animation: hwf-stop-pass 2.7s ease-in-out infinite /* deliberate */; }
+@keyframes hwf-stop-pass { 0% { transform: translate(-50%, 50%); } 45%, 100% { transform: translate(50%, -50%); } }
+#hub[data-hwf] .hwf-composer[data-sending] .hwf-stop-trace {
+  display: block; position: absolute; inset: 0; margin: auto; box-sizing: border-box;
+  width: 10px; height: 10px; padding: 1px; border-radius: 1.5px; pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+#hub[data-hwf] .hwf-stop-arc { position: absolute; inset: -50%; background: conic-gradient(transparent 0turn, currentColor .25turn, currentColor .5turn, transparent .56turn); animation: hwf-stop-turn 1.5s linear infinite /* deliberate */; }
+@keyframes hwf-stop-turn { to { transform: rotate(1turn); } }
+/* the row under the box. A Superbot chat draws NO composer footer row: the AI disclaimer is
+   the new-chat screen's alone (Thread.tsx:25354-25362), and a thread's context reading is the
+   ContextRing at the right end of the chips row (context-ring.css, Thread.tsx:23401-23425): a
+   22px chip-height button holding a 16px ring, a line-ink track and an arc for the used share
+   in the fg-secondary ink, the arc starting at twelve o'clock. The pane's data-new says which
+   one shows; the row keeps one height for both, so the composer's seat never moves. */
+#hub[data-hwf] .hwf-cline { display: flex; align-items: center; min-width: 0; height: 37px; padding-top: 8px; }
+#hub[data-hwf] .hwf-ring { flex: none; display: grid; place-items: center; width: 22px; height: 22px; margin-left: auto; border-radius: var(--r-pill); color: var(--hwf-fg2); }
+#hub[data-hwf] .hwf-ring-svg { width: 16px; height: 16px; transform: rotate(-90deg); }
+#hub[data-hwf] .hwf-ring-track, #hub[data-hwf] .hwf-ring-arc { fill: none; stroke-width: 2; }
+#hub[data-hwf] .hwf-ring-track { stroke: var(--hwf-line); }
+#hub[data-hwf] .hwf-ring-arc { stroke: currentColor; stroke-linecap: round; }
+#hub[data-hwf] .hwf-pane[data-new="1"] .hwf-ring, #hub[data-hwf] .hwf-pane[data-new="0"] .hwf-ai { display: none; }
+#hub[data-hwf] .hwf-ai { margin: 0 0 0 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 11px/16px var(--hwf-ui); color: var(--hwf-muted); opacity: .6; }
+/* the tail: grows beside the feed while the chat is new, so the composer
+   sits mid-pane; the module writes its flex-grow (main's collapse) */
+#hub[data-hwf] .hwf-tail { flex: 0 1 0; min-height: 0; overflow: hidden; }
+#hub[data-hwf] .hwf-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; max-width: 768px; margin: 0 auto; padding: 16px 16px 0; }
+#hub[data-hwf] .hwf-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 8px 16px; border: 1px solid var(--hwf-line); border-radius: 8px; background: var(--hwf-raised); color: var(--hwf-fg2); white-space: nowrap; }
+#hub[data-hwf] .hwf-chip svg { width: 16px; height: 16px; }
+/* a narrow seat (new-chat.css and composer.tsx @container <= 560px): the
+   greeting steps down to the headline and the mark to 32, the model chip
+   keeps its mark and drops its label */
+@container hwf-pane (max-width: 592px) {
+  #hub[data-hwf] .hwf-hero { gap: 12px; }
+  #hub[data-hwf] .hwf-hero-mark { width: 32px; height: 32px; }
+  #hub[data-hwf] .hwf-greet { font-size: 22px; line-height: 28px; letter-spacing: -.4px; }
+  #hub[data-hwf] .hwf-plat-l { display: none; }
+  /* the header's search folds to its glyph, so the title keeps the room the chat's four
+     actions (Resync, Share, Move to a project, Browser) take at this width */
+  #hub[data-hwf] .hwf-head { grid-template-columns: minmax(0, 1fr) auto auto; padding-right: 16px; }
+  #hub[data-hwf] .hwf-search { justify-content: center; width: 32px; padding: 0; }
+  #hub[data-hwf] .hwf-search-l, #hub[data-hwf] .hwf-search kbd { display: none; }
+}
+
+/* a phone's seat (the pane at 380 or under: the wstop crop's 348 and a 360px phone): the mode
+   segment widens the Half pill by 49, so the computer-use toggle leaves the row first, as the
+   app's composer ladder spends it (composer.tsx HIDDEN_FROM_6) and the mobile composer's order
+   (+, Half pill, mode, model, mic, send) has it. Else the model chip is squeezed to its mark. */
+@container hwf-pane (max-width: 380px) {
+  #hub[data-hwf] .hwf-computer { display: none; }
+}

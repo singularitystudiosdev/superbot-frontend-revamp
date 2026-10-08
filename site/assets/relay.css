@@ -1,0 +1,72 @@
+/* /relay: the local relay page. Tokens: site.css only. Every length is a
+   --sp-* / --fs-* / --lh-* / --r-* / --target / --measure token, every colour
+   a named surface (--bg, --card, --line, --fg, --muted) or the one accent
+   (--accent). No hex literal and no new numeric value lives here. Two radii
+   are in use: --r-control (the copy row, the client rows, controls) and
+   --r-surface (the address card). The only length not drawn from a token is
+   the 1px hairline the anti-generic card rule asks for. Everything is scoped
+   under .relay so no rule below can move /benchmarks. */
+
+/* ---- the hero: crumb, h1, lede, CTA row ---- */
+/* bench.css sizes its h1 as a flex row for the pill badge; this page has no
+   badge, so the h1 is a plain block and the site's own text-wrap: balance
+   applies to the display line */
+.relay h1 { display: block; font-size: var(--fs-h1); line-height: 1.1; max-width: var(--measure); }
+.relay .relay-cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
+.relay .relay-cta .sb-btn { font-size: var(--fs-sm); }
+
+/* ---- section rhythm ---- */
+.relay .relay-sec { margin-top: var(--sp-section); }
+.relay h2 { font-size: var(--fs-h2); line-height: var(--lh-lg); margin-bottom: var(--sp-3); }
+.relay .relay-sub { font-size: var(--fs-base); line-height: var(--lh-base); color: var(--secondary); margin-top: var(--sp-6); margin-bottom: var(--sp-2); }
+.relay .relay-p { color: var(--secondary); max-width: var(--measure); margin-top: var(--sp-3); }
+.relay .relay-p a { color: var(--accent); }
+.relay .relay-cap { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); max-width: var(--measure); margin-top: var(--sp-3); }
+
+/* ---- the page's one bold thing: the address card ---- */
+.relay .relay-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-surface);
+  padding: var(--sp-5) var(--sp-4);
+  min-width: 0;
+}
+/* the copy row is the widget's own .sb-oneliner, which centers itself in the
+   --content column; inside the card it fills the card. The address box is the
+   widget's (install-snippet.js): one clipped line that fades at its end (the
+   address is one token, so it is never split mid-token at a phone width: the
+   widget's code is nowrap), the whole box one copy button that sends the whole
+   address, in the control radius, with no scroll bar. This page restyles none
+   of it. */
+.relay .relay-addr { margin-top: var(--sp-4); min-width: 0; }
+.relay .sb-oneliner { max-width: none; }
+
+/* ---- the client ladder inside the card: quiet rows, one per client recipe ---- */
+.relay .relay-clients {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-1);
+}
+.relay .relay-clients li { margin: 0; display: grid; }
+.relay .relay-clients a {
+  display: inline-flex; align-items: center; min-height: var(--target);
+  padding: 0 var(--sp-3); border-radius: var(--r-control);
+  color: var(--muted); text-decoration: none; font-size: var(--fs-sm);
+  white-space: nowrap;
+  transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std);
+}
+.relay .relay-clients a:hover, .relay .relay-clients a:focus-visible { color: var(--fg); background: var(--raised); }
+
+/* ---- what rides through it: one line per thing, a plain list ---- */
+.relay .relay-ride {
+  list-style: none; padding: 0; margin-top: var(--sp-3);
+  display: grid; gap: var(--sp-3); max-width: var(--measure);
+}
+.relay .relay-ride li { color: var(--secondary); }
+
+/* the client ladder stacks on a phone: two 12ch columns cannot hold a label
+   like "any other client" at 320 without wrapping it, and a wrapped label on
+   a 36px row is the defect this rule removes. */
+@media (max-width: 560px) {
+  .relay .relay-clients { grid-template-columns: minmax(0, 1fr); }
+}

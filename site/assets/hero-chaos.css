@@ -1,0 +1,179 @@
+/* hero-chaos: landing hero variant A (the ad-gallery chaos spot cut). Styles
+   for hero-chaos.js's overlay root: since W6 the module mounts INSIDE #stage
+   (into #stage's .body, covering the margin column and #arena, above the
+   hub) instead of replacing #stage; the 1920x1080 canvas inside it is scaled
+   with transform: scale(k) and centred, so every beat spec number applies
+   verbatim and the stage is 16:10 with a black-on-black letterbox. Tokens
+   come from site.css; the storm ramp is declared here and ONLY here (on
+   .hero-chaos, never :root). Every selector starts with .hero-chaos; motion
+   is transform/opacity only. Numbers and their sources are the chaos beat
+   spec (W2, verbatim from the ad's source). The boot-only show/hide rules
+   keyed on .stage[data-hero] live just below (moved here from hero-xdxd.css
+   when that variant was deleted, 2026-09-23). */
+
+/* boot-story-only children the variants do not use: hub-boot's scanline,
+   mascot, bubble, kv items and tile badge, keyed on the attribute's PRESENCE
+   (.stage[data-hero]) because prepStage (hub-handoff.js) sets data-hero for
+   every non-boot variant. The margin's install transcript is never rendered
+   (prepStage collapses the column inline); this keeps the empty column
+   visually dead in case anything ever lands in it */
+.stage[data-hero] #scan,
+.stage[data-hero] #mascot,
+.stage[data-hero] #bubble,
+.stage[data-hero] #items,
+.stage[data-hero] #badge { display: none; }
+.stage[data-hero] #margin { opacity: 0; }
+/* the phone cut (hub-boot.css <=640px) stacks the arena over a transcript
+   ROW in ONE column, but prepStage writes a two-column inline template
+   (0% margin, 1fr arena), which put the margin in the 1fr track and left the
+   arena 0px wide: the held end state was an empty stage on phones. Here the
+   transcript is dropped and the arena takes the whole body. */
+@media (max-width: 640px) {
+  .stage[data-hero] .body { grid-template-columns: minmax(0, 1fr) !important; grid-template-rows: minmax(0, 1fr) !important; }
+  .stage[data-hero] #margin { display: none; }
+}
+
+/* the handoff's clock writes opacity/transform on these every frame from
+   inline style, which Chrome and Safari do NOT promote on their own (only a
+   CSS animation or will-change does): unpromoted, every write repainted the
+   whole hub or phone and everything under it. Promoted, the handoff, the
+   phone beat and the dock morph are compositor-only (the hub's edge tween in
+   hub-handoff.js is the one deliberate exception) */
+.stage[data-hero] #hub,
+.stage[data-hero] #hub .inner,
+.stage[data-hero] #phone-label,
+.stage[data-hero] #beam { will-change: opacity; }
+.stage[data-hero] #phone,
+.stage[data-hero] #hub .msg,
+.stage[data-hero] #phone .msg { will-change: transform, opacity; }
+
+.hero-chaos {
+  /* the storm ramp (brand chrome only, this unit's own scope) */
+  --storm-0: #00e5c3; --storm-1: #2b6bff; --storm-2: #6a1fd8; --storm-3: #c026d3; --storm-4: #ff3d9a;
+  --storm: linear-gradient(135deg, var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+  --storm-x: linear-gradient(90deg, var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+
+  /* the root: the stage's own overlay, above the hub (z 6) and the phone,
+     below nothing; the stage's chrome (border/radius/shadow) stays .stage's */
+  position: absolute; inset: 0; z-index: 20;
+  background: var(--bg);
+  overflow: hidden; text-align: left;
+  font-family: var(--font-ui);
+  color: var(--fg);
+  will-change: opacity; /* the handoff fades the whole overlay over the hub */
+}
+
+/* the spec canvas: 1920x1080, scaled by the module (layout()), origin top-left */
+.hero-chaos .hc-canvas {
+  position: absolute; left: 0; top: 0;
+  width: 1920px; height: 1080px;
+  transform-origin: 0 0;
+  background: var(--bg);
+}
+
+/* the field: everything the slam gathers */
+.hero-chaos .hc-field { position: absolute; inset: 0; }
+
+/* ---- skill-file bubbles: #1d1d1f pills on #2c2c2e (spec) ---- */
+.hero-chaos .hc-chip {
+  position: absolute; left: 0; top: 0; z-index: 2;
+  display: inline-flex; align-items: center; gap: .42em;
+  height: 2.15em; padding: 0 .8em; border-radius: 999px;
+  background: #1d1d1f; border: 1px solid #2c2c2e;
+  color: var(--fg); font-weight: 700; white-space: nowrap;
+  font-size: 34px; /* the module retimes this to s * 0.38 per item */
+  will-change: transform, opacity;
+}
+/* the extension-coloured dot before the name (md 0, json 1, mcp 2, mdc 3, ts 4) */
+.hero-chaos .hc-dot { width: .5em; height: .5em; border-radius: 50%; flex: none; }
+.hero-chaos .hc-dot-0 { background: var(--storm-0); }
+.hero-chaos .hc-dot-1 { background: var(--storm-1); }
+.hero-chaos .hc-dot-2 { background: var(--storm-2); }
+.hero-chaos .hc-dot-3 { background: var(--storm-3); }
+.hero-chaos .hc-dot-4 { background: var(--storm-4); }
+
+/* ---- brand tiles: radius 24%, --line border, deep shadow (spec) ---- */
+.hero-chaos .hc-tile {
+  position: absolute; left: 0; top: 0; z-index: 1;
+  border-radius: 24%; border: 1px solid var(--line);
+  background: #141414;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .55);
+  overflow: hidden; display: block;
+  font-size: 64px; /* the module retimes this to s per item */
+  will-change: transform, opacity;
+}
+.hero-chaos .hc-tile img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+
+/* ---- the slam: the superbot tile, 260x260 spec px, tile.svg ---- */
+.hero-chaos .hc-slam {
+  position: absolute; left: 0; top: 0; z-index: 4;
+  width: 260px; height: 260px; opacity: 0;
+  will-change: transform, opacity;
+}
+.hero-chaos .hc-slam img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* the white flash at slamLand: a full-canvas white layer, opacity only */
+.hero-chaos .hc-flash {
+  position: absolute; inset: 0; z-index: 5;
+  background: #ffffff; opacity: 0; pointer-events: none;
+  will-change: opacity; /* a full-canvas layer: unpromoted, every flash frame repainted the canvas */
+}
+
+/* ---- the spit cards: 360px, #0d0d0d, radius 20px (spec) ---- */
+.hero-chaos .hc-card {
+  position: absolute; left: 0; top: 0; z-index: 3;
+  width: 360px; opacity: 0;
+  background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+  padding: 22px 24px 18px;
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .95);
+  will-change: transform, opacity;
+}
+.hero-chaos .hc-head {
+  font-size: 13px; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+.hero-chaos .hc-head b {
+  font-weight: 800;
+  background: var(--storm-x); -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+.hero-chaos .hc-rows { margin-top: 14px; display: grid; gap: 4px; }
+.hero-chaos .hc-row {
+  display: flex; align-items: center; gap: 14px;
+  height: 44px; color: var(--secondary); opacity: 0;
+  will-change: transform, opacity;
+}
+.hero-chaos .hc-row img, .hero-chaos .hc-row svg.hc-ic { width: 26px; height: 26px; flex: none; border-radius: 6px; }
+.hero-chaos .hc-lab { font-size: 19px; font-weight: 500; line-height: 1.2; }
+
+/* ---- the tagline scene: its own black layer (spec) ---- */
+.hero-chaos .hc-tag {
+  position: absolute; inset: 0; z-index: 6;
+  display: grid; place-items: center;
+  background: var(--bg); opacity: 0; pointer-events: none;
+  will-change: opacity;
+}
+.hero-chaos .hc-tag-t {
+  font-size: 108px; font-weight: 800; letter-spacing: -.035em;
+  line-height: 1.05; text-align: center; color: var(--fg);
+  font-family: var(--font-ui);
+  will-change: transform, opacity; /* the gradient-clipped tagline rasterises once, then only moves */
+}
+.hero-chaos .hc-grad {
+  background: var(--storm-x); -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+
+/* the hold's replay is the stage's own #replay (hub-boot's .replay-park)
+   since W6; the variant's own bottom-right ↻ button is gone */
+
+/* the black dip: the tagline's entry (one overlay, opacity only) */
+.hero-chaos .hc-dip {
+  position: absolute; inset: 0; z-index: 8;
+  background: var(--bg); opacity: 0; pointer-events: none;
+  will-change: opacity;
+}
+
+/* no hc- prefixed keyframes are defined on purpose: every beat is a
+   transform/opacity tween the canvas clock writes, so this sheet holds no
+   animation of its own. */

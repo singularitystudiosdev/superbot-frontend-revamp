@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+  <!-- Four of the same coin stacked edge-on, each nudged sideways so the pile reads as loot, the top face stamped like the single coin. -->
+  <g stroke="#0c0c0f" stroke-width="2" stroke-linejoin="round">
+    <g transform="translate(1,0)">
+      <path d="M9 36 a15 5 0 0 0 30 0 v5 a15 5 0 0 1 -30 0 z" fill="#009e86"/>
+      <ellipse cx="24" cy="36" rx="15" ry="5" fill="#00e5c3"/>
+    </g>
+    <g transform="translate(-1,0)">
+      <path d="M9 31 a15 5 0 0 0 30 0 v5 a15 5 0 0 1 -30 0 z" fill="#009e86"/>
+      <ellipse cx="24" cy="31" rx="15" ry="5" fill="#00e5c3"/>
+    </g>
+    <g transform="translate(1.5,0)">
+      <path d="M9 26 a15 5 0 0 0 30 0 v5 a15 5 0 0 1 -30 0 z" fill="#009e86"/>
+      <ellipse cx="24" cy="26" rx="15" ry="5" fill="#00e5c3"/>
+    </g>
+    <g transform="translate(0,0)">
+      <path d="M9 21 a15 5 0 0 0 30 0 v5 a15 5 0 0 1 -30 0 z" fill="#009e86"/>
+      <ellipse cx="24" cy="21" rx="15" ry="5" fill="#00e5c3"/>
+      <ellipse cx="24" cy="21" rx="10" ry="3.2" fill="#2b6bff"/>
+    </g>
+  </g>
+  <path d="M24 18.2 L25.2 20.2 L28.5 21 L25.2 21.8 L24 23.8 L22.8 21.8 L19.5 21 L22.8 20.2 Z" fill="#00e5c3" stroke="#0c0c0f" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M41 6 L42.3 9.7 L46 11 L42.3 12.3 L41 16 L39.7 12.3 L36 11 L39.7 9.7 Z" fill="#ffffff" stroke="#0c0c0f" stroke-width="1.2" stroke-linejoin="round"/>
+</svg>

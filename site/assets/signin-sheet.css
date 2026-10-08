@@ -1,0 +1,163 @@
+/* The phone's sign-in sheet (#65, 2026-09-27), shared by / and /features
+   (signup-bar.js builds it; it replaced the email bar, ".wl-bar", that
+   waitlist.css carried). The ask: the bar that took an email becomes one
+   button that opens a modal holding every provider, like /invite. So a
+   portrait phone past the page's anchor gets one full-width "Join the beta"
+   on the page's card surface under one hairline, and it opens a native
+   <dialog> holding one more waitlist mount: the hero's own provider stack,
+   'or' row, email step and done state, on the hero's shared state.
+
+   Look plan: the page's own tokens (site.css): canvas --bg, card --card,
+   raised --raised, hairline --line, ink --fg, muted --muted, and --accent
+   the one accent (the CTA fill with --accent-ink, the focus ring, links);
+   --font-ui for every label; two radii, --r-control on the CTA and the close
+   control, --r-surface on the sheet's top corners and the desktop card, plus
+   the kit's pill on the grab handle. No blur, no storm ramp or aura on the
+   CTA, nothing added to the provider stack: it is the sheet's one bold thing.
+   Exemplar: the phone bottom-sheet sign-in of Vercel and Clerk (the grab
+   handle, providers first, then the 'or' hairline and email, top-only
+   corners over a dimmed page).
+
+   Motion is always on (.cosmos/rules/motion-always-on.mdc): the bar slides
+   on --dur-3, the sheet rises on --sheet-in with --ease-out and leaves faster
+   on --sheet-out with --ease-in; on a desktop the card fades up from
+   --sheet-scale-from. Transform and opacity only; @starting-style and
+   allow-discrete carry display and the top layer through the exit.
+
+   The two breakpoints are site.css's own (560px the phone, 500px of height
+   the phone on its side), repeated because a media query cannot read a
+   token. --sheet-kb and --sheet-vv are written by signup-bar.js from the
+   visual viewport while the sheet is open, so it rides above the iOS
+   keyboard. */
+
+/* ── the CTA bar: a portrait phone only ── */
+.sb-cta-bar { display: none; }
+@media (max-width: 560px) and (orientation: portrait) {
+  .sb-cta-bar {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 9;
+    padding: var(--sp-2) var(--gutter-r) calc(var(--sp-2) + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+    padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+    background: var(--card); border-top: 1px solid var(--line);
+    transform: translateY(100%); opacity: 0; visibility: hidden; pointer-events: none;
+    transition: transform var(--dur-3) var(--ease-in), opacity var(--dur-3) var(--ease-in), visibility 0s linear var(--dur-3);
+  }
+  .sb-cta-bar.is-on {
+    transform: none; opacity: 1; visibility: visible; pointer-events: auto;
+    transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-3) var(--ease-out);
+  }
+  /* the page pads by the bar's own height so its last lines stay reachable */
+  html.sb-cta-pad body { padding-bottom: var(--sb-cta-h, 0px); }
+}
+/* the CTA reads like the hero's Continue (waitlist.css .wl-go): one flat
+   --accent fill with --accent-ink, no storm ramp and no aura; the site's
+   focus ring and the .sb-btn press scale stay */
+.sb-btn.sb-cta-go {
+  display: flex; width: 100%; max-width: var(--sheet-w); margin: 0 auto;
+  min-height: var(--control-h); padding: 0 var(--sp-6); font-size: var(--fs-base);
+  background-image: none; animation: none;
+}
+.sb-btn.sb-cta-go[hidden] { display: none; }
+.sb-btn.sb-cta-go::before, .sb-btn.sb-cta-go::after { content: none; }
+.sb-btn.sb-cta-go:focus-visible:not([disabled]) { box-shadow: none; }
+@media (hover: hover) { .sb-btn.sb-cta-go:hover:not([disabled]) { background-color: var(--fg); box-shadow: none; } }
+@media (hover: none) { .sb-btn.sb-cta-go:active:not([disabled]) { box-shadow: none; } }
+
+/* ── the dialog: a centred card on a desktop or a tablet ── */
+/* the UA's modal box is reset to the surface itself, so a tap outside it
+   (the backdrop) is the only click whose point falls outside its rect */
+.sb-sheet {
+  box-sizing: border-box; margin: auto; padding: 0;
+  width: min(var(--sheet-w), calc(100% - var(--sp-8))); max-width: none;
+  max-height: var(--sheet-max-h);
+  background: var(--card); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--r-surface);
+  overflow: hidden;
+  opacity: 0; transform: scale(var(--sheet-scale-from));
+  transition:
+    opacity var(--sheet-out) var(--ease-in), transform var(--sheet-out) var(--ease-in),
+    overlay var(--sheet-out) allow-discrete, display var(--sheet-out) allow-discrete;
+}
+.sb-sheet[open] {
+  display: flex; flex-direction: column;
+  opacity: 1; transform: none;
+  transition:
+    opacity var(--sheet-in) var(--ease-out), transform var(--sheet-in) var(--ease-out),
+    overlay var(--sheet-in) allow-discrete, display var(--sheet-in) allow-discrete;
+}
+@starting-style { .sb-sheet[open] { opacity: 0; transform: scale(var(--sheet-scale-from)); } }
+/* the scrim: the nav drawer's dim, no blur */
+.sb-sheet::backdrop {
+  background: var(--sheet-scrim); opacity: 0;
+  transition: opacity var(--sheet-out) var(--ease-in), overlay var(--sheet-out) allow-discrete, display var(--sheet-out) allow-discrete;
+}
+.sb-sheet[open]::backdrop {
+  opacity: 1;
+  transition: opacity var(--sheet-in) var(--ease-out), overlay var(--sheet-in) allow-discrete, display var(--sheet-in) allow-discrete;
+}
+@starting-style { .sb-sheet[open]::backdrop { opacity: 0; } }
+/* the page under it holds still */
+html.sb-sheet-open, html.sb-sheet-open body { overflow: hidden; }
+
+.sb-sheet-grab { display: none; }
+/* the head: the title centred over the stack, the close control on the
+   trailing edge and an equal empty column opposite it */
+.sb-sheet-head {
+  flex: none; display: grid; align-items: center; gap: var(--sp-2);
+  grid-template-columns: var(--target-touch) minmax(0, 1fr) var(--target-touch);
+  padding: var(--sp-4) var(--sp-4) 0;
+}
+.sb-sheet-title {
+  grid-column: 2; margin: 0; text-align: center; white-space: nowrap;
+  color: var(--fg); font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 600;
+}
+/* lucide x in a 44px target, on every pointer */
+.sb-sheet-x {
+  grid-column: 3; display: flex; align-items: center; justify-content: center;
+  width: var(--target-touch); height: var(--target-touch); padding: 0;
+  border: 0; border-radius: var(--r-control); background: none; color: var(--muted); cursor: pointer;
+}
+.sb-sheet-x svg { width: var(--sp-5); height: var(--sp-5); }
+.sb-sheet-x:active { background: var(--raised); color: var(--fg); }
+@media (hover: hover) { .sb-sheet-x:hover { background: var(--raised); color: var(--fg); } }
+/* the body scrolls inside the sheet, never the page behind it */
+.sb-sheet-body {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--sp-4) var(--sp-6) var(--sp-6);
+}
+/* the mount, stacked: every control full width, the email and its Continue
+   one above the other at any width */
+.sb-sheet .wl { width: 100%; max-width: var(--sheet-w); margin: 0 auto; }
+.sb-sheet .wl-row { flex-direction: column; }
+.sb-sheet .sb-btn.wl-go { width: 100%; }
+/* the done state (waitlist.css .wl-done) is a card on the page; in here the
+   sheet is already the surface, so it drops its own fill, hairline and
+   padding (no card in a card) and keeps the ring, the headline and the lines */
+.sb-sheet .wl-done { padding: 0; background: none; border: 0; border-radius: 0; }
+
+/* ── a phone, either way up: a bottom sheet ── */
+@media (max-width: 560px), (pointer: coarse) and (max-height: 500px) {
+  .sb-sheet {
+    top: auto; right: 0; bottom: var(--sheet-kb, 0px); left: 0;
+    margin: 0; width: 100%; max-width: 100%;
+    max-height: min(var(--sheet-max-h), var(--sheet-vv, var(--sheet-max-h)));
+    border-width: 1px 0 0; border-radius: var(--r-surface) var(--r-surface) 0 0;
+    opacity: 1; transform: translateY(100%);
+  }
+  .sb-sheet[open] { transform: none; }
+  @starting-style { .sb-sheet[open] { opacity: 1; transform: translateY(100%); } }
+  /* decorative: the sheet's shape, not a drag target */
+  .sb-sheet-grab {
+    display: block; flex: none; margin: var(--sp-2) auto 0;
+    width: var(--sheet-handle-w); height: var(--sheet-handle-h);
+    border-radius: var(--r-pill); background: var(--line);
+  }
+  .sb-sheet-head {
+    width: 100%; max-width: calc(var(--sheet-w) + var(--gutter-l) + var(--gutter-r)); margin: 0 auto;
+    padding: var(--sp-2) var(--gutter-r) 0 var(--gutter-l);
+    padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+  }
+  .sb-sheet-body {
+    padding: var(--sp-4) var(--gutter-r) calc(var(--sp-4) + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+    padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+  }
+}
