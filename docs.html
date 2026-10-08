@@ -1,980 +1,953 @@
----
-title: "superbot docs: the app, the Helper and its CLI"
-canonical_url: "https://superbot.gg/docs"
-last_updated: "2026-10-08"
-summary: "how to install the superbot app, the Helper and its CLI, and what each feature does."
----
-
-> Markdown twin of https://superbot.gg/docs (the HTML page is canonical).
-> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
-
-[superbot.gg](https://superbot.gg/) / docs
-
-# Docs
-
-superbot manages the AI agents you use, running them on the vendor accounts you already pay for.
-
-## How do you work?
-
-[ I want the app ](https://superbot.gg/docs#mode-app) [ I use my harness ](https://superbot.gg/docs#mode-harness) [ I only call an API ](https://superbot.gg/docs#mode-api) [ I use MCP ](https://superbot.gg/docs#mode-mcp)
-
-### I want the app
-
-Manage your agents in the desktop app.
-
-[Download superbot](https://superbot.gg/download) [Desktop and phone apps](https://superbot.gg/docs#apps)
-
-### I use my harness
-
-Claude Code keeps working.
-
-**macOS and Linux**
-
-`curl -fsSL https://superbot.gg/bootstrap.sh | sh -s -- --helper-app`
-
-Helper and CLI only: add `--no-app`
-
-**Windows**
-
-`& ([scriptblock]::Create((irm https://superbot.gg/bootstrap.ps1))) -HelperApp`
-
-Helper and CLI only: add `-NoApp`
-
-[Download the Helper app](https://superbot.gg/download#helper)
-
-The Helper runs `claude -p` on Omni.
-
-Tidy sends the rules each task needs.
-
-[About superbot relay](https://superbot.gg/docs#helper-app)
-
-### I only call an API
-
-Any OpenAI or Anthropic client works.
-
-`curl https://superbot.gg/v1/models -H "Authorization: Bearer sbc_…"`
-
-Remote Omni`claude --model superbot-omni`
-
-[Keys and authentication](https://superbot.gg/docs#api-auth) [Endpoints](https://superbot.gg/docs#api-endpoints)
-
-### I use MCP
-
-Any MCP client works.
-
-Paste this into your agent.
-
-`install the superbot MCP server globally: https://superbot.gg/mcp install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md Tell me if I need to sign in.`
-
-Then type `/superbot` in your agent.
-
-In Codex, type `$superbot`.
-
-Or add the server URL yourself.
-
-`https://superbot.gg/mcp`
-
-No browser? Signed in, [copy a key](https://superbot.gg/download#mcp).
-
-[Per-client recipes](https://superbot.gg/docs#clients)
-
-### Install
-
-The default route installs the Helper, opens a browser to sign you in, wires each AI client it finds and finishes with the desktop app. Add `--no-app` (`-NoApp` on Windows) to install the Helper and CLI alone, and run the installer again to update.
-
-The second route is superbot relay: use your own harness. It installs the Helper plus the standalone superbot relay app in place of the desktop app, with the same sign-in and client wiring. Add `--helper-app` (`-HelperApp` on Windows). Its card on [Download superbot](https://superbot.gg/download#helper) appears once the app has a release, and a computer with no release for it gets the Helper and CLI, with a line saying so.
-
-Related: [MCP server and its tool](https://superbot.gg/docs#tool)
-
-### Verify
-
-Restart an AI client the installer wired and ask it what superbot tools it has. It lists one tool, `superbot`.
-
-Checking the server from this browser…
-
-`what superbot tools do you have?`
-
-### Your connection
-
-MCP endpoint
-
-`https://superbot.gg/mcp`
-
-API base
-
-`https://superbot.gg/v1`
-
-Models you can dial
-
-`superbot, superbot-omni, superbot-fast`
-
-Rate limit
-
-1200 requests a minute per key
-
-Sign in to see your caller keys. [Sign in](https://superbot.gg/account)
-
-## Features
-
-Each feature has one section: what it does and how to use it.
-
-### Desktop and phone apps
-
-The desktop and phone apps run on one account, so a chat you start on one device keeps going on the other.
-
-1. Download the app on each device from [Download superbot](https://superbot.gg/download).
-2. Sign in with the same email on both.
-
-The **Sync chats across devices** switch in **Settings > Privacy** stores your chats on superbot's servers so your other devices see them, and **Sync projects across devices** turns project sync on or off. **Sync now** on a project pushes it at once.
-
-### superbot relay
-
-The superbot relay app switches which engine answers `claude` on this computer, for people who keep their own agent app.
-
-1. Install it from [Install](https://superbot.gg/docs#install) or [Download superbot](https://superbot.gg/download#helper).
-2. Choose **Omni** under **What claude runs**, or run `superbot engine on`. Until you choose, `claude` runs Claude Code.
-3. Run `superbot engine off` to go back. `superbot engine restore` puts your original launcher back exactly, and uninstall does too.
-
-The launcher takes Claude Code's own launcher slot, `~/.local/bin/claude`, and never renames or edits the Claude Code binary. With Omni on, only one-shot `claude -p` calls with flags Omni knows run on it. Interactive `claude`, subcommands and anything else run Claude Code, and so does every call while the Helper is down.
-
-**Pays for model calls** reads **Superbot credits** by default. **Your Claude plan** is opt-in, with a one-line notice.
-
-Agent SDK apps do not reach the launcher through PATH, and Omni does not serve SDK calls yet, so they run on Claude Code today. To point one at the launcher, set `cli_path` in the Python SDK or `pathToClaudeCodeExecutable` in the TypeScript SDK.
-
-The app has a **Tidy** setting too, covered in [Tidy mode](https://superbot.gg/docs#tidy).
-
-### Helper and CLI
-
-The Helper pairs your computer to your account and connects your AI clients, and you control it with the `superbot` command.
-
-1. Run `superbot signin`. It opens your browser to pair the computer.
-2. Run `superbot status` to see what the Helper is doing.
-3. Run `superbot session` to chat with your agent in the terminal.
-
-The desktop app carries the app's own update; `superbot update` updates the Helper alone. `superbot uninstall` asks first, then removes the Helper and the desktop app along with the data they hold on this computer. `superbot uninstall --dry-run` lists what would go without deleting anything.
-
-Related: [Uninstall](https://superbot.gg/docs#uninstall)
-
-### Your AI clients
-
-The Helper finds the AI clients on your computer, such as Claude Code and Cursor, and routes each one through your account.
-
-1. Install the app, or run the Helper line from [Start here](https://superbot.gg/docs#start).
-2. Restart the client and ask what superbot tools it has. The answer includes `superbot`.
-
-Each client also has its own recipe: [Claude Code](https://superbot.gg/install/claude.md), [Cursor](https://superbot.gg/install/cursor.md), [VS Code](https://superbot.gg/install/vscode.md), [Codex](https://superbot.gg/install/codex.md), [Gemini CLI](https://superbot.gg/install/gemini.md) and [Claude Desktop](https://superbot.gg/install/claude-desktop.md). A client with no recipe connects with an API key. [Your connection](https://superbot.gg/docs#connection) lists the base URL and models, and [Keys and authentication](https://superbot.gg/docs#api-auth) covers the key.
-
-Related: [Set up your clients](https://superbot.gg/clients)
-
-### Super mode and swarms
-
-One message goes to a team of agents that run on your connected subscriptions and report what each one cost.
-
-- In the composer, set **Super** to **On**. The phone has the same toggle.
-- In `superbot session`, type `/super on`.
-
-Each agent narrates its plan and posts an update at each milestone.
-
-### Daemon mode and parked chats
-
-An agent keeps watching on a schedule while you are away, and a parked chat waits for one thing before it carries on.
-
-#### Daemon mode
-
-1. Open the composer's mode menu and choose **Daemon**, or type `/daemon` followed by what to watch.
-2. Send your message to start the watch. A daemon watches up to 5 chats at once.
-3. Use **Pause** and **Resume** in the status line under the composer.
-4. To stop, choose **Agent** in the mode menu or type `/daemon` again.
-
-On the phone, the Options sheet has the same **Daemon** row, and the desktop app runs the checks.
-
-#### Park and resume
-
-When an agent has to wait, it parks the chat, and superbot wakes it when the wait is over. A banner above the composer reads **Parked:** with what the chat waits for.
-
-- **Resume now** wakes the chat at once.
-- **Cancel wait** drops the wait.
-
-On the phone, the same banner shows **Resume now** and **Cancel wait**.
-
-Related: [Fleet board](https://superbot.gg/docs#fleet)
-
-### Fleet board
-
-One screen lists every agent working for you, on all your devices and in the cloud.
-
-1. Open **Fleet** from the command palette or the **View** menu, or press `⌘⌥F` on a Mac or `Ctrl+Alt+F` on Windows.
-2. Find a row under **Needs you**, **Running**, **Waiting** or **Done**, and press it to open its chat.
-3. Press **Stop** on a running row to end its turn or cloud run.
-
-On the desktop, filter the board by **App**, **Project** or **Device**. On the phone, open Settings, then **Your agent**, and under **General** open **Fleet**.
-
-### Plan card, race and checkpoints
-
-An agent shows its plan before it changes anything, and checkpoints rewind a bad result.
-
-#### Plan card
-
-1. Choose **Plan** in the composer's mode menu, or type `/plan` followed by your request.
-2. Press **Build** on the plan card to carry it out.
-
-#### Race
-
-**Build in parallel** runs the plan on up to four coding agents installed on this computer, each in its own copy of the project. Press **Merge this** on the column you want to keep, or **Stop race** to cancel.
-
-#### Checkpoints
-
-Checkpoints snapshot the chat and the project each time you send a message. They are on by default.
-
-1. Hover a message of yours and press **Revert to here**.
-2. Choose **Revert chat and files**, **Revert chat only** or **Restore files only**.
-3. Press **Undo revert** to bring the messages back until your next message.
-
-The switch is **Checkpoints** in **Settings > General**, in the **Advanced** fold. On the phone, a revert restores files through the desktop app while it is online.
-
-#### Branch a chat
-
-Type `/branch` or `/fork` to copy the chat into a new one and switch to it. To cut at an earlier reply, hover it and press **Branch**.
-
-### Routines
-
-A routine runs a standing instruction on a schedule you describe once, such as every weekday at 07:00.
-
-1. Describe it in any connected client, for example "every weekday at 07:00, summarise my inbox".
-2. Say "list my routines", or name one and say "pause it", "resume it", "change it" or "delete it".
-
-superbot stores the routine and delivers each result by text message or push. A routine runs on superbot's servers, so your computer does not need to be on. Open **Routines** from the command palette, press **New routine** and fill in the form. **Run now** runs a saved routine once. On the phone, open Settings, then **Your agent**, and under **General** open **Routines**.
-
-### Context and imported chats
-
-The context optimizer trims each turn before it reaches the model, and your account remembers the preferences you state.
-
-- A preference you state once applies in later sessions on all your devices.
-- Chats you import from other apps are stored on superbot's servers, and superbot searches and summarises them when you ask in a connected client.
-
-Related: [Import chats from other apps](https://superbot.gg/docs#import), [Tidy mode](https://superbot.gg/docs#tidy)
-
-### Tidy mode
-
-Tidy keeps each turn short by pasting in the rules and skills your task needs and linking the rest.
-
-1. Open **Settings > Context**.
-2. Under **How should Superbot use your setup?**, choose **Tidy it for Superbot chats**.
-3. Open the **Advanced** fold. **Per app** sets **Tidy**, **Keep as is** or **Default** for each app.
-4. Press **Undo** beside **Rules up front** to restore the setup you had.
-
-In one benchmark run, Tidy sent 77% fewer rule tokens on the first call than sending your full setup.
-
-Tools and the system prompt are not counted.
-
-On the phone, open Settings, then **Your agent**, and find the **Context** block.
-
-### Import chats from other apps
-
-Bring the chat history you already have in other AI apps, such as ChatGPT, into superbot, where it shows in that app's **Chats** list.
-
-Imported chats are stored on superbot's servers and readable by superbot.
-
-1. On the desktop, open **Settings > Privacy** and tick the app under **Chats**, or turn on **Vendor chats** for every app.
-2. Press **Add** in the sidebar, then **Connect an app…**, and pick the app.
-3. For an app that keeps its chats on your computer, press **Import chats**.
-
-On an app's **Chats** list, **Resync** scans again, and **Choose a file…** imports a data export when the app offers one. On the phone, open History, press **Import a shared chat**, paste a ChatGPT or Claude share link and press **Import**.
-
-Related: [Context and imported chats](https://superbot.gg/docs#context)
-
-### MCP server and its tool
-
-Any MCP client that connects to superbot gets one tool, `superbot`, that takes a request in plain words and does the work.
-
-To connect one client straight to the server, ask a coding agent to install the superbot MCP server globally, then to install the superbot skill globally.
-
-`install the superbot MCP server globally: https://superbot.gg/mcp install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md Tell me if I need to sign in.`
-
-Then type `/superbot` in your agent.
-
-In Codex, type `$superbot`.
-
-To add it to Claude Code by hand, run `claude mcp add` with the server URL.
-
-`claude mcp add --transport http superbot https://superbot.gg/mcp -s user`
-
-The server URL is under [Your connection](https://superbot.gg/docs#connection).
-
-No browser? Signed in, [copy a key](https://superbot.gg/download#mcp).
-
-Then ask for something in plain words, such as "summarise my unread email", and the client calls `superbot` with your words.
-
-Related: [Your AI clients](https://superbot.gg/docs#clients)
-
-### Your MCP servers
-
-superbot installs and checks the MCP servers your agents use.
-
-1. Ask for the capability in plain words, for example "add a Linear tool". The agent searches MCP registries and offers the best match.
-2. Approve the install when the agent asks.
-3. On the desktop, open **Settings > Tools & MCP** to see every server and whether it works. **Add a tool** adds one by hand, by **HTTP URL** or **Command**.
-
-A row that needs you has an action such as **Sign in** or **Approve change**. If an installed server later changes a tool, its tools stay held back until you press **Approve change**.
-
-On the phone, open Settings, then **Connections**, and find **Tools & MCP**.
-
-From a terminal, `superbot mcp list` shows each server's state and tool count, and `superbot mcp remove <id>` removes one.
-
-Related: [MCP server and its tool](https://superbot.gg/docs#tool)
-
-### Built-in tools
-
-Every agent starts with the same tools, so one ask can research a topic and hand back a finished file.
-
-- **Web** search and page reading, with a browser for pages that need JavaScript and web archives for pages that are gone.
-- **Research** searches scholarly papers and code repositories, and writes a cited report.
-- **Files** builds a spreadsheet with live formulas, a document, a deck or a PDF.
-- **Media** makes images, video and audio on your own accounts.
-- **Browser and screen** works sites you are signed into and, when you allow it, any app on your screen.
-
-Related: [Your browser and your screen](https://superbot.gg/docs#computer), [Media on your own accounts](https://superbot.gg/docs#media)
-
-### Browser sessions and logins
-
-Your agent works the sites you are signed into, using sessions the Helper reads from your own browsers.
-
-1. Sign in to the site in your browser.
-2. Ask your agent to use the site. The Helper reads your browsers only after you allow it. On a Mac it reads Chrome, Brave, Edge, Arc, Vivaldi, Firefox and Safari.
-3. To import one site yourself, run `superbot cookies <domain>`. Add `--dry-run` to write nothing or `--yes` to skip the prompt.
-
-Saved logins import from your browsers and from 1Password, Bitwarden, LastPass and KeePass. To switch a read off, open **Settings > Privacy** and use **Browser sign-ins** or **Passwords and SSH keys** under **What Superbot can read on this computer** (**this Mac** on a Mac).
-
-### Your browser and your screen
-
-Your agent browses websites for you, for example to order food, and with your permission works any app on your screen.
-
-On the desktop, the chip in the **Browser** pane's address bar picks where agent pages open: **Cloud**, or **This Mac** (**This computer** on Windows). **My IP** sends the cloud browser's traffic out through your computer's connection, so sites see your own address.
-
-Computer use works on macOS only and has three settings. **Off** never touches your screen, **Ask** asks before each action, and **Always** acts without asking. It starts at Off.
-
-1. Press the computer use toggle in the composer to move through **Off**, **Ask** and **Always**.
-2. The first time, **Turn on computer use** asks for **Accessibility** to click and type and **Screen Recording** to take screenshots.
-
-When it is Off and a task needs your screen, the agent asks **Turn on computer use: <reason>**. Choose **Allow in this chat**, **Always allow** or **Not now**.
-
-Related: [Download superbot](https://superbot.gg/download)
-
-### Live view and remote control
-
-From another device, you watch the screen of the device that did your task and take its controls.
-
-1. From one device, ask another to do something, for example from your phone to your computer. The reply shows a tile with **Watch live**.
-2. Press **Watch live**. The other device opens as live video.
-3. Choose **Observe** to watch or **Control** to click and type. **End** closes the viewer.
-
-The viewed computer shows a banner naming the device, with **Stop Sharing**. To change what it allows, open **Settings > Privacy** and find the **Live view** group:
-
-- **Let your other devices view and control this computer** turns Live view on or off. It is on by default.
-- **Require approval on this computer** asks on this computer before another device can view or control it. It is off by default.
-
-A device you have not allowed opens view only. Press **Allow** on the viewed computer, then reconnect to take control. A device added to your account in the last 24 hours starts this way.
-
-### Media on your own accounts
-
-An agent makes images, video and audio when you describe them, and runs them on your own accounts before superbot's.
-
-- **Images** use your ChatGPT plan or your OpenAI, Gemini or Grok key. A ChatGPT Free plan cannot make images, so superbot tries your key next.
-- **Video** uses your OpenRouter key, or your own Google key (Veo) or xAI key (Grok Imagine).
-- **Audio** uses your OpenAI or Gemini key.
-
-Connect accounts in **Settings > Subscriptions & keys**. On the phone, open **Settings > Connections**.
-
-### Calls and texts from your phone
-
-Your agent calls and texts people from your own iPhone number, and a text to superbot's own number gets its answer back as a text.
-
-This needs a Mac with the Helper running, an iPhone paired to it, and Messages signed in to your Apple Account on the Mac.
-
-1. Open **Settings > Devices & phone**. Under **Phone line**, the chip reads **Calls and texts from your iPhone** when setup is done.
-2. Finish the setup it lists: **Allow Messages**, then **Open Full Disk Access**. For calls, also choose **Superbot Call Mic** as the microphone in Phone.
-3. Ask: "call the dentist and ask for the first free slot".
-
-Every call and text asks you first. If Phone.app needs it, you tap **Call** once on your Mac. The same number is called at most once in 24 hours. **Open calls…** under **Phone line** lists what your agent made.
-
-To text superbot, text its number: the desktop **SMS** pane shows **Text <number> to link a phone**. On the phone, open **Settings > Devices & phone > Text Superbot**.
-
-Related: [Text Superbot](https://superbot.gg/sms), [Endpoints](https://superbot.gg/docs#api-endpoints)
-
-### Voice chat and dictation
-
-Talk to an agent and hear it answer, or dictate a message instead of typing it.
-
-#### Voice chat
-
-1. On the desktop, press **Voice** in the composer, or choose **Start voice chat** in the File menu (`⌘⇧O` on a Mac, `Ctrl+Shift+O` on Windows). On the phone, press **Voice** in the composer.
-2. Talk. The control shows what is happening, from **Listening** to **Speaking**.
-3. Press **End voice** to finish.
-
-To use your own voice, open **Settings > Voice**, press **Record my voice** under **Your voice**, read for up to 60 seconds, tick **My voice, or I have permission**, then choose **My voice**. The sample goes to ElevenLabs and the voice is AI-generated.
-
-#### Dictation
-
-1. Press the microphone in the composer (**Click to speak**) and talk. It reads **Listening. Click to stop.**
-2. The text lands in the message box, ready to edit.
-3. To choose where speech becomes text, open **Settings > Voice** and set **Dictation engine**. **On this Mac** (**On this computer** on Windows) keeps the audio on it, and **Superbot cloud** sends it to the speech provider.
-
-### Quick Ask
-
-On the desktop, one shortcut opens a small panel from any app that answers about the window you were using.
-
-1. Press `Alt+Space` (`⌥Space` on a Mac) from any app, or choose **Quick Ask** in the File menu.
-2. Type your question under **Ask anything**. A chip shows the app and window you came from.
-3. Press **Expand to full chat** to carry on in the full app. Escape hides the panel and keeps your draft.
-
-Quick Ask attaches a screenshot only when you press **Screen snapshot**. To change the shortcut, open **Settings > Shortcuts** and press **Record** in the **Quick Ask** group. **Restore default** goes back.
-
-### Build, edit and preview
-
-On the desktop, you run a live copy of what your agent builds and change its files without leaving the app.
-
-1. Press **Preview** in the project header, beside **Publish**. The app runs the project on your computer and opens it in the side pane. **Stop** ends it.
-2. Open a project file to edit it. **Save** writes it, **Format** formats it, and **Diff** and **File** switch the view.
-3. For a page or document the agent made in a chat, press **Open in pane**. In the pane, **Edit** changes it in place and **Done** finishes. **View code** shows the source and **Download** saves it.
-
-Related: [Publish your app](https://superbot.gg/docs#publish), [Download superbot](https://superbot.gg/download)
-
-### Publish your app
-
-Your app goes online at a free `<name>.superbot.sh` address on your own Cloudflare account.
-
-This needs a free Cloudflare account. The first time, **Connect Cloudflare** opens a dialog: press **Continue to Cloudflare**, sign in, then pick **Use this account**.
-
-1. Open a project and press **Publish** in its header.
-2. Pick a name. Under **Who can open it?** choose **Anyone** or **Only people I invite**.
-3. Press **Put it online**. Publish checks the app and tests it on your computer first. Later publishes read **Update live app**.
-
-Once it is live, the **Live** tab on the project manages it. **Versions** keeps every publish and **Roll back** returns to an older one. **Domains** renames the address or adds your own. **Keys** stores the secrets your app reads. **Remove app**, under **Take it offline**, deletes the app and its data for good.
-
-Type `/publish` in a chat to have your agent publish the project.
-
-Related: [Build, edit and preview](https://superbot.gg/docs#build), [Download superbot](https://superbot.gg/download)
-
-### Cloud runs from your phone
-
-Your phone sends a task to a cloud copy of your project, and the files it changes sync back to your computer.
-
-This needs **Sync projects across devices** on in **Settings > Privacy**, under **Advanced**, and sync on for the project. Without it the phone says **Turn on sync to work in the cloud.**
-
-1. On the phone, open a chat in the project and press **Run in cloud** in the thread header.
-2. The next time the Helper syncs, the changed files land in your local folder.
-
-On the desktop, press **Build in cloud** on the plan card. It stays off until the project is linked to a repo, with the reason **Link a repo to this project first**.
-
-In a repo-linked project, if you edited a file the cloud also changed, yours stays and the cloud's version lands beside it as `notes.sync-conflict-20261004-101500-cloud.md`.
-
-Related: [Download superbot](https://superbot.gg/download)
-
-### Phone extras
-
-On iPhone, you start a chat from the home screen or the Action Button, and the Lock Screen shows a running agent.
-
-- **Home-screen shortcuts**: press and hold the superbot icon for **New chat**, **Ask by voice** and **Voice chat**.
-- **Action Button**: in the iOS Settings app, open **Action Button**, choose **Shortcut**, then pick **New chat** or **Start voice chat** from superbot.
-- **Lock Screen and Dynamic Island**: show **Superbot is working** while an agent runs and **Waiting for you** when it needs you.
-- **Notifications**: in Settings, on **Your agent**, under **General**, switch **Push when Superbot finishes** and **Push when Superbot needs you**. Both are on by default.
-- **Offline reading**: chats stay readable on the phone without a connection.
-
-Related: [Voice chat and dictation](https://superbot.gg/docs#voice-chat), [Download superbot](https://superbot.gg/download)
-
-### The omni engine
-
-omni is superbot's own agent loop: it sends your turn to the model, runs the tools it asks for and repeats until done.
-
-It drives any model behind the OpenAI or Anthropic API with the same tools, including the models on your custom endpoints. To compare two models, pick each in the model picker and send the same task.
-
-Related: [Custom endpoints](https://superbot.gg/docs#external-apis), [Models](https://superbot.gg/docs#api-models)
-
-### Teams and policy
-
-A team shares MCP servers, rules and skills across its members and applies one signed policy to every member's devices.
-
-1. Open **Account > Teams** and press **Create team**.
-2. Under **Members**, enter an email, pick a role below your own and press **Invite**.
-3. Owners and admins see the **Policy and coverage** card. It reads a count such as **3 of 5 reported** once a policy is published, and marks a member whose devices have not reported as **not reported**.
-
-An owner or admin publishes the signed policy through the org API. Until then the card reads **No policy published yet.**
-
-Related: [Teams and enterprise](https://superbot.gg/enterprise)
-
-### Usage and spend
-
-See what your agents used and what it cost, for the last 7 days by default.
-
-Open **Account > Usage** to read it, and pick a longer range there. To cap a caller key, set **Daily limit** or **Monthly limit** in credits when you mint it under **Account > API**. A key that reaches a limit is refused until the window resets.
-
-Related: [Keys and authentication](https://superbot.gg/docs#api-auth), [Endpoints](https://superbot.gg/docs#api-endpoints)
-
-### Custom endpoints
-
-Add any OpenAI- or Anthropic-compatible endpoint to the model picker and dial it with your own superbot key beside the house models.
-
-1. Open **Settings > Subscriptions & keys** and find the **Custom endpoints** group (formerly **External APIs**).
-2. Press **Add endpoint** (**Add an endpoint** on an empty list).
-3. Under **Where it is saved**, pick **Hosted endpoint** so every device on your account can dial it, or **This Mac** (**This computer** on Windows) to keep it on this computer.
-4. On the hosted path, enter a **Label**, the **Base URL** and the **API key**.
-5. Set **Dialect** to **Auto**, **OpenAI** or **Anthropic**, then press **Add endpoint**.
-
-Models load when the endpoint answers `/models`, and **Refresh models** reloads them. **Scan for keys**, under **Found on this Mac** (**Found on this computer** on Windows), finds API keys already on this computer and offers each one as an endpoint. On the phone, open **Settings > Connections** and choose **Custom endpoints**.
-
-Related: [Models](https://superbot.gg/docs#api-models), [Keys and authentication](https://superbot.gg/docs#api-auth)
-
-## API
-
-Call the same agents the app uses over HTTP, with a caller key you mint and can revoke.
-
-### Keys and authentication
-
-A caller key starts with `sbc_` and belongs to your account.
-
-#### Mint a key
-
-1. Open **Account > API**, find **Keys** and select **New key**.
-2. Enter a **Name** of up to 64 characters.
-3. Set the fields you need.
-4. Select **Create key**.
-5. Copy the key. The page shows it in full only once.
-
-To revoke a key, select **Revoke** on its row under **Keys**. It stops working immediately.
-
-#### Key settings
-
-| Field                                  | Choice                                    | Effect                                                                |
-| -------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| **Access**                             | **Models** (default)                      | calls models; reads usage and the credit balance                      |
-| **Read-only query**                    | reads your account; calls no model        |                                                                       |
-| **Full access**                        | holds every scope listed under **Scopes** |                                                                       |
-| **Spend from**                         | **Your providers**                        | uses your own vendor accounts; spends no credits                      |
-| **Credits**                            | spends your credit balance                |                                                                       |
-| **Auto** (default)                     | uses your providers first, then credits   |                                                                       |
-| **Daily limit**                        | credits                                   | caps the key's spend over any 24 hours; empty means no cap            |
-| **Monthly limit**                      | credits                                   | caps the key's spend in a calendar month (UTC); empty means no cap    |
-| **More options** \> **Mode**           | **Single model call** (default)           | calls the model id you send                                           |
-| **Full agent turn**                    | runs the full superbot agent              |                                                                       |
-| **More options** \> **Allowed models** | comma-separated ids                       | \* matches any run of characters and ? one character; empty means all |
-| **More options** \> **Incognito**      | checkbox                                  | keeps the key's turns out of your history                             |
-| **Scopes**                             | one checkbox per scope                    | ticking any box replaces **Access**; a write scope includes its read  |
-
-#### Send a key
-
-The key goes in the `Authorization: Bearer` header. `x-api-key` carries the same key for clients that expect it.
-
-```bash
-curl https://superbot.gg/v1/models \
-  -H "Authorization: Bearer sbc_…"
-```
-
-Related: [Set up your clients](https://superbot.gg/clients), [Account](https://superbot.gg/account)
-
-### Models
-
-`GET /v1/models` lists every model id the account can call, whether or not the key's **Allowed models** names it.
-
-#### House models
-
-`superbot`: Your Superbot agent. Context window: 1M. `superbot-omni`: Superbot agent, run on your computer. Context window: 1M. `superbot-fast`: Quick and cheap, for small jobs. Context window: 500k.
-
-__house model rates__
-| Model                     | Input | Output | Cache read | Cache write |
-| ------------------------- | ----- | ------ | ---------- | ----------- |
-| superbot                  | 200   | 800    | 5          | 200         |
-| superbot-fastfree in beta | 100   | 400    | 3          | 100         |
-
-Credits per 1M tokens; one credit is $0.001.
-
-#### Other models
-
-Vendor model ids run on your own accounts and keys, or on credits. An endpoint added with **Add endpoint** under **Providers** on **Account > API** appears as `custom/<endpoint>/<model>`, for example `custom/example/llama-3.3-70b`.
-
-Related: [Custom endpoints](https://superbot.gg/docs#external-apis), [Credits](https://superbot.gg/docs#credits), [The API page](https://superbot.gg/api)
-
-### Endpoints
-
-Each route links to its reference on [/developers](https://superbot.gg/developers).
-
-A scope names what the key must hold. `any key` takes any live key, and `no key` answers without one.
-
-#### Call models
-
-[Full reference](https://superbot.gg/developers/gateway)
-
-__Call models routes__
-| Method | Path                                                                                      | What it does                                    | Scope          |
-| ------ | ----------------------------------------------------------------------------------------- | ----------------------------------------------- | -------------- |
-| POST   | [/v1/chat/completions](https://superbot.gg/developers/gateway/createChatCompletion)     | Create a chat completionOpenAI Chat Completions | gateway:invoke |
-| POST   | [/v1/responses](https://superbot.gg/developers/gateway/createResponse)                  | Create a responseOpenAI Responses               | gateway:invoke |
-| POST   | [/v1/messages](https://superbot.gg/developers/gateway/createMessage)                    | Create a messageAnthropic Messages              | gateway:invoke |
-| POST   | [/v1/messages/count_tokens](https://superbot.gg/developers/gateway/countMessageTokens) | Estimate input tokensAnthropic, nothing billed  | any key        |
-| GET    | [/v1/models](https://superbot.gg/developers/gateway/listModels)                         | List modelsOpenAI and Anthropic                 | any key        |
-
-#### Manage keys
-
-[Full reference](https://superbot.gg/developers/keys)
-
-__Manage keys routes__
-| Method | Path                                                                   | What it does        | Scope      |
-| ------ | ---------------------------------------------------------------------- | ------------------- | ---------- |
-| GET    | [/v1/keys](https://superbot.gg/developers/keys/listKeys)             | List caller keys    | keys:read  |
-| POST   | [/v1/keys](https://superbot.gg/developers/keys/createKey)            | Create a caller key | keys:write |
-| GET    | [/v1/keys/whoami](https://superbot.gg/developers/keys/getCurrentKey) | Get the calling key | any key    |
-| PATCH  | [/v1/keys/{id}](https://superbot.gg/developers/keys/updateKey)       | Update a caller key | keys:write |
-| DELETE | [/v1/keys/{id}](https://superbot.gg/developers/keys/revokeKey)       | Revoke a caller key | keys:write |
-
-#### Usage and spend
-
-[Full reference](https://superbot.gg/developers/usage)
-
-__Usage and spend routes__
-| Method | Path                                                                            | What it does                   | Scope        |
-| ------ | ------------------------------------------------------------------------------- | ------------------------------ | ------------ |
-| GET    | [/v1/usage](https://superbot.gg/developers/usage/getUsage)                    | Get usage over a window        | usage:read   |
-| GET    | [/v1/usage/requests](https://superbot.gg/developers/usage/listUsageRequests)  | List usage per request         | usage:read   |
-| GET    | [/v1/usage/daily](https://superbot.gg/developers/usage/getUsageDaily)         | Get usage per UTC day          | usage:read   |
-| GET    | [/v1/usage/breakdown](https://superbot.gg/developers/usage/getUsageBreakdown) | Get usage bucketed and grouped | usage:read   |
-| GET    | [/v1/usage/export](https://superbot.gg/developers/usage/exportUsage)          | Export usage rows              | usage:read   |
-| GET    | [/v1/credits](https://superbot.gg/developers/usage/getCredits)                | Get the credit balance         | billing:read |
-| GET    | [/v1/spend](https://superbot.gg/developers/usage/getSpend)                    | Get AI spend across apps       | usage:read   |
-| GET    | [/v1/usage/report](https://superbot.gg/developers/usage/getUsageReport)       | Get a usage report             | usage:read   |
-
-#### Custom endpoints
-
-[Full reference](https://superbot.gg/developers/endpoints)
-
-__Custom endpoints routes__
-| Method | Path                                                                                               | What it does                     | Scope           |
-| ------ | -------------------------------------------------------------------------------------------------- | -------------------------------- | --------------- |
-| GET    | [/v1/upstreams](https://superbot.gg/developers/endpoints/listUpstreams)                          | List custom endpoints            | endpoints:read  |
-| POST   | [/v1/upstreams](https://superbot.gg/developers/endpoints/createUpstream)                         | Add a custom endpoint            | endpoints:write |
-| PATCH  | [/v1/upstreams/{slug}](https://superbot.gg/developers/endpoints/updateUpstream)                  | Update a custom endpoint         | endpoints:write |
-| DELETE | [/v1/upstreams/{slug}](https://superbot.gg/developers/endpoints/deleteUpstream)                  | Remove a custom endpoint         | endpoints:write |
-| POST   | [/v1/upstreams/{slug}/probe](https://superbot.gg/developers/endpoints/probeUpstream)             | Re-probe a custom endpoint       | endpoints:write |
-| GET    | [/v1/aliases](https://superbot.gg/developers/endpoints/listAliases)                              | List @mention aliases            | endpoints:read  |
-| PUT    | [/v1/aliases/{token}](https://superbot.gg/developers/endpoints/setAlias)                         | Set an @mention alias            | endpoints:write |
-| DELETE | [/v1/aliases/{token}](https://superbot.gg/developers/endpoints/deleteAlias)                      | Delete an @mention alias         | endpoints:write |
-| GET    | [/docs/services/{service_id}.json](https://superbot.gg/developers/endpoints/getServiceDocument) | Get a service’s OpenAPI document | no key          |
-
-#### Teams
-
-[Full reference](https://superbot.gg/developers/teams)
-
-__Teams routes__
-| Method | Path                                                                                                  | What it does              | Scope       |
-| ------ | ----------------------------------------------------------------------------------------------------- | ------------------------- | ----------- |
-| GET    | [/v1/org/{id}/audit](https://superbot.gg/developers/teams/exportTeamAuditLog)                       | Export a team’s audit log | teams:read  |
-| GET    | [/v1/teams](https://superbot.gg/developers/teams/listTeams)                                         | List teams                | teams:read  |
-| POST   | [/v1/teams](https://superbot.gg/developers/teams/createTeam)                                        | Create a team             | teams:write |
-| GET    | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/getTeam)                                | Get a team                | teams:read  |
-| PATCH  | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/updateTeam)                             | Update a team             | teams:write |
-| DELETE | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/deleteTeam)                             | Delete a team             | teams:write |
-| GET    | [/v1/teams/{team_id}/members](https://superbot.gg/developers/teams/listTeamMembers)                | List team members         | teams:read  |
-| PATCH  | [/v1/teams/{team_id}/members/{user_id}](https://superbot.gg/developers/teams/updateTeamMember)    | Change a member’s role    | teams:write |
-| DELETE | [/v1/teams/{team_id}/members/{user_id}](https://superbot.gg/developers/teams/removeTeamMember)    | Remove a team member      | teams:write |
-| GET    | [/v1/teams/{team_id}/invites](https://superbot.gg/developers/teams/listTeamInvites)                | List pending team invites | teams:read  |
-| POST   | [/v1/teams/{team_id}/invites](https://superbot.gg/developers/teams/createTeamInvite)               | Invite someone to a team  | teams:write |
-| DELETE | [/v1/teams/{team_id}/invites/{code}](https://superbot.gg/developers/teams/revokeTeamInvite)        | Revoke a team invite      | teams:write |
-| POST   | [/v1/teams/{team_id}/invites/{code}/resend](https://superbot.gg/developers/teams/resendTeamInvite) | Resend a team invite      | teams:write |
-| POST   | [/v1/team_invites/{code}/accept](https://superbot.gg/developers/teams/acceptTeamInvite)            | Accept a team invite      | teams:write |
-
-#### Devices
-
-[Full reference](https://superbot.gg/developers/devices)
-
-__Devices routes__
-| Method | Path                                                                                                                     | What it does                      | Scope         |
-| ------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------- | ------------- |
-| POST   | [/v1/devices/{device_id}/jobs](https://superbot.gg/developers/devices/createAgentJob)                                 | Run a job on an agent computer    | devices:write |
-| GET    | [/v1/devices/{device_id}/jobs/{job_id}](https://superbot.gg/developers/devices/getAgentJob)                          | Read an agent computer job        | devices:read  |
-| GET    | [/v1/devices/{device_id}/terminals/{terminal_id}/stream](https://superbot.gg/developers/devices/streamAgentTerminal) | Stream an agent computer terminal | devices:read  |
-| GET    | [/v1/pair/{user_code}](https://superbot.gg/developers/devices/previewAgentPair)                                       | Preview an agent computer code    | any key       |
-| POST   | [/v1/pair/{user_code}/approve](https://superbot.gg/developers/devices/approveAgentPair)                               | Approve an agent computer code    | any key       |
-| GET    | [/v1/devices](https://superbot.gg/developers/devices/listDevices)                                                      | List devices                      | devices:read  |
-| GET    | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/getDevice)                                           | Get a device                      | devices:read  |
-| PATCH  | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/updateDevice)                                        | Rename a device                   | devices:write |
-| DELETE | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/deleteDevice)                                        | Unlink a device                   | devices:write |
-
-#### Runs
-
-[Full reference](https://superbot.gg/developers/runs)
-
-__Runs routes__
-| Method | Path                                                                                | What it does                      | Scope      |
-| ------ | ----------------------------------------------------------------------------------- | --------------------------------- | ---------- |
-| GET    | [/v1/runs](https://superbot.gg/developers/runs/listRuns)                          | List cloud runs                   | runs:read  |
-| POST   | [/v1/runs](https://superbot.gg/developers/runs/createRun)                         | Start a cloud run                 | runs:write |
-| GET    | [/v1/runs/projects](https://superbot.gg/developers/runs/listRunProjects)          | Find the project for a repository | runs:read  |
-| GET    | [/v1/runs/{run_id}](https://superbot.gg/developers/runs/getRun)                  | Get a cloud run                   | runs:read  |
-| GET    | [/v1/runs/{run_id}/events](https://superbot.gg/developers/runs/listRunEvents)    | Follow a run’s events             | runs:read  |
-| POST   | [/v1/runs/{run_id}/cancel](https://superbot.gg/developers/runs/cancelRun)        | Cancel a cloud run                | runs:write |
-| POST   | [/v1/runs/{run_id}/messages](https://superbot.gg/developers/runs/sendRunMessage) | Steer a running cloud run         | runs:write |
-
-Related: [Full API reference](https://superbot.gg/developers), [OpenAPI 3.1 spec](https://superbot.gg/docs/openapi.json)
-
-#### Send a message
-
-`POST /v1/chat/completions` takes an OpenAI Chat Completions body, `POST /v1/responses` an OpenAI Responses body and `POST /v1/messages` an Anthropic Messages body. Each answers in its own shape.
-
-```bash
-export OPENAI_BASE_URL=https://superbot.gg/v1
-export OPENAI_API_KEY=sbc_…
-export ANTHROPIC_BASE_URL=https://superbot.gg/v1
-export ANTHROPIC_API_KEY=sbc_…
-```
-
-**curl**
-
-```bash
-curl https://superbot.gg/v1/chat/completions \
-  -H "Authorization: Bearer sbc_…" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "superbot",
-    "messages": [{"role": "user", "content": "Summarize this thread."}]
-  }'
-```
-
-**OpenAI SDK**
-
-```python
-from openai import OpenAI
-
-client = OpenAI(base_url="https://superbot.gg/v1", api_key="sbc_…")
-response = client.chat.completions.create(
-    model="superbot",
-    messages=[{"role": "user", "content": "Summarize this thread."}],
-)
-print(response.choices[0].message.content)
-```
-
-**Anthropic SDK**
-
-```python
-from anthropic import Anthropic
-
-client = Anthropic(base_url="https://superbot.gg/v1", api_key="sbc_…")
-message = client.messages.create(
-    model="superbot",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "Summarize this thread."}],
-)
-print(message.content[0].text)
-```
-
-#### Streaming
-
-Send `"stream": true` to any of the three routes to receive server-sent events in that route's own shape.
-
-```bash
-curl -N https://superbot.gg/v1/chat/completions \
-  -H "Authorization: Bearer sbc_…" \
-  -H "Content-Type: application/json" \
-  -d '{"model": "superbot", "stream": true, "messages": [{"role": "user", "content": "Summarize this thread."}]}'
-```
-
-- Chat Completions sends `data: {"choices":[…]}` frames and ends with `data: [DONE]`.
-- Responses sends typed events such as `response.output_text.delta` and ends with `response.completed`.
-- Messages sends Anthropic's events, from `message_start` to `message_stop`.
-
-Usage and billing settle when the stream ends, and an aborted stream is billed for what it produced.
-
-### Limits and errors
-
-#### Rate limit
-
-A caller key gets 1200 requests a minute. Over that, the route answers `429` before any model is called, with this body:
-
-```json
-{
-  "error": {
-    "type": "rate_limit_error",
-    "message": "per-key rate limit reached",
-    "retry_after": 12
-  }
-}
-```
-
-`retry_after` is in seconds. The `x-ratelimit-remaining` and `x-ratelimit-reset` headers carry the same window.
-
-#### Errors
-
-Model routes answer in the caller's dialect, and the Field column says where each code sits. A top-level `error` is a string code. Account routes answer in that form too, with `message`, `doc_url` and `request_id` beside it.
-
-| Status | Field      | Code                         | Meaning                                                                              |
-| ------ | ---------- | ---------------------------- | ------------------------------------------------------------------------------------ |
-| 400    | error.type | invalid_request_error      | the body is not valid JSON                                                           |
-| 400    | error.code | unknown_model               | no vendor claims the model id                                                        |
-| 401    | error.type | authentication_error        | the key is missing, malformed or unknown                                             |
-| 402    | error      | insufficient_balance        | the credit balance cannot cover the call; the 402 body follows                       |
-| 402    | error.code | daily_limit, monthly_limit | the key reached its own limit                                                        |
-| 403    | error.type | permission_error            | the key is revoked                                                                   |
-| 403    | error      | insufficient_scope          | the key lacks the route's scope; x-superbot-required-scopes names it                 |
-| 403    | error.code | model_not_allowed          | the key's **Allowed models** does not include that model                             |
-| 403    | error.code | agent_not_granted          | the n-agent header names an agent with no live grant                                 |
-| 403    | error.code | no_vendor_credential       | no usable sign-in or key for that model's vendor; byo_url links to where to add one |
-| 429    | error.type | rate_limit_error           | over the per-key rate                                                                |
-| 5xx    | error.type | api_error                   | the model provider or the agent turn failed                                          |
-
-A provider's own error passes through with the provider's status, marked by the `x-superbot-error-origin: vendor` header.
-
-#### The 402 body
-
-An empty balance answers HTTP 402 with this body, built from what billing reports for the account:
-
-```json
-{
-  "error": "insufficient_balance",
-  "topup_url": "https://billing.ezo.dev/topup?t=…",
-  "balance_tokens": 0,
-  "plan": "sub",
-  "reason": "allowance_exhausted",
-  "renews_at": "2026-10-01T00:00:00.000Z",
-  "plan_name": "superbot plus",
-  "plan_price_usd_month": 20,
-  "plan_allowance_tokens": 22000,
-  "overage_rate_usd_per_1k": 1,
-  "auto_recharge": {
-    "enabled": true,
-    "threshold_mtok": 0,
-    "amount_usd": 20,
-    "monthly_cap_usd": 100,
-    "spent_this_month_usd": 20
-  },
-  "subscribe_url": "https://billing.ezo.dev/topup?t=…",
-  "manage_url": "https://superbot.gg/account/billing",
-  "byo_url": "https://superbot.gg/account/api#keys",
-  "recharge_url": "https://billing.ezo.dev/topup?t=…",
-  "grants": [],
-  "ledger_balance_tokens": 0,
-  "plan_tier": "plus"
-}
-```
-
-`topup_url`, `subscribe_url` and `recharge_url` are signed links to the billing page, made for the account and expiring; when billing cannot make one, the field falls back to the account page. A caller key's body omits `topup_url`, `subscribe_url` and `recharge_url`. Amounts are credits, including the fields named `_tokens`. `overage_rate_usd_per_1k` appears when a rate is configured.
-
-| reason                 | Meaning                                                       |
-| ---------------------- | ------------------------------------------------------------- |
-| no_plan               | the account is on the free plan and its balance is spent      |
-| topup_only            | the account holds packs only and its balance is spent         |
-| allowance_exhausted   | the plan's monthly allowance is spent                         |
-| auto_recharge_off    | the balance is spent and auto-recharge is off                 |
-| recharge_cap_reached | the next auto-recharge would pass its monthly limit           |
-| recharge_failed       | the auto-recharge charge failed                               |
-| weekly_cap_reached   | the plan's weekly pace limit is reached; it clears on its own |
-
-Related: [Credits](https://superbot.gg/docs#credits), [Plans and packs](https://superbot.gg/docs#plans)
-
-## Account and billing
-
-### Credits
-
-superbot bills in credits: one credit is $0.001. Each token type is priced as a multiple of the input rate (on superbot: output counted at 4x, cache reads at 0.025x and cache writes at 1x). A vendor model called on credits, with none of your own accounts attached, costs its own list price. Models on your own subscriptions and keys spend no credits. Credits are held and charged by the billing service behind superbot: the balance, the plan and every charge are its records, and the app and the API show what it reports.
-
-superbot-fast is free in beta.
-fair use: 500 credits per 5 hours, 2,000 credits per 7 days.
-past that, it bills at its rate on the rate card.
-
-#### Read your balance
-
-`GET /v1/credits` returns the balance as `balance_credits`, with the pots in `credits`, and the plan and auto-recharge state. It needs the `billing:read` scope, which **Models** and **Read-only query** keys hold. `low` is true at a balance of zero or less, and `reason` appears with it. The route reads the balance from billing and holds none itself, so while billing cannot be reached it answers 503 `billing_unavailable` with a retry hint.
-
-```bash
-curl https://superbot.gg/v1/credits \
-  -H "Authorization: Bearer sbc_…"
-```
-
-Related: [Models](https://superbot.gg/docs#api-models), [The API page](https://superbot.gg/api)
-
-### Plans and packs
-
-- Free costs nothing and carries a monthly 10,000-credit beta pot, refilled on the 1st (UTC).
-- Superbot Plus is $20 a month with 22,000 credits included, or $200 a year.
-- Pro is $100 a month with 120,000 credits included, or $960 a year.
-- Max is $200 a month with 270,000 credits included, or $1,920 a year.
-- Superbot Teams is $25 a seat a month billed yearly at $300 a seat a year, with 30,000 credits a seat a month pooled across the team.
-
-Every paid plan also sells a yearly term at the yearly price, and a yearly plan still releases its allowance monthly. every new account runs Superbot Pro free for 14 days with no card, and gets a one-time 20,000-credit grant that expires when the trial ends; an account gets one trial ever. Overage on any plan bills at the pack rate, and the frontier models are open on every tier including Free.
-
-The run limits on a plan are limits on hosted cloud runs: a run on your own machine is never limited. A plan's scheduled runs are its routine runs, on a cron or an interval.
-
-The plan allowance is paced: a week uses at most a quarter of it.
-
-Packs are one-time purchases: 5,000 credits for $5, 20,000 for $20, 100,000 for $100. A pack's credits never expire, and a plan does not reprice the $5/$20/$100 packs. Plans and packs are bought on the billing page. **Account > Billing** opens it, and so does the `topup_url` or `subscribe_url` of a 402 or of `GET /v1/credits`: each is a signed link made for your account, and it expires.
-
-#### Auto-recharge
-
-Auto-recharge charges your card for more credits when the balance falls to a level you set. It is off until you turn it on, then $20 per charge, capped at $100 per calendar month. Declined charges count toward the monthly limit. `GET /v1/credits` reports its state as `auto_recharge`, and the `reason` of a 402 says when it is off, capped or failed.
-
-Related: [Usage and spend](https://superbot.gg/docs#usage)
-
-### Which credits are spent first
-
-From first to last: beta pot, plan allowance, promo credits, auto-recharge credits, packs. The beta pot expires on the 1st (UTC) and the plan allowance at renewal; neither rolls over. Packs and auto-recharge credits never expire.
-
-## Help
-
-### Troubleshooting
-
-Fixes for what goes wrong after you install the Helper.
-
-If superbot seems down, check [status.superbot.gg](https://status.superbot.gg).
-
-#### My AI client does not show superbot
-
-Restart the client. If it still lists no superbot tool, run `superbot clients wire` to route every client the Helper finds.
-
-#### superbot: command not found
-
-Paste the activation line the installer printed at the end. In sh, bash and zsh it is `export PATH="$HOME/.superbot/bin:$PATH"`.
-
-#### The installer did not sign me in
-
-Run `superbot signin`. It opens your browser to sign in.
-
-#### My caller key is refused
-
-A 401 means the key is missing or malformed, and a 403 means it was revoked or does not allow that model. Mint a new key in [Keys and authentication](https://superbot.gg/docs#api-auth).
-
-Related: [Your AI clients](https://superbot.gg/docs#clients)
-
-### Remote SSH projects
-
-A project on an SSH host keeps its files, terminal and agents on that box.
-
-Click + and pick **Connect to an SSH host**, then choose a host or type `user@host`.
-
-#### The chat shows a connection error
-
-- **SSH sign-in failed**: enter the password, or add your key to ssh-agent or pick one for this host.
-- **Host key rejected**: the box's host key differs from the one you accepted. Check the fingerprint, then retry.
-- **Box unreachable**: the box did not answer. Check that it is on and reachable from your computer.
-- **Box platform unsupported**: the box needs Linux with glibc 2.28 or newer, or macOS, on x64 or arm64. Alpine and other musl Linux do not work.
-- **Box has no internet**: the box cannot download the Helper. **Send from this computer** (Send from this Mac on a Mac) copies it over.
-- **Port forwarding blocked**: allow `AllowTcpForwarding` in `sshd_config` on the box, then retry.
-- **Login shell prints output**: stop the shell profile or login banner from printing on connect, then retry.
-- **Engine missing on box**: **Reinstall Helper** puts the engine back.
-- **OpenSSH too old**: update OpenSSH on your computer to 8.7 or newer, then retry.
-
-### Uninstall
-
-`superbot uninstall` deletes superbot and everything it left on your machine: the Helper, the desktop app and its data, superbot's own entries in your AI clients, and your local accounts, chats and keys.
-
-You sign in again after a reinstall. `superbot uninstall --dry-run` lists what would go and deletes nothing. A script with no terminal has to pass `--yes`.
-
-To remove one client by hand, run `claude mcp remove superbot` for Claude Code, or delete the `superbot` entry from that client's config file. Nothing else was installed.
-
-Related: [Your AI clients](https://superbot.gg/docs#clients)
-
-### More ways to read this
-
-This documentation in the formats other tools read.
-
-- [llms.txt](https://superbot.gg/llms.txt): every install recipe and the MCP endpoint, as an agent reads it.
-- [docs.md](https://superbot.gg/docs.md): this page as markdown.
-- [clients](https://superbot.gg/clients): the per-client setup pages.
-- [api](https://superbot.gg/api): the full rate card and the request formats.
-- [enterprise](https://superbot.gg/enterprise): teams, policy and coverage.
-- [request a client](https://superbot.gg/request-harness): one that is not on the list yet.
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<title>superbot docs: the app, the Helper and its CLI</title>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<meta name="keywords" content="superbot docs, agent manager, superbot Helper, superbot CLI, Claude Code, Codex, Cursor"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="site/assets/docs.css?v=18"/>
+<meta name="description" content="how to install the superbot app, the Helper and its CLI, and what each feature does."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="superbot docs: the app, the Helper and its CLI"/>
+<meta property="og:description" content="how to install the superbot app, the Helper and its CLI, and what each feature does."/>
+<meta property="og:url" content="https://superbot.gg/docs"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og/docs.png?v=2"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="superbot.gg docs card: get the app, then see what each feature does."/>
+<meta property="og:image:type" content="image/png"/>
+<link rel="canonical" href="docs.html"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="superbot docs: the app, the Helper and its CLI"/>
+<meta name="twitter:description" content="how to install the superbot app, the Helper and its CLI, and what each feature does."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og/docs.png?v=2"/>
+<meta name="twitter:image:alt" content="superbot.gg docs card: get the app, then see what each feature does."/>
+<noscript><style>
+.doc-filter, .doc-toc, .doc-toc-aside { display: none; }
+/* no JS: the rail has no "on this page" list to carry, so the wide layout loses only that column (the old one-column rule laid the sticky side nav over the page) */
+@media (min-width: 1101px) { .doc-shell { grid-template-columns: 232px minmax(0, var(--content)); } }
+.doc-tabpanel[hidden] { display: block; }
+.doc-mode-panel[data-off] { display: grid; }
+/* no JS: the panels stack under the tiles, each with its own heading, and no tile claims to be chosen */
+.doc-mode-panel > h3 { position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; }
+.doc-mode-panel + .doc-mode-panel { margin-top: var(--sp-8); }
+.doc-mode[aria-current='true'] { border-color: var(--line); box-shadow: none; color: var(--muted); }
+</style></noscript>
+<link rel="alternate" type="text/markdown" href="/docs.md">
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html" aria-current="page">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
+
+  <div class="doc-shell">
+    <aside class="doc-aside" aria-label="Docs sections">
+      <details class="doc-rail" open>
+        <summary>Docs contents</summary>
+        <div class="doc-filter">
+          <label for="pagefilter">Filter this page</label>
+          <div class="doc-filter-row">
+            <input id="pagefilter" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-describedby="filtersum" placeholder="daemon, uninstall, ssh"/>
+            <button class="doc-filter-clear" type="button" id="filterclear" hidden>Clear</button>
+          </div>
+          <p class="doc-filter-note" id="filtersum" aria-live="polite" hidden></p>
+        </div>
+        <nav class="doc-nav" aria-label="Docs sections">
+          <p class="doc-nav-label">Getting started</p>
+          <ul>
+            <li><a href="#start" data-nav="start">Start here</a></li>
+            <li><a href="#install" data-nav="install">Install</a></li>
+            <li><a href="#verify" data-nav="verify">Verify</a></li>
+          </ul>
+          <p class="doc-nav-label">Features</p>
+          <ul>
+            <li><a href="#apps" data-nav="apps">Desktop and phone apps</a></li>
+            <li><a href="#helper-app" data-nav="helper-app">superbot relay</a></li>
+            <li><a href="#helper" data-nav="helper">Helper and CLI</a></li>
+            <li><a href="#clients" data-nav="clients">Your AI clients</a></li>
+            <li><a href="#super" data-nav="super">Super mode and swarms</a></li>
+            <li><a href="#daemon" data-nav="daemon">Daemon mode and parked chats</a></li>
+            <li><a href="#fleet" data-nav="fleet">Fleet board</a></li>
+            <li><a href="#plan" data-nav="plan">Plan card, race and checkpoints</a></li>
+            <li><a href="#routines" data-nav="routines">Routines</a></li>
+            <li><a href="#context" data-nav="context">Context and imported chats</a></li>
+            <li><a href="#tidy" data-nav="tidy">Tidy mode</a></li>
+            <li><a href="#import" data-nav="import">Import chats from other apps</a></li>
+            <li><a href="#tool" data-nav="tool">MCP server and its tool</a></li>
+            <li><a href="#mcp-servers" data-nav="mcp-servers">Your MCP servers</a></li>
+            <li><a href="#builtin-tools" data-nav="builtin-tools">Built-in tools</a></li>
+            <li><a href="#sessions" data-nav="sessions">Browser sessions and logins</a></li>
+            <li><a href="#computer" data-nav="computer">Your browser and your screen</a></li>
+            <li><a href="#remote" data-nav="remote">Live view and remote control</a></li>
+            <li><a href="#media" data-nav="media">Media on your own accounts</a></li>
+            <li><a href="#voice" data-nav="voice">Calls and texts from your phone</a></li>
+            <li><a href="#voice-chat" data-nav="voice-chat">Voice chat and dictation</a></li>
+            <li><a href="#quick-ask" data-nav="quick-ask">Quick Ask</a></li>
+            <li><a href="#build" data-nav="build">Build, edit and preview</a></li>
+            <li><a href="#publish" data-nav="publish">Publish your app</a></li>
+            <li><a href="#cloud" data-nav="cloud">Cloud runs from your phone</a></li>
+            <li><a href="#phone" data-nav="phone">Phone extras</a></li>
+            <li><a href="#omni" data-nav="omni">The omni engine</a></li>
+            <li><a href="#organizations" data-nav="organizations">Teams and policy</a></li>
+            <li><a href="#usage" data-nav="usage">Usage and spend</a></li>
+            <li><a href="#external-apis" data-nav="external-apis">Custom endpoints</a></li>
+          </ul>
+          <p class="doc-nav-label">API</p>
+          <ul>
+            <li><a href="#api-auth" data-nav="api-auth">Keys and authentication</a></li>
+            <li><a href="#api-models" data-nav="api-models">Models</a></li>
+            <li><a href="#api-endpoints" data-nav="api-endpoints">Endpoints</a></li>
+            <li><a href="#api-limits" data-nav="api-limits">Limits and errors</a></li>
+          </ul>
+          <p class="doc-nav-label">Account and billing</p>
+          <ul>
+            <li><a href="#credits" data-nav="credits">Credits</a></li>
+            <li><a href="#plans" data-nav="plans">Plans and packs</a></li>
+            <li><a href="#billing-tiers" data-nav="billing-tiers">Which credits are spent first</a></li>
+          </ul>
+          <p class="doc-nav-label">Help</p>
+          <ul>
+            <li><a href="#troubleshooting" data-nav="troubleshooting">Troubleshooting</a></li>
+            <li><a href="#remote-ssh" data-nav="remote-ssh">Remote SSH projects</a></li>
+            <li><a href="#uninstall" data-nav="uninstall">Uninstall</a></li>
+            <li><a href="#more" data-nav="more">More ways to read this</a></li>
+          </ul>
+        </nav>
+      </details>
+    </aside>
+
+    <main id="main" tabindex="-1">
+      <div class="doc-hero sb-reveal" style="--i:0">
+        <div class="doc-crumb"><a href="index.html">superbot<span class="sb-gg">.gg</span></a> / docs</div>
+        <h1>Docs</h1>
+        <p class="doc-lede">superbot manages the AI agents you use, running them on the vendor accounts you already pay for.</p>
+      </div>
+
+      <section class="doc-group" id="start" data-group="start">
+        <h2 id="start-h">How do you work?</h2>
+
+        <!-- the picker (docs.js, "the picker"): four outlined tiles, one detail
+             panel under them. The server ships the picked state: the first tile
+             current, the other panels marked data-off (a CSS switch, not
+             `hidden`, which the markdown twin drops), so a script-on load never
+             reflows; docs.js adds the tab roles and the arrow keys. With no JS
+             the no-script rule in the head stacks the panels under the tiles,
+             and each tile is a plain link to its panel. Each panel's h3 is the
+             "on this page" entry (data-toc) and the tile's label again; it shows
+             only when the panels are stacked. The tiles are controls, not content
+             cards: one is chosen, and the panel under them is the answer. The
+             fourth, "I use MCP", is last: the app is the headline and the MCP
+             server is a surface, so its paste line never precedes the app's
+             download in document order (app-first.test.ts). -->
+        <div class="doc-modes" data-modes>
+          <div class="doc-mode-tiles" data-mode-tiles>
+            <a class="doc-mode" id="tab-app" href="#mode-app" data-mode="app" aria-current="true">
+              <svg class="doc-mode-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8m-2 4v-3.96v3.15M7 19h5"/><rect width="6" height="10" x="16" y="12" rx="2"/></svg>
+              <span class="doc-mode-label">I want the app</span>
+            </a>
+            <a class="doc-mode" id="tab-harness" href="#mode-harness" data-mode="harness">
+              <svg class="doc-mode-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 11l2-2l-2-2m4 6h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
+              <span class="doc-mode-label">I use my harness</span>
+            </a>
+            <a class="doc-mode" id="tab-api" href="#mode-api" data-mode="api">
+              <svg class="doc-mode-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1m8 0h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>
+              <span class="doc-mode-label">I only call an API</span>
+            </a>
+            <a class="doc-mode" id="tab-mcp" href="#mode-mcp" data-mode="mcp">
+              <svg class="doc-mode-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22v-5m3-9V2m2 6a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1zM9 8V2"/></svg>
+              <span class="doc-mode-label">I use MCP</span>
+            </a>
+          </div>
+
+          <div class="doc-mode-panel" id="panel-app" data-mode="app">
+            <h3 id="mode-app" data-toc>I want the app</h3>
+            <p>Manage your agents in the desktop app.</p>
+            <div class="doc-tile-actions">
+              <a class="doc-action" href="download.html">Download superbot</a>
+              <a class="doc-mode-link" href="#apps">Desktop and phone apps</a>
+            </div>
+          </div>
+
+          <div class="doc-mode-panel" id="panel-harness" data-mode="harness" data-off>
+            <h3 id="mode-harness" data-toc>I use my harness</h3>
+            <p>Claude Code keeps working.</p>
+            <div id="oneliner" class="doc-tabs" data-tabs><div class="doc-tablist" role="tablist" aria-label="Install line for your system"><button role="tab" aria-selected="true" data-os="unix">macOS and Linux</button><button role="tab" aria-selected="false" data-os="windows">Windows</button></div><div class="doc-tabpanel" role="tabpanel"><div class="doc-cmd"><code>curl -fsSL https://superbot.gg/bootstrap.sh | sh -s -- --helper-app</code><button class="doc-copy" type="button" aria-label="click to copy the superbot relay install line for macOS and Linux" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div><p class="doc-mode-note">Helper and CLI only: add <code class="sb-nowrap">--no-app</code></p></div><div class="doc-tabpanel" role="tabpanel" hidden><div class="doc-cmd"><code>&amp; ([scriptblock]::Create((irm https://superbot.gg/bootstrap.ps1))) -HelperApp</code><button class="doc-copy" type="button" aria-label="click to copy the superbot relay install line for Windows" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div><p class="doc-mode-note">Helper and CLI only: add <code class="sb-nowrap">-NoApp</code></p></div></div><p class="doc-mode-more"><a href="/download#helper">Download the Helper app</a></p>
+            <p>The Helper runs <code class="sb-nowrap">claude -p</code> on Omni.</p>
+            <p>Tidy sends the rules each task needs.</p>
+            <p class="doc-mode-more"><a href="#helper-app">About superbot relay</a></p>
+          </div>
+
+          <div class="doc-mode-panel" id="panel-api" data-mode="api" data-off>
+            <h3 id="mode-api" data-toc>I only call an API</h3>
+            <p>Any OpenAI or Anthropic client works.</p>
+            <div class="doc-cmd"><code>curl https://superbot.gg/v1/models -H "Authorization: Bearer sbc_…"</code><button class="doc-copy" type="button" aria-label="click to copy the curl line that lists your models" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <p class="doc-mode-note doc-mode-stack"><span>Remote Omni</span><code class="sb-nowrap">claude --model superbot-omni</code></p>
+            <p class="doc-mode-more"><a href="#api-auth">Keys and authentication</a><a href="#api-endpoints">Endpoints</a></p>
+          </div>
+
+          <div class="doc-mode-panel" id="panel-mcp" data-mode="mcp" data-off>
+            <h3 id="mode-mcp" data-toc>I use MCP</h3>
+            <p>Any MCP client works.</p>
+            <p>Paste this into your agent.</p>
+            <div class="doc-cmd-lines"><code>install the superbot MCP server globally: https://superbot.gg/mcp
+install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md
+Tell me if I need to sign in.</code><button class="doc-copy" type="button" aria-label="click to copy the three lines that install the superbot MCP server and skill in your agent" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <p class="doc-mode-note">Then type <code class="sb-nowrap">/superbot</code> in your agent.</p>
+            <p class="doc-mode-note">In Codex, type <code class="sb-nowrap">$superbot</code>.</p>
+            <p>Or add the server URL yourself.</p>
+            <div class="doc-cmd"><code>https://superbot.gg/mcp</code><button class="doc-copy" type="button" aria-label="click to copy the superbot MCP server URL" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <p class="doc-mode-note">No browser? Signed in, <a href="/download#mcp">copy a key</a>.</p>
+            <p class="doc-mode-more"><a href="#clients">Per-client recipes</a></p>
+          </div>
+        </div>
+
+        <h3 id="install">Install</h3>
+        <p>The default route installs the Helper, opens a browser to sign you in, wires each AI client it finds and finishes with the desktop app. Add <code class="sb-nowrap">--no-app</code> (<code class="sb-nowrap">-NoApp</code> on Windows) to install the Helper and CLI alone, and run the installer again to update.</p>
+        <p>The second route is superbot relay: use your own harness. It installs the Helper plus the standalone superbot relay app in place of the desktop app, with the same sign-in and client wiring. Add <code class="sb-nowrap">--helper-app</code> (<code class="sb-nowrap">-HelperApp</code> on Windows). Its card on <a href="/download#helper">Download superbot</a> appears once the app has a release, and a computer with no release for it gets the Helper and CLI, with a line saying so.</p>
+        <p>Related: <a href="#tool">MCP server and its tool</a></p>
+
+        <h3 id="verify" data-toc>Verify</h3>
+        <p>Restart an AI client the installer wired and ask it what superbot tools it has. It lists one tool, <code>superbot</code>.</p>
+        <div class="doc-probe sb-card wait" id="probe" aria-live="polite">
+          <div class="doc-probe-state"><span class="doc-led" aria-hidden="true"></span><span id="probetext">Checking the server from this browser…</span></div>
+          <div class="doc-probe-row">
+            <span class="doc-ask"><code id="askline">what superbot tools do you have?</code><button class="sb-btn ghost sm" type="button" id="askcopy">Copy the question</button></span>
+            <button class="sb-btn ghost sm" type="button" id="probeagain">Check again</button>
+          </div>
+        </div>
+
+        <div class="doc-connect">
+          <div class="doc-connect-head">
+            <h3 id="connection" data-toc>Your connection</h3>
+          </div>
+          <dl class="doc-connect-grid">
+            <div><dt>MCP endpoint</dt><dd><code>https://superbot.gg/mcp</code></dd></div>
+            <div><dt>API base</dt><dd><code>https://superbot.gg/v1</code></dd></div>
+            <div><dt>Models you can dial</dt><dd><code>superbot, superbot-omni, superbot-fast</code></dd></div>
+            <div><dt>Rate limit</dt><dd>1200 requests a minute per key</dd></div>
+          </dl>
+          <div class="doc-keys"><p class="doc-keys-empty">Sign in to see your caller keys. <a href="/account">Sign in</a></p></div>
+        </div>
+      </section>
+
+      <section class="doc-group" id="features" data-group="features">
+        <h2>Features</h2>
+        <p class="doc-lede">Each feature has one section: what it does and how to use it.</p>
+        <div class="doc-groups">
+
+<section class="doc-block" id="apps">
+  <h3>Desktop and phone apps</h3>
+  <p class="doc-lede">The desktop and phone apps run on one account, so a chat you start on one device keeps going on the other.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Download the app on each device from <a href="download.html">Download superbot</a>.</li>
+    <li>Sign in with the same email on both.</li>
+  </ol>
+  <p>The <strong>Sync chats across devices</strong> switch in <strong>Settings &gt; Privacy</strong> stores your chats on superbot's servers so your other devices see them, and <strong>Sync projects across devices</strong> turns project sync on or off. <strong>Sync now</strong> on a project pushes it at once.</p>
+</section>
+
+<section class="doc-block" id="helper-app">
+  <h3>superbot relay</h3>
+  <p class="doc-lede">The superbot relay app switches which engine answers <code>claude</code> on this computer, for people who keep their own agent app.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Install it from <a href="#install">Install</a> or <a href="/download#helper">Download superbot</a>.</li>
+    <li>Choose <strong>Omni</strong> under <strong>What claude runs</strong>, or run <code>superbot engine on</code>. Until you choose, <code>claude</code> runs Claude Code.</li>
+    <li>Run <code>superbot engine off</code> to go back. <code>superbot engine restore</code> puts your original launcher back exactly, and uninstall does too.</li>
+  </ol>
+  <p>The launcher takes Claude Code's own launcher slot, <code>~/.local/bin/claude</code>, and never renames or edits the Claude Code binary. With Omni on, only one-shot <code>claude -p</code> calls with flags Omni knows run on it. Interactive <code>claude</code>, subcommands and anything else run Claude Code, and so does every call while the Helper is down.</p>
+  <p><strong>Pays for model calls</strong> reads <strong>Superbot credits</strong> by default. <strong>Your Claude plan</strong> is opt-in, with a one-line notice.</p>
+  <p>Agent SDK apps do not reach the launcher through PATH, and Omni does not serve SDK calls yet, so they run on Claude Code today. To point one at the launcher, set <code>cli_path</code> in the Python SDK or <code>pathToClaudeCodeExecutable</code> in the TypeScript SDK.</p>
+  <p>The app has a <strong>Tidy</strong> setting too, covered in <a href="#tidy">Tidy mode</a>.</p>
+</section>
+
+<section class="doc-block" id="helper">
+  <h3>Helper and CLI</h3>
+  <p class="doc-lede">The Helper pairs your computer to your account and connects your AI clients, and you control it with the <code>superbot</code> command.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Run <code>superbot signin</code>. It opens your browser to pair the computer.</li>
+    <li>Run <code>superbot status</code> to see what the Helper is doing.</li>
+    <li>Run <code>superbot session</code> to chat with your agent in the terminal.</li>
+  </ol>
+  <p>The desktop app carries the app's own update; <code>superbot update</code> updates the Helper alone. <code>superbot uninstall</code> asks first, then removes the Helper and the desktop app along with the data they hold on this computer. <code>superbot uninstall --dry-run</code> lists what would go without deleting anything.</p>
+  <p>Related: <a href="#uninstall">Uninstall</a></p>
+</section>
+
+<section class="doc-block" id="clients">
+  <h3>Your AI clients</h3>
+  <p class="doc-lede">The Helper finds the AI clients on your computer, such as Claude Code and Cursor, and routes each one through your account.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Install the app, or run the Helper line from <a href="#start">Start here</a>.</li>
+    <li>Restart the client and ask what superbot tools it has. The answer includes <code>superbot</code>.</li>
+  </ol>
+  <p>Each client also has its own recipe: <a href="install/claude.md">Claude Code</a>, <a href="install/cursor.md">Cursor</a>, <a href="install/vscode.md">VS Code</a>, <a href="install/codex.md">Codex</a>, <a href="install/gemini.md">Gemini CLI</a> and <a href="install/claude-desktop.md">Claude Desktop</a>. A client with no recipe connects with an API key. <a href="#connection">Your connection</a> lists the base URL and models, and <a href="#api-auth">Keys and authentication</a> covers the key.</p>
+  <p>Related: <a href="clients.html">Set up your clients</a></p>
+</section>
+
+<section class="doc-block" id="super">
+  <h3>Super mode and swarms</h3>
+  <p class="doc-lede">One message goes to a team of agents that run on your connected subscriptions and report what each one cost.</p>
+  <ul class="doc-list">
+    <li>In the composer, set <strong>Super</strong> to <strong>On</strong>. The phone has the same toggle.</li>
+    <li>In <code>superbot session</code>, type <code>/super on</code>.</li>
+  </ul>
+  <p>Each agent narrates its plan and posts an update at each milestone.</p>
+</section>
+
+<section class="doc-block" id="daemon">
+  <h3>Daemon mode and parked chats</h3>
+  <p class="doc-lede">An agent keeps watching on a schedule while you are away, and a parked chat waits for one thing before it carries on.</p>
+  <h4>Daemon mode</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open the composer's mode menu and choose <strong>Daemon</strong>, or type <code>/daemon</code> followed by what to watch.</li>
+    <li>Send your message to start the watch. A daemon watches up to 5 chats at once.</li>
+    <li>Use <strong>Pause</strong> and <strong>Resume</strong> in the status line under the composer.</li>
+    <li>To stop, choose <strong>Agent</strong> in the mode menu or type <code>/daemon</code> again.</li>
+  </ol>
+  <p>On the phone, the Options sheet has the same <strong>Daemon</strong> row, and the desktop app runs the checks.</p>
+  <h4 id="park">Park and resume</h4>
+  <p>When an agent has to wait, it parks the chat, and superbot wakes it when the wait is over. A banner above the composer reads <strong>Parked:</strong> with what the chat waits for.</p>
+  <ul class="doc-list">
+    <li><strong>Resume now</strong> wakes the chat at once.</li>
+    <li><strong>Cancel wait</strong> drops the wait.</li>
+  </ul>
+  <p>On the phone, the same banner shows <strong>Resume now</strong> and <strong>Cancel wait</strong>.</p>
+  <p>Related: <a href="#fleet">Fleet board</a></p>
+</section>
+
+<section class="doc-block" id="fleet">
+  <h3>Fleet board</h3>
+  <p class="doc-lede">One screen lists every agent working for you, on all your devices and in the cloud.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Fleet</strong> from the command palette or the <strong>View</strong> menu, or press <code class="sb-nowrap">⌘⌥F</code> on a Mac or <code class="sb-nowrap">Ctrl+Alt+F</code> on Windows.</li>
+    <li>Find a row under <strong>Needs you</strong>, <strong>Running</strong>, <strong>Waiting</strong> or <strong>Done</strong>, and press it to open its chat.</li>
+    <li>Press <strong>Stop</strong> on a running row to end its turn or cloud run.</li>
+  </ol>
+  <p>On the desktop, filter the board by <strong>App</strong>, <strong>Project</strong> or <strong>Device</strong>. On the phone, open Settings, then <strong>Your agent</strong>, and under <strong>General</strong> open <strong>Fleet</strong>.</p>
+</section>
+
+<section class="doc-block" id="plan">
+  <h3>Plan card, race and checkpoints</h3>
+  <p class="doc-lede">An agent shows its plan before it changes anything, and checkpoints rewind a bad result.</p>
+  <h4>Plan card</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>Choose <strong>Plan</strong> in the composer's mode menu, or type <code>/plan</code> followed by your request.</li>
+    <li>Press <strong>Build</strong> on the plan card to carry it out.</li>
+  </ol>
+  <h4 id="race">Race</h4>
+  <p><strong>Build in parallel</strong> runs the plan on up to four coding agents installed on this computer, each in its own copy of the project. Press <strong>Merge this</strong> on the column you want to keep, or <strong>Stop race</strong> to cancel.</p>
+  <h4 id="checkpoints">Checkpoints</h4>
+  <p>Checkpoints snapshot the chat and the project each time you send a message. They are on by default.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Hover a message of yours and press <strong>Revert to here</strong>.</li>
+    <li>Choose <strong>Revert chat and files</strong>, <strong>Revert chat only</strong> or <strong>Restore files only</strong>.</li>
+    <li>Press <strong>Undo revert</strong> to bring the messages back until your next message.</li>
+  </ol>
+  <p>The switch is <strong>Checkpoints</strong> in <strong>Settings &gt; General</strong>, in the <strong>Advanced</strong> fold. On the phone, a revert restores files through the desktop app while it is online.</p>
+  <h4 id="branch">Branch a chat</h4>
+  <p>Type <code>/branch</code> or <code>/fork</code> to copy the chat into a new one and switch to it. To cut at an earlier reply, hover it and press <strong>Branch</strong>.</p>
+</section>
+
+<section class="doc-block" id="routines">
+  <h3>Routines</h3>
+  <p class="doc-lede">A routine runs a standing instruction on a schedule you describe once, such as every weekday at 07:00.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Describe it in any connected client, for example "every weekday at 07:00, summarise my inbox".</li>
+    <li>Say "list my routines", or name one and say "pause it", "resume it", "change it" or "delete it".</li>
+  </ol>
+  <p>superbot stores the routine and delivers each result by text message or push. A routine runs on superbot's servers, so your computer does not need to be on. Open <strong>Routines</strong> from the command palette, press <strong>New routine</strong> and fill in the form. <strong>Run now</strong> runs a saved routine once. On the phone, open Settings, then <strong>Your agent</strong>, and under <strong>General</strong> open <strong>Routines</strong>.</p>
+</section>
+
+<section class="doc-block" id="context">
+  <h3>Context and imported chats</h3>
+  <p class="doc-lede">The context optimizer trims each turn before it reaches the model, and your account remembers the preferences you state.</p>
+  <ul class="doc-list">
+    <li>A preference you state once applies in later sessions on all your devices.</li>
+    <li>Chats you import from other apps are stored on superbot's servers, and superbot searches and summarises them when you ask in a connected client.</li>
+  </ul>
+  <p>Related: <a href="#import">Import chats from other apps</a>, <a href="#tidy">Tidy mode</a></p>
+</section>
+
+<section class="doc-block" id="tidy">
+  <h3>Tidy mode</h3>
+  <p class="doc-lede">Tidy keeps each turn short by pasting in the rules and skills your task needs and linking the rest.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Settings &gt; Context</strong>.</li>
+    <li>Under <strong>How should Superbot use your setup?</strong>, choose <strong>Tidy it for Superbot chats</strong>.</li>
+    <li>Open the <strong>Advanced</strong> fold. <strong>Per app</strong> sets <strong>Tidy</strong>, <strong>Keep as is</strong> or <strong>Default</strong> for each app.</li>
+    <li>Press <strong>Undo</strong> beside <strong>Rules up front</strong> to restore the setup you had.</li>
+  </ol>
+  <p>In one benchmark run, Tidy sent 77% fewer rule tokens on the first call than sending your full setup.</p>
+  <p>Tools and the system prompt are not counted.</p>
+  <p>On the phone, open Settings, then <strong>Your agent</strong>, and find the <strong>Context</strong> block.</p>
+</section>
+
+<section class="doc-block" id="import">
+  <h3>Import chats from other apps</h3>
+  <p class="doc-lede">Bring the chat history you already have in other AI apps, such as ChatGPT, into superbot, where it shows in that app's <strong>Chats</strong> list.</p>
+  <p>Imported chats are stored on superbot's servers and readable by superbot.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>On the desktop, open <strong>Settings &gt; Privacy</strong> and tick the app under <strong>Chats</strong>, or turn on <strong>Vendor chats</strong> for every app.</li>
+    <li>Press <strong>Add</strong> in the sidebar, then <strong>Connect an app…</strong>, and pick the app.</li>
+    <li>For an app that keeps its chats on your computer, press <strong>Import chats</strong>.</li>
+  </ol>
+  <p>On an app's <strong>Chats</strong> list, <strong>Resync</strong> scans again, and <strong>Choose a file…</strong> imports a data export when the app offers one. On the phone, open History, press <strong>Import a shared chat</strong>, paste a ChatGPT or Claude share link and press <strong>Import</strong>.</p>
+  <p>Related: <a href="#context">Context and imported chats</a></p>
+</section>
+
+<section class="doc-block" id="tool">
+  <h3>MCP server and its tool</h3>
+  <p class="doc-lede">Any MCP client that connects to superbot gets one tool, <code>superbot</code>, that takes a request in plain words and does the work.</p>
+  <p>To connect one client straight to the server, ask a coding agent to install the superbot MCP server globally, then to install the superbot skill globally.</p>
+  <div class="doc-cmd-lines"><code>install the superbot MCP server globally: https://superbot.gg/mcp
+install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md
+Tell me if I need to sign in.</code><button class="doc-copy" type="button" aria-label="click to copy the three-line prompt that installs the superbot MCP server and skill" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <p class="doc-mut">Then type <code class="sb-nowrap">/superbot</code> in your agent.</p>
+  <p class="doc-mut">In Codex, type <code class="sb-nowrap">$superbot</code>.</p>
+  <p>To add it to Claude Code by hand, run <code>claude mcp add</code> with the server URL.</p>
+  <div class="doc-cmd"><code>claude mcp add --transport http superbot https://superbot.gg/mcp -s user</code><button class="doc-copy" type="button" aria-label="click to copy the claude mcp add line" data-copy><span class="doc-copy-label">click to copy</span><svg class="doc-copy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="doc-copy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="doc-copy-g-ok" d="M20 6 9 17l-5-5"/><path class="doc-copy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <p>The server URL is under <a href="#connection">Your connection</a>.</p>
+  <p class="doc-mut">No browser? Signed in, <a href="/download#mcp">copy a key</a>.</p>
+  <p>Then ask for something in plain words, such as "summarise my unread email", and the client calls <code>superbot</code> with your words.</p>
+  <p>Related: <a href="#clients">Your AI clients</a></p>
+</section>
+
+<section class="doc-block" id="mcp-servers">
+  <h3>Your MCP servers</h3>
+  <p class="doc-lede">superbot installs and checks the MCP servers your agents use.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Ask for the capability in plain words, for example "add a Linear tool". The agent searches MCP registries and offers the best match.</li>
+    <li>Approve the install when the agent asks.</li>
+    <li>On the desktop, open <strong>Settings &gt; Tools &amp; MCP</strong> to see every server and whether it works. <strong>Add a tool</strong> adds one by hand, by <strong>HTTP URL</strong> or <strong>Command</strong>.</li>
+  </ol>
+  <p>A row that needs you has an action such as <strong>Sign in</strong> or <strong>Approve change</strong>. If an installed server later changes a tool, its tools stay held back until you press <strong>Approve change</strong>.</p>
+  <p>On the phone, open Settings, then <strong>Connections</strong>, and find <strong>Tools &amp; MCP</strong>.</p>
+  <p>From a terminal, <code>superbot mcp list</code> shows each server's state and tool count, and <code>superbot mcp remove &lt;id&gt;</code> removes one.</p>
+  <p>Related: <a href="#tool">MCP server and its tool</a></p>
+</section>
+
+</div>
+
+        <section class="doc-block" id="builtin-tools">
+  <h3>Built-in tools</h3>
+  <p class="doc-lede">Every agent starts with the same tools, so one ask can research a topic and hand back a finished file.</p>
+  <ul class="doc-list">
+    <li><strong>Web</strong> search and page reading, with a browser for pages that need JavaScript and web archives for pages that are gone.</li>
+    <li><strong>Research</strong> searches scholarly papers and code repositories, and writes a cited report.</li>
+    <li><strong>Files</strong> builds a spreadsheet with live formulas, a document, a deck or a PDF.</li>
+    <li><strong>Media</strong> makes images, video and audio on your own accounts.</li>
+    <li><strong>Browser and screen</strong> works sites you are signed into and, when you allow it, any app on your screen.</li>
+  </ul>
+  <p>Related: <a href="#computer">Your browser and your screen</a>, <a href="#media">Media on your own accounts</a></p>
+</section>
+
+<section class="doc-block" id="sessions">
+  <h3>Browser sessions and logins</h3>
+  <p class="doc-lede">Your agent works the sites you are signed into, using sessions the Helper reads from your own browsers.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Sign in to the site in your browser.</li>
+    <li>Ask your agent to use the site. The Helper reads your browsers only after you allow it. On a Mac it reads Chrome, Brave, Edge, Arc, Vivaldi, Firefox and Safari.</li>
+    <li>To import one site yourself, run <code>superbot cookies &lt;domain&gt;</code>. Add <code class="sb-nowrap">--dry-run</code> to write nothing or <code class="sb-nowrap">--yes</code> to skip the prompt.</li>
+  </ol>
+  <p>Saved logins import from your browsers and from 1Password, Bitwarden, LastPass and KeePass. To switch a read off, open <strong>Settings &gt; Privacy</strong> and use <strong>Browser sign-ins</strong> or <strong>Passwords and SSH keys</strong> under <strong>What Superbot can read on this computer</strong> (<strong>this Mac</strong> on a Mac).</p>
+</section>
+
+<section class="doc-block" id="computer">
+  <h3>Your browser and your screen</h3>
+  <p class="doc-lede">Your agent browses websites for you, for example to order food, and with your permission works any app on your screen.</p>
+  <p>On the desktop, the chip in the <strong>Browser</strong> pane's address bar picks where agent pages open: <strong>Cloud</strong>, or <strong>This Mac</strong> (<strong>This computer</strong> on Windows). <strong>My IP</strong> sends the cloud browser's traffic out through your computer's connection, so sites see your own address.</p>
+  <p>Computer use works on macOS only and has three settings. <strong>Off</strong> never touches your screen, <strong>Ask</strong> asks before each action, and <strong>Always</strong> acts without asking. It starts at Off.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press the computer use toggle in the composer to move through <strong>Off</strong>, <strong>Ask</strong> and <strong>Always</strong>.</li>
+    <li>The first time, <strong>Turn on computer use</strong> asks for <strong>Accessibility</strong> to click and type and <strong>Screen Recording</strong> to take screenshots.</li>
+  </ol>
+  <p>When it is Off and a task needs your screen, the agent asks <strong>Turn on computer use: &lt;reason&gt;</strong>. Choose <strong>Allow in this chat</strong>, <strong>Always allow</strong> or <strong>Not now</strong>.</p>
+  <p>Related: <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="remote">
+  <h3>Live view and remote control</h3>
+  <p class="doc-lede">From another device, you watch the screen of the device that did your task and take its controls.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>From one device, ask another to do something, for example from your phone to your computer. The reply shows a tile with <strong>Watch live</strong>.</li>
+    <li>Press <strong>Watch live</strong>. The other device opens as live video.</li>
+    <li>Choose <strong>Observe</strong> to watch or <strong>Control</strong> to click and type. <strong>End</strong> closes the viewer.</li>
+  </ol>
+  <p>The viewed computer shows a banner naming the device, with <strong>Stop Sharing</strong>. To change what it allows, open <strong>Settings &gt; Privacy</strong> and find the <strong>Live view</strong> group:</p>
+  <ul class="doc-list">
+    <li><strong>Let your other devices view and control this computer</strong> turns Live view on or off. It is on by default.</li>
+    <li><strong>Require approval on this computer</strong> asks on this computer before another device can view or control it. It is off by default.</li>
+  </ul>
+  <p>A device you have not allowed opens view only. Press <strong>Allow</strong> on the viewed computer, then reconnect to take control. A device added to your account in the last 24 hours starts this way.</p>
+</section>
+
+<section class="doc-block" id="media">
+  <h3>Media on your own accounts</h3>
+  <p class="doc-lede">An agent makes images, video and audio when you describe them, and runs them on your own accounts before superbot's.</p>
+  <ul class="doc-list">
+    <li><strong>Images</strong> use your ChatGPT plan or your OpenAI, Gemini or Grok key. A ChatGPT Free plan cannot make images, so superbot tries your key next.</li>
+    <li><strong>Video</strong> uses your OpenRouter key, or your own Google key (Veo) or xAI key (Grok Imagine).</li>
+    <li><strong>Audio</strong> uses your OpenAI or Gemini key.</li>
+  </ul>
+  <p>Connect accounts in <strong>Settings &gt; Subscriptions &amp; keys</strong>. On the phone, open <strong>Settings &gt; Connections</strong>.</p>
+</section>
+
+<section class="doc-block" id="voice">
+  <h3 id="calls">Calls and texts from your phone</h3>
+  <p class="doc-lede">Your agent calls and texts people from your own iPhone number, and a text to superbot's own number gets its answer back as a text.</p>
+  <p>This needs a Mac with the Helper running, an iPhone paired to it, and Messages signed in to your Apple Account on the Mac.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Settings &gt; Devices &amp; phone</strong>. Under <strong>Phone line</strong>, the chip reads <strong>Calls and texts from your iPhone</strong> when setup is done.</li>
+    <li>Finish the setup it lists: <strong>Allow Messages</strong>, then <strong>Open Full Disk Access</strong>. For calls, also choose <strong>Superbot Call Mic</strong> as the microphone in Phone.</li>
+    <li>Ask: "call the dentist and ask for the first free slot".</li>
+  </ol>
+  <p>Every call and text asks you first. If Phone.app needs it, you tap <strong>Call</strong> once on your Mac. The same number is called at most once in 24 hours. <strong>Open calls…</strong> under <strong>Phone line</strong> lists what your agent made.</p>
+  <p>To text superbot, text its number: the desktop <strong>SMS</strong> pane shows <strong>Text &lt;number&gt; to link a phone</strong>. On the phone, open <strong>Settings &gt; Devices &amp; phone &gt; Text Superbot</strong>.</p>
+  <p>Related: <a href="sms.html">Text Superbot</a>, <a href="#api-endpoints">Endpoints</a></p>
+</section>
+
+<section class="doc-block" id="voice-chat">
+  <h3>Voice chat and dictation</h3>
+  <p class="doc-lede">Talk to an agent and hear it answer, or dictate a message instead of typing it.</p>
+  <h4>Voice chat</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>On the desktop, press <strong>Voice</strong> in the composer, or choose <strong>Start voice chat</strong> in the File menu (<code class="sb-nowrap">⌘⇧O</code> on a Mac, <code class="sb-nowrap">Ctrl+Shift+O</code> on Windows). On the phone, press <strong>Voice</strong> in the composer.</li>
+    <li>Talk. The control shows what is happening, from <strong>Listening</strong> to <strong>Speaking</strong>.</li>
+    <li>Press <strong>End voice</strong> to finish.</li>
+  </ol>
+  <p>To use your own voice, open <strong>Settings &gt; Voice</strong>, press <strong>Record my voice</strong> under <strong>Your voice</strong>, read for up to 60 seconds, tick <strong>My voice, or I have permission</strong>, then choose <strong>My voice</strong>. The sample goes to ElevenLabs and the voice is AI-generated.</p>
+  <h4 id="dictation">Dictation</h4>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press the microphone in the composer (<strong>Click to speak</strong>) and talk. It reads <strong>Listening. Click to stop.</strong></li>
+    <li>The text lands in the message box, ready to edit.</li>
+    <li>To choose where speech becomes text, open <strong>Settings &gt; Voice</strong> and set <strong>Dictation engine</strong>. <strong>On this Mac</strong> (<strong>On this computer</strong> on Windows) keeps the audio on it, and <strong>Superbot cloud</strong> sends it to the speech provider.</li>
+  </ol>
+</section>
+
+<section class="doc-block" id="quick-ask">
+  <h3 id="quick-ask-heading">Quick Ask</h3>
+  <p class="doc-lede">On the desktop, one shortcut opens a small panel from any app that answers about the window you were using.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press <code class="sb-nowrap">Alt+Space</code> (<code class="sb-nowrap">⌥Space</code> on a Mac) from any app, or choose <strong>Quick Ask</strong> in the File menu.</li>
+    <li>Type your question under <strong>Ask anything</strong>. A chip shows the app and window you came from.</li>
+    <li>Press <strong>Expand to full chat</strong> to carry on in the full app. Escape hides the panel and keeps your draft.</li>
+  </ol>
+  <p>Quick Ask attaches a screenshot only when you press <strong>Screen snapshot</strong>. To change the shortcut, open <strong>Settings &gt; Shortcuts</strong> and press <strong>Record</strong> in the <strong>Quick Ask</strong> group. <strong>Restore default</strong> goes back.</p>
+</section>
+
+<section class="doc-block" id="build">
+  <h3>Build, edit and preview</h3>
+  <p class="doc-lede">On the desktop, you run a live copy of what your agent builds and change its files without leaving the app.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Press <strong>Preview</strong> in the project header, beside <strong>Publish</strong>. The app runs the project on your computer and opens it in the side pane. <strong>Stop</strong> ends it.</li>
+    <li>Open a project file to edit it. <strong>Save</strong> writes it, <strong>Format</strong> formats it, and <strong>Diff</strong> and <strong>File</strong> switch the view.</li>
+    <li>For a page or document the agent made in a chat, press <strong>Open in pane</strong>. In the pane, <strong>Edit</strong> changes it in place and <strong>Done</strong> finishes. <strong>View code</strong> shows the source and <strong>Download</strong> saves it.</li>
+  </ol>
+  <p>Related: <a href="#publish">Publish your app</a>, <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="publish">
+  <h3>Publish your app</h3>
+  <p class="doc-lede">Your app goes online at a free <code>&lt;name&gt;.superbot.sh</code> address on your own Cloudflare account.</p>
+  <p>This needs a free Cloudflare account. The first time, <strong>Connect Cloudflare</strong> opens a dialog: press <strong>Continue to Cloudflare</strong>, sign in, then pick <strong>Use this account</strong>.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open a project and press <strong>Publish</strong> in its header.</li>
+    <li>Pick a name. Under <strong>Who can open it?</strong> choose <strong>Anyone</strong> or <strong>Only people I invite</strong>.</li>
+    <li>Press <strong>Put it online</strong>. Publish checks the app and tests it on your computer first. Later publishes read <strong>Update live app</strong>.</li>
+  </ol>
+  <p>Once it is live, the <strong>Live</strong> tab on the project manages it. <strong>Versions</strong> keeps every publish and <strong>Roll back</strong> returns to an older one. <strong>Domains</strong> renames the address or adds your own. <strong>Keys</strong> stores the secrets your app reads. <strong>Remove app</strong>, under <strong>Take it offline</strong>, deletes the app and its data for good.</p>
+  <p>Type <code>/publish</code> in a chat to have your agent publish the project.</p>
+  <p>Related: <a href="#build">Build, edit and preview</a>, <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="cloud">
+  <h3>Cloud runs from your phone</h3>
+  <p class="doc-lede">Your phone sends a task to a cloud copy of your project, and the files it changes sync back to your computer.</p>
+  <p>This needs <strong>Sync projects across devices</strong> on in <strong>Settings &gt; Privacy</strong>, under <strong>Advanced</strong>, and sync on for the project. Without it the phone says <strong>Turn on sync to work in the cloud.</strong></p>
+  <ol class="doc-steps" data-mark="check">
+    <li>On the phone, open a chat in the project and press <strong>Run in cloud</strong> in the thread header.</li>
+    <li>The next time the Helper syncs, the changed files land in your local folder.</li>
+  </ol>
+  <p>On the desktop, press <strong>Build in cloud</strong> on the plan card. It stays off until the project is linked to a repo, with the reason <strong>Link a repo to this project first</strong>.</p>
+  <p>In a repo-linked project, if you edited a file the cloud also changed, yours stays and the cloud's version lands beside it as <code>notes.sync-conflict-20261004-101500-cloud.md</code>.</p>
+  <p>Related: <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="phone">
+  <h3>Phone extras</h3>
+  <p class="doc-lede">On iPhone, you start a chat from the home screen or the Action Button, and the Lock Screen shows a running agent.</p>
+  <ul class="doc-list">
+    <li><strong>Home-screen shortcuts</strong>: press and hold the superbot icon for <strong>New chat</strong>, <strong>Ask by voice</strong> and <strong>Voice chat</strong>.</li>
+    <li><strong>Action Button</strong>: in the iOS Settings app, open <strong>Action Button</strong>, choose <strong>Shortcut</strong>, then pick <strong>New chat</strong> or <strong>Start voice chat</strong> from superbot.</li>
+    <li><strong>Lock Screen and Dynamic Island</strong>: show <strong>Superbot is working</strong> while an agent runs and <strong>Waiting for you</strong> when it needs you.</li>
+    <li><strong>Notifications</strong>: in Settings, on <strong>Your agent</strong>, under <strong>General</strong>, switch <strong>Push when Superbot finishes</strong> and <strong>Push when Superbot needs you</strong>. Both are on by default.</li>
+    <li><strong>Offline reading</strong>: chats stay readable on the phone without a connection.</li>
+  </ul>
+  <p>Related: <a href="#voice-chat">Voice chat and dictation</a>, <a href="download.html">Download superbot</a></p>
+</section>
+
+<section class="doc-block" id="omni">
+  <h3>The omni engine</h3>
+  <p class="doc-lede">omni is superbot's own agent loop: it sends your turn to the model, runs the tools it asks for and repeats until done.</p>
+  <p>It drives any model behind the OpenAI or Anthropic API with the same tools, including the models on your custom endpoints. To compare two models, pick each in the model picker and send the same task.</p>
+  <p>Related: <a href="#external-apis">Custom endpoints</a>, <a href="#api-models">Models</a></p>
+</section>
+
+<section class="doc-block" id="organizations">
+  <h3 id="teams">Teams and policy</h3>
+  <p class="doc-lede">A team shares MCP servers, rules and skills across its members and applies one signed policy to every member's devices.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Account &gt; Teams</strong> and press <strong>Create team</strong>.</li>
+    <li>Under <strong>Members</strong>, enter an email, pick a role below your own and press <strong>Invite</strong>.</li>
+    <li>Owners and admins see the <strong>Policy and coverage</strong> card. It reads a count such as <strong>3 of 5 reported</strong> once a policy is published, and marks a member whose devices have not reported as <strong>not reported</strong>.</li>
+  </ol>
+  <p>An owner or admin publishes the signed policy through the org API. Until then the card reads <strong>No policy published yet.</strong></p>
+  <p>Related: <a href="enterprise.html">Teams and enterprise</a></p>
+</section>
+
+<section class="doc-block" id="usage">
+  <h3>Usage and spend</h3>
+  <p class="doc-lede">See what your agents used and what it cost, for the last 7 days by default.</p>
+  <p>Open <strong>Account &gt; Usage</strong> to read it, and pick a longer range there. To cap a caller key, set <strong>Daily limit</strong> or <strong>Monthly limit</strong> in credits when you mint it under <strong>Account &gt; API</strong>. A key that reaches a limit is refused until the window resets.</p>
+  <p>Related: <a href="#api-auth">Keys and authentication</a>, <a href="#api-endpoints">Endpoints</a></p>
+</section>
+
+<section class="doc-block" id="external-apis">
+  <h3>Custom endpoints</h3>
+  <p class="doc-lede">Add any OpenAI- or Anthropic-compatible endpoint to the model picker and dial it with your own superbot key beside the house models.</p>
+  <ol class="doc-steps" data-mark="check">
+    <li>Open <strong>Settings &gt; Subscriptions &amp; keys</strong> and find the <strong>Custom endpoints</strong> group (formerly <strong>External APIs</strong>).</li>
+    <li>Press <strong>Add endpoint</strong> (<strong>Add an endpoint</strong> on an empty list).</li>
+    <li>Under <strong>Where it is saved</strong>, pick <strong>Hosted endpoint</strong> so every device on your account can dial it, or <strong>This Mac</strong> (<strong>This computer</strong> on Windows) to keep it on this computer.</li>
+    <li>On the hosted path, enter a <strong>Label</strong>, the <strong>Base URL</strong> and the <strong>API key</strong>.</li>
+    <li>Set <strong>Dialect</strong> to <strong>Auto</strong>, <strong>OpenAI</strong> or <strong>Anthropic</strong>, then press <strong>Add endpoint</strong>.</li>
+  </ol>
+  <p>Models load when the endpoint answers <code>/models</code>, and <strong>Refresh models</strong> reloads them. <strong>Scan for keys</strong>, under <strong>Found on this Mac</strong> (<strong>Found on this computer</strong> on Windows), finds API keys already on this computer and offers each one as an endpoint. On the phone, open <strong>Settings &gt; Connections</strong> and choose <strong>Custom endpoints</strong>.</p>
+  <p>Related: <a href="#api-models">Models</a>, <a href="#api-auth">Keys and authentication</a></p>
+</section>
+
+      </section>
+
+      <section class="doc-group" id="api" data-group="api">
+        <h2>API</h2>
+        <p class="doc-lede">Call the same agents the app uses over HTTP, with a caller key you mint and can revoke.</p>
+        <section class="doc-block" id="api-auth">
+  <h3>Keys and authentication</h3>
+  <p>A caller key starts with <code>sbc_</code> and belongs to your account.</p>
+  <h4>Mint a key</h4>
+  <ol class="doc-steps">
+    <li>Open <strong>Account &gt; API</strong>, find <strong>Keys</strong> and select <strong>New key</strong>.</li>
+    <li>Enter a <strong>Name</strong> of up to 64 characters.</li>
+    <li>Set the fields you need.</li>
+    <li>Select <strong>Create key</strong>.</li>
+    <li>Copy the key. The page shows it in full only once.</li>
+  </ol>
+  <p>To revoke a key, select <strong>Revoke</strong> on its row under <strong>Keys</strong>. It stops working immediately.</p>
+  <h4>Key settings</h4>
+  <table class="doc-table">
+    <thead><tr><th>Field</th><th>Choice</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3"><strong>Access</strong></td><td><strong>Models</strong> (default)</td><td>calls models; reads usage and the credit balance</td></tr>
+      <tr><td><strong>Read-only query</strong></td><td>reads your account; calls no model</td></tr>
+      <tr><td><strong>Full access</strong></td><td>holds every scope listed under <strong>Scopes</strong></td></tr>
+      <tr><td rowspan="3"><strong>Spend from</strong></td><td><strong>Your providers</strong></td><td>uses your own vendor accounts; spends no credits</td></tr>
+      <tr><td><strong>Credits</strong></td><td>spends your credit balance</td></tr>
+      <tr><td><strong>Auto</strong> (default)</td><td>uses your providers first, then credits</td></tr>
+      <tr><td><strong>Daily limit</strong></td><td>credits</td><td>caps the key's spend over any 24 hours; empty means no cap</td></tr>
+      <tr><td><strong>Monthly limit</strong></td><td>credits</td><td>caps the key's spend in a calendar month (UTC); empty means no cap</td></tr>
+      <tr><td rowspan="2"><strong>More options</strong> &gt; <strong>Mode</strong></td><td><strong>Single model call</strong> (default)</td><td>calls the model id you send</td></tr>
+      <tr><td><strong>Full agent turn</strong></td><td>runs the full superbot agent</td></tr>
+      <tr><td><strong>More options</strong> &gt; <strong>Allowed models</strong></td><td>comma-separated ids</td><td><code>*</code> matches any run of characters and <code>?</code> one character; empty means all</td></tr>
+      <tr><td><strong>More options</strong> &gt; <strong>Incognito</strong></td><td>checkbox</td><td>keeps the key's turns out of your history</td></tr>
+      <tr><td><strong>Scopes</strong></td><td>one checkbox per scope</td><td>ticking any box replaces <strong>Access</strong>; a write scope includes its read</td></tr>
+    </tbody>
+  </table>
+  <h4>Send a key</h4>
+  <p>The key goes in the <code>Authorization: Bearer</code> header. <code>x-api-key</code> carries the same key for clients that expect it.</p>
+  <pre class="doc-code" data-lang="bash" tabindex="0" role="region" aria-label="bash example 1"><code><span style="color:var(--shiki-token-function)">curl</span><span style="color:var(--shiki-token-string)"> https://superbot.gg/v1/models</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -H</span><span style="color:var(--shiki-token-string)"> "Authorization: Bearer sbc_…"</span></code></pre>
+  <p>Related: <a href="clients.html">Set up your clients</a>, <a href="/account">Account</a></p>
+</section>
+
+<section class="doc-block" id="api-models">
+  <h3>Models</h3>
+  <p><code>GET /v1/models</code> lists every model id the account can call, whether or not the key's <strong>Allowed models</strong> names it.</p>
+  <h4>House models</h4>
+  <p><code>superbot</code>: Your Superbot agent. Context window: 1M. <code>superbot-omni</code>: Superbot agent, run on your computer. Context window: 1M. <code>superbot-fast</code>: Quick and cheap, for small jobs. Context window: 500k.</p>
+  <table class="doc-table doc-prices"><caption class="sb-visually-hidden">house model rates</caption><thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Cache read</th><th>Cache write</th></tr></thead><tbody><tr><td><code>superbot</code></td><td>200</td><td>800</td><td>5</td><td>200</td></tr><tr><td><code>superbot-fast</code><br/><span class="doc-mut">free in beta</span></td><td>100</td><td>400</td><td>3</td><td>100</td></tr></tbody></table><p class="doc-mut">Credits per 1M tokens; one credit is $0.001.</p>
+  <h4>Other models</h4>
+  <p>Vendor model ids run on your own accounts and keys, or on credits. An endpoint added with <strong>Add endpoint</strong> under <strong>Providers</strong> on <strong>Account &gt; API</strong> appears as <code>custom/&lt;endpoint&gt;/&lt;model&gt;</code>, for example <code>custom/example/llama-3.3-70b</code>.</p>
+  <p>Related: <a href="#external-apis">Custom endpoints</a>, <a href="#credits">Credits</a>, <a href="api.html">The API page</a></p>
+</section>
+
+<section class="doc-block" id="api-endpoints">
+  <h3>Endpoints</h3>
+  <p class="doc-lede">Each route links to its reference on <a href="developers.html">/developers</a>.</p>
+  <p>A scope names what the key must hold. <code>any key</code> takes any live key, and <code>no key</code> answers without one.</p>
+  <div class="doc-routes-head" id="api-endpoints-gateway"><h4>Call models</h4><a href="/developers/gateway">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Call models routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/gateway/createChatCompletion"><code>/v1/chat/completions</code></a></td><td class="doc-route-role">Create a chat completion<span class="doc-mut doc-route-dialect">OpenAI Chat Completions</span></td><td class="doc-route-scope"><code>gateway:invoke</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/gateway/createResponse"><code>/v1/responses</code></a></td><td class="doc-route-role">Create a response<span class="doc-mut doc-route-dialect">OpenAI Responses</span></td><td class="doc-route-scope"><code>gateway:invoke</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/gateway/createMessage"><code>/v1/messages</code></a></td><td class="doc-route-role">Create a message<span class="doc-mut doc-route-dialect">Anthropic Messages</span></td><td class="doc-route-scope"><code>gateway:invoke</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/gateway/countMessageTokens"><code>/v1/messages/count_tokens</code></a></td><td class="doc-route-role">Estimate input tokens<span class="doc-mut doc-route-dialect">Anthropic, nothing billed</span></td><td class="doc-route-scope"><code>any key</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/gateway/listModels"><code>/v1/models</code></a></td><td class="doc-route-role">List models<span class="doc-mut doc-route-dialect">OpenAI and Anthropic</span></td><td class="doc-route-scope"><code>any key</code></td></tr></tbody></table>
+  <div class="doc-routes-head" id="api-endpoints-keys"><h4>Manage keys</h4><a href="/developers/keys">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Manage keys routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/keys/listKeys"><code>/v1/keys</code></a></td><td class="doc-route-role">List caller keys</td><td class="doc-route-scope"><code>keys:read</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/keys/createKey"><code>/v1/keys</code></a></td><td class="doc-route-role">Create a caller key</td><td class="doc-route-scope"><code>keys:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/keys/getCurrentKey"><code>/v1/keys/whoami</code></a></td><td class="doc-route-role">Get the calling key</td><td class="doc-route-scope"><code>any key</code></td></tr><tr><td class="doc-route-verb" data-verb="patch">PATCH</td><td class="doc-route-path"><a href="/developers/keys/updateKey"><code>/v1/keys/{id}</code></a></td><td class="doc-route-role">Update a caller key</td><td class="doc-route-scope"><code>keys:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/keys/revokeKey"><code>/v1/keys/{id}</code></a></td><td class="doc-route-role">Revoke a caller key</td><td class="doc-route-scope"><code>keys:write</code></td></tr></tbody></table>
+  <div class="doc-routes-head" id="api-endpoints-usage"><h4>Usage and spend</h4><a href="/developers/usage">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Usage and spend routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/getUsage"><code>/v1/usage</code></a></td><td class="doc-route-role">Get usage over a window</td><td class="doc-route-scope"><code>usage:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/listUsageRequests"><code>/v1/usage/requests</code></a></td><td class="doc-route-role">List usage per request</td><td class="doc-route-scope"><code>usage:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/getUsageDaily"><code>/v1/usage/daily</code></a></td><td class="doc-route-role">Get usage per UTC day</td><td class="doc-route-scope"><code>usage:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/getUsageBreakdown"><code>/v1/usage/breakdown</code></a></td><td class="doc-route-role">Get usage bucketed and grouped</td><td class="doc-route-scope"><code>usage:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/exportUsage"><code>/v1/usage/export</code></a></td><td class="doc-route-role">Export usage rows</td><td class="doc-route-scope"><code>usage:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/getCredits"><code>/v1/credits</code></a></td><td class="doc-route-role">Get the credit balance</td><td class="doc-route-scope"><code>billing:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/getSpend"><code>/v1/spend</code></a></td><td class="doc-route-role">Get AI spend across apps</td><td class="doc-route-scope"><code>usage:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/usage/getUsageReport"><code>/v1/usage/report</code></a></td><td class="doc-route-role">Get a usage report</td><td class="doc-route-scope"><code>usage:read</code></td></tr></tbody></table>
+  <div class="doc-routes-head" id="api-endpoints-endpoints"><h4>Custom endpoints</h4><a href="/developers/endpoints">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Custom endpoints routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/endpoints/listUpstreams"><code>/v1/upstreams</code></a></td><td class="doc-route-role">List custom endpoints</td><td class="doc-route-scope"><code>endpoints:read</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/endpoints/createUpstream"><code>/v1/upstreams</code></a></td><td class="doc-route-role">Add a custom endpoint</td><td class="doc-route-scope"><code>endpoints:write</code></td></tr><tr><td class="doc-route-verb" data-verb="patch">PATCH</td><td class="doc-route-path"><a href="/developers/endpoints/updateUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="doc-route-role">Update a custom endpoint</td><td class="doc-route-scope"><code>endpoints:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/endpoints/deleteUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="doc-route-role">Remove a custom endpoint</td><td class="doc-route-scope"><code>endpoints:write</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/endpoints/probeUpstream"><code>/v1/upstreams/{slug}/probe</code></a></td><td class="doc-route-role">Re-probe a custom endpoint</td><td class="doc-route-scope"><code>endpoints:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/endpoints/listAliases"><code>/v1/aliases</code></a></td><td class="doc-route-role">List @mention aliases</td><td class="doc-route-scope"><code>endpoints:read</code></td></tr><tr><td class="doc-route-verb" data-verb="put">PUT</td><td class="doc-route-path"><a href="/developers/endpoints/setAlias"><code>/v1/aliases/{token}</code></a></td><td class="doc-route-role">Set an @mention alias</td><td class="doc-route-scope"><code>endpoints:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/endpoints/deleteAlias"><code>/v1/aliases/{token}</code></a></td><td class="doc-route-role">Delete an @mention alias</td><td class="doc-route-scope"><code>endpoints:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/endpoints/getServiceDocument"><code>/docs/services/{service_id}.json</code></a></td><td class="doc-route-role">Get a service’s OpenAPI document</td><td class="doc-route-scope"><code>no key</code></td></tr></tbody></table>
+  <div class="doc-routes-head" id="api-endpoints-teams"><h4>Teams</h4><a href="/developers/teams">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Teams routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/teams/exportTeamAuditLog"><code>/v1/org/{id}/audit</code></a></td><td class="doc-route-role">Export a team’s audit log</td><td class="doc-route-scope"><code>teams:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/teams/listTeams"><code>/v1/teams</code></a></td><td class="doc-route-role">List teams</td><td class="doc-route-scope"><code>teams:read</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/teams/createTeam"><code>/v1/teams</code></a></td><td class="doc-route-role">Create a team</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/teams/getTeam"><code>/v1/teams/{team_id}</code></a></td><td class="doc-route-role">Get a team</td><td class="doc-route-scope"><code>teams:read</code></td></tr><tr><td class="doc-route-verb" data-verb="patch">PATCH</td><td class="doc-route-path"><a href="/developers/teams/updateTeam"><code>/v1/teams/{team_id}</code></a></td><td class="doc-route-role">Update a team</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/teams/deleteTeam"><code>/v1/teams/{team_id}</code></a></td><td class="doc-route-role">Delete a team</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/teams/listTeamMembers"><code>/v1/teams/{team_id}/members</code></a></td><td class="doc-route-role">List team members</td><td class="doc-route-scope"><code>teams:read</code></td></tr><tr><td class="doc-route-verb" data-verb="patch">PATCH</td><td class="doc-route-path"><a href="/developers/teams/updateTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="doc-route-role">Change a member’s role</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/teams/removeTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="doc-route-role">Remove a team member</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/teams/listTeamInvites"><code>/v1/teams/{team_id}/invites</code></a></td><td class="doc-route-role">List pending team invites</td><td class="doc-route-scope"><code>teams:read</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/teams/createTeamInvite"><code>/v1/teams/{team_id}/invites</code></a></td><td class="doc-route-role">Invite someone to a team</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/teams/revokeTeamInvite"><code>/v1/teams/{team_id}/invites/{code}</code></a></td><td class="doc-route-role">Revoke a team invite</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/teams/resendTeamInvite"><code>/v1/teams/{team_id}/invites/{code}/resend</code></a></td><td class="doc-route-role">Resend a team invite</td><td class="doc-route-scope"><code>teams:write</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/teams/acceptTeamInvite"><code>/v1/team_invites/{code}/accept</code></a></td><td class="doc-route-role">Accept a team invite</td><td class="doc-route-scope"><code>teams:write</code></td></tr></tbody></table>
+  <div class="doc-routes-head" id="api-endpoints-devices"><h4>Devices</h4><a href="/developers/devices">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Devices routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/devices/createAgentJob"><code>/v1/devices/{device_id}/jobs</code></a></td><td class="doc-route-role">Run a job on an agent computer</td><td class="doc-route-scope"><code>devices:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/devices/getAgentJob"><code>/v1/devices/{device_id}/jobs/{job_id}</code></a></td><td class="doc-route-role">Read an agent computer job</td><td class="doc-route-scope"><code>devices:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/devices/streamAgentTerminal"><code>/v1/devices/{device_id}/terminals/{terminal_id}/stream</code></a></td><td class="doc-route-role">Stream an agent computer terminal</td><td class="doc-route-scope"><code>devices:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/devices/previewAgentPair"><code>/v1/pair/{user_code}</code></a></td><td class="doc-route-role">Preview an agent computer code</td><td class="doc-route-scope"><code>any key</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/devices/approveAgentPair"><code>/v1/pair/{user_code}/approve</code></a></td><td class="doc-route-role">Approve an agent computer code</td><td class="doc-route-scope"><code>any key</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/devices/listDevices"><code>/v1/devices</code></a></td><td class="doc-route-role">List devices</td><td class="doc-route-scope"><code>devices:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/devices/getDevice"><code>/v1/devices/{device_id}</code></a></td><td class="doc-route-role">Get a device</td><td class="doc-route-scope"><code>devices:read</code></td></tr><tr><td class="doc-route-verb" data-verb="patch">PATCH</td><td class="doc-route-path"><a href="/developers/devices/updateDevice"><code>/v1/devices/{device_id}</code></a></td><td class="doc-route-role">Rename a device</td><td class="doc-route-scope"><code>devices:write</code></td></tr><tr><td class="doc-route-verb" data-verb="delete">DELETE</td><td class="doc-route-path"><a href="/developers/devices/deleteDevice"><code>/v1/devices/{device_id}</code></a></td><td class="doc-route-role">Unlink a device</td><td class="doc-route-scope"><code>devices:write</code></td></tr></tbody></table>
+  <div class="doc-routes-head" id="api-endpoints-runs"><h4>Runs</h4><a href="/developers/runs">Full reference</a></div><table class="doc-table doc-routes"><caption class="sb-visually-hidden">Runs routes</caption><thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Scope</th></tr></thead><tbody><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/runs/listRuns"><code>/v1/runs</code></a></td><td class="doc-route-role">List cloud runs</td><td class="doc-route-scope"><code>runs:read</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/runs/createRun"><code>/v1/runs</code></a></td><td class="doc-route-role">Start a cloud run</td><td class="doc-route-scope"><code>runs:write</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/runs/listRunProjects"><code>/v1/runs/projects</code></a></td><td class="doc-route-role">Find the project for a repository</td><td class="doc-route-scope"><code>runs:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/runs/getRun"><code>/v1/runs/{run_id}</code></a></td><td class="doc-route-role">Get a cloud run</td><td class="doc-route-scope"><code>runs:read</code></td></tr><tr><td class="doc-route-verb" data-verb="get">GET</td><td class="doc-route-path"><a href="/developers/runs/listRunEvents"><code>/v1/runs/{run_id}/events</code></a></td><td class="doc-route-role">Follow a run’s events</td><td class="doc-route-scope"><code>runs:read</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/runs/cancelRun"><code>/v1/runs/{run_id}/cancel</code></a></td><td class="doc-route-role">Cancel a cloud run</td><td class="doc-route-scope"><code>runs:write</code></td></tr><tr><td class="doc-route-verb" data-verb="post">POST</td><td class="doc-route-path"><a href="/developers/runs/sendRunMessage"><code>/v1/runs/{run_id}/messages</code></a></td><td class="doc-route-role">Steer a running cloud run</td><td class="doc-route-scope"><code>runs:write</code></td></tr></tbody></table>
+  <p>Related: <a href="developers.html">Full API reference</a>, <a href="docs/openapi.json">OpenAPI 3.1 spec</a></p>
+  <h4>Send a message</h4>
+  <p><code>POST /v1/chat/completions</code> takes an OpenAI Chat Completions body, <code>POST /v1/responses</code> an OpenAI Responses body and <code>POST /v1/messages</code> an Anthropic Messages body. Each answers in its own shape.</p>
+  <pre class="doc-code" data-lang="bash" tabindex="0" role="region" aria-label="bash example 2"><code><span style="color:var(--shiki-token-keyword)">export</span><span style="color:var(--shiki-foreground)"> OPENAI_BASE_URL</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)">https://superbot.gg/v1</span>
+<span style="color:var(--shiki-token-keyword)">export</span><span style="color:var(--shiki-foreground)"> OPENAI_API_KEY</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)">sbc_…</span>
+<span style="color:var(--shiki-token-keyword)">export</span><span style="color:var(--shiki-foreground)"> ANTHROPIC_BASE_URL</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)">https://superbot.gg/v1</span>
+<span style="color:var(--shiki-token-keyword)">export</span><span style="color:var(--shiki-foreground)"> ANTHROPIC_API_KEY</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)">sbc_…</span></code></pre>
+  <div class="doc-tabs" data-tabs>
+    <div class="doc-tablist" role="tablist" aria-label="Send a message">
+      <button type="button" role="tab" aria-selected="true">curl</button>
+      <button type="button" role="tab" aria-selected="false">OpenAI SDK</button>
+      <button type="button" role="tab" aria-selected="false">Anthropic SDK</button>
+    </div>
+    <div class="doc-tabpanel" role="tabpanel">
+      <pre class="doc-code" data-lang="bash" tabindex="0" role="region" aria-label="bash example 3"><code><span style="color:var(--shiki-token-function)">curl</span><span style="color:var(--shiki-token-string)"> https://superbot.gg/v1/chat/completions</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -H</span><span style="color:var(--shiki-token-string)"> "Authorization: Bearer sbc_…"</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -H</span><span style="color:var(--shiki-token-string)"> "Content-Type: application/json"</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -d</span><span style="color:var(--shiki-token-string)"> '{</span>
+<span style="color:var(--shiki-token-string)">    "model": "superbot",</span>
+<span style="color:var(--shiki-token-string)">    "messages": [{"role": "user", "content": "Summarize this thread."}]</span>
+<span style="color:var(--shiki-token-string)">  }'</span></code></pre>
+    </div>
+    <div class="doc-tabpanel" role="tabpanel" hidden>
+      <pre class="doc-code" data-lang="python" tabindex="0" role="region" aria-label="python example 4"><code><span style="color:var(--shiki-token-keyword)">from</span><span style="color:var(--shiki-foreground)"> openai </span><span style="color:var(--shiki-token-keyword)">import</span><span style="color:var(--shiki-foreground)"> OpenAI</span>
+
+<span style="color:var(--shiki-foreground)">client </span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-function)"> OpenAI</span><span style="color:var(--shiki-token-punctuation)">(</span><span style="color:var(--shiki-foreground)">base_url</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-string)">"https://superbot.gg/v1"</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> api_key</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-string)">"sbc_…"</span><span style="color:var(--shiki-token-punctuation)">)</span>
+<span style="color:var(--shiki-foreground)">response </span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)"> client</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">chat</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">completions</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-token-function)">create</span><span style="color:var(--shiki-token-punctuation)">(</span>
+<span style="color:var(--shiki-foreground)">    model</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-string)">"superbot"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-foreground)">    messages</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)">[</span><span style="color:var(--shiki-token-punctuation)">{</span><span style="color:var(--shiki-token-string)">"role"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "user"</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-string)"> "content"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "Summarize this thread."</span><span style="color:var(--shiki-token-punctuation)">}</span><span style="color:var(--shiki-foreground)">]</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-punctuation)">)</span>
+<span style="color:var(--shiki-token-function)">print</span><span style="color:var(--shiki-token-punctuation)">(</span><span style="color:var(--shiki-foreground)">response</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">choices</span><span style="color:var(--shiki-token-punctuation)">[</span><span style="color:var(--shiki-token-number)">0</span><span style="color:var(--shiki-token-punctuation)">]</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">message</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">content</span><span style="color:var(--shiki-token-punctuation)">)</span></code></pre>
+    </div>
+    <div class="doc-tabpanel" role="tabpanel" hidden>
+      <pre class="doc-code" data-lang="python" tabindex="0" role="region" aria-label="python example 5"><code><span style="color:var(--shiki-token-keyword)">from</span><span style="color:var(--shiki-foreground)"> anthropic </span><span style="color:var(--shiki-token-keyword)">import</span><span style="color:var(--shiki-foreground)"> Anthropic</span>
+
+<span style="color:var(--shiki-foreground)">client </span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-function)"> Anthropic</span><span style="color:var(--shiki-token-punctuation)">(</span><span style="color:var(--shiki-foreground)">base_url</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-string)">"https://superbot.gg/v1"</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-foreground)"> api_key</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-string)">"sbc_…"</span><span style="color:var(--shiki-token-punctuation)">)</span>
+<span style="color:var(--shiki-foreground)">message </span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)"> client</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">messages</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-token-function)">create</span><span style="color:var(--shiki-token-punctuation)">(</span>
+<span style="color:var(--shiki-foreground)">    model</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-string)">"superbot"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-foreground)">    max_tokens</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-token-number)">1024</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-foreground)">    messages</span><span style="color:var(--shiki-token-operator)">=</span><span style="color:var(--shiki-foreground)">[</span><span style="color:var(--shiki-token-punctuation)">{</span><span style="color:var(--shiki-token-string)">"role"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "user"</span><span style="color:var(--shiki-token-punctuation)">,</span><span style="color:var(--shiki-token-string)"> "content"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "Summarize this thread."</span><span style="color:var(--shiki-token-punctuation)">}</span><span style="color:var(--shiki-foreground)">]</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-punctuation)">)</span>
+<span style="color:var(--shiki-token-function)">print</span><span style="color:var(--shiki-token-punctuation)">(</span><span style="color:var(--shiki-foreground)">message</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">content</span><span style="color:var(--shiki-token-punctuation)">[</span><span style="color:var(--shiki-token-number)">0</span><span style="color:var(--shiki-token-punctuation)">]</span><span style="color:var(--shiki-token-operator)">.</span><span style="color:var(--shiki-foreground)">text</span><span style="color:var(--shiki-token-punctuation)">)</span></code></pre>
+    </div>
+  </div>
+  <h4>Streaming</h4>
+  <p>Send <code>"stream": true</code> to any of the three routes to receive server-sent events in that route's own shape.</p>
+  <pre class="doc-code" data-lang="bash" tabindex="0" role="region" aria-label="bash example 6"><code><span style="color:var(--shiki-token-function)">curl</span><span style="color:var(--shiki-token-constant)"> -N</span><span style="color:var(--shiki-token-string)"> https://superbot.gg/v1/chat/completions</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -H</span><span style="color:var(--shiki-token-string)"> "Authorization: Bearer sbc_…"</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -H</span><span style="color:var(--shiki-token-string)"> "Content-Type: application/json"</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -d</span><span style="color:var(--shiki-token-string)"> '{"model": "superbot", "stream": true, "messages": [{"role": "user", "content": "Summarize this thread."}]}'</span></code></pre>
+  <ul class="doc-list">
+    <li>Chat Completions sends <code>data: {"choices":[…]}</code> frames and ends with <code>data: [DONE]</code>.</li>
+    <li>Responses sends typed events such as <code>response.output_text.delta</code> and ends with <code>response.completed</code>.</li>
+    <li>Messages sends Anthropic's events, from <code>message_start</code> to <code>message_stop</code>.</li>
+  </ul>
+  <p>Usage and billing settle when the stream ends, and an aborted stream is billed for what it produced.</p>
+</section>
+
+<section class="doc-block" id="api-limits">
+  <h3>Limits and errors</h3>
+  <h4>Rate limit</h4>
+  <p>A caller key gets 1200 requests a minute. Over that, the route answers <code>429</code> before any model is called, with this body:</p>
+  <pre class="doc-code" data-lang="json" tabindex="0" role="region" aria-label="json example 7"><code><span style="color:var(--shiki-token-punctuation)">{</span>
+<span style="color:var(--shiki-token-variable)">  "error"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-punctuation)"> {</span>
+<span style="color:var(--shiki-token-variable)">    "type"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "rate_limit_error"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">    "message"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "per-key rate limit reached"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">    "retry_after"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 12</span>
+<span style="color:var(--shiki-token-punctuation)">  }</span>
+<span style="color:var(--shiki-token-punctuation)">}</span></code></pre>
+  <p><code>retry_after</code> is in seconds. The <code>x-ratelimit-remaining</code> and <code>x-ratelimit-reset</code> headers carry the same window.</p>
+  <h4>Errors</h4>
+  <p>Model routes answer in the caller's dialect, and the Field column says where each code sits. A top-level <code>error</code> is a string code. Account routes answer in that form too, with <code>message</code>, <code>doc_url</code> and <code>request_id</code> beside it.</p>
+  <table class="doc-table">
+    <thead><tr><th>Status</th><th>Field</th><th>Code</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>400</td><td><code>error.type</code></td><td><code>invalid_request_error</code></td><td>the body is not valid JSON</td></tr>
+      <tr><td>400</td><td><code>error.code</code></td><td><code>unknown_model</code></td><td>no vendor claims the model id</td></tr>
+      <tr><td>401</td><td><code>error.type</code></td><td><code>authentication_error</code></td><td>the key is missing, malformed or unknown</td></tr>
+      <tr><td>402</td><td><code>error</code></td><td><code>insufficient_balance</code></td><td>the credit balance cannot cover the call; the 402 body follows</td></tr>
+      <tr><td>402</td><td><code>error.code</code></td><td><code>daily_limit</code>, <code>monthly_limit</code></td><td>the key reached its own limit</td></tr>
+      <tr><td>403</td><td><code>error.type</code></td><td><code>permission_error</code></td><td>the key is revoked</td></tr>
+      <tr><td>403</td><td><code>error</code></td><td><code>insufficient_scope</code></td><td>the key lacks the route's scope; <code>x-superbot-required-scopes</code> names it</td></tr>
+      <tr><td>403</td><td><code>error.code</code></td><td><code>model_not_allowed</code></td><td>the key's <strong>Allowed models</strong> does not include that model</td></tr>
+      <tr><td>403</td><td><code>error.code</code></td><td><code>agent_not_granted</code></td><td>the <code>n-agent</code> header names an agent with no live grant</td></tr>
+      <tr><td>403</td><td><code>error.code</code></td><td><code>no_vendor_credential</code></td><td>no usable sign-in or key for that model's vendor; <code>byo_url</code> links to where to add one</td></tr>
+      <tr><td>429</td><td><code>error.type</code></td><td><code>rate_limit_error</code></td><td>over the per-key rate</td></tr>
+      <tr><td>5xx</td><td><code>error.type</code></td><td><code>api_error</code></td><td>the model provider or the agent turn failed</td></tr>
+    </tbody>
+  </table>
+  <p>A provider's own error passes through with the provider's status, marked by the <code>x-superbot-error-origin: vendor</code> header.</p>
+  <!-- docs-402:start -->
+  <h4>The 402 body</h4>
+  <p>An empty balance answers HTTP 402 with this body, built from what billing reports for the account:</p>
+  <pre class="doc-code" data-lang="json" tabindex="0" role="region" aria-label="json example 8"><code><span style="color:var(--shiki-token-punctuation)">{</span>
+<span style="color:var(--shiki-token-variable)">  "error"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "insufficient_balance"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "topup_url"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "https://billing.ezo.dev/topup?t=…"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "balance_tokens"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 0</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "plan"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "sub"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "reason"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "allowance_exhausted"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "renews_at"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "2026-10-01T00:00:00.000Z"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "plan_name"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "superbot plus"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "plan_price_usd_month"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 20</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "plan_allowance_tokens"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 22000</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "overage_rate_usd_per_1k"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 1</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "auto_recharge"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-punctuation)"> {</span>
+<span style="color:var(--shiki-token-variable)">    "enabled"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-constant)"> true</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">    "threshold_mtok"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 0</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">    "amount_usd"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 20</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">    "monthly_cap_usd"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 100</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">    "spent_this_month_usd"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 20</span>
+<span style="color:var(--shiki-token-punctuation)">  },</span>
+<span style="color:var(--shiki-token-variable)">  "subscribe_url"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "https://billing.ezo.dev/topup?t=…"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "manage_url"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "https://superbot.gg/account/billing"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "byo_url"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "https://superbot.gg/account/api#keys"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "recharge_url"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "https://billing.ezo.dev/topup?t=…"</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "grants"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-punctuation)"> [],</span>
+<span style="color:var(--shiki-token-variable)">  "ledger_balance_tokens"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-number)"> 0</span><span style="color:var(--shiki-token-punctuation)">,</span>
+<span style="color:var(--shiki-token-variable)">  "plan_tier"</span><span style="color:var(--shiki-token-punctuation)">:</span><span style="color:var(--shiki-token-string)"> "plus"</span>
+<span style="color:var(--shiki-token-punctuation)">}</span></code></pre>
+  <p><code>topup_url</code>, <code>subscribe_url</code> and <code>recharge_url</code> are signed links to the billing page, made for the account and expiring; when billing cannot make one, the field falls back to the account page. A caller key's body omits <code>topup_url</code>, <code>subscribe_url</code> and <code>recharge_url</code>. Amounts are credits, including the fields named <code>_tokens</code>. <code>overage_rate_usd_per_1k</code> appears when a rate is configured.</p>
+  <table class="doc-table">
+    <thead><tr><th><code>reason</code></th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>no_plan</code></td><td>the account is on the free plan and its balance is spent</td></tr>
+      <tr><td><code>topup_only</code></td><td>the account holds packs only and its balance is spent</td></tr>
+      <tr><td><code>allowance_exhausted</code></td><td>the plan's monthly allowance is spent</td></tr>
+      <tr><td><code>auto_recharge_off</code></td><td>the balance is spent and auto-recharge is off</td></tr>
+      <tr><td><code>recharge_cap_reached</code></td><td>the next auto-recharge would pass its monthly limit</td></tr>
+      <tr><td><code>recharge_failed</code></td><td>the auto-recharge charge failed</td></tr>
+      <tr><td><code>weekly_cap_reached</code></td><td>the plan's weekly pace limit is reached; it clears on its own</td></tr>
+    </tbody>
+  </table>
+  <!-- docs-402:end -->
+  <p>Related: <a href="#credits">Credits</a>, <a href="#plans">Plans and packs</a></p>
+</section>
+
+      </section>
+
+      <section class="doc-group" id="account" data-group="account">
+        <h2>Account and billing</h2>
+        <!-- billing-figures:start -->
+<section class="doc-block" id="credits">
+  <h3>Credits</h3>
+  <p>superbot bills in credits: one credit is $0.001. Each token type is priced as a multiple of the input rate (on superbot: output counted at 4x, cache reads at 0.025x and cache writes at 1x). A vendor model called on credits, with none of your own accounts attached, costs its own list price. Models on your own subscriptions and keys spend no credits. Credits are held and charged by the billing service behind superbot: the balance, the plan and every charge are its records, and the app and the API show what it reports.</p>
+  <div class="doc-callout">superbot-fast is free in beta.<br/>fair use: 500 credits per 5 hours, 2,000 credits per 7 days.<br/>past that, it bills at its rate on the rate card.</div>
+  <h4>Read your balance</h4>
+  <p><code>GET /v1/credits</code> returns the balance as <code>balance_credits</code>, with the pots in <code>credits</code>, and the plan and auto-recharge state. It needs the <code>billing:read</code> scope, which <strong>Models</strong> and <strong>Read-only query</strong> keys hold. <code>low</code> is true at a balance of zero or less, and <code>reason</code> appears with it. The route reads the balance from billing and holds none itself, so while billing cannot be reached it answers 503 <code>billing_unavailable</code> with a retry hint.</p>
+  <pre class="doc-code" data-lang="bash" tabindex="0" role="region" aria-label="bash example 9"><code><span style="color:var(--shiki-token-function)">curl</span><span style="color:var(--shiki-token-string)"> https://superbot.gg/v1/credits</span><span style="color:var(--shiki-token-string)"> \</span>
+<span style="color:var(--shiki-token-constant)">  -H</span><span style="color:var(--shiki-token-string)"> "Authorization: Bearer sbc_…"</span></code></pre>
+  <p>Related: <a href="#api-models">Models</a>, <a href="api.html">The API page</a></p>
+</section>
+
+<section class="doc-block" id="plans">
+  <h3>Plans and packs</h3>
+  <ul class="doc-list">
+    <li>Free costs nothing and carries a monthly 10,000-credit beta pot, refilled on the 1st (UTC).</li>
+    <li>Superbot Plus is $20 a month with 22,000 credits included, or $200 a year.</li>
+    <li>Pro is $100 a month with 120,000 credits included, or $960 a year.</li>
+    <li>Max is $200 a month with 270,000 credits included, or $1,920 a year.</li>
+    <li>Superbot Teams is $25 a seat a month billed yearly at $300 a seat a year, with 30,000 credits a seat a month pooled across the team.</li>
+  </ul>
+  <p>Every paid plan also sells a yearly term at the yearly price, and a yearly plan still releases its allowance monthly. every new account runs Superbot Pro free for 14 days with no card, and gets a one-time 20,000-credit grant that expires when the trial ends; an account gets one trial ever. Overage on any plan bills at the pack rate, and the frontier models are open on every tier including Free.</p>
+  <p>The run limits on a plan are limits on hosted cloud runs: a run on your own machine is never limited. A plan's scheduled runs are its routine runs, on a cron or an interval.</p>
+  <p>The plan allowance is paced: a week uses at most a quarter of it.</p>
+  <p>Packs are one-time purchases: 5,000 credits for $5, 20,000 for $20, 100,000 for $100. A pack's credits never expire, and a plan does not reprice the $5/$20/$100 packs. Plans and packs are bought on the billing page. <strong>Account &gt; Billing</strong> opens it, and so does the <code>topup_url</code> or <code>subscribe_url</code> of a 402 or of <code>GET /v1/credits</code>: each is a signed link made for your account, and it expires.</p>
+  <h4>Auto-recharge</h4>
+  <p>Auto-recharge charges your card for more credits when the balance falls to a level you set. It is off until you turn it on, then $20 per charge, capped at $100 per calendar month. Declined charges count toward the monthly limit. <code>GET /v1/credits</code> reports its state as <code>auto_recharge</code>, and the <code>reason</code> of a 402 says when it is off, capped or failed.</p>
+  <p>Related: <a href="#usage">Usage and spend</a></p>
+</section>
+<!-- billing-figures:end -->
+
+<section class="doc-block" id="billing-tiers">
+  <h3>Which credits are spent first</h3>
+  <p>From first to last: beta pot, plan allowance, promo credits, auto-recharge credits, packs. The beta pot expires on the 1st (UTC) and the plan allowance at renewal; neither rolls over. Packs and auto-recharge credits never expire.</p>
+</section>
+
+      </section>
+
+      <section class="doc-group" id="help" data-group="help">
+        <h2>Help</h2>
+        <section class="doc-block" id="troubleshooting">
+  <h3>Troubleshooting</h3>
+  <p class="doc-lede">Fixes for what goes wrong after you install the Helper.</p>
+  <p>If superbot seems down, check <a href="https://status.superbot.gg">status.superbot.gg</a>.</p>
+  <h4>My AI client does not show superbot</h4>
+  <p>Restart the client. If it still lists no superbot tool, run <code>superbot clients wire</code> to route every client the Helper finds.</p>
+  <h4>superbot: command not found</h4>
+  <p>Paste the activation line the installer printed at the end. In sh, bash and zsh it is <code>export PATH="$HOME/.superbot/bin:$PATH"</code>.</p>
+  <h4>The installer did not sign me in</h4>
+  <p>Run <code>superbot signin</code>. It opens your browser to sign in.</p>
+  <h4>My caller key is refused</h4>
+  <p>A 401 means the key is missing or malformed, and a 403 means it was revoked or does not allow that model. Mint a new key in <a href="#api-auth">Keys and authentication</a>.</p>
+  <p>Related: <a href="#clients">Your AI clients</a></p>
+</section>
+
+<section class="doc-block" id="remote-ssh">
+  <h3>Remote SSH projects</h3>
+  <p class="doc-lede">A project on an SSH host keeps its files, terminal and agents on that box.</p>
+  <p>Click + and pick <strong>Connect to an SSH host</strong>, then choose a host or type <code>user@host</code>.</p>
+  <h4>The chat shows a connection error</h4>
+  <ul class="doc-list">
+    <li><strong>SSH sign-in failed</strong>: enter the password, or add your key to ssh-agent or pick one for this host.</li>
+    <li><strong>Host key rejected</strong>: the box's host key differs from the one you accepted. Check the fingerprint, then retry.</li>
+    <li><strong>Box unreachable</strong>: the box did not answer. Check that it is on and reachable from your computer.</li>
+    <li><strong>Box platform unsupported</strong>: the box needs Linux with glibc 2.28 or newer, or macOS, on x64 or arm64. Alpine and other musl Linux do not work.</li>
+    <li><strong>Box has no internet</strong>: the box cannot download the Helper. <strong>Send from this computer</strong> (Send from this Mac on a Mac) copies it over.</li>
+    <li><strong>Port forwarding blocked</strong>: allow <code>AllowTcpForwarding</code> in <code>sshd_config</code> on the box, then retry.</li>
+    <li><strong>Login shell prints output</strong>: stop the shell profile or login banner from printing on connect, then retry.</li>
+    <li><strong>Engine missing on box</strong>: <strong>Reinstall Helper</strong> puts the engine back.</li>
+    <li><strong>OpenSSH too old</strong>: update OpenSSH on your computer to 8.7 or newer, then retry.</li>
+  </ul>
+</section>
+
+<section class="doc-block" id="uninstall">
+  <h3>Uninstall</h3>
+  <p class="doc-lede"><code>superbot uninstall</code> deletes superbot and everything it left on your machine: the Helper, the desktop app and its data, superbot's own entries in your AI clients, and your local accounts, chats and keys.</p>
+  <p>You sign in again after a reinstall. <code>superbot uninstall <span class="sb-nowrap">--dry-run</span></code> lists what would go and deletes nothing. A script with no terminal has to pass <code class="sb-nowrap">--yes</code>.</p>
+  <p>To remove one client by hand, run <code>claude mcp remove superbot</code> for Claude Code, or delete the <code>superbot</code> entry from that client's config file. Nothing else was installed.</p>
+  <p>Related: <a href="#clients">Your AI clients</a></p>
+</section>
+
+<section class="doc-block" id="more">
+  <h3>More ways to read this</h3>
+  <p class="doc-lede">This documentation in the formats other tools read.</p>
+  <ul class="doc-list">
+    <li><a href="llms.txt">llms.txt</a>: every install recipe and the MCP endpoint, as an agent reads it.</li>
+    <li><a href="/docs.md">docs.md</a>: this page as markdown.</li>
+    <li><a href="clients.html">clients</a>: the per-client setup pages.</li>
+    <li><a href="api.html">api</a>: the full rate card and the request formats.</li>
+    <li><a href="enterprise.html">enterprise</a>: teams, policy and coverage.</li>
+    <li><a href="request-harness.html">request a client</a>: one that is not on the list yet.</li>
+  </ul>
+</section>
+
+      </section>
+    </main>
+
+    <aside class="doc-toc-aside" aria-label="Page outline">
+      <nav class="doc-toc" aria-labelledby="toc-head">
+        <p class="doc-nav-label" id="toc-head">On this page</p>
+        <ul id="toc-list"></ul>
+      </nav>
+    </aside>
+  </div>
+
+  <footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
+
+  <div class="sb-visually-hidden" id="copylive" aria-live="polite"></div>
+
+<script type="module" src="site/assets/docs.js?v=10"></script>
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body>
+</html>

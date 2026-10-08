@@ -1,290 +1,930 @@
----
-title: "manage your team's AI agents"
-canonical_url: "https://superbot.gg/enterprise"
-last_updated: "2026-10-08"
-summary: "superbot for teams: one app that holds every member's AI agents to one signed policy, with a budget on each agent and a receipt per install."
----
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<title>manage your team's AI agents – superbot.gg</title>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<meta name="keywords" content="superbot for teams, AI agent policy, agent budgets, team AI management, Claude Code, Codex"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="site/assets/features.css?v=33"/>
+<style>
+  /* /enterprise, design pass 2026-09-23: the /features pass's bar (c793be25)
+     carried over, page-local. features.css is linked for .feature, .text,
+     .body, figure, figcaption and .fig-terminal; its .features-page block is
+     scoped away from this page, so every rule below is this page's own.
+     Look plan:
+     - Palette: --bg #000000 canvas, --card #0d0d0d figure, --raised #181818
+       chip, --line #262626 hairline, --fg #ececec ink, --muted #9a9a9a
+       second ink. site.css tokens; no new hex here.
+     - Accent: --accent #4d8aff, one hue, on links, focus rings and the one
+       filled control (Download). The drawings are monochrome.
+     - Type: --font-ui for headings and sentences, --font-mono for artifacts
+       (the bundle, transcripts, ids, token counts). Two families.
+     - Radius: --r-control (8px) on chips, nodes and inner blocks,
+       --r-surface (16px) on figures. --r-pill only on the coverage bar and
+       the CTA; 50% only on member and pulse dots.
+     - The one bold thing: the hero architecture drawing, where superbot
+       sits. Two lanes in: members' machines (holding the team key) through
+       the Helper relay, and agents, apps and scripts through the API with
+       one key. One box, superbot on its storm-ramp mark, the team's router:
+       a relay on each device plus the edge, routing, securing and
+       optimizing under a policy you sign and the edge checks. Out to
+       Claude, OpenAI, xAI and your own endpoints on each member's own plan
+       or key. Hairline curves with a pulse on a 6s loop, a chip on each
+       lane, key rows under it. It stacks under 1040px of figure.
+     Motion is always on (.cosmos/rules/motion-always-on.mdc): no
+     reduced-motion guard. Hover lives on links and the filled control only.
+     Lengths are site.css tokens; the literals are the 1px hairline and the
+     lucide icon boxes (12/14/16/20px). */
 
-> Markdown twin of https://superbot.gg/enterprise (the HTML page is canonical).
-> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+  .ent-page { --e-gap: var(--sp-12); }
+  .ent-page b { color: var(--fg); font-weight: 550; }
+  .ent-page .ic { display: block; flex: none; width: 16px; height: 16px; }
+  .ent-page .mk { display: block; flex: none; width: 14px; height: 14px; color: var(--fg); }
 
-[superbot.gg](https://superbot.gg/) / for teams
+  /* -- hero: the title and the two ways out, then the architecture drawing
+     at full width. Lede budget: 40 characters a sentence (358px at 16px on
+     a 390 phone, ~8.3px a glyph). -- */
+  .ent-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-10); }
+  .ent-page h1 { font-size: var(--fs-h1); line-height: 1.05; letter-spacing: var(--tracking-tight); }
+  .ent-hero .lede { margin: var(--sp-4) 0 0; text-wrap: pretty; }
+  .ent-cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); margin-top: var(--sp-8); }
+  .ent-cta .sb-btn { border-radius: var(--r-pill); }
+  /* from 860px the title takes the left half and the lede and the two ways
+     out sit on its baseline at the right, so the drawing's key rows clear
+     the fold at 1440x900 */
+  @container (min-width: 860px) {
+    .ent-hero-text { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-10); align-items: end; }
+    .ent-hero-text h1 { grid-row: 1 / 3; }
+    .ent-hero .lede { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-lg); }
+    .ent-hero-text .ent-cta { margin-top: var(--sp-6); }
+  }
+  .ent-plain { display: inline-flex; align-items: center; min-height: var(--target); color: var(--fg); text-decoration: none; font-size: var(--fs-sm); line-height: var(--lh-sm); border-bottom: 1px solid var(--line); }
+  .ent-plain:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  /* the architecture drawing, in the #teams pool's language: round member
+     tiles with the key badge, hairline curves pulsing into one bordered box
+     (superbot, on the storm-ramp mark), curves out to the vendors, a chip on
+     each wire naming what crosses it, then the legend and the key rows.
+     Under 1040px of figure the three columns stack (team row, wires, box,
+     wires, vendor row) so no label shrinks below --fs-xs. The wires are
+     0-100 viewBoxes stretched over their cell (non-scaling strokes), so the
+     node centres are fixed fractions: 1/6, 1/2, 5/6 for three nodes, 1/8 to
+     7/8 for four. */
+  .ent-arch { margin: 0; container-type: inline-size; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); overflow: hidden; }
+  .ent-arch-map { display: grid; grid-template-columns: minmax(0, 1fr); padding: var(--sp-6) var(--sp-4); border-bottom: 1px solid var(--line); }
+  .ent-arch-col { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ent-arch-n { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .ent-arch-t { position: relative; display: grid; place-items: center; flex: none; width: var(--sp-10); height: var(--sp-10); background: var(--raised); border: 1px solid var(--line); border-radius: 50%; color: var(--fg); }
+  .ent-arch-t > svg { width: 20px; height: 20px; }
+  .ent-arch-t.is-agent { background: var(--bg); border-style: dashed; border-color: var(--muted); }
+  .ent-arch-long { display: none; }
+  .ent-arch-w { position: relative; height: var(--sp-16); }
+  .ent-arch-w > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .ent-arch-w path { fill: none; stroke: var(--muted); stroke-opacity: 0.5; vector-effect: non-scaling-stroke; }
+  /* the pulse: one short dash per stroke over half of a 6s loop, resting the
+     other half; in from the team, then out to the vendors as it lands.
+     Under non-scaling-stroke every engine measures dashes in screen px (a
+     pathLength only rescales them, it does not normalise them), so the foot
+     script writes each stroke's on-screen length into --len and the dash
+     travels that far, past the end (Chromium and WebKit dash a curve up to
+     ~15% short of it, so there it leaves a little early, never stuck); the
+     huge gap keeps it to one dash per line. Measured 2026-09-24, 3 engines. */
+  .ent-arch-w .p path { stroke: var(--fg); stroke-opacity: 1; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 6px 100000px; stroke-dashoffset: 6px; animation: ent-pulse 6s linear infinite; /* deliberate */ }
+  .ent-arch-w .p path:nth-child(2) { animation-delay: 0.75s; }
+  .ent-arch-w .p path:nth-child(3) { animation-delay: 1.5s; }
+  .ent-arch-w .p path:nth-child(4) { animation-delay: 2.25s; }
+  .ent-arch-w.is-out .p path { animation-delay: 3s; }
+  .ent-arch-w.is-out .p path:nth-child(2) { animation-delay: 4s; }
+  .ent-arch-w.is-out .p path:nth-child(3) { animation-delay: 5s; }
+  .ent-arch-w.is-out .p path:nth-child(4) { animation-delay: 0s; }
+  @keyframes ent-pulse { 0% { stroke-dashoffset: 6px; } 50%, 100% { stroke-dashoffset: calc(-1px * var(--len, 400) - 2px); } }
+  .ent-arch-w .is-h { display: none; }
+  .ent-arch-short { display: inline; }
+  /* the lane chips: stacked, each sits over its own pair of wires (a
+     quarter in from each side); side by side, each rides its lane's curve
+     where it crosses the middle of the wire cell */
+  .ent-arch-chip.is-relay { left: 25%; }
+  .ent-arch-chip.is-api { left: 75%; }
+  .ent-arch-chip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: var(--sp-1) var(--sp-2); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .ent-arch-core { justify-self: center; align-self: center; display: grid; gap: var(--sp-2); min-width: calc(var(--sp-16) * 3); padding: var(--sp-3) var(--sp-4); background: var(--bg); border: 1px solid var(--muted); border-radius: var(--r-control); }
+  .ent-arch-hd { display: flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 550; }
+  .ent-arch-hd svg { flex: none; width: 20px; height: 20px; }
+  .ent-arch-sub { margin-top: calc(var(--sp-1) * -1); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .ent-arch-core ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); }
+  .ent-arch-core li { display: flex; align-items: center; gap: var(--sp-2); color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+  .ent-arch-core li svg { flex: none; width: 14px; height: 14px; color: var(--muted); }
+  .ent-arch-ft { display: grid; gap: var(--sp-1); padding-top: var(--sp-2); border-top: 1px solid var(--line); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .ent-arch-ft > span { display: flex; align-items: center; gap: var(--sp-2); }
+  .ent-arch-ft svg { flex: none; width: 14px; height: 14px; }
+  /* text links on the page: the one accent, underlined, no arrow */
+  .ent-keys dd a, .ent-page .feature p.body a, .ent-say a, .ent-row p a, .ent-page figcaption a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.15em; }
+  .ent-keys dd a:hover, .ent-page .feature p.body a:hover, .ent-say a:hover, .ent-row p a:hover, .ent-page figcaption a:hover { text-decoration-color: var(--accent); }
+  .ent-org-mark .m0 { fill: var(--storm-0); }
+  .ent-org-mark .m3 { fill: var(--storm-3); }
+  .ent-org-mark .mf { fill: var(--fg); }
+  @container (min-width: 1040px) {
+    .ent-arch-map { grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr) max-content; padding: var(--sp-8) var(--sp-6); }
+    .ent-arch-col { grid-template-columns: max-content; grid-template-rows: repeat(4, var(--sp-12)); }
+    .ent-arch-n { flex-direction: row; gap: var(--sp-3); }
+    .ent-arch-col.is-in .ent-arch-n { flex-direction: row-reverse; }
+    .ent-arch-long { display: inline; }
+    .ent-arch-short { display: none; }
+    .ent-arch-chip.is-relay { left: 50%; top: 31.25%; }
+    .ent-arch-chip.is-api { left: 50%; top: 68.75%; }
+    .ent-arch-w { height: auto; }
+    .ent-arch-w .is-v { display: none; }
+    .ent-arch-w .is-h { display: block; }
+  }
 
-# manage the agents
-you pay for
+  /* -- the evidence band: two sourced numbers between two hairlines, split
+     by a third. Not cards: no fill, no radius. -- */
+  .ent-proof { display: grid; grid-template-columns: minmax(0, 1fr); margin-top: var(--sp-12); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .ent-proof > div { display: grid; align-content: start; gap: var(--sp-1); padding: var(--sp-6) 0; }
+  .ent-proof > div + div { border-top: 1px solid var(--line); }
+  .ent-proof-n { color: var(--fg); font-size: var(--fs-h1); line-height: 1.05; font-weight: 550; letter-spacing: var(--tracking-tight); text-decoration: none; justify-self: start; }
+  a.ent-proof-n:hover { color: var(--accent); }
+  .ent-proof-l { color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .ent-proof-s { margin-top: var(--sp-2); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-proof-s a { color: var(--muted); }
+  .ent-proof-s a:hover { color: var(--fg); }
+  @container (min-width: 640px) {
+    .ent-proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ent-proof > div + div { border-top: 0; border-left: 1px solid var(--line); padding-left: var(--sp-8); }
+  }
 
-agents now pass your best tester.
-**superbot is how you manage them.**
+  /* -- the index: a spine of section chips from 1100px, sticky beside the
+     sections; under that, one wrapping row of labelled chips. The chip for
+     the section in view is marked aria-current by the script at the foot. -- */
+  .ent-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); margin-top: var(--e-gap); }
+  .ent-toc { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .ent-toc-h { color: var(--fg); font-weight: 550; margin-bottom: var(--sp-3); }
+  .ent-toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .ent-toc a { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--target); padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--muted); text-decoration: none; white-space: nowrap; transition: color var(--dur-2) ease, border-color var(--dur-2) ease; }
+  .ent-toc a:hover, .ent-toc a[aria-current="true"] { color: var(--fg); border-color: var(--muted); }
+  .ent-toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ent-toc-ic { display: contents; }
+  @media (min-width: 1100px) {
+    .ent-layout { grid-template-columns: calc(var(--sp-16) * 3) minmax(0, 1fr); gap: var(--sp-8); }
+    .ent-toc { position: sticky; top: calc(var(--nav-h) + var(--sp-6)); align-self: start; }
+    .ent-toc ul { position: relative; display: grid; gap: var(--sp-1); }
+    .ent-toc ul::before { content: ""; position: absolute; left: calc(var(--sp-4) - 0.5px); top: var(--sp-4); bottom: var(--sp-4); width: 1px; background: var(--line); }
+    .ent-toc a { gap: var(--sp-3); padding: 0; border: 0; }
+    .ent-toc-ic { position: relative; display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control); transition: border-color var(--dur-2) ease; }
+    .ent-toc a:hover .ent-toc-ic, .ent-toc a[aria-current="true"] .ent-toc-ic { border-color: var(--fg); }
+  }
 
-[Download](https://superbot.gg/download) [what it costs](https://superbot.gg/enterprise#pricing)
+  /* -- rhythm: one --e-gap above and below every section hairline, 16px
+     from icon chip to heading, 8px from heading to body -- */
+  .ent-body { min-width: 0; }
+  .ent-page .ent-body > .feature, .ent-page .ent-body > .ent-sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); align-items: start; margin-top: var(--e-gap); padding-top: var(--e-gap); border-top: 1px solid var(--line); scroll-margin-top: calc(var(--nav-h) + var(--sp-16)); }
+  .ent-page .ent-body > :first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .ent-page .feature .text { display: grid; align-content: start; }
+  .ent-ic { display: grid; place-items: center; width: var(--sp-10); height: var(--sp-10); margin-bottom: var(--sp-4); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+  .ent-ic .ic { width: 20px; height: 20px; }
+  .ent-page .ent-body h2 { margin: 0 0 var(--sp-2); color: var(--fg); font-size: var(--fs-h2); line-height: var(--lh-xl); font-weight: 550; letter-spacing: var(--tracking-tight); }
+  /* one sentence, one line (one-line-sentences.mdc). Budgets, per
+     sentence, at the narrowest slot each block renders in:
+     - .body, .ent-say: 34 characters. The 5/12 text column at 820px of
+       page container is 328px at --fs-lg (18px, ~9.4px a glyph); on a 390
+       phone the column is 358px at 16px, 43.
+     - .body on a .wide section: 42 (358px at 16px on a 390 phone).
+     - figcaption: 50 (326px at --fs-xs on a 390 phone, ~6.3px a glyph).
+     - .ent-keys dd: 42 (326px at --fs-sm, ~7.3px a glyph, stacked rows).
+     - .ent-gets p: 46; .ent-row p: 42; .ent-proof-l/-s: 44. */
+  .ent-page .feature p.body, .ent-say { margin: 0; color: var(--muted); text-wrap: pretty; }
+  .ent-page .ent-body figure { container-type: inline-size; }
+  .ent-figs { display: grid; gap: var(--sp-6); min-width: 0; }
+  @media (min-width: 1100px) { .ent-page .ent-body > * { scroll-margin-top: calc(var(--nav-h) + var(--sp-6)); } }
+  /* the split: 5/7 from 820px of page container, the lede at --fs-lg and
+     every figure filling its column; under that, text over the figure */
+  @container (min-width: 820px) {
+    .ent-page .ent-body > .feature:not(.wide), .ent-page .ent-body > .ent-sec:not(.wide) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--sp-8); }
+    .ent-page .feature p.body, .ent-say { font-size: var(--fs-lg); line-height: var(--lh-lg); }
+  }
 
-holds the team key
+  /* the illustrative-value tag: a hairline chip, never the accent */
+  .ent-tag { display: flex; width: fit-content; align-items: center; margin: 0 0 var(--sp-1); padding: 0 var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--muted); font-family: var(--font-ui); font-size: var(--fs-xs); line-height: var(--lh-xs); }
 
-route
+  /* -- #policy: the bundle and the chain check under it -- */
+  /* the bundle never wraps: its longest line is 41 characters, inside the
+     52 a 1440 figure holds at 14px mono; a phone scrolls it sideways */
+  .ent-json { margin: 0; padding: var(--sp-4) var(--sp-3); color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: pre; overflow-x: auto; }
+  .ent-json:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  /* syntax colour, one blue family on every code block on the page (the
+     bundle, the receipt, the two refusal logs). The block's own ink is
+     punctuation (--muted); spans carry the rest. On --card #0d0d0d (and
+     --bg #000 under the logs), WCAG ratios: key --accent #4d8aff 5.92:1
+     (6.39 on --bg), string --fg #ececec 16.45:1, number/boolean (45%
+     --accent mixed into --fg, #a4c0f5) 10.58:1, punctuation --muted
+     #9a9a9a 6.91:1. */
+  .ent-page .t-k { color: var(--accent); }
+  .ent-page .t-s { color: var(--fg); }
+  .ent-page .t-n { color: color-mix(in srgb, var(--accent) 45%, var(--fg)); }
+  .ent-chain { display: grid; gap: var(--sp-3); margin: 0; padding: var(--sp-4); border-top: 1px solid var(--line); background: var(--bg); list-style: none; }
+  .ent-chain li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-rev { display: inline-flex; align-items: center; gap: var(--sp-1); padding: var(--sp-1) var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+  .ent-rev.is-fork { border-style: dashed; color: var(--muted); }
+  .ent-link { flex: 0 0 var(--sp-6); height: 1px; background: var(--muted); }
+  .ent-link.is-cut { background: none; border-top: 1px dashed var(--muted); }
+  .ent-code { display: inline-flex; align-items: center; gap: var(--sp-1); color: var(--fg); }
+  .ent-code svg { width: 12px; height: 12px; }
 
-each call goes to [a model you allow](https://superbot.gg/features#endpoints).
+  /* -- #coverage: one compact matrix of what each harness gets (ORG_CAPS,
+     edge/src/org-caps.ts): a column per harness, a hairline row per install
+     mode and per control, the row label in second ink and "no" in second
+     ink too. Cells wrap inside their track, so a 390 phone never scrolls it.
+     The figure's rows lead with the harness's own mark -- */
+  .ent-ledger { margin: var(--sp-6) 0 0; }
+  .ent-caps { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-caps th, .ent-caps td { padding: var(--sp-1) var(--sp-3) var(--sp-1) 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-weight: 400; }
+  .ent-caps tr > :last-child { padding-right: 0; }
+  .ent-caps tbody th { white-space: nowrap; }
+  .ent-caps thead th { padding-bottom: var(--sp-2); vertical-align: bottom; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .ent-caps td { color: var(--fg); }
+  .ent-caps tbody th { color: var(--muted); }
+  .ent-caps thead th { color: var(--fg); font-weight: 550; white-space: nowrap; }
+  .ent-caps thead th span { display: block; color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 400; }
+  .ent-caps td.is-no { color: var(--muted); }
+  .ent-cov-top { display: grid; gap: var(--sp-2); padding: var(--sp-4); border-bottom: 1px solid var(--line); }
+  .ent-cov-line { color: var(--fg); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-cov-bar { height: var(--sp-2); background: var(--line); border-radius: var(--r-pill); overflow: hidden; }
+  .ent-cov-bar span { display: block; height: 100%; width: 50%; background: var(--fg); border-radius: var(--r-pill); }
+  .ent-cov-rows { list-style: none; margin: 0; padding: 0; }
+  .ent-cov-rows li { display: grid; grid-template-columns: minmax(0, 1fr) max-content max-content max-content; align-items: center; gap: var(--sp-4); padding: var(--sp-3) var(--sp-4); color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-cov-rows li + li { border-top: 1px solid var(--line); }
+  .ent-cov-rows .ent-hd { padding-top: var(--sp-2); padding-bottom: var(--sp-2); color: var(--muted); font-family: var(--font-ui); }
+  .ent-cov-h { display: inline-flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+  .ent-cov-tile { display: grid; place-items: center; flex: none; width: var(--sp-8); height: var(--sp-8); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+  .ent-cov-tile .mk { width: 16px; height: 16px; }
+  .ent-att { display: inline-flex; align-items: center; gap: var(--sp-1); }
+  .ent-att svg { width: 14px; height: 14px; }
+  .ent-att.is-no { color: var(--muted); }
+  .ent-lab { display: none; color: var(--muted); }
+  .ent-receipt { margin: 0; padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); overflow-wrap: anywhere; }
+  @container (max-width: 400px) {
+    .ent-cov-rows .ent-hd { display: none; }
+    .ent-cov-rows li { grid-template-columns: max-content max-content minmax(0, 1fr); row-gap: var(--sp-2); column-gap: var(--sp-3); }
+    .ent-cov-rows li > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+    .ent-cov-rows li > :nth-child(4) { grid-column: 3; grid-row: 1; justify-self: end; }
+    .ent-cov-rows li > :nth-child(2) { grid-column: 1; grid-row: 2; }
+    .ent-cov-rows li > :nth-child(3) { grid-column: 2; grid-row: 2; }
+    .ent-lab { display: inline; }
+  }
 
-api
+  /* -- shared node anatomy for the three small drawings (grant lifecycle,
+     the two refusal lanes): a 40px chip over a one-word label, joined by
+     1px wires; a pulse dot runs the first wire on a 6s loop -- */
+  .ent-lane { position: relative; display: flex; align-items: flex-start; padding: var(--sp-8) var(--sp-4) var(--sp-5); border-bottom: 1px solid var(--line); }
+  .ent-node { flex: none; display: grid; justify-items: center; gap: var(--sp-2); width: var(--sp-16); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); text-align: center; }
+  .ent-node-ic { display: grid; place-items: center; width: var(--sp-10); height: var(--sp-10); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); color: var(--fg); }
+  .ent-node-ic svg { width: 20px; height: 20px; }
+  .ent-node.is-gate .ent-node-ic { border-color: var(--fg); }
+  .ent-node.is-dead .ent-node-ic { background: none; border-style: dashed; color: var(--muted); }
+  .ent-wire { position: relative; flex: 1 1 0; min-width: var(--sp-6); height: 1px; margin-top: calc(var(--sp-5) - 0.5px); background: var(--muted); }
+  .ent-wire.is-cut { background: none; border-top: 1px dashed var(--line); height: 0; }
+  .ent-wire-t { position: absolute; left: 50%; bottom: var(--sp-2); transform: translateX(-50%); color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .ent-wire.is-cut .ent-wire-t { color: var(--muted); }
+  .ent-wire.is-run::after { content: ""; position: absolute; top: calc(var(--sp-1) / -2 + 0.5px); left: 0; width: var(--sp-1); height: var(--sp-1); border-radius: 50%; background: var(--fg); animation: ent-run 6s linear infinite; /* deliberate */ }
+  .ent-wire.is-run.is-late::after { animation-delay: 3s; opacity: 0; }
+  @keyframes ent-run { 0% { left: 0; opacity: 1; } 45% { left: calc(100% - var(--sp-1)); opacity: 1; } 50%, 100% { left: calc(100% - var(--sp-1)); opacity: 0; } }
+  .ent-x { position: absolute; left: var(--sp-4); top: 0; display: grid; place-items: center; width: var(--sp-5); height: var(--sp-5); transform: translate(-50%, -50%); background: var(--bg); border: 1px solid var(--fg); border-radius: 50%; color: var(--fg); }
+  .ent-x svg { width: 12px; height: 12px; }
+  /* the grant's loop back from re-mint to mint, a dashed return under the
+     labels */
+  .ent-lane.is-loop { padding-bottom: var(--sp-10); }
+  .ent-lane.is-loop::after { content: ""; position: absolute; left: calc(var(--sp-4) + var(--sp-8)); right: calc(var(--sp-4) + var(--sp-8)); bottom: var(--sp-5); height: var(--sp-3); border: 1px dashed var(--line); border-top: 0; border-radius: 0 0 var(--r-control) var(--r-control); }
+  .ent-life-note { position: absolute; left: 50%; bottom: var(--sp-2); transform: translateX(-50%); padding: 0 var(--sp-2); background: var(--card); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
 
-apps and agents use [one API key](https://superbot.gg/api).
+  /* -- #principals: the grant, label over value -- */
+  .ent-kv { list-style: none; margin: 0; padding: 0; }
+  .ent-kv li { display: grid; gap: var(--sp-1); padding: var(--sp-3) var(--sp-4); }
+  .ent-kv li + li { border-top: 1px solid var(--line); }
+  .ent-kv .k { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-kv .v { color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-sm); line-height: var(--lh-sm); overflow-wrap: anywhere; }
+  .ent-kv .v.is-text { font-family: var(--font-ui); }
+  .ent-stat { display: grid; gap: var(--sp-1); margin-top: var(--sp-6); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+  .ent-stat-n { color: var(--fg); font-size: var(--fs-h1); line-height: 1.05; font-weight: 550; letter-spacing: var(--tracking-tight); }
+  .ent-stat-l { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
 
-secure
+  /* -- #refusals: the transcripts at the page's figure scale -- */
+  .ent-page .fig-terminal pre { font-size: var(--fs-sm); line-height: var(--lh-sm); max-height: none; }
 
-[signed policy](https://superbot.gg/enterprise#policy) stops denied calls.
+  /* -- #teams: members around one pool, lines pulsing into it -- */
+  .ent-pool { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); grid-template-rows: repeat(3, var(--sp-16)); padding: var(--sp-4); border-bottom: 1px solid var(--line); }
+  .ent-pool-lines { position: absolute; top: var(--sp-4); left: var(--sp-4); width: calc(100% - var(--sp-8)); height: calc(100% - var(--sp-8)); overflow: visible; }
+  .ent-pool-lines path { fill: none; stroke: var(--muted); stroke-opacity: 0.5; vector-effect: non-scaling-stroke; }
+  .ent-pool-lines .p path { stroke: var(--fg); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 6px 100000px; stroke-dashoffset: 6px; animation: ent-pulse 6s linear infinite; /* deliberate */ }
+  .ent-pool-lines .p path:nth-child(2) { animation-delay: 1s; }
+  .ent-pool-lines .p path:nth-child(3) { animation-delay: 2s; }
+  .ent-pool-lines .p path:nth-child(4) { animation-delay: 3s; }
+  .ent-pool-lines .p path:nth-child(5) { animation-delay: 4s; }
+  .ent-pool-lines .p path:nth-child(6) { animation-delay: 5s; }
+  .ent-pool-m { position: relative; place-self: center; display: grid; place-items: center; width: var(--sp-10); height: var(--sp-10); background: var(--raised); border: 1px solid var(--line); border-radius: 50%; color: var(--fg); }
+  .ent-pool-m svg { width: 20px; height: 20px; }
+  .ent-pool-m:nth-of-type(1) { grid-area: 1 / 1; }
+  .ent-pool-m:nth-of-type(2) { grid-area: 2 / 1; }
+  .ent-pool-m:nth-of-type(3) { grid-area: 3 / 1; }
+  .ent-pool-m:nth-of-type(4) { grid-area: 1 / 3; }
+  .ent-pool-m:nth-of-type(5) { grid-area: 2 / 3; }
+  .ent-pool-m:nth-of-type(6) { grid-area: 3 / 3; }
+  .ent-pool-k { position: absolute; right: calc(var(--sp-1) * -1); bottom: calc(var(--sp-1) * -1); display: grid; place-items: center; width: var(--sp-5); height: var(--sp-5); background: var(--bg); border: 1px solid var(--fg); border-radius: 50%; }
+  .ent-pool-k svg { width: 12px; height: 12px; }
+  .ent-pool-c { position: relative; grid-area: 1 / 2 / 4 / 3; align-self: center; display: grid; gap: var(--sp-2); margin: 0 var(--sp-3); padding: var(--sp-3); background: var(--bg); border: 1px solid var(--muted); border-radius: var(--r-control); }
+  .ent-pool-t { color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 550; }
+  .ent-pool-c ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); }
+  .ent-pool-c li { display: flex; align-items: center; gap: var(--sp-2); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .ent-pool-c li svg { width: 14px; height: 14px; color: var(--fg); }
+  .ent-pool-key { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-pool-key .ent-pool-k { position: static; flex: none; }
+  .ent-keys { margin: 0; padding: var(--sp-4); display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-3) var(--sp-4); }
+  .ent-keys dt { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-sm); }
+  .ent-keys dd { margin: 0; color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  @container (max-width: 400px) {
+    .ent-keys { grid-template-columns: minmax(0, 1fr); gap: var(--sp-1); }
+    .ent-keys dd + dt { margin-top: var(--sp-2); }
+  }
 
-optimize
+  /* -- #super: the run as a tree, manager over its workers, each leg with
+     its vendor's mark and its full model name -- */
+  .ent-legs { list-style: none; margin: 0; padding: 0 var(--sp-4); }
+  .ent-legs li { display: grid; grid-template-columns: var(--sp-6) var(--sp-8) minmax(0, 1fr) minmax(0, 1fr) max-content; column-gap: var(--sp-3); align-items: center; }
+  .ent-legs li + li { border-top: 1px solid var(--line); }
+  .ent-legs li > :not(.ent-tree) { margin: var(--sp-3) 0; }
+  .ent-legs .ent-hd { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-legs .ent-hd > span:first-child { grid-column: 3; }
+  .ent-tree { position: relative; align-self: stretch; }
+  .ent-tree::before, .ent-tree::after { content: ""; position: absolute; }
+  /* the vertical runs down the lane's middle; the horizontal reaches the mark */
+  .ent-tree::before { left: 50%; width: 1px; background: var(--line); top: 0; bottom: 0; }
+  .ent-tree::after { left: 50%; right: calc(var(--sp-3) * -1); top: 50%; height: 1px; background: var(--line); }
+  li.ent-mgr .ent-tree::before { top: 50%; }
+  li:last-child .ent-tree::before { bottom: 50%; }
+  .ent-leg-mk { display: grid; place-items: center; width: var(--sp-8); height: var(--sp-8); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); }
+  .ent-leg-mk .mk { width: 16px; height: 16px; }
+  .ent-who { display: grid; min-width: 0; }
+  .ent-role { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .ent-model { color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 550; white-space: nowrap; }
+  .ent-acct { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .ent-n { color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-sm); line-height: var(--lh-sm); text-align: right; }
+  @container (max-width: 520px) {
+    .ent-legs li { grid-template-columns: var(--sp-6) var(--sp-8) minmax(0, 1fr) max-content; }
+    .ent-legs .ent-hd { display: none; }
+    .ent-legs .ent-hd + li .ent-tree::before { top: 50%; }
+    .ent-legs li > .ent-who { grid-column: 3; grid-row: 1; margin-bottom: 0; }
+    .ent-legs li > .ent-acct { grid-column: 3 / 5; grid-row: 2; margin-top: 0; font-size: var(--fs-xs); line-height: var(--lh-xs); }
+    .ent-legs li > .ent-n { grid-column: 4; grid-row: 1; }
+    .ent-legs li > .ent-tree, .ent-legs li > .ent-leg-mk { grid-row: 1 / 3; }
+  }
 
-[trims context](https://superbot.gg/features#optimizer) on [superbot's turns](https://superbot.gg/features#omni).
+  /* -- #members: each product line with its own symbol, two columns -- */
+  .ent-gets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); column-gap: var(--sp-8); }
+  .ent-gets li { display: grid; gap: var(--sp-1); align-content: start; padding: var(--sp-4) 0; border-top: 1px solid var(--line); }
+  .ent-gets a { justify-self: start; display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--target); color: var(--fg); font-weight: 550; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.2em; }
+  .ent-gets a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  .ent-gets a .ic { color: var(--muted); }
+  .ent-gets p { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  @container (min-width: 820px) { .ent-gets { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-team key
+  /* -- #harnesses: the wall of marks, the real vendor marks where
+     simple-icons has one, lucide for the rest, all --fg -- */
+  .ent-marks { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-6); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-8) var(--sp-4); }
+  .ent-mark { display: grid; justify-items: center; gap: var(--sp-3); text-align: center; }
+  .ent-mark svg { width: var(--sp-8); height: var(--sp-8); color: var(--fg); }
+  .ent-mark span { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  @container (min-width: 480px) { .ent-marks { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @container (min-width: 640px) { .ent-marks { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
-[sealed on devices](https://superbot.gg/enterprise#teams), not at the edge.
+  /* -- pricing: term and sentence rows beside the heading -- */
+  .ent-rows { list-style: none; margin: 0; padding: 0; }
+  .ent-row { display: grid; gap: var(--sp-1); padding: var(--sp-4) 0; border-top: 1px solid var(--line); }
+  .ent-row:last-child { border-bottom: 1px solid var(--line); }
+  .ent-row h3 { color: var(--fg); font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 550; }
+  .ent-row p { color: var(--muted); }
+  .ent-names { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
+  .ent-names .ent-rev { color: var(--muted); white-space: nowrap; }
+  .ent-sec .ent-cta { margin-top: var(--sp-6); }
 
-[90%](https://os-world.github.io/)
+  .ent-foot { margin-top: var(--e-gap); padding-top: var(--sp-6); border-top: 1px solid var(--line); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .ent-foot a { color: var(--accent); text-decoration: underline; text-underline-offset: 0.15em; }
 
-of real desktop tasks, done by an agent.
+  /* On a coarse pointer the artifacts' 12px lines are running copy: a phone
+     sentence sits at 14px (mobile-web-design.mdc). Scoped to pointer, not
+     width, so a landscape phone is covered too. */
+  @media (pointer: coarse) {
+    .ent-cov-line, .ent-cov-rows li, .ent-kv .k { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+    /* the same floor for the rest of the figures' labels (mobile pass,
+       2026-09-23): the chain's rev chips and status codes, the coverage
+       receipt, the pool key line, the super-mode tree's roles, accounts and
+       header, the example tags and the proof sources. .ent-legs li >
+       .ent-acct restates the @container 520 selector so this later rule
+       outweighs its 12px step. Every host wraps (flex-wrap, overflow-wrap,
+       or a minmax(0,1fr) track), so nothing widens a 320 figure. */
+    .ent-rev, .ent-code,
+    .ent-receipt,
+    .ent-caps, .ent-caps thead th span,
+    .ent-pool-key,
+    .ent-legs .ent-hd,
+    .ent-role,
+    .ent-legs li > .ent-acct,
+    .ent-tag,
+    .ent-proof-s { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+    /* the harness matrix at 14px: headers and row labels wrap so four
+       columns fit a 320 phone */
+    .ent-caps tbody th, .ent-caps thead th { white-space: normal; }
+    .ent-caps th, .ent-caps td { padding-right: var(--sp-2); }
+    /* the first proof number is a link; its h1 line box is 35px tall, so it
+       takes the finger target (--target, 44px on coarse) with its digits
+       centred in it */
+    a.ent-proof-n { display: flex; align-items: center; min-height: var(--target); }
+  }
+</style>
+<meta name="description" content="superbot for teams: one app that holds every member's AI agents to one signed policy, with a budget on each agent and a receipt per install."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="manage your team's AI agents – superbot.gg"/>
+<meta property="og:description" content="superbot for teams: one app that holds every member's AI agents to one signed policy, with a budget on each agent and a receipt per install."/>
+<meta property="og:url" content="https://superbot.gg/enterprise"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og/enterprise.png?v=2"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="superbot.gg for teams card: one policy and one budget over every agent."/>
+<meta property="og:image:type" content="image/png"/>
+<link rel="canonical" href="enterprise.html"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="manage your team's AI agents – superbot.gg"/>
+<meta name="twitter:description" content="superbot for teams: one app that holds every member's AI agents to one signed policy, with a budget on each agent and a receipt per install."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og/enterprise.png?v=2"/>
+<meta name="twitter:image:alt" content="superbot.gg for teams card: one policy and one budget over every agent."/>
+<link rel="alternate" type="text/markdown" href="/enterprise.md">
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
 
-people new to the apps manage 72%.
-[OSWorld-Verified, 2026](https://os-world.github.io/)
+  <!-- one hidden sprite: the vendor marks (OpenAI, Claude, xAI copied from
+       /features; Cursor and Zed from simple-icons, CC0) and the lucide
+       symbols this page uses (ISC, retrieved 2026-09-23 from
+       api.iconify.design). Sized and coloured by the page through
+       currentColor. -->
+  <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="sb-ic-openai" viewBox="0 0 2406 2406" fill="currentColor"><path id="sb-oai-petal" d="M1107.3 299.1c-197.999 0-373.9 127.3-435.2 315.3L650 743.5v427.9c0 21.4 11 40.4 29.4 51.4l344.5 198.515V833.3h.1v-27.9L1372.7 604c33.715-19.52 70.44-32.857 108.47-39.828L1447.6 450.3C1361 353.5 1237.1 298.5 1107.3 299.1zm0 117.5-.6.6c79.699 0 156.3 27.5 217.6 78.4-2.5 1.2-7.4 4.3-11 6.1L952.8 709.3c-18.4 10.4-29.4 30-29.4 51.4V1248l-155.1-89.4V755.8c-.1-187.099 151.601-338.9 339-339.2z"/><use href="#sb-oai-petal" transform="rotate(60 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(120 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(180 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(240 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(300 1203 1203)"/></symbol><symbol id="sb-ic-claude" viewBox="0 0 24 24" fill="currentColor"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></symbol><symbol id="sb-ic-xai" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5 L10.5 4.5 L15.5 12 M19.5 4.5 L6.5 19.5" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="si-cursor" viewBox="0 0 24 24" fill="currentColor"><path d="M11.503.131L1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></symbol><symbol id="si-zedindustries" viewBox="0 0 24 24" fill="currentColor"><path d="M2.25 1.5a.75.75 0 0 0-.75.75v16.5H0V2.25A2.25 2.25 0 0 1 2.25 0h20.095c1.002 0 1.504 1.212.795 1.92L10.764 14.298h3.486V12.75h1.5v1.922a1.125 1.125 0 0 1-1.125 1.125H9.264l-2.578 2.578h11.689V9h1.5v9.375a1.5 1.5 0 0 1-1.5 1.5H5.185L2.562 22.5H21.75a.75.75 0 0 0 .75-.75V5.25H24v16.5A2.25 2.25 0 0 1 21.75 24H1.655C.653 24 .151 22.788.86 22.08L13.19 9.75H9.75v1.5h-1.5V9.375A1.125 1.125 0 0 1 9.375 8.25h5.314l2.625-2.625H5.625V15h-1.5V5.625a1.5 1.5 0 0 1 1.5-1.5h13.19L21.438 1.5z"/></symbol><symbol id="lu-file-pen-line" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004zm.123-5.776A1 1 0 0 1 14 7V2"/><path d="M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516M8 18h1"/></g></symbol><symbol id="lu-monitor-smartphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8m-2 4v-3.96v3.15M7 19h5"/><rect width="6" height="10" x="16" y="12" rx="2"/></g></symbol><symbol id="lu-laptop" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2zm2.054 10.987H3.946"/></symbol><symbol id="lu-bot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/></g></symbol><symbol id="lu-ban" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M4.929 4.929L19.07 19.071"/></g></symbol><symbol id="lu-users-round" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></g></symbol><symbol id="lu-network" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="6" height="6" x="16" y="16" rx="1"/><rect width="6" height="6" x="2" y="16" rx="1"/><rect width="6" height="6" x="9" y="2" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3m-7-4V8"/></g></symbol><symbol id="lu-circle-user-round" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M17.925 20.056a6 6 0 0 0-11.851.001"/><circle cx="12" cy="11" r="4"/><circle cx="12" cy="12" r="10"/></g></symbol><symbol id="lu-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></g></symbol><symbol id="lu-coins" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M13.744 17.736a6 6 0 1 1-7.48-7.48M15 6h1v4"/><path d="m6.134 14.768l.866-.5l2 3.464"/><circle cx="16" cy="8" r="6"/></g></symbol><symbol id="lu-key-round" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></g></symbol><symbol id="lu-timer" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10 2h4m-2 12l3-3"/><circle cx="12" cy="14" r="8"/></g></symbol><symbol id="lu-rotate-cw" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></g></symbol><symbol id="lu-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 6L9 17l-5-5"/></symbol><symbol id="lu-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/></symbol><symbol id="lu-server" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><path d="M6 6h.01M6 18h.01"/></g></symbol><symbol id="lu-plug" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22v-5m3-9V2m2 6a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1zM9 8V2"/></symbol><symbol id="lu-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></g></symbol><symbol id="lu-rocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09"/><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05"/></g></symbol><symbol id="lu-refresh-cw" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9a9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5m5 4a9 9 0 0 1-9 9a9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></g></symbol><symbol id="lu-cloud" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9"/></symbol><symbol id="lu-user-round" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></g></symbol><symbol id="lu-list-checks" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5h8m-8 7h8m-8 7h8M3 17l2 2l4-4M3 7l2 2l4-4"/></symbol><symbol id="lu-sparkles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594zM20 2v4m2-2h-4"/><circle cx="4" cy="20" r="2"/></g></symbol><symbol id="lu-shield-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12l2 2l4-4"/></g></symbol><symbol id="lu-terminal" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19h8M4 17l6-6l-6-6"/></symbol><symbol id="lu-mountain" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 3l4 8l5-5l5 15H2z"/></symbol><symbol id="lu-compass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76l-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></g></symbol><symbol id="lu-gem" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10.5 3L8 9l4 13l4-13l-2.5-6"/><path d="M17 3a2 2 0 0 1 1.6.8l3 4a2 2 0 0 1 .013 2.382l-7.99 10.986a2 2 0 0 1-3.247 0l-7.99-10.986A2 2 0 0 1 2.4 7.8l2.998-3.997A2 2 0 0 1 7 3zM2 9h20"/></g></symbol><symbol id="lu-braces" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1m8 0h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></symbol><symbol id="lu-code" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16 18l6-6l-6-6M8 6l-6 6l6 6"/></symbol><symbol id="lu-weight" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/></g></symbol><symbol id="lu-list-tree" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 5h13m-8 7h8m-8 7h8M3 10a2 2 0 0 0 2 2h3"/><path d="M3 5v12a2 2 0 0 0 2 2h3"/></g></symbol><symbol id="lu-route" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></g></symbol><symbol id="lu-gauge" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></symbol><symbol id="lu-monitor" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></g></symbol></svg>
 
-98%
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html" aria-current="page">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
 
-of FinOps teams now manage ai spend.
+  <main class="features ent-page" id="main" tabindex="-1">
+    <div class="crumb"><a href="index.html">superbot<span class="gg">.gg</span></a> / for teams</div>
+    <div class="ent-hero">
+      <div class="ent-hero-text">
+        <h1>manage the agents<br/>you pay for</h1>
+        <p class="lede">agents now pass your best tester.<br/><b>superbot is how you manage them.</b></p>
+        <div class="ent-cta">
+          <a class="sb-btn" href="download.html">Download</a>
+          <a class="ent-plain" href="#pricing">what it costs</a>
+        </div>
+      </div>
+      <!-- the one bold thing: where superbot sits. Two lanes in: members'
+           machines send harness calls to the Helper relay on that machine,
+           and agents, apps and scripts call superbot's API with one key.
+           superbot (the relay on each device plus the edge) routes, secures
+           and optimizes each call under a policy you sign on your device and
+           the edge checks, then calls the vendor on the member's own plan or
+           key. Facts: helper src/relay/serve.ts (loopback relay, vendor
+           direct), edge org-policy.ts:92-116 (signed bundle, verified at the
+           edge), org-keys.ts:1-8 (team key sealed per device),
+           optimizer-lane.ts:8-17 (superbot's own turns). -->
+      <figure class="ent-hero-fig ent-arch">
+        <div class="ent-arch-map" role="img" aria-labelledby="ent-arch-title">
+          <div class="ent-arch-col is-in" aria-hidden="true">
+            <span class="ent-arch-n"><span class="ent-arch-t"><svg focusable="false"><use href="#lu-laptop"/></svg><span class="ent-pool-k"><svg focusable="false"><use href="#lu-key-round"/></svg></span></span>laptop</span>
+            <span class="ent-arch-n"><span class="ent-arch-t"><svg focusable="false"><use href="#lu-monitor"/></svg><span class="ent-pool-k"><svg focusable="false"><use href="#lu-key-round"/></svg></span></span>desktop</span>
+            <span class="ent-arch-n"><span class="ent-arch-t is-agent"><svg focusable="false"><use href="#lu-bot"/></svg></span>agent</span>
+            <span class="ent-arch-n"><span class="ent-arch-t is-agent"><svg focusable="false"><use href="#lu-code"/></svg></span><span>apps<span class="ent-arch-long"> and scripts</span></span></span>
+          </div>
+          <div class="ent-arch-w is-in" aria-hidden="true">
+            <svg class="is-h" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+              <title id="ent-arch-title">where superbot sits: a member's laptop and desktop, both holding the team key, send harness calls to the Helper relay on that machine; an agent and your apps and scripts call superbot's API, POST /v1/chat/completions, with one key. superbot, the team's router, is a relay on each device plus the edge: it routes, secures and optimizes each call under a policy you sign and the edge checks, then reaches Claude, OpenAI, xAI or your own endpoints on each member's own plan or key.</title>
+              <g><path d="M0 12.5C50 12.5 50 50 100 50"/><path d="M0 37.5C50 37.5 50 50 100 50"/><path d="M0 62.5C50 62.5 50 50 100 50"/><path d="M0 87.5C50 87.5 50 50 100 50"/></g>
+              <g class="p"><path d="M0 12.5C50 12.5 50 50 100 50"/><path d="M0 37.5C50 37.5 50 50 100 50"/><path d="M0 62.5C50 62.5 50 50 100 50"/><path d="M0 87.5C50 87.5 50 50 100 50"/></g>
+            </svg>
+            <svg class="is-v" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+              <g><path d="M12.5 0C12.5 50 50 50 50 100"/><path d="M37.5 0C37.5 50 50 50 50 100"/><path d="M62.5 0C62.5 50 50 50 50 100"/><path d="M87.5 0C87.5 50 50 50 50 100"/></g>
+              <g class="p"><path d="M12.5 0C12.5 50 50 50 50 100"/><path d="M37.5 0C37.5 50 50 50 50 100"/><path d="M62.5 0C62.5 50 50 50 50 100"/><path d="M87.5 0C87.5 50 50 50 50 100"/></g>
+            </svg>
+            <span class="ent-arch-chip is-relay">Helper relay</span>
+            <span class="ent-arch-chip is-api"><span class="ent-arch-long">POST /v1/chat/completions</span><span class="ent-arch-short">one key, /v1</span></span>
+          </div>
+          <div class="ent-arch-core" aria-hidden="true">
+            <span class="ent-arch-hd"><svg class="ent-org-mark" viewBox="0 0 100 100" focusable="false" overflow="visible"><defs><mask id="ent-org-face" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><g fill="white"><rect x="14" y="32" width="72" height="54" rx="15"/><path d="M14 46V28Q14 20 21 21Q28 24 36 32Z"/><path d="M86 46V28Q86 20 79 21Q72 24 64 32Z"/></g><g fill="black"><ellipse cx="35" cy="58" rx="8" ry="11"/><ellipse cx="65" cy="58" rx="8" ry="11"/></g></mask></defs><rect class="m0" x="-30" y="-30" width="160" height="160" mask="url(#ent-org-face)" transform="translate(-1.2 -1.2)"/><rect class="m3" x="-30" y="-30" width="160" height="160" mask="url(#ent-org-face)" transform="translate(1.2 1.2)"/><rect class="mf" x="-30" y="-30" width="160" height="160" mask="url(#ent-org-face)"/></svg>superbot</span>
+            <span class="ent-arch-sub">your team's router</span>
+            <ul>
+              <li><svg focusable="false"><use href="#lu-route"/></svg>route</li>
+              <li><svg focusable="false"><use href="#lu-shield-check"/></svg>secure</li>
+              <li><svg focusable="false"><use href="#lu-gauge"/></svg>optimize</li>
+            </ul>
+            <span class="ent-arch-ft"><span><svg focusable="false"><use href="#lu-laptop"/></svg>a relay on each device</span><span><svg focusable="false"><use href="#lu-file-pen-line"/></svg>policy you sign, the edge checks</span></span>
+          </div>
+          <div class="ent-arch-w is-out" aria-hidden="true">
+            <svg class="is-h" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+              <g><path d="M0 50C50 50 50 12.5 100 12.5"/><path d="M0 50C50 50 50 37.5 100 37.5"/><path d="M0 50C50 50 50 62.5 100 62.5"/><path d="M0 50C50 50 50 87.5 100 87.5"/></g>
+              <g class="p"><path d="M0 50C50 50 50 12.5 100 12.5"/><path d="M0 50C50 50 50 37.5 100 37.5"/><path d="M0 50C50 50 50 62.5 100 62.5"/><path d="M0 50C50 50 50 87.5 100 87.5"/></g>
+            </svg>
+            <svg class="is-v" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+              <g><path d="M50 0C50 50 12.5 50 12.5 100"/><path d="M50 0C50 50 37.5 50 37.5 100"/><path d="M50 0C50 50 62.5 50 62.5 100"/><path d="M50 0C50 50 87.5 50 87.5 100"/></g>
+              <g class="p"><path d="M50 0C50 50 12.5 50 12.5 100"/><path d="M50 0C50 50 37.5 50 37.5 100"/><path d="M50 0C50 50 62.5 50 62.5 100"/><path d="M50 0C50 50 87.5 50 87.5 100"/></g>
+            </svg>
+            <span class="ent-arch-chip">own plan or key</span>
+          </div>
+          <div class="ent-arch-col is-out" aria-hidden="true">
+            <span class="ent-arch-n"><span class="ent-arch-t"><svg focusable="false"><use href="#sb-ic-claude"/></svg></span>Claude</span>
+            <span class="ent-arch-n"><span class="ent-arch-t"><svg focusable="false"><use href="#sb-ic-openai"/></svg></span>OpenAI</span>
+            <span class="ent-arch-n"><span class="ent-arch-t"><svg focusable="false"><use href="#sb-ic-xai"/></svg></span>xAI</span>
+            <span class="ent-arch-n"><span class="ent-arch-t"><svg focusable="false"><use href="#lu-plug"/></svg></span><span><span class="ent-arch-long">your own </span>endpoints</span></span>
+          </div>
+        </div>
+        <p class="ent-pool-key"><span class="ent-pool-k"><svg aria-hidden="true" focusable="false"><use href="#lu-key-round"/></svg></span>holds the team key</p>
+        <!-- dd budget: 42 characters (326px at 14px in the stacked rows of a
+             390 phone, ~7.3px a glyph) -->
+        <dl class="ent-keys">
+          <dt>route</dt>
+          <dd>each call goes to <a href="/features#endpoints">a model you allow</a>.</dd>
+          <dt>api</dt>
+          <dd>apps and agents use <a href="api.html">one API key</a>.</dd>
+          <dt>secure</dt>
+          <dd><a href="#policy">signed policy</a> stops denied calls.</dd>
+          <dt>optimize</dt>
+          <dd><a href="/features#optimizer">trims context</a> on <a href="/features#omni">superbot's turns</a>.</dd>
+          <dt>team key</dt>
+          <dd><a href="#teams">sealed on devices</a>, not at the edge.</dd>
+        </dl>
+      </figure>
+    </div>
 
-[FinOps Foundation, State of FinOps 2026](https://data.finops.org/)
+    <!-- the evidence, both sourced. Source re-read 2026-09-24: the
+         OSWorld-Verified results sheet (os-world.github.io, static/data/
+         osworld_verified_results.xlsx) tops out at 90.19% (325.59/361,
+         Intelligence-Indeed Agent, 2026-07-25); the OSWorld paper
+         (arXiv 2404.07972) puts people new to the apps at 72.36%. -->
+    <div class="ent-proof">
+      <div>
+        <a class="ent-proof-n" href="https://os-world.github.io/">90%</a>
+        <p class="ent-proof-l">of real desktop tasks, done by an agent.</p>
+        <p class="ent-proof-s">people new to the apps manage 72%.<br/><a href="https://os-world.github.io/">OSWorld-Verified, 2026</a></p>
+      </div>
+      <div>
+        <span class="ent-proof-n">98%</span>
+        <p class="ent-proof-l">of FinOps teams now manage ai spend.</p>
+        <p class="ent-proof-s"><a href="https://data.finops.org/">FinOps Foundation, State of FinOps 2026</a></p>
+      </div>
+    </div>
 
-## one signed policy
+    <div class="ent-layout">
+      <nav class="ent-toc" aria-label="on this page">
+        <p class="ent-toc-h">on this page</p>
+        <ul>
+          <li><a href="#policy"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-file-pen-line"/></svg></span><span>signed policy</span></a></li>
+          <li><a href="#coverage"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-monitor-smartphone"/></svg></span><span>every device</span></a></li>
+          <li><a href="#principals"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-bot"/></svg></span><span>agent grants</span></a></li>
+          <li><a href="#refusals"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-ban"/></svg></span><span>refusals</span></a></li>
+          <li><a href="#teams"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-users-round"/></svg></span><span>one pool</span></a></li>
+          <li><a href="#super"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-network"/></svg></span><span>super mode</span></a></li>
+          <li><a href="#members"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-circle-user-round"/></svg></span><span>members</span></a></li>
+          <li><a href="#harnesses"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-layers"/></svg></span><span>harnesses</span></a></li>
+          <li><a href="#pricing"><span class="ent-toc-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-coins"/></svg></span><span>pricing</span></a></li>
+        </ul>
+      </nav>
 
-one file sets models, tools, caps.
-you sign it and publish it by [API](https://superbot.gg/docs#organizations).
-the edge checks every signature.
-
-{
-  "v": 1,
-  "org_id": "org_4b1e…",
-  "rev": 2,
-  "issued_at": "2026-09-23T18:04:11Z",
-  "prev_sig": "zI5m8bIDrqLs6wHU…",
-  "policy": {
-    "models": {"allow": [
-      "claude-sonnet-5", "gpt-5-mini"
+      <div class="ent-body">
+        <!-- one article per shipped capability. Sample values come from
+             site/assets/enterprise/*.json and carry the example tag. -->
+        <article class="feature" id="policy">
+          <div class="text">
+            <span class="anchor-alias" id="revisions" aria-hidden="true"></span>
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-file-pen-line"/></svg></span>
+            <h2>one signed policy</h2>
+            <p class="body">one file sets models, tools, caps.<br/>you sign it and publish it by <a href="docs">API</a>.<br/>the edge checks every signature.</p>
+          </div>
+          <figure>
+            <pre class="ent-json" tabindex="0" aria-label="the signed policy bundle, rev 2" role="region">{
+  <span class="t-k">"v"</span>: <span class="t-n">1</span>,
+  <span class="t-k">"org_id"</span>: <span class="t-s">"org_4b1e…"</span>,
+  <span class="t-k">"rev"</span>: <span class="t-n">2</span>,
+  <span class="t-k">"issued_at"</span>: <span class="t-s">"2026-09-23T18:04:11Z"</span>,
+  <span class="t-k">"prev_sig"</span>: <span class="t-s">"zI5m8bIDrqLs6wHU…"</span>,
+  <span class="t-k">"policy"</span>: {
+    <span class="t-k">"models"</span>: {<span class="t-k">"allow"</span>: [
+      <span class="t-s">"claude-sonnet-5"</span>, <span class="t-s">"gpt-5-mini"</span>
     ]},
-    "mcp": {
-      "allow": ["github", "linear"],
-      "deny": ["gdrive"]
+    <span class="t-k">"mcp"</span>: {
+      <span class="t-k">"allow"</span>: [<span class="t-s">"github"</span>, <span class="t-s">"linear"</span>],
+      <span class="t-k">"deny"</span>: [<span class="t-s">"gdrive"</span>]
     },
-    "rules": {"review-conventions": {
-      "body": "every PR names its test.",
-      "enforce": true
+    <span class="t-k">"rules"</span>: {<span class="t-k">"review-conventions"</span>: {
+      <span class="t-k">"body"</span>: <span class="t-s">"every PR names its test."</span>,
+      <span class="t-k">"enforce"</span>: <span class="t-n">true</span>
     }},
-    "spend": {
-      "per_agent_monthly_tokens": 2500
+    <span class="t-k">"spend"</span>: {
+      <span class="t-k">"per_agent_monthly_tokens"</span>: <span class="t-n">2500</span>
     },
-    "autonomy": {
-      "auto_run": true, "browser": true
+    <span class="t-k">"autonomy"</span>: {
+      <span class="t-k">"auto_run"</span>: <span class="t-n">true</span>, <span class="t-k">"browser"</span>: <span class="t-n">true</span>
     }
   }
-}
+}</pre>
+            <ul class="ent-chain" aria-label="PUT /v1/org/:id/policy chained to rev 1 answers 200 with rev 2; with no prev_sig it answers 400 chain_break">
+              <li><span class="ent-rev">rev 1</span><i class="ent-link" aria-hidden="true"></i><span class="ent-rev">rev 2</span><span class="ent-code"><svg aria-hidden="true" focusable="false"><use href="#lu-check"/></svg><span class="t-n">200</span></span></li>
+              <li><span class="ent-rev">rev 1</span><i class="ent-link is-cut" aria-hidden="true"></i><span class="ent-rev is-fork">no prev_sig</span><span class="ent-code"><svg aria-hidden="true" focusable="false"><use href="#lu-x"/></svg><span class="t-n">400</span> chain_break</span></li>
+            </ul>
+            <figcaption><span class="ent-tag">example</span>each rev is ed25519-signed on your device.<br/>the model list sets what the team can call.<br/>rules bind Claude Code on an admin install.</figcaption>
+          </figure>
+        </article>
 
-- rev 1rev 2200
-- rev 1no prev_sig400 chain_break
+        <article class="feature" id="coverage">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-monitor-smartphone"/></svg></span>
+            <h2>held where superbot routes</h2>
+            <p class="body">each rev reaches every Helper.<br/>each install sends back a receipt.</p>
+            <div class="ent-ledger">
+              <!-- what each harness gets: the ORG_CAPS token renders it from site/data/org-capabilities.json (edge/src/org-caps.ts) -->
+              <table class="ent-caps">
+<thead><tr><td></td><th scope="col" data-harness="claude-code">Claude Code <span>managed file</span></th><th scope="col" data-harness="codex">Codex <span>managed file</span></th><th scope="col" data-harness="relay-only">every other <span>24 harnesses</span></th></tr></thead>
+<tbody>
+<tr><th scope="row">admin install</th><td>enforced</td><td>enforced</td><td>relay only</td></tr>
+<tr><th scope="row">member install</th><td>advisory</td><td>relay only</td><td>relay only</td></tr>
+<tr><th scope="row">models</th><td>locked</td><td>at the relay</td><td>at the relay</td></tr>
+<tr><th scope="row">MCP</th><td>allow and deny</td><td>allowlist</td><td>at the relay</td></tr>
+<tr><th scope="row">deny rules</th><td>bypass mode off</td><td class="is-no">no</td><td class="is-no">no</td></tr>
+<tr><th scope="row">network rules</th><td>advisory only</td><td class="is-no">no</td><td class="is-no">no</td></tr>
+<tr><th scope="row">team rules</th><td>admin install only</td><td class="is-no">no</td><td class="is-no">no</td></tr>
+</tbody>
+</table>
+              <!-- end of what each harness gets -->
+            </div>
+          </div>
+          <figure>
+            <div class="ent-cov-top">
+              <p class="ent-cov-line">1 of 2 devices on rev 2</p>
+              <div class="ent-cov-bar" role="img" aria-label="one of two devices on revision 2"><span></span></div>
+            </div>
+            <ul class="ent-cov-rows">
+              <li class="ent-hd"><span>harness</span><span>level</span><span>rev</span><span>reported</span></li>
+              <li><span class="ent-cov-h"><span class="ent-cov-tile"><svg class="mk" aria-hidden="true" focusable="false"><use href="#sb-ic-claude"/></svg></span>claude-code</span><span><span class="ent-lab">level </span>enforced</span><span><span class="ent-lab">rev </span>2</span><span class="ent-att"><svg aria-hidden="true" focusable="false"><use href="#lu-check"/></svg>yes</span></li>
+              <li><span class="ent-cov-h"><span class="ent-cov-tile"><svg class="mk" aria-hidden="true" focusable="false"><use href="#sb-ic-openai"/></svg></span>codex</span><span><span class="ent-lab">level </span>relay</span><span><span class="ent-lab">rev </span>1</span><span class="ent-att is-no"><svg aria-hidden="true" focusable="false"><use href="#lu-x"/></svg>no</span></li>
+            </ul>
+            <p class="ent-receipt"><span class="ent-receipt-l">reported receipt</span> {<span class="t-k">"ok"</span>: <span class="t-n">true</span>,<br/><span class="t-k">"policy_rev"</span>: <span class="t-n">2</span>, <span class="t-k">"attested"</span>: <span class="t-n">true</span>,<br/><span class="t-k">"reported_level"</span>: <span class="t-s">"enforced"</span>,<br/><span class="t-k">"sha_verified"</span>: <span class="t-n">false</span>}</p>
+            <figcaption><span class="ent-tag">example</span>one of two devices is a rev behind.<br/>receipts are self-reported, unsigned.</figcaption>
+          </figure>
+        </article>
 
-exampleeach rev is ed25519-signed on your device.
-the model list sets what the team can call.
-rules bind Claude Code on an admin install.
+        <article class="feature" id="principals">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-bot"/></svg></span>
+            <h2>the agent is a principal</h2>
+            <p class="body">each agent gets its own identity.<br/>it gets a grant and a monthly cap.<br/>you mint grants through <a href="docs">the API</a>.</p>
+            <p class="ent-stat"><span class="ent-stat-n">24h</span><span class="ent-stat-l">a grant lives this long at most.<br/>then it is minted again.</span></p>
+          </div>
+          <figure>
+            <div class="ent-lane is-loop" role="img" aria-label="a grant is minted, lives 24 hours at most, expires, and is minted again">
+              <span class="ent-node" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-key-round"/></svg></span>mint</span>
+              <span class="ent-wire is-run" aria-hidden="true"><span class="ent-wire-t">24h</span></span>
+              <span class="ent-node" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-timer"/></svg></span>expire</span>
+              <span class="ent-wire" aria-hidden="true"></span>
+              <span class="ent-node is-gate" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-rotate-cw"/></svg></span>re-mint</span>
+              <span class="ent-life-note" aria-hidden="true">again</span>
+            </div>
+            <ul class="ent-kv">
+              <li><span class="k">agent_id</span><span class="v">agt_1c07eb4e3fa53617</span></li>
+              <li><span class="k">grant_id</span><span class="v">agr_224f2c2f33048838</span></li>
+              <li><span class="k">expires_at</span><span class="v">2026-09-13T01:25:50.636Z</span></li>
+              <li><span class="k">cap</span><span class="v is-text">2,500 credits a month per agent</span></li>
+            </ul>
+            <figcaption><span class="ent-tag">example</span>each grant spends against its agent's cap.</figcaption>
+          </figure>
+        </article>
 
-## held where superbot routes
-
-each rev reaches every Helper.
-each install sends back a receipt.
-
-|                | Claude Code managed file | Codex managed file | every other 24 harnesses |
-| -------------- | ------------------------ | ------------------ | ------------------------ |
-| admin install  | enforced                 | enforced           | relay only               |
-| member install | advisory                 | relay only         | relay only               |
-| models         | locked                   | at the relay       | at the relay             |
-| MCP            | allow and deny           | allowlist          | at the relay             |
-| deny rules     | bypass mode off          | no                 | no                       |
-| network rules  | advisory only            | no                 | no                       |
-| team rules     | admin install only       | no                 | no                       |
-
-1 of 2 devices on rev 2
-
-- harnesslevelrevreported
-- claude-codelevel enforcedrev 2yes
-- codexlevel relayrev 1no
-
-reported receipt {"ok": true,
-"policy_rev": 2, "attested": true,
-"reported_level": "enforced",
-"sha_verified": false}
-
-exampleone of two devices is a rev behind.
-receipts are self-reported, unsigned.
-
-## the agent is a principal
-
-each agent gets its own identity.
-it gets a grant and a monthly cap.
-you mint grants through [the API](https://superbot.gg/docs#organizations).
-
-24ha grant lives this long at most.
-then it is minted again.
-
-- agent_idagt_1c07eb4e3fa53617
-- grant_idagr_224f2c2f33048838
-- expires_at2026-09-13T01:25:50.636Z
-- cap2,500 credits a month per agent
-
-exampleeach grant spends against its agent's cap.
-
-## refused at the door
-
-a denied call reaches no model.
-a denied [MCP server](https://superbot.gg/features#mcp) is dropped.
-both stop before a byte goes out.
-
-at the edge
-
+        <article class="feature" id="refusals">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-ban"/></svg></span>
+            <h2>refused at the door</h2>
+            <p class="body">a denied call reaches no model.<br/>a denied <a href="/features#mcp">MCP server</a> is dropped.<br/>both stop before a byte goes out.</p>
+          </div>
+          <div class="ent-figs">
+            <figure class="fig-terminal">
+              <div class="ent-lane" role="img" aria-label="the agent's call stops at the edge with a 403; the model is never reached">
+                <span class="ent-node" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-bot"/></svg></span>agent</span>
+                <span class="ent-wire is-run" aria-hidden="true"></span>
+                <span class="ent-node is-gate" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-shield-check"/></svg></span>edge</span>
+                <span class="ent-wire is-cut" aria-hidden="true"><span class="ent-x"><svg focusable="false"><use href="#lu-x"/></svg></span><span class="ent-wire-t">403</span></span>
+                <span class="ent-node is-dead" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-server"/></svg></span>model</span>
+              </div>
+              <div class="term-bar"><i></i><i></i><i></i><span>at the edge</span></div>
+              <pre class="ent-log" data-wrap>POST /v1/chat/completions
+  <span class="t-k">agent</span> <span class="t-s">agt_1c07eb4e3fa53617</span>
+  <span class="t-n">403</span> <span class="t-s">agent_not_granted</span>
 POST /v1/chat/completions
-  agent agt_1c07eb4e3fa53617
-  403 agent_not_granted
-POST /v1/chat/completions
-  model gpt-5
-  403 model_not_allowed
-  allowed: claude-sonnet-5, gpt-5-mini
+  <span class="t-k">model</span> <span class="t-s">gpt-5</span>
+  <span class="t-n">403</span> <span class="t-s">model_not_allowed</span>
+  <span class="t-k">allowed</span>: <span class="t-s">claude-sonnet-5</span>, <span class="t-s">gpt-5-mini</span></pre>
+              <figcaption><span class="ent-tag">example</span>this is the same agent after its grant lapsed.</figcaption>
+            </figure>
+            <figure class="fig-terminal">
+              <div class="ent-lane" role="img" aria-label="the gdrive MCP server stops at the Helper's relay; superbot does not serve it to the agent">
+                <span class="ent-node" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-plug"/></svg></span>gdrive</span>
+                <span class="ent-wire is-run" aria-hidden="true"></span>
+                <span class="ent-node is-gate" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-shield-check"/></svg></span>relay</span>
+                <span class="ent-wire is-cut" aria-hidden="true"><span class="ent-x"><svg focusable="false"><use href="#lu-x"/></svg></span><span class="ent-wire-t">denied</span></span>
+                <span class="ent-node is-dead" aria-hidden="true"><span class="ent-node-ic"><svg focusable="false"><use href="#lu-bot"/></svg></span>agent</span>
+              </div>
+              <div class="term-bar"><i></i><i></i><i></i><span>at the Helper's relay</span></div>
+              <pre class="ent-log" data-wrap>the Helper, building the MCP relay
+  <span class="t-k">gdrive</span>  <span class="t-s">org_policy_denied</span>
+  <span class="t-n">2</span> servers aggregated
+  <span class="t-n">1</span> dropped by org policy</pre>
+              <figcaption><span class="ent-tag">example</span>superbot stops serving the denied server.<br/>Claude Code also gets it as a deny list.<br/>an admin install enforces that list.</figcaption>
+            </figure>
+          </div>
+        </article>
 
-examplethis is the same agent after its grant lapsed.
+        <article class="feature" id="teams">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-users-round"/></svg></span>
+            <h2>the team is a pool, not a copy</h2>
+            <p class="body">invite people by email.<br/>everyone shares one pool of tools.<br/>nothing is copied per person.</p>
+          </div>
+          <figure>
+            <div class="ent-pool" role="img" aria-label="six members around one shared pool of MCP servers, rules and skills; two of them hold the team key">
+              <svg class="ent-pool-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <g><path d="M12.5 16.7C20 16.7 20 50 28 50"/><path d="M12.5 50H28"/><path d="M12.5 83.3C20 83.3 20 50 28 50"/><path d="M87.5 16.7C80 16.7 80 50 72 50"/><path d="M87.5 50H72"/><path d="M87.5 83.3C80 83.3 80 50 72 50"/></g>
+                <g class="p"><path d="M12.5 16.7C20 16.7 20 50 28 50"/><path d="M87.5 50H72"/><path d="M12.5 83.3C20 83.3 20 50 28 50"/><path d="M87.5 16.7C80 16.7 80 50 72 50"/><path d="M12.5 50H28"/><path d="M87.5 83.3C80 83.3 80 50 72 50"/></g>
+              </svg>
+              <span class="ent-pool-m" aria-hidden="true"><svg focusable="false"><use href="#lu-user-round"/></svg><span class="ent-pool-k"><svg focusable="false"><use href="#lu-key-round"/></svg></span></span>
+              <span class="ent-pool-m" aria-hidden="true"><svg focusable="false"><use href="#lu-user-round"/></svg></span>
+              <span class="ent-pool-m" aria-hidden="true"><svg focusable="false"><use href="#lu-user-round"/></svg></span>
+              <span class="ent-pool-m" aria-hidden="true"><svg focusable="false"><use href="#lu-user-round"/></svg><span class="ent-pool-k"><svg focusable="false"><use href="#lu-key-round"/></svg></span></span>
+              <span class="ent-pool-m" aria-hidden="true"><svg focusable="false"><use href="#lu-user-round"/></svg></span>
+              <span class="ent-pool-m" aria-hidden="true"><svg focusable="false"><use href="#lu-user-round"/></svg></span>
+              <div class="ent-pool-c" aria-hidden="true">
+                <span class="ent-pool-t">one pool</span>
+                <ul>
+                  <li><svg focusable="false"><use href="#lu-plug"/></svg>MCP servers</li>
+                  <li><svg focusable="false"><use href="#lu-list-checks"/></svg>rules</li>
+                  <li><svg focusable="false"><use href="#lu-sparkles"/></svg>skills</li>
+                </ul>
+              </div>
+            </div>
+            <p class="ent-pool-key"><span class="ent-pool-k"><svg aria-hidden="true" focusable="false"><use href="#lu-key-round"/></svg></span>holds the team key</p>
+            <dl class="ent-keys">
+              <dt>invite</dt>
+              <dd>each email gets one live invite code.<br/>invites stay below your own role.</dd>
+              <dt>pool</dt>
+              <dd>it holds <a href="/features#mcp">MCP servers</a>, rules and skills.<br/>each item is tagged with who added it.</dd>
+              <dt>team secrets</dt>
+              <dd>secrets are sealed with the team key.<br/>the key is wrapped to each device.<br/>the edge never holds the key.</dd>
+              <dt>role</dt>
+              <dd>editors and up hold the team key.<br/>members get the content only.</dd>
+            </dl>
+            <figcaption>content lands the moment you accept.<br/>team secrets wait for the key.<br/>a teammate hands it to you.</figcaption>
+          </figure>
+        </article>
 
-at the Helper's relay
+        <article class="feature" id="super">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-network"/></svg></span>
+            <h2>super mode</h2>
+            <p class="body">one ask gets <a href="/features#super">a team of agents</a>.<br/>a manager splits it over vendors.<br/>each leg runs on their own plan.</p>
+          </div>
+          <figure>
+            <ul class="ent-legs">
+              <li class="ent-hd"><span>model</span><span>paid through</span><span class="ent-n">tokens</span></li>
+              <li class="ent-mgr"><i class="ent-tree" aria-hidden="true"></i><span class="ent-leg-mk"><svg class="mk" aria-hidden="true" focusable="false"><use href="#sb-ic-claude"/></svg></span><span class="ent-who"><span class="ent-role">manager</span><span class="ent-model">Claude Fable 5.1</span></span><span class="ent-acct">the member's Claude plan</span><span class="ent-n">9.6k</span></li>
+              <li><i class="ent-tree" aria-hidden="true"></i><span class="ent-leg-mk"><svg class="mk" aria-hidden="true" focusable="false"><use href="#sb-ic-claude"/></svg></span><span class="ent-who"><span class="ent-role">worker</span><span class="ent-model">Claude Opus 5.5</span></span><span class="ent-acct">the member's Claude plan</span><span class="ent-n">3.7k</span></li>
+              <li><i class="ent-tree" aria-hidden="true"></i><span class="ent-leg-mk"><svg class="mk" aria-hidden="true" focusable="false"><use href="#sb-ic-openai"/></svg></span><span class="ent-who"><span class="ent-role">worker</span><span class="ent-model">GPT-6 Luna</span></span><span class="ent-acct">their ChatGPT plan</span><span class="ent-n">5.1k</span></li>
+              <li><i class="ent-tree" aria-hidden="true"></i><span class="ent-leg-mk"><svg class="mk" aria-hidden="true" focusable="false"><use href="#sb-ic-xai"/></svg></span><span class="ent-who"><span class="ent-role">worker</span><span class="ent-model">Grok 4.7</span></span><span class="ent-acct">the member's own xAI key</span><span class="ent-n">3.1k</span></li>
+            </ul>
+            <figcaption><span class="ent-tag">example</span>this is one member's run, leg by leg.<br/>each leg's cost lands on its role.</figcaption>
+          </figure>
+        </article>
 
-the Helper, building the MCP relay
-  gdrive  org_policy_denied
-  2 servers aggregated
-  1 dropped by org policy
+        <section class="ent-sec wide" id="members" aria-labelledby="members-title">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-circle-user-round"/></svg></span>
+            <h2 id="members-title">what each member gets</h2>
+            <p class="ent-say">each keeps <a href="features.html">the whole product</a>.<br/>it runs on their own account.<br/>your policy covers what we route.</p>
+          </div>
+          <ul class="ent-gets">
+            <li><a href="/features#super"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-network"/></svg>super mode</a><p>one ask runs a team of agents.<br/>it spans the plans they pay for.</p></li>
+            <li><a href="/features#publish"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-rocket"/></svg>publish</a><p>apps ship to your Cloudflare or Railway.<br/>it is your infrastructure, not ours.</p></li>
+            <li><a href="/features#sync"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-refresh-cw"/></svg>sync</a><p>projects, chats, rules and skills sync.<br/>MCP servers and settings sync too.<br/>it is all encrypted, desktop to phone.</p></li>
+            <li><a href="/features#endpoints"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-plug"/></svg>custom endpoints</a><p>add OpenAI- or Anthropic-compatible APIs.<br/>each endpoint keeps its own key.<br/>your model allowlist still applies.</p></li>
+            <li><a href="/features#media"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-image"/></svg>media</a><p>images run on their ChatGPT plan or keys.<br/>video and audio run on their own keys.</p></li>
+            <li><a href="/features#vault"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-key-round"/></svg>sessions</a><p>sign-ins are read on the device.<br/>each shows under Connections, with Unlink.</p></li>
+            <li><a href="/features#cloud"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-cloud"/></svg>cloud agents</a><p><span class="ent-tag">beta</span>agents keep running in the cloud.</p></li>
+          </ul>
+        </section>
 
-examplesuperbot stops serving the denied server.
-Claude Code also gets it as a deny list.
-an admin install enforces that list.
+        <article class="feature wide" id="harnesses">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-layers"/></svg></span>
+            <h2>works with what you pay for</h2>
+            <p class="body">the Helper routes eleven harnesses.<br/>its relay holds policy on that traffic.<br/>admins lock Claude Code and Codex.</p>
+          </div>
+          <figure class="ent-wall">
+            <ul class="ent-marks">
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#sb-ic-claude"/></svg><span>Claude Code</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#sb-ic-openai"/></svg><span>Codex</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#si-cursor"/></svg><span>Cursor</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-braces"/></svg><span>OpenCode</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-compass"/></svg><span>Goose</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-code"/></svg><span>Continue</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-weight"/></svg><span>Kilo Code</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#si-zedindustries"/></svg><span>Zed</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-mountain"/></svg><span>Hermes</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-gem"/></svg><span>OpenClaw</span></li>
+              <li class="ent-mark"><svg aria-hidden="true"><use href="#lu-terminal"/></svg><span>omp</span></li>
+            </ul>
+            <figcaption>eleven harnesses are routed today.<br/>six more get the MCP config only.<span class="ent-names"><span class="ent-rev">Copilot CLI</span><span class="ent-rev">Windsurf</span><span class="ent-rev">Cline</span><span class="ent-rev">Kiro</span><span class="ent-rev">Gemini CLI</span><span class="ent-rev">Roo Code</span></span></figcaption>
+          </figure>
+        </article>
 
-## the team is a pool, not a copy
+        <section class="ent-sec" id="pricing" aria-labelledby="pricing-title">
+          <div class="text">
+            <span class="ent-ic"><svg class="ic" aria-hidden="true" focusable="false"><use href="#lu-coins"/></svg></span>
+            <h2 id="pricing-title">what it costs</h2>
+            <div class="ent-cta">
+              <a class="ent-plain" href="download.html">download the app</a>
+              <a class="ent-plain" href="mailto:contact@ezolabs.io">contact@ezolabs.io</a>
+              <a class="ent-plain" href="/developers/teams">read what the endpoints do</a>
+            </div>
+          </div>
+          <ul class="ent-rows">
+            <li class="ent-row"><h3>per seat</h3><p>Teams is a per-seat plan, billed yearly.<br/><a href="/api#pricing">see plans and prices</a></p></li>
+            <li class="ent-row"><h3>trial</h3><p>every new account gets a 14-day Pro trial.<br/>no card, one per account.</p></li>
+            <li class="ent-row"><h3>accounts</h3><p>each member uses their own account.</p></li>
+            <li class="ent-row"><h3>subscriptions</h3><p>no markup on their own subscriptions.</p></li>
+            <li class="ent-row"><h3>spend</h3><p><a href="/features#spend">AI spend</a> adds up to one number.</p></li>
+            <li class="ent-row"><h3>teams</h3><p>create a team from your account.<br/>org policy is invite-only in beta.</p></li>
+          </ul>
+        </section>
 
-invite people by email.
-everyone shares one pool of tools.
-nothing is copied per person.
+        <p class="ent-foot"><a href="/features#organizations">the short version</a> is on features.<br/><a href="api.html">the API</a> is for your own code.<br/><a href="developers.html">the reference</a> lists every endpoint.</p>
+      </div>
+    </div>
+  </main>
 
-holds the team key
+  <footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
 
-invite
-
-each email gets one live invite code.
-invites stay below your own role.
-
-pool
-
-it holds [MCP servers](https://superbot.gg/features#mcp), rules and skills.
-each item is tagged with who added it.
-
-team secrets
-
-secrets are sealed with the team key.
-the key is wrapped to each device.
-the edge never holds the key.
-
-role
-
-editors and up hold the team key.
-members get the content only.
-
-content lands the moment you accept.
-team secrets wait for the key.
-a teammate hands it to you.
-
-## super mode
-
-one ask gets [a team of agents](https://superbot.gg/features#super).
-a manager splits it over vendors.
-each leg runs on their own plan.
-
-- modelpaid throughtokens
-- managerClaude Fable 5.1the member's Claude plan9.6k
-- workerClaude Opus 5.5the member's Claude plan3.7k
-- workerGPT-6 Lunatheir ChatGPT plan5.1k
-- workerGrok 4.7the member's own xAI key3.1k
-
-examplethis is one member's run, leg by leg.
-each leg's cost lands on its role.
-
-## what each member gets
-
-each keeps [the whole product](https://superbot.gg/features).
-it runs on their own account.
-your policy covers what we route.
-
-- [super mode](https://superbot.gg/features#super)
-one ask runs a team of agents.
-it spans the plans they pay for.
-- [publish](https://superbot.gg/features#publish)
-apps ship to your Cloudflare or Railway.
-it is your infrastructure, not ours.
-- [sync](https://superbot.gg/features#sync)
-projects, chats, rules and skills sync.
-MCP servers and settings sync too.
-it is all encrypted, desktop to phone.
-- [custom endpoints](https://superbot.gg/features#endpoints)
-add OpenAI- or Anthropic-compatible APIs.
-each endpoint keeps its own key.
-your model allowlist still applies.
-- [media](https://superbot.gg/features#media)
-images run on their ChatGPT plan or keys.
-video and audio run on their own keys.
-- [sessions](https://superbot.gg/features#vault)
-sign-ins are read on the device.
-each shows under Connections, with Unlink.
-- [cloud agents](https://superbot.gg/features#cloud)
-betaagents keep running in the cloud.
-
-## works with what you pay for
-
-the Helper routes eleven harnesses.
-its relay holds policy on that traffic.
-admins lock Claude Code and Codex.
-
-- Claude Code
-- Codex
-- Cursor
-- OpenCode
-- Goose
-- Continue
-- Kilo Code
-- Zed
-- Hermes
-- OpenClaw
-- omp
-
-eleven harnesses are routed today.
-six more get the MCP config only.Copilot CLIWindsurfClineKiroGemini CLIRoo Code
-
-## what it costs
-
-[download the app](https://superbot.gg/download) [contact@ezolabs.io](mailto:contact@ezolabs.io) [read what the endpoints do](https://superbot.gg/developers/teams)
-
-- ### per seat
-Teams is a per-seat plan, billed yearly.
-[see plans and prices](https://superbot.gg/api#pricing)
-- ### trial
-every new account gets a 14-day Pro trial.
-no card, one per account.
-- ### accounts
-each member uses their own account.
-- ### subscriptions
-no markup on their own subscriptions.
-- ### spend
-[AI spend](https://superbot.gg/features#spend) adds up to one number.
-- ### teams
-create a team from your account.
-org policy is invite-only in beta.
-
-[the short version](https://superbot.gg/features#organizations) is on features.
-[the API](https://superbot.gg/api) is for your own code.
-[the reference](https://superbot.gg/developers) lists every endpoint.
+  <script>
+  /* the index: mark the chip for the section in view (aria-current) */
+  (function () {
+    var nav = document.querySelector('.ent-toc');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    var links = {};
+    nav.querySelectorAll('a[href^="#"]').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var a = links[e.target.id];
+        if (!a) return;
+        Object.keys(links).forEach(function (k) { links[k].removeAttribute('aria-current'); });
+        a.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-35% 0px -55% 0px' });
+    Object.keys(links).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
+  /* the pulses: the line svgs are stretched (preserveAspectRatio="none") under
+     non-scaling-stroke, where dashes are screen px, so give each pulse stroke
+     its on-screen length as --len (the ent-pulse keyframes travel that far),
+     and measure again whenever an svg resizes or swaps in at a breakpoint. */
+  (function () {
+    var svgs = document.querySelectorAll('.ent-arch-w > svg, svg.ent-pool-lines');
+    function measure(svg) {
+      var m = svg.getScreenCTM && svg.getScreenCTM();
+      if (!m || !svg.getBoundingClientRect().width) return;
+      svg.querySelectorAll('.p path').forEach(function (p) {
+        var cm = p.getScreenCTM() || m, total = p.getTotalLength(), len = 0, px = null, py = null;
+        for (var k = 0; k <= 48; k++) {
+          var q = p.getPointAtLength(total * k / 48);
+          var x = cm.a * q.x + cm.c * q.y, y = cm.b * q.x + cm.d * q.y;
+          if (px !== null) len += Math.sqrt((x - px) * (x - px) + (y - py) * (y - py));
+          px = x; py = y;
+        }
+        p.style.setProperty('--len', Math.ceil(len));
+      });
+    }
+    svgs.forEach(measure);
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function (entries) { entries.forEach(function (e) { measure(e.target); }); });
+      svgs.forEach(function (s) { ro.observe(s); });
+    } else {
+      window.addEventListener('resize', function () { svgs.forEach(measure); });
+    }
+  })();
+  </script>
+  <script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body>
+</html>

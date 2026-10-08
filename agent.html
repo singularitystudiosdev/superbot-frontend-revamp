@@ -1,77 +1,260 @@
-# Install Superbot on an agent computer
-
-This page is for an agent that has its own Linux computer: xAI Grok Bot, Meta Muse, OpenAI dots, Manus, or any Linux VM an agent drives. It installs the Superbot Helper on that computer and links it to the user's Superbot account. The user's request usually reads "Install Superbot from superbot.gg/agent".
-
-Vendor notes: [Grok Bot](https://superbot.gg/agent?vendor=grok-bot), [Muse](https://superbot.gg/agent?vendor=muse), [dots](https://superbot.gg/agent?vendor=dots), [Manus](https://superbot.gg/agent?vendor=manus).
-
-## Not for session sandboxes
-
-Codex cloud tasks and Claude Code on the web run in a container that is thrown away when the session ends, so a Helper installed there would be linked to a computer that no longer exists. Do not run the command there. Connect the remote MCP server instead:
-
-- endpoint: `https://superbot.gg/mcp`
-- Claude Code: `claude mcp add --transport http superbot https://superbot.gg/mcp -s user`
-- Codex: add `[mcp_servers.superbot]` with `url = "https://superbot.gg/mcp"` to `~/.codex/config.toml`
-
-## Prerequisites
-
-- Linux on x86_64 or arm64, with `sh`, `curl` (or `wget`) and `sha256sum`.
-- Outbound HTTPS to one host, the one in `https://superbot.gg`. Every download below comes from it.
-- About 130 MB free under `~/.superbot`.
-- No inbound access, no terminal and no browser are needed on the computer.
-
-## The command
-
-Run this as one shell command. Set `V` to `grok-bot`, `muse`, `dots` or `manus`, or leave it empty.
-
-```sh
-O=https://superbot.gg; V=grok-bot; cd "$(mktemp -d)" && curl -fsSo S "$O/download/helper/asset/sha256sums?via=origin" && curl -fsSo agent-bootstrap.sh "$O/download/helper/agent-bootstrap.sh" && grep '[ *]agent-bootstrap.sh$' S | sha256sum -c >&2 && sh agent-bootstrap.sh --origin="$O" --vendor="$V" --helper-sha256-x64="$(awk '$2=="superbot-helper-linux-x64"{print $1}' S)" --helper-sha256-arm64="$(awk '$2=="superbot-helper-linux-arm64"{print $1}' S)"
-```
-
-It fetches the release checksums and the Helper's install script from `https://superbot.gg`, checks the script against its checksum line, and runs it. The script downloads the Helper build for this computer's `uname -m`, checks it against the pinned sha256, installs it at `~/.superbot/bin/superbot-helper`, starts it in the background and asks for a link. It finishes in about 30 seconds and never reads from a terminal.
-
-Where `https://superbot.gg/bootstrap.sh` answers (a self-hosted origin, or once the beta opens), `curl -fsSL https://superbot.gg/bootstrap.sh | sh -s -- --agent=grok-bot` runs the same steps and also refuses to run in a session sandbox.
-
-A computer linked this way gets link-level access. The checks prove the bytes match what `https://superbot.gg` serves over TLS, nothing more, so this path is never granted access to the user's data. That access comes only from the command the Superbot app hands out.
-
-## If the user pastes a command from the Superbot app
-
-It starts with `curl -fsSLo sba.sh` and carries `--link=lnk_…`. Run it exactly as given, as one command, instead of the command above. The app pinned every download to a hash it verified, and the one-time link carries the access the user approved in the app. Never print, log, store or repeat the `--link` value.
-
-## What to show the user
-
-Standard output is one block of `KEY=value` lines. Progress goes to standard error.
-
-```
-SUPERBOT_BOOTSTRAP=v1
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<title>Install Superbot on an agent computer – superbot.gg</title>
+<meta name="robots" content="noindex"/>
+<meta property="og:title" content="Install Superbot on an agent computer – superbot.gg"/>
+<meta name="description" content="install superbot on an agent computer: the exact setup for this client, the config entry, where it lives, and how to confirm the connection."/>
+<meta property="og:description" content="install superbot on an agent computer: the exact setup for this client, the config entry, where it lives, and how to confirm the connection."/>
+<meta property="og:url" content="https://superbot.gg/agent"/>
+<link rel="canonical" href="agent.html"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og.png?v=7"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:alt" content="superbot.gg – stop switching between AIs"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="Install Superbot on an agent computer – superbot.gg"/>
+<meta name="twitter:description" content="install superbot on an agent computer: the exact setup for this client, the config entry, where it lives, and how to confirm the connection."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og.png?v=7"/>
+<meta name="twitter:image:alt" content="superbot.gg – stop switching between AIs"/>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="alternate" type="text/markdown" href="/agent?format=md"/>
+<!-- math: md.js renders a recipe's formula into an escaped .md-math span
+     carrying \(…\) (or a .md-math-block carrying \[…\]). KaTeX is not bundled:
+     it is fetched from jsDelivr, pinned to the estate's version (0.18.7, the
+     same pin desktop packages/ui carries) and to the same SRI hashes the share
+     page's head carries, so a tampered or stale copy is refused rather than
+     executed. auto-render typesets exactly those two delimiter pairs, so
+     nothing in the prose can trigger it. The onload calls sbTypesetMath(),
+     defined by the page script below; if the CDN is blocked — or an SRI hash
+     fails — the formula stays as readable escaped text. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.7/dist/katex.min.css" integrity="sha384-JctiRyLzXCrSoOOzFlSoWLdyzQl7OrrRnhyeBmzB6ZWtcjccUyc8lCQJqIbs3uQX" crossorigin="anonymous"/>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.7/dist/katex.min.js" integrity="sha384-+7Keh381hSkXmXqnjC0JBM/kzsN6TFj+wMKychSLjTvJ8/0ElMde2uKl8i6p6Buj" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.7/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous" onload="sbTypesetMath()"></script>
+<style>
+  main{max-width:var(--content);margin:0 auto;padding:var(--sp-10) var(--gutter-r) 0 var(--gutter-l)}
+  .crumb{color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs);margin-bottom:var(--sp-4)}
+  .crumb a{color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;min-height:max(24px,var(--target-sm));border-radius:var(--r-sm)}
+  .crumb a:hover,.crumb a:active{color:var(--fg)}
+  .crumb .gg{color:var(--accent)}
+  @media (pointer: coarse){.crumb a{min-width:var(--target-sm);justify-content:center;padding:0 var(--sp-1)}}
+  /* the prose: 62ch measure, the docs ramp; md.js emits real h1-h3 with the
+     .h class (each recipe gets exactly one h1, from its H1 line).
+     overflow-wrap: a bare URL or a long code chip in a quote has no break of
+     its own and pushed the page 63px wide on a phone (measured 2026-09-02) */
+  .recipe{max-width:var(--measure);overflow-wrap:anywhere}
+  .recipe .h{font-weight:650;letter-spacing:var(--tracking-tight);text-wrap:balance;margin:var(--sp-8) 0 var(--sp-3)}
+  .recipe .h.h1{font-size:clamp(1.5rem,1.2rem+1.5vw,2rem);line-height:1.15;margin-top:0}
+  .recipe .h.h2{font-size:var(--fs-lg);line-height:var(--lh-lg)}
+  .recipe .h.h3{font-size:var(--fs-base);line-height:var(--lh-base)}
+  .recipe p{margin:0 0 var(--sp-3)}
+  .recipe p code{overflow-wrap:anywhere}
+  .recipe ul,.recipe ol{margin:0 0 var(--sp-3);padding-left:1.2rem}
+  .recipe li{margin:2px 0}
+  .recipe blockquote{margin:0 0 var(--sp-4);padding:var(--sp-1) 0 var(--sp-1) var(--sp-3);border-left:2px solid var(--accent);color:var(--muted)}
+  .recipe a:not(.sb-btn){color:var(--accent)}
+  /* a key fact: the accent lifted 25% toward the page ink, so it separates from the same-accent link above by ink as well as weight */
+  .recipe mark.kf{background:none;color:color-mix(in oklab,var(--accent) 75%,var(--fg));font-weight:600}
+  .recipe hr{border:0;border-top:1px solid var(--line);margin:var(--sp-6) 0}
+  /* the app deep link is the one thing a computer can DO with a recipe: the
+     shared .sb-btn storm button (site.css) — the class rides the anchor in
+     the body replace below, since md.js emits bare anchors. .sb-btn sets
+     white-space:nowrap (site.css), which ran this pill 410px wide on a 360px
+     phone (Q-39): here it stays inside its column and wraps instead, and
+     overflow-wrap:anywhere carries in from .recipe so even a bare
+     windsurf:// URL with no space breaks */
+  .recipe a[href^="cursor:" i],.recipe a[href^="vscode:" i],.recipe a[href^="vscode-insiders:" i],.recipe a[href^="claude-cli:" i],.recipe a[href^="windsurf:" i],.recipe a[href^="zed:" i]{
+    display:inline-flex;align-items:center;justify-content:center;min-height:var(--target);max-width:100%;padding:0 var(--sp-4);margin:var(--sp-1) 0;white-space:normal;text-align:center}
+  /* on a device without the app (a phone) the button copies the link instead, and this line says so */
+  .recipe .deep-hint{display:block;color:var(--muted);font-size:var(--fs-sm);line-height:var(--lh-sm);margin:0 0 var(--sp-3)}
+  /* code cards: the chat's shape (label bar, copy, one scroll box per block) */
+  .recipe .code{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);margin:var(--sp-3) 0 var(--sp-4);overflow:hidden}
+  .recipe .code .lbl{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-1) var(--sp-2);min-height:28px;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs)}
+  .recipe .code .lbl span{flex:1}
+  .recipe .cpy{display:inline-flex;align-items:center;justify-content:center;background:none;border:1px solid var(--line);color:var(--muted);border-radius:var(--r-sm);
+    min-height:max(28px,var(--target-sm));min-width:max(48px,var(--target-sm));padding:0 var(--sp-2);font:inherit;font-size:var(--fs-xs);cursor:pointer;
+    transition:color var(--dur-2) var(--ease-std),border-color var(--dur-2) var(--ease-std)}
+  .recipe .cpy:hover,.recipe .cpy:active,.recipe .cpy.copied{color:var(--accent);border-color:var(--accent)}
+  .recipe .code pre{margin:0;padding:var(--sp-3) var(--sp-4);overflow-x:auto;font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--fg);-webkit-overflow-scrolling:touch}
+  .recipe .code pre.overflow{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
+  /* a block that scrolls is a tab stop (focusFences): the card clips, so the ring sits inside the pre's own box, and the edge
+     fade comes off while it is focused so the ring is not faded away on the right */
+  .recipe .code pre:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:0 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px);-webkit-mask-image:none;mask-image:none}
+  .recipe .code .tk-c{color:var(--muted);font-style:italic}
+  .recipe .code .tk-s{color:var(--accent)}
+  .recipe .code .tk-n{color:var(--warn)}
+  .recipe .code .tk-k{color:var(--accent)}
+  /* rules text meant to be pasted whole wraps instead of scrolling: a reader
+     copies it, never reads it sideways */
+  .recipe .code[data-wrap] pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  .foot-links{margin-top:var(--sp-8);padding-top:var(--sp-4);border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);font-size:var(--fs-sm)}
+  .foot-links a{color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;min-height:max(24px,var(--target-sm))}
+  /* a short prev/next label ("← zed") can be under 44px wide: on a finger give
+     it the same width floor the crumb link takes */
+  @media (pointer: coarse){.foot-links a{min-width:var(--target-sm);justify-content:center;padding:0 var(--sp-1)}}
+  .foot-links a:hover,.foot-links a:active{color:var(--fg)}
+  /* the onward step (Q-143) is the accent half of the pair: beside the way back
+     to the grid, the next recipe is the one a reader is likelier to want */
+  .foot-links a.next{color:var(--accent)}
+  /* the on-this-page nav (Q-143): the document's own H2s, with the section you
+     are reading marked. A row of chips under the crumb rather than a rail: the
+     article is a single 62ch column and a second column would fight it at 360px
+     wide, where the page is one column anyway */
+  .toc{margin:0 0 var(--sp-5);padding:0 0 var(--sp-4);border-bottom:1px solid var(--line)}
+  .toc-lbl{display:block;color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs);margin-bottom:var(--sp-2)}
+  .toc ul{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0;padding:0;list-style:none}
+  .toc a{display:inline-flex;align-items:center;min-height:max(28px,var(--target-sm));max-width:100%;padding:0 var(--sp-3);
+    border:1px solid var(--line);border-radius:var(--r-pill);color:var(--muted);text-decoration:none;font-size:var(--fs-sm);line-height:var(--lh-sm);
+    overflow-wrap:anywhere;transition:color var(--dur-2) var(--ease-std),border-color var(--dur-2) var(--ease-std)}
+  .toc a:hover,.toc a:focus-visible{color:var(--fg);border-color:var(--muted)}
+  .toc a[aria-current="true"]{color:var(--accent);border-color:var(--accent)}
+  /* the shared nav row is 23px over at 320 on a finger (site.css sizes the
+     sbnav ladder for a 28px target; coarse lifts the links to 44): below 400
+     the header takes two rows instead of overflowing. The same rule
+     store-links.ts carries; it belongs in site.css (SEAM) */
+  @media (max-width: 400px) {
+    .sb-header { height: auto; }
+    .sb-header-in { flex-wrap: wrap; height: auto; min-height: var(--nav-h); padding-top: var(--sp-1); padding-bottom: var(--sp-1); }
+  }
+</style></head><body>
+<a class="sb-skip" href="#main">skip to content</a>
+<header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
+<main id="main" tabindex="-1">
+  <div class="crumb"><a href="index.html">superbot<span class="gg">.gg</span></a> / <a href="docs">docs</a> / agent-computer</div>
+  <nav class="toc" aria-label="on this page">
+    <span class="toc-lbl">on this page</span>
+    <ul><li><a href="#not-for-session-sandboxes">Not for session sandboxes</a></li><li><a href="#prerequisites">Prerequisites</a></li><li><a href="#the-command">The command</a></li><li><a href="#if-the-user-pastes-a-command-from-the-superbot-a">If the user pastes a command from the Superbot app</a></li><li><a href="#what-to-show-the-user">What to show the user</a></li><li><a href="#verify">Verify</a></li><li><a href="#re-running">Re-running</a></li><li><a href="#troubleshooting">Troubleshooting</a></li></ul>
+  </nav>
+  <article class="recipe"><h1 class="h h1">Install Superbot on an agent computer</h1><p>This page is for an agent that has its own Linux computer: xAI Grok Bot, Meta Muse, OpenAI dots, Manus, or any Linux VM an agent drives. It installs the Superbot Helper on that computer and links it to the user's Superbot account. The user's request usually reads &quot;Install Superbot from superbot.gg/agent&quot;.</p><p>Vendor notes: <a href="https://superbot.gg/agent?vendor=grok-bot" referrerpolicy="no-referrer">Grok Bot</a>, <a href="https://superbot.gg/agent?vendor=muse" referrerpolicy="no-referrer">Muse</a>, <a href="https://superbot.gg/agent?vendor=dots" referrerpolicy="no-referrer">dots</a>, <a href="https://superbot.gg/agent?vendor=manus" referrerpolicy="no-referrer">Manus</a>.</p><h2 class="h h2" id="not-for-session-sandboxes">Not for session sandboxes</h2><p>Codex cloud tasks and Claude Code on the web run in a container that is thrown away when the session ends, so a Helper installed there would be linked to a computer that no longer exists. Do not run the command there. Connect the remote MCP server instead:</p><ul><li>endpoint: <code>https://superbot.gg/mcp</code></li><li>Claude Code: <code>claude mcp add --transport http superbot https://superbot.gg/mcp -s user</code></li><li>Codex: add <code>[mcp_servers.superbot]</code> with <code>url = &quot;https://superbot.gg/mcp&quot;</code> to <code>~/.codex/config.toml</code></li></ul><h2 class="h h2" id="prerequisites">Prerequisites</h2><ul><li>Linux on x86_64 or arm64, with <code>sh</code>, <code>curl</code> (or <code>wget</code>) and <code>sha256sum</code>.</li><li>Outbound HTTPS to one host, the one in <code>https://superbot.gg</code>. Every download below comes from it.</li><li>About 130 MB free under <code>~/.superbot</code>.</li><li>No inbound access, no terminal and no browser are needed on the computer.</li></ul><h2 class="h h2" id="the-command">The command</h2><p>Run this as one shell command. Set <code>V</code> to <code>grok-bot</code>, <code>muse</code>, <code>dots</code> or <code>manus</code>, or leave it empty.</p><div class="code"><div class="lbl"><span>sh</span><button class="cpy" data-act="copy-code">copy</button></div><pre data-lang="sh" tabindex="0" role="region" aria-label="sh code 1"><code>O=http://superbot.gg; V=grok-bot; cd <span class="tk-s">&quot;$(mktemp -d)&quot;</span> &amp;&amp; curl -fsSo S <span class="tk-s">&quot;$O/download/helper/asset/sha256sums?via=origin&quot;</span> &amp;&amp; curl -fsSo agent-bootstrap.sh <span class="tk-s">&quot;$O/download/helper/agent-bootstrap.sh&quot;</span> &amp;&amp; grep <span class="tk-s">'[ *]agent-bootstrap.sh$'</span> S | sha256sum -c &gt;&amp;<span class="tk-n">2</span> &amp;&amp; sh agent-bootstrap.sh --origin=<span class="tk-s">&quot;$O&quot;</span> --vendor=<span class="tk-s">&quot;$V&quot;</span> --helper-sha256-x64=<span class="tk-s">&quot;$(awk '$2==&quot;</span>superbot-helper-linux-x64<span class="tk-s">&quot;{print $1}' S)&quot;</span> --helper-sha256-arm64=<span class="tk-s">&quot;$(awk '$2==&quot;</span>superbot-helper-linux-arm64<span class="tk-s">&quot;{print $1}' S)&quot;</span></code></pre></div><p>It fetches the release checksums and the Helper's install script from <code>https://superbot.gg</code>, checks the script against its checksum line, and runs it. The script downloads the Helper build for this computer's <code>uname -m</code>, checks it against the pinned sha256, installs it at <code>~/.superbot/bin/superbot-helper</code>, starts it in the background and asks for a link. It finishes in about 30 seconds and never reads from a terminal.</p><p>Where <code>https://superbot.gg/bootstrap.sh</code> answers (a self-hosted origin, or once the beta opens), <code>curl -fsSL https://superbot.gg/bootstrap.sh | sh -s -- --agent=grok-bot</code> runs the same steps and also refuses to run in a session sandbox.</p><p>A computer linked this way gets link-level access. The checks prove the bytes match what <code>https://superbot.gg</code> serves over TLS, nothing more, so this path is never granted access to the user's data. That access comes only from the command the Superbot app hands out.</p><h2 class="h h2" id="if-the-user-pastes-a-command-from-the-superbot-a">If the user pastes a command from the Superbot app</h2><p>It starts with <code>curl -fsSLo sba.sh</code> and carries <code>--link=lnk_…</code>. Run it exactly as given, as one command, instead of the command above. The app pinned every download to a hash it verified, and the one-time link carries the access the user approved in the app. Never print, log, store or repeat the <code>--link</code> value.</p><h2 class="h h2" id="what-to-show-the-user">What to show the user</h2><p>Standard output is one block of <code>KEY=value</code> lines. Progress goes to standard error.</p><div class="code" data-wrap><div class="lbl"><span>code</span><button class="cpy" data-act="copy-code">copy</button></div><pre><code>SUPERBOT_BOOTSTRAP=v1
 SUPERBOT_STATUS=awaiting_approval
-SUPERBOT_LINK_URL=https://…/approve?user_code=…
-```
-
-- `awaiting_approval`: give the user `SUPERBOT_LINK_URL` and ask them to open it where they are signed in to Superbot and approve this computer. Then run the same command again.
-- `linked`: tell the user it is linked, with the masked account from `SUPERBOT_LINKED_TO` when present.
-- `error`: show `SUPERBOT_ERROR` (a code, then a message) and check Troubleshooting.
-
-One line is enough, for example `Superbot Helper: linked to a***@example.com`, or `Superbot Helper: approve this computer at <SUPERBOT_LINK_URL>`.
-
-## Verify
-
-Run the same command again. With the Helper already current it downloads nothing, and once the user has approved it prints `SUPERBOT_STATUS=linked`. To check the Helper process itself:
-
-```sh
-kill -0 "$(cat ~/.superbot/agent-helper.pid)" && echo running
-```
-
-## Re-running
-
-Running the command again is safe. When the computer is already linked (`~/.superbot/key.json` exists) it only restarts the Helper and never links again. To link to another account, add `--relink` after `sh agent-bootstrap.sh`. Running it again is also how the Helper updates to a new release, and what to do after the computer restarts or is updated.
-
-## Troubleshooting
-
-- `download_failed`, curl exit 6, 7 or 28, or a 403 from a proxy: the computer cannot reach `https://superbot.gg`. Allow that one host in the computer's network settings; no other host is needed. Behind a proxy, set `HTTPS_PROXY` (and `https_proxy` for wget) before the command. `curl -fsS -o /dev/null https://superbot.gg/download/helper/latest.json && echo reachable` tells you whether the host is reachable. Once the Helper is installed, `~/.superbot/bin/superbot-helper doctor --egress` (on a Helper that has it) reports what the Helper itself can reach.
-- `download_incomplete`: the Helper download (about 125 MB) ran out of time. Run the command again; it resumes where it stopped.
-- `hash_mismatch`, or `sha256sum: WARNING`: the bytes changed on the way, usually a proxy or cache. Nothing was installed. Run it again; if it repeats, something on the network is rewriting downloads.
-- A 404 on `agent-bootstrap.sh`, or `release_unsigned`: the current Helper release predates this install path. Try again after the next release.
-- A 401 on a download: that origin does not serve the Helper to this computer. Use the origin this page names in the command.
-- `start_failed`: the Helper exited as it started. The end of `~/.superbot/agent-helper.log` says why.
-- `link_timeout` or `link_unavailable`: run the command again.
-- `unsupported_os` or `unsupported_arch`: the Helper for agent computers ships for Linux on x86_64 and arm64 only.
+SUPERBOT_LINK_URL=https:<span class="tk-c">//…/approve?user_code=…</span></code></pre></div><ul><li><code>awaiting_approval</code>: give the user <code>SUPERBOT_LINK_URL</code> and ask them to open it where they are signed in to Superbot and approve this computer. Then run the same command again.</li><li><code>linked</code>: tell the user it is linked, with the masked account from <code>SUPERBOT_LINKED_TO</code> when present.</li><li><code>error</code>: show <code>SUPERBOT_ERROR</code> (a code, then a message) and check Troubleshooting.</li></ul><p>One line is enough, for example <code>Superbot Helper: linked to a***@example.com</code>, or <code>Superbot Helper: approve this computer at &lt;SUPERBOT_LINK_URL&gt;</code>.</p><h2 class="h h2" id="verify">Verify</h2><p>Run the same command again. With the Helper already current it downloads nothing, and once the user has approved it prints <code>SUPERBOT_STATUS=linked</code>. To check the Helper process itself:</p><div class="code"><div class="lbl"><span>sh</span><button class="cpy" data-act="copy-code">copy</button></div><pre data-lang="sh" tabindex="0" role="region" aria-label="sh code 2"><code>kill -<span class="tk-n">0</span> <span class="tk-s">&quot;$(cat ~/.superbot/agent-helper.pid)&quot;</span> &amp;&amp; echo running</code></pre></div><h2 class="h h2" id="re-running">Re-running</h2><p>Running the command again is safe. When the computer is already linked (<code>~/.superbot/key.json</code> exists) it only restarts the Helper and never links again. To link to another account, add <code>--relink</code> after <code>sh agent-bootstrap.sh</code>. Running it again is also how the Helper updates to a new release, and what to do after the computer restarts or is updated.</p><h2 class="h h2" id="troubleshooting">Troubleshooting</h2><ul><li><code>download_failed</code>, curl exit 6, 7 or 28, or a 403 from a proxy: the computer cannot reach <code>https://superbot.gg</code>. Allow that one host in the computer's network settings; no other host is needed. Behind a proxy, set <code>HTTPS_PROXY</code> (and <code>https_proxy</code> for wget) before the command. <code>curl -fsS -o /dev/null https://superbot.gg/download/helper/latest.json &amp;&amp; echo reachable</code> tells you whether the host is reachable. Once the Helper is installed, <code>~/.superbot/bin/superbot-helper doctor --egress</code> (on a Helper that has it) reports what the Helper itself can reach.</li><li><code>download_incomplete</code>: the Helper download (about 125 MB) ran out of time. Run the command again; it resumes where it stopped.</li><li><code>hash_mismatch</code>, or <code>sha256sum: WARNING</code>: the bytes changed on the way, usually a proxy or cache. Nothing was installed. Run it again; if it repeats, something on the network is rewriting downloads.</li><li>A 404 on <code>agent-bootstrap.sh</code>, or <code>release_unsigned</code>: the current Helper release predates this install path. Try again after the next release.</li><li>A 401 on a download: that origin does not serve the Helper to this computer. Use the origin this page names in the command.</li><li><code>start_failed</code>: the Helper exited as it started. The end of <code>~/.superbot/agent-helper.log</code> says why.</li><li><code>link_timeout</code> or <code>link_unavailable</code>: run the command again.</li><li><code>unsupported_os</code> or <code>unsupported_arch</code>: the Helper for agent computers ships for Linux on x86_64 and arm64 only.</li></ul></article>
+  <nav class="foot-links" aria-label="this page">
+    <a href="docs">← every client</a>
+    
+    
+    <a href="/agent?format=md">this page as markdown</a>
+  </nav>
+  <div class="sb-visually-hidden" id="copylive" aria-live="polite"></div>
+</main>
+<footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
+<script>
+  // math: the head's KaTeX auto-render include typesets the escaped .md-math
+  // spans md.js emits, through this one entry point (its onload calls it, so
+  // it can never run before its own payload has arrived). The recipe body is
+  // static, so a single pass is all a page needs; with the CDN unreachable the
+  // formula stays as escaped text.
+  // The KaTeX delimiters are BUILT from the backslash code point rather than
+  // written: this whole page is a TS template literal, and a written pair of
+  // backslash-paren characters would collapse to a bare open paren on the
+  // wire — a delimiter that then matches every parenthesised phrase in prose.
+  const MATH_BS = String.fromCharCode(92);
+  // Each math element is handed over ON ITS OWN with explicit delimiters, so
+  // the typesetter can never reach past the span md.js minted: a delimiter a
+  // model happened to type as prose is not a math element and is never
+  // typeset. Exactly the pattern share.ts's own client uses.
+  window.sbTypesetMath = function () {
+    if (typeof window.renderMathInElement !== 'function') return;
+    var nodes = document.querySelectorAll('.recipe .md-math,.recipe .md-math-block');
+    for (var i = 0; i < nodes.length; i++) {
+      try {
+        window.renderMathInElement(nodes[i], {
+          delimiters: [
+            { left: MATH_BS + '(', right: MATH_BS + ')', display: false },
+            { left: MATH_BS + '[', right: MATH_BS + ']', display: true },
+          ],
+          throwOnError: false,
+        });
+      } catch (e) { /* a malformed formula must never break the page */ }
+    }
+  };
+</script>
+<script>
+  // copy per code block: async clipboard, execCommand fallback, feedback only
+  // on a copy that happened (the same ladder as the install widget); a card
+  // whose line runs past the box gets the edge fade; a fence with no
+  // language (the rules text) wraps so it is read whole and copied whole
+  (function () {
+    var live = document.getElementById('copylive');
+    var say = function (t) { if (live) { live.textContent = t; setTimeout(function () { live.textContent = ''; }, 1500); } };
+    var copy = function (value, done, blocked) {
+      var fallback = function () {
+        var ta = document.createElement('textarea'); ta.value = value; document.body.appendChild(ta); ta.select();
+        var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } ta.remove();
+        if (ok) done(); else blocked();
+      };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(value).then(done, fallback); else fallback();
+    };
+    document.querySelectorAll('.recipe .code').forEach(function (card) {
+      var lang = (card.querySelector('.lbl span') || {}).textContent || '';
+      if (lang === 'code') card.setAttribute('data-wrap', '');
+      var btn = card.querySelector('.cpy');
+      var pre = card.querySelector('pre');
+      if (!btn || !pre) return;
+      btn.addEventListener('click', function () {
+        copy(pre.textContent, function () {
+          btn.textContent = 'copied'; btn.classList.add('copied'); say('copied to clipboard');
+          setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+        }, function () {
+          var sel = getSelection(); sel.removeAllRanges(); var r = document.createRange(); r.selectNodeContents(pre); sel.addRange(r);
+          say('clipboard blocked: the text is selected, press copy on your keyboard');
+        });
+      });
+    });
+    // an app deep link on a device with no such app (a phone) is a dead tap
+    // that ends in the OS's "cannot open" dialog: there, the button copies the
+    // link for the reader's computer instead, and a line under it says so
+    if (matchMedia('(pointer: coarse)').matches) {
+      document.querySelectorAll('.recipe a[href^="cursor:" i],.recipe a[href^="vscode:" i],.recipe a[href^="vscode-insiders:" i],.recipe a[href^="claude-cli:" i],.recipe a[href^="windsurf:" i],.recipe a[href^="zed:" i]').forEach(function (a) {
+        var hint = document.createElement('span');
+        hint.className = 'deep-hint';
+        hint.textContent = 'no app for that on this device: tapping copies the link for your computer.';
+        a.insertAdjacentElement('afterend', hint);
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var was = a.textContent;
+          copy(a.getAttribute('href'), function () {
+            a.textContent = 'copied — open it on your computer'; say('link copied for your computer');
+            setTimeout(function () { a.textContent = was; }, 2500);
+          }, function () { say('clipboard blocked: the link is on this page as markdown'); });
+        });
+      });
+    }
+    // the on-this-page nav tracks the section being read (Q-143): the last H2
+    // whose top has crossed a quarter of the way down the viewport is the
+    // current one, so the nav says where you are, not only what exists
+    var toc = document.querySelector('.toc');
+    var heads = [].slice.call(document.querySelectorAll('.recipe h2.h'));
+    if (toc && heads.length) {
+      var links = [].slice.call(toc.querySelectorAll('a'));
+      var track = function () {
+        var band = window.innerHeight * 0.25;
+        var at = 0;
+        for (var i = 0; i < heads.length; i++) if (heads[i].getBoundingClientRect().top <= band) at = i;
+        links.forEach(function (a, i) {
+          if (i === at) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+        });
+      };
+      track();
+      addEventListener('scroll', track, { passive: true });
+      addEventListener('resize', track);
+    }
+    var mark = function () { document.querySelectorAll('.recipe .code pre').forEach(function (p) { p.classList.toggle('overflow', p.scrollWidth > p.clientWidth + 1); }); };
+    mark(); addEventListener('resize', mark);
+  })();
+</script>
+<!-- the shared phone drawer: every static page loads it, this shell did not, so a
+     narrow phone got a link row with no menu button (2026-09-17). It decorates
+     the nav siteNav() emits; nothing here changes the markup. -->
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body></html>

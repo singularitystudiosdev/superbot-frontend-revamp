@@ -1,71 +1,159 @@
----
-title: "superbot clients"
-canonical_url: "https://superbot.gg/clients"
-last_updated: "2026-10-08"
-summary: "Point your client at superbot and keep using it. Every setup below is three values: a base URL, a key and a model id."
----
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<title>base URL setup for Cursor, Claude Code, Codex – superbot.gg</title>
+<meta name="keywords" content="superbot, Cursor, Claude Code, Codex, Aider, Zed, base URL, API key, model id"/>
+<meta property="og:title" content="base URL setup for Cursor, Claude Code, Codex – superbot.gg"/>
+<meta name="description" content="the base URL, key and model id for Cursor, Claude Code, Codex, Aider, Zed and every other client, so each one can call any model on your account."/>
+<meta property="og:description" content="the base URL, key and model id for Cursor, Claude Code, Codex, Aider, Zed and every other client, so each one can call any model on your account."/>
+<meta property="og:url" content="https://superbot.gg/clients"/>
+<link rel="canonical" href="clients.html"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og/clients.png?v=2"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:alt" content="superbot.gg clients card: point every coding client at superbot."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="base URL setup for Cursor, Claude Code, Codex – superbot.gg"/>
+<meta name="twitter:description" content="the base URL, key and model id for Cursor, Claude Code, Codex, Aider, Zed and every other client, so each one can call any model on your account."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og/clients.png?v=2"/>
+<meta name="twitter:image:alt" content="superbot.gg clients card: point every coding client at superbot."/>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<style>
+  main{max-width:var(--container);margin:0 auto;padding:var(--sp-6) var(--gutter-r) 0 var(--gutter-l)}
+  .cl-h1{font-size:var(--fs-h2);line-height:1.2;margin:0 0 var(--sp-2);text-wrap:balance}
+  .cl-lede{max-width:var(--measure);text-wrap:pretty}
+  section.cl{margin:0 0 var(--sp-8);scroll-margin-top:calc(var(--nav-h) + var(--sp-4))}
+  h2{font-size:var(--fs-lg);line-height:var(--lh-lg);margin:0 0 var(--sp-2);text-wrap:balance}
+  h3{font-size:var(--fs-base);margin:var(--sp-4) 0 var(--sp-2)}
+  p,li{color:var(--muted);font-size:var(--fs-sm);line-height:var(--lh-sm);max-width:var(--measure);text-wrap:pretty}
+  p+p{margin-top:var(--sp-2)}
+  code{color:var(--fg);font-size:var(--fs-xs)}
+  p code,li code,td code,th code{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:1px 6px}
+  a{color:var(--accent)}
+  /* the badge is a word, and the word is the state: colour only reinforces it */
+  .badge{display:inline-block;margin-left:var(--sp-2);font-size:var(--fs-xs);line-height:var(--lh-xs);
+    border:1px solid var(--line);border-radius:var(--r-pill);padding:0 var(--sp-2);vertical-align:middle;color:var(--muted)}
+  .badge.full{color:var(--accent);border-color:var(--accent)}
+  .badge.none{color:var(--danger);border-color:var(--danger-line)}
+  .cl-sum{margin:0 0 var(--sp-2)}
+  /* the routing map: one inline svg per client section plus one under the paste
+     table. Every colour lives here and none in the markup: currentColor for the
+     default ink, the page's one accent for a lane the reader holds, --line for
+     every wire. A dashed first leg is a client that cannot be dialed. */
+  .cl-flow-fig{margin:var(--sp-3) 0 var(--sp-4);max-width:var(--measure)}
+  .cl-flow{display:block;width:100%;height:auto;color:var(--muted);font-family:var(--font-mono)}
+  .cl-flow text{fill:currentColor;font-family:var(--font-mono);font-size:var(--fs-xs)}
+  .cl-flow .box{fill:none;stroke:var(--line)}
+  .cl-flow .wire{fill:none;stroke:var(--line)}
+  .cl-flow .dash{stroke-dasharray:4 3}
+  .cl-flow .head{fill:var(--line);stroke:none}
+  .cl-flow .cl-name{fill:var(--fg)}
+  .cl-flow .node{fill:var(--fg)}
+  .cl-flow .mut{fill:var(--muted)}
+  .cl-flow .lane .lbl{fill:var(--muted)}
+  .cl-flow .lane .dot{fill:none;stroke:var(--line)}
+  .cl-flow .lane.lit .box,.cl-flow .lane.lit .wire{stroke:var(--accent)}
+  .cl-flow .lane.lit .head{fill:var(--accent)}
+  .cl-flow .lane.lit .lbl{fill:var(--accent)}
+  .cl-flow .lane.lit .dot{fill:var(--accent);stroke:var(--accent)}
+  .cl-flow-cap{font-size:var(--fs-xs);line-height:var(--lh-xs);color:var(--muted);margin:var(--sp-1) 0 0}
+  .cl-none{border-left:2px solid var(--warn);padding-left:var(--sp-3)}
+  .cl-steps{margin:var(--sp-2) 0 var(--sp-3);padding-left:var(--sp-5)}
+  .cl-steps li{margin:0 0 var(--sp-1)}
+  .cl-traps{margin:0 0 var(--sp-2);padding-left:var(--sp-5)}
+  .cl-traps li{margin:0 0 var(--sp-1)}
+  .cl-src{font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--muted);max-width:var(--measure)}
+  /* the jump list: one row of names, wrapping, never a sidebar */
+  .cl-jump{margin:0 0 var(--sp-8)}
+  .cl-jump ul{display:flex;flex-wrap:wrap;gap:var(--sp-1) var(--sp-3);list-style:none;margin:0 0 var(--sp-2);padding:0}
+  .cl-jump li{margin:0}
+  .cl-legend{list-style:none;margin:0;padding:0}
+  .cl-legend li{font-size:var(--fs-sm);line-height:var(--lh-sm)}
+  pre{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--sp-3);overflow-x:auto;font-size:var(--fs-xs);line-height:1.5;margin:0}
+  pre code{color:var(--muted);background:none;border:0;padding:0}
+  /* code cards (the developers page shape): a labeled bar with the copy button
+     over one scroll box per sample */
+  .code{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);margin:var(--sp-3) 0 var(--sp-4);overflow:hidden}
+  .code .lbl{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-1) var(--sp-2);min-height:28px;border-bottom:1px solid var(--line);color:var(--muted);font-size:var(--fs-xs);line-height:var(--lh-xs)}
+  .code .lbl span{flex:1}
+  .code pre{margin:0;border:0;border-radius:0}
+  /* the card clips (overflow:hidden), so the ring sits inside the pre's own box: outside it, it would never show */
+  .code pre:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:0 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px)}
+  .cpy{display:inline-flex;align-items:center;justify-content:center;background:none;border:1px solid var(--line);color:var(--muted);border-radius:var(--r-sm);
+    min-height:max(28px,var(--target-sm));min-width:max(48px,var(--target-sm));padding:0 var(--sp-2);font:inherit;font-size:var(--fs-xs);cursor:pointer;
+    transition:color var(--dur-2) var(--ease-std),border-color var(--dur-2) var(--ease-std)}
+  .cpy:hover,.cpy:active,.cpy.copied{color:var(--accent);border-color:var(--accent)}
+  .tbl{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:var(--fs-sm)}
+  th{text-align:left;color:var(--muted);font-weight:400;font-size:var(--fs-xs);padding:var(--sp-2) var(--sp-3) var(--sp-2) 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td{padding:var(--sp-2) var(--sp-3) var(--sp-2) 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  tr:last-child td,tr:last-child th{border-bottom:0}
+  /* long unbreakable tokens (base URLs, model ids) wrap inside their cell
+     instead of pushing the table past the phone viewport */
+  td code,th code{overflow-wrap:anywhere}
+  /* phone: the paste table stacks, label over value, so a base URL gets the
+     full row instead of a 150px column that broke it at "/v|1"; a snippet
+     wraps (indent kept) so the value to copy shows whole, not behind a
+     hidden scrollbar */
+  @media (max-width: 560px) {
+    .tbl tr{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--sp-2) 0;border-bottom:1px solid var(--line)}
+    .tbl tr:last-child{border-bottom:0}
+    .tbl th,.tbl td{padding:0;border-bottom:0}
+    .tbl td{padding-top:var(--sp-1)}
+    /* a chip moves to the next line whole ("x-api-key", "superbot-omni") and
+       breaks inside only when it is wider than the row */
+    .tbl td code{display:inline-block;max-width:100%;vertical-align:top}
+  }
+  @media (pointer: coarse), (max-width: 560px) {
+    .code pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  }
+  /* the shared nav row is 23px over at 320 on a finger; below 400 the header
+     takes two rows instead of overflowing (same rule the developers page
+     carries; it belongs in site.css, SEAM) */
+  @media (max-width: 400px) {
+    .sb-header { height: auto; }
+    .sb-header-in { flex-wrap: wrap; height: auto; min-height: var(--nav-h); padding-top: var(--sp-1); padding-bottom: var(--sp-1); }
+  }
+  </style>
+<link rel="alternate" type="text/markdown" href="/clients.md">
+</head><body>
+<a class="sb-skip" href="#main">skip to content</a>
+<header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
+<main id="main" tabindex="-1">
+  <h1 class="cl-h1">set up your clients</h1>
+  <p class="cl-lede">Point your client at superbot and keep using it. Every setup here is three values:
+  a base URL, a key and a model id.</p>
+  <p class="cl-lede">Mint a key on the <a href="/account/api">account api page</a>. Routes, limits and the error
+  contract are on <a href="developers.html">developers</a>.</p>
 
-> Markdown twin of https://superbot.gg/clients (the HTML page is canonical).
-> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+  <section class="cl" id="paste">
+    <h2>What to paste</h2>
+    <p>These values are the whole configuration. Where the client asks for a model name, enter
+    <code>superbot</code>.</p>
+    <div class="tbl" tabindex="0" role="region" aria-label="Values to paste"><table><tbody><tr><th scope="row">Base URL</th><td><code>https://superbot.gg/v1</code></td></tr><tr><th scope="row">key header</th><td><code>Authorization: Bearer sbc_…</code> or <code>x-api-key</code></td></tr><tr><th scope="row">model ids</th><td><code>superbot</code>: Your Superbot agent. <code>superbot-omni</code>: Superbot agent, run on your computer.</td></tr></tbody></table></div>
+    <figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-paste" viewBox="0 0 320 210" width="100%" role="img" aria-label="your client routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>your client: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">your client</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure>
+  </section>
 
-# superbot clients
+  <nav class="cl-jump" aria-label="clients">
+    <h2>Jump to a client</h2>
+    <ul><li><a href="#cursor">Cursor</a></li><li><a href="#devin">Devin</a></li><li><a href="#claude-code">Claude Code</a></li><li><a href="#codex">Codex CLI</a></li><li><a href="#copilot">GitHub Copilot (VS Code)</a></li><li><a href="#continue">Continue</a></li><li><a href="#cline">Cline</a></li><li><a href="#roo">Roo Code</a></li><li><a href="#zed">Zed</a></li><li><a href="#aider">Aider</a></li><li><a href="#opencode">OpenCode</a></li><li><a href="#sdk">Any OpenAI or Anthropic SDK</a></li></ul>
+    <ul class="cl-legend" aria-label="support values"><li><code>full</code> every call is answered</li><li><code>partial</code> works, one limit (see traps)</li><li><code>none</code> cannot point at superbot</li></ul>
+  </nav>
 
-Point your client at superbot and keep using it. Every setup below is three values: a base URL, a key and a model id.
-
-Mint a key on https://superbot.gg/account/api. Routes, limits and the error contract are on https://superbot.gg/developers.
-
-## What to paste
-
-| what | value |
-| --- | --- |
-| Base URL | `https://superbot.gg/v1` |
-| key header | `Authorization: Bearer sbc_…` or `x-api-key` |
-| model ids | `superbot`: Your Superbot agent. `superbot-omni`: Superbot agent, run on your computer. |
-
-routing: your client -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-## Jump to a client
-
-- Cursor (#cursor)
-- Devin (#devin)
-- Claude Code (#claude-code)
-- Codex CLI (#codex)
-- GitHub Copilot (VS Code) (#copilot)
-- Continue (#continue)
-- Cline (#cline)
-- Roo Code (#roo)
-- Zed (#zed)
-- Aider (#aider)
-- OpenCode (#opencode)
-- Any OpenAI or Anthropic SDK (#sdk)
-
-## Cursor (full)
-
-Cursor BYOK: key, base URL and custom model.
-
-routing: Cursor -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open `Cursor Settings`, then `Models`.
-2. Paste your `sbc_` key into the `OpenAI API key` box.
-3. Paste the base URL from the card above.
-4. Put it in `Override OpenAI Base URL`.
-5. Click `Add Custom Model` and name it `superbot`.
-6. Add `superbot-omni` as a second custom model if you want it.
-7. Select `superbot` in the model picker, then send one message.
-8. With the Helper: quit Cursor, run `superbot clients wire cursor`, skip 2-6.
-
-**what to paste**
-
-```
-Override OpenAI Base URL: https://superbot.gg/v1
+  <section class="cl" id="cursor"><h2>Cursor<span class="badge full">full</span></h2><p class="cl-sum">Cursor BYOK: key, base URL and custom model.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-cursor" viewBox="0 0 320 210" width="100%" role="img" aria-label="Cursor routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Cursor: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Cursor</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open <code>Cursor Settings</code>, then <code>Models</code>.</li><li>Paste your <code>sbc_</code> key into the <code>OpenAI API key</code> box.</li><li>Paste the base URL from the card above.</li><li>Put it in <code>Override OpenAI Base URL</code>.</li><li>Click <code>Add Custom Model</code> and name it <code>superbot</code>.</li><li>Add <code>superbot-omni</code> as a second custom model if you want it.</li><li>Select <code>superbot</code> in the model picker, then send one message.</li><li>With the Helper: quit Cursor, run <code>superbot clients wire cursor</code>, skip 2-6.</li></ol><div class="code"><div class="lbl"><span>what to paste</span><button class="cpy" type="button" aria-label="copy the Cursor what to paste snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Cursor snippet: what to paste"><code>Override OpenAI Base URL: https://superbot.gg/v1
 OpenAI API key: sbc_…
-Custom model: superbot
-```
-
-**route it with the helper**
-
-```
-# quit Cursor first: it rewrites its state store on quit
+Custom model: superbot</code></pre></div><div class="code"><div class="lbl"><span>route it with the helper</span><button class="cpy" type="button" aria-label="copy the Cursor route it with the helper snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Cursor snippet: route it with the helper"><code># quit Cursor first: it rewrites its state store on quit
 superbot clients wire cursor
 
 # what it puts in place for you
@@ -74,449 +162,134 @@ OpenAI API key: sbc_…
 Custom models: superbot, superbot-omni
 
 # undo: restores the config it backed up
-superbot clients unwire cursor
-```
-
-**verify outside Cursor**
-
-```
-curl https://superbot.gg/v1/chat/completions \
-  -H "Authorization: Bearer sbc_…" \
-  -H "Content-Type: application/json" \
-  -d '{"model":"superbot","messages":[{"role":"user","content":"ping"}]}'
-```
-
-traps:
-- The override captures every OpenAI-family request it sees. That includes Cursor's own picker models, not just yours. Turn it off to send a picker model to its own vendor.
-- No Anthropic base override exists, so an Anthropic key stays native. Claude keeps working, billed by Anthropic as before.
-- The override must be a public URL: the dial comes from their servers. A `localhost` URL never answers.
-- Already pointing the override at another gateway? Keep it working. Add it on `/account/api` as `your previous upstream`. Its models then keep answering through superbot, in one key.
-- `superbot clients wire cursor` needs Cursor quit first, then writes the rows. Undo it with `superbot clients unwire cursor`.
-- Cursor may probe with `gpt-4o-mini` when you save the override. If that probe fails, the custom model can still work once selected.
-- The key lives in Cursor's own state store, not `settings.json`.
-
-source: https://cursor.com/help/models-and-usage/api-keys, retrieved 2026-09-19
-
-## Devin (none)
-
-No custom endpoint, in the cloud or Desktop
-
-routing: Devin -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-Devin has no base URL to change, so it cannot be pointed at superbot.
-
-instead:
-1. Devin takes no custom base URL, in the cloud or in Devin Desktop.
-2. Use superbot's hosted MCP server instead. Devin connects to it as a remote MCP server.
-3. Setup for that lives at `/docs#clients`. If one appears later, paste the same three values as any other client.
-
-traps:
-- "Devin is a compound AI system and does not currently support third-party LLM API keys." No tier exception is documented.
-- The Devin Desktop docs are silent on BYOK and base URLs. Desktop models come from the built-in catalog.
-
-source: https://docs.devin.ai/enterprise/deployment/overview, retrieved 2026-09-19
-
-## Claude Code (full)
-
-Claude Code BYOK: base URL, key, model.
-
-routing: Claude Code -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Set `ANTHROPIC_BASE_URL` to the base URL above.
-2. Set `ANTHROPIC_API_KEY`, which is sent as `x-api-key`.
-3. Or set `ANTHROPIC_AUTH_TOKEN`, sent as `Authorization: Bearer`.
-4. Pick the model with `ANTHROPIC_MODEL` or `--model`.
-5. You can also set `model` in `settings.json`. Or put all of it in the `"env"` block there.
-6. Restart Claude Code, then send one message.
-
-**shell setup**
-
-```
-export ANTHROPIC_BASE_URL="https://superbot.gg/v1"
-export ANTHROPIC_API_KEY="sbc_…"
-export ANTHROPIC_MODEL="superbot"
-```
-
-**settings.json**
-
-```
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://superbot.gg/v1",
-    "ANTHROPIC_API_KEY": "sbc_…",
-    "ANTHROPIC_MODEL": "superbot"
+superbot clients unwire cursor</code></pre></div><div class="code"><div class="lbl"><span>verify outside Cursor</span><button class="cpy" type="button" aria-label="copy the Cursor verify outside Cursor snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Cursor snippet: verify outside Cursor"><code>curl https://superbot.gg/v1/chat/completions \
+  -H &quot;Authorization: Bearer sbc_…&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;model&quot;:&quot;superbot&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;ping&quot;}]}&#39;</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>The override captures every OpenAI-family request it sees. That includes Cursor&#39;s own picker models, not just yours. Turn it off to send a picker model to its own vendor.</li><li>No Anthropic base override exists, so an Anthropic key stays native. Claude keeps working, billed by Anthropic as before.</li><li>The override must be a public URL: the dial comes from their servers. A <code>localhost</code> URL never answers.</li><li>Already pointing the override at another gateway? Keep it working. Add it on <code>/account/api</code> as <code>your previous upstream</code>. Its models then keep answering through superbot, in one key.</li><li><code>superbot clients wire cursor</code> needs Cursor quit first, then writes the rows. Undo it with <code>superbot clients unwire cursor</code>.</li><li>Cursor may probe with <code>gpt-4o-mini</code> when you save the override. If that probe fails, the custom model can still work once selected.</li><li>The key lives in Cursor&#39;s own state store, not <code>settings.json</code>.</li></ul><p class="cl-src">source: <a href="https://cursor.com/help/models-and-usage/api-keys">cursor.com</a>, retrieved 2026-09-19</p></section><section class="cl" id="devin"><h2>Devin<span class="badge none">none</span></h2><p class="cl-sum">No custom endpoint, in the cloud or Desktop</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-devin" viewBox="0 0 320 210" width="100%" role="img" aria-label="Devin cannot be dialed: it has no base URL to change. The lanes it would reach, on a client that could be, are your vendor keys, your previous upstream, the superbot agent / credits"><title>Devin: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Devin</text><line class="wire dash" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">this client cannot be dialed here</figcaption></figure><p class="cl-none">Devin has no base URL to change, so it cannot be pointed at superbot.</p><ol class="cl-steps"><li>Devin takes no custom base URL, in the cloud or in Devin Desktop.</li><li>Use superbot&#39;s hosted MCP server instead. Devin connects to it as a remote MCP server.</li><li>Setup for that lives at <code>/docs#clients</code>. If one appears later, paste the same three values as any other client.</li></ol><h3>traps</h3><ul class="cl-traps"><li>&quot;Devin is a compound AI system and does not currently support third-party LLM API keys.&quot; No tier exception is documented.</li><li>The Devin Desktop docs are silent on BYOK and base URLs. Desktop models come from the built-in catalog.</li></ul><p class="cl-src">source: <a href="https://docs.devin.ai/enterprise/deployment/overview">docs.devin.ai</a>, retrieved 2026-09-19</p></section><section class="cl" id="claude-code"><h2>Claude Code<span class="badge full">full</span></h2><p class="cl-sum">Claude Code BYOK: base URL, key, model.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-claude-code" viewBox="0 0 320 210" width="100%" role="img" aria-label="Claude Code routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Claude Code: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Claude Code</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Set <code>ANTHROPIC_BASE_URL</code> to the base URL above.</li><li>Set <code>ANTHROPIC_API_KEY</code>, which is sent as <code>x-api-key</code>.</li><li>Or set <code>ANTHROPIC_AUTH_TOKEN</code>, sent as <code>Authorization: Bearer</code>.</li><li>Pick the model with <code>ANTHROPIC_MODEL</code> or <code>--model</code>.</li><li>You can also set <code>model</code> in <code>settings.json</code>. Or put all of it in the <code>&quot;env&quot;</code> block there.</li><li>Restart Claude Code, then send one message.</li></ol><div class="code"><div class="lbl"><span>shell setup</span><button class="cpy" type="button" aria-label="copy the Claude Code shell setup snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Claude Code snippet: shell setup"><code>export ANTHROPIC_BASE_URL=&quot;https://superbot.gg/v1&quot;
+export ANTHROPIC_API_KEY=&quot;sbc_…&quot;
+export ANTHROPIC_MODEL=&quot;superbot&quot;</code></pre></div><div class="code"><div class="lbl"><span>settings.json</span><button class="cpy" type="button" aria-label="copy the Claude Code settings.json snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Claude Code snippet: settings.json"><code>{
+  &quot;env&quot;: {
+    &quot;ANTHROPIC_BASE_URL&quot;: &quot;https://superbot.gg/v1&quot;,
+    &quot;ANTHROPIC_API_KEY&quot;: &quot;sbc_…&quot;,
+    &quot;ANTHROPIC_MODEL&quot;: &quot;superbot&quot;
   }
-}
-```
+}</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>A non-first-party base URL turns MCP tool search off. Set <code>ENABLE_TOOL_SEARCH=true</code> to force it on.</li><li>Remote Control is disabled on a non-first-party base URL.</li><li>The base URL only changes where requests go. It does not choose the model.</li><li>Send <code>superbot</code> as the model id to get the agent.</li><li><code>/model</code> beats <code>--model</code> and <code>ANTHROPIC_MODEL</code>. Both beat the <code>settings.json</code> model.</li></ul><p class="cl-src">source: <a href="https://code.claude.com/docs/en/llm-gateway">code.claude.com</a>, retrieved 2026-09-19</p></section><section class="cl" id="codex"><h2>Codex CLI<span class="badge full">full</span></h2><p class="cl-sum">Codex CLI: custom provider in config.toml.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-codex" viewBox="0 0 320 210" width="100%" role="img" aria-label="Codex CLI routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Codex CLI: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Codex CLI</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open <code>~/.codex/config.toml</code>, and create it if it is missing.</li><li>Add a <code>[model_providers.superbot]</code> table.</li><li>Give it <code>base_url</code>, <code>env_key</code> and <code>wire_api</code>.</li><li>Set <code>wire_api = &quot;responses&quot;</code>, the only value Codex still supports.</li><li>Export <code>SUPERBOT_API_KEY</code> with a caller key. That is the name <code>env_key</code> points at.</li><li>Set the top-level <code>model_provider</code> and <code>model</code> keys, then restart Codex.</li></ol><div class="code"><div class="lbl"><span>config.toml</span><button class="cpy" type="button" aria-label="copy the Codex CLI config.toml snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Codex CLI snippet: config.toml"><code>[model_providers.superbot]
+name = &quot;superbot&quot;
+base_url = &quot;https://superbot.gg/v1&quot;
+env_key = &quot;SUPERBOT_API_KEY&quot;
+wire_api = &quot;responses&quot;
 
-traps:
-- A non-first-party base URL turns MCP tool search off. Set `ENABLE_TOOL_SEARCH=true` to force it on.
-- Remote Control is disabled on a non-first-party base URL.
-- The base URL only changes where requests go. It does not choose the model.
-- Send `superbot` as the model id to get the agent.
-- `/model` beats `--model` and `ANTHROPIC_MODEL`. Both beat the `settings.json` model.
-
-source: https://code.claude.com/docs/en/llm-gateway, retrieved 2026-09-19
-
-## Codex CLI (full)
-
-Codex CLI: custom provider in config.toml.
-
-routing: Codex CLI -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open `~/.codex/config.toml`, and create it if it is missing.
-2. Add a `[model_providers.superbot]` table.
-3. Give it `base_url`, `env_key` and `wire_api`.
-4. Set `wire_api = "responses"`, the only value Codex still supports.
-5. Export `SUPERBOT_API_KEY` with a caller key. That is the name `env_key` points at.
-6. Set the top-level `model_provider` and `model` keys, then restart Codex.
-
-**config.toml**
-
-```
-[model_providers.superbot]
-name = "superbot"
-base_url = "https://superbot.gg/v1"
-env_key = "SUPERBOT_API_KEY"
-wire_api = "responses"
-
-model_provider = "superbot"
-model = "superbot"
-```
-
-**the env key**
-
-```
-export SUPERBOT_API_KEY="sbc_…"
-```
-
-traps:
-- `wire_api` only takes `responses`. The old `chat` value was removed.
-- These keys are ignored in a project-local `.codex/config.toml`. Write them in the user one.
-- A custom provider id cannot be `openai`, `ollama` or `lmstudio`. Keep the id `superbot`.
-- superbot serves `/v1/responses`, so the responses wire is what answers.
-- The provider `name` is only a label. The top-level `model_provider` is what selects it.
-
-source: https://learn.chatgpt.com/docs/config-file/config-reference, retrieved 2026-09-19
-
-## GitHub Copilot (VS Code) (partial)
-
-Chat works via a `Custom Endpoint` provider.
-
-routing: GitHub Copilot (VS Code) -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open the model picker in chat and select `Manage Language Models`.
-2. Select `Add Models`, then `Custom Endpoint`, and name the group.
-3. Enter your key from `/account/api`.
-4. Then choose the API type: `Chat Completions`, `Responses`, `Messages`.
-5. VS Code opens `chatLanguageModels.json`. Paste the snippet below into it and save.
-6. The snippet gives the full URL.
-7. Select the model in the picker. Restart VS Code if it does not show up.
-
-**chatLanguageModels.json**
-
-```
-[
+model_provider = &quot;superbot&quot;
+model = &quot;superbot&quot;</code></pre></div><div class="code"><div class="lbl"><span>the env key</span><button class="cpy" type="button" aria-label="copy the Codex CLI the env key snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Codex CLI snippet: the env key"><code>export SUPERBOT_API_KEY=&quot;sbc_…&quot;</code></pre></div><h3>traps</h3><ul class="cl-traps"><li><code>wire_api</code> only takes <code>responses</code>. The old <code>chat</code> value was removed.</li><li>These keys are ignored in a project-local <code>.codex/config.toml</code>. Write them in the user one.</li><li>A custom provider id cannot be <code>openai</code>, <code>ollama</code> or <code>lmstudio</code>. Keep the id <code>superbot</code>.</li><li>superbot serves <code>/v1/responses</code>, so the responses wire is what answers.</li><li>The provider <code>name</code> is only a label. The top-level <code>model_provider</code> is what selects it.</li></ul><p class="cl-src">source: <a href="https://learn.chatgpt.com/docs/config-file/config-reference">learn.chatgpt.com</a>, retrieved 2026-09-19</p></section><section class="cl" id="copilot"><h2>GitHub Copilot (VS Code)<span class="badge partial">partial</span></h2><p class="cl-sum">Chat works via a <code>Custom Endpoint</code> provider.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-copilot" viewBox="0 0 320 210" width="100%" role="img" aria-label="GitHub Copilot (VS Code) routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>GitHub Copilot (VS Code): how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">GitHub Copilot (VS Code)</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open the model picker in chat and select <code>Manage Language Models</code>.</li><li>Select <code>Add Models</code>, then <code>Custom Endpoint</code>, and name the group.</li><li>Enter your key from <code>/account/api</code>.</li><li>Then choose the API type: <code>Chat Completions</code>, <code>Responses</code>, <code>Messages</code>.</li><li>VS Code opens <code>chatLanguageModels.json</code>. Paste the snippet below into it and save.</li><li>The snippet gives the full URL.</li><li>Select the model in the picker. Restart VS Code if it does not show up.</li></ol><div class="code"><div class="lbl"><span>chatLanguageModels.json</span><button class="cpy" type="button" aria-label="copy the GitHub Copilot (VS Code) chatLanguageModels.json snippet">copy</button></div><pre tabindex="0" role="region" aria-label="GitHub Copilot (VS Code) snippet: chatLanguageModels.json"><code>[
   {
-    "name": "superbot",
-    "vendor": "customendpoint",
-    "apiKey": "sbc_…",
-    "models": [
+    &quot;name&quot;: &quot;superbot&quot;,
+    &quot;vendor&quot;: &quot;customendpoint&quot;,
+    &quot;apiKey&quot;: &quot;sbc_…&quot;,
+    &quot;models&quot;: [
       {
-        "id": "superbot",
-        "name": "superbot",
-        "url": "https://superbot.gg/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true
+        &quot;id&quot;: &quot;superbot&quot;,
+        &quot;name&quot;: &quot;superbot&quot;,
+        &quot;url&quot;: &quot;https://superbot.gg/v1/chat/completions&quot;,
+        &quot;apiType&quot;: &quot;chat-completions&quot;,
+        &quot;toolCalling&quot;: true
       }
     ]
   }
-]
-```
-
-traps:
-- BYOK covers chat only. Semantic search, inline suggestions and embeddings are not covered.
-- A Copilot Business or Enterprise admin controls this. It is the `Bring Your Own Language Model Key in VS Code` policy.
-- The server-side Enterprise BYOK preview needs the Completions API. A `responses` model will not work there.
-- A raw `apiKey` committed to the file is a leaked key. The docs use an `${input:myApiKey}` variable instead.
-
-source: https://code.visualstudio.com/docs/copilot/customization/language-models, retrieved 2026-09-19
-
-## Continue (full)
-
-One OpenAI provider entry in `config.yaml`.
-
-routing: Continue -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open `config.yaml`.
-2. Under `models:` add one entry, or edit the one already there.
-3. Set `provider: openai` and `apiBase` to the base URL above.
-4. Set `apiKey` to your `sbc_` caller key.
-5. Set `model` to `superbot`, and give the entry a `name`.
-6. Save, reload the extension, then send a chat message.
-
-**config.yaml**
-
-```
-models:
+]</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>BYOK covers chat only. Semantic search, inline suggestions and embeddings are not covered.</li><li>A Copilot Business or Enterprise admin controls this. It is the <code>Bring Your Own Language Model Key in VS Code</code> policy.</li><li>The server-side Enterprise BYOK preview needs the Completions API. A <code>responses</code> model will not work there.</li><li>A raw <code>apiKey</code> committed to the file is a leaked key. The docs use an <code>${input:myApiKey}</code> variable instead.</li></ul><p class="cl-src">source: <a href="https://code.visualstudio.com/docs/copilot/customization/language-models">code.visualstudio.com</a>, retrieved 2026-09-19</p></section><section class="cl" id="continue"><h2>Continue<span class="badge full">full</span></h2><p class="cl-sum">One OpenAI provider entry in <code>config.yaml</code>.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-continue" viewBox="0 0 320 210" width="100%" role="img" aria-label="Continue routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Continue: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Continue</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open <code>config.yaml</code>.</li><li>Under <code>models:</code> add one entry, or edit the one already there.</li><li>Set <code>provider: openai</code> and <code>apiBase</code> to the base URL above.</li><li>Set <code>apiKey</code> to your <code>sbc_</code> caller key.</li><li>Set <code>model</code> to <code>superbot</code>, and give the entry a <code>name</code>.</li><li>Save, reload the extension, then send a chat message.</li></ol><div class="code"><div class="lbl"><span>config.yaml</span><button class="cpy" type="button" aria-label="copy the Continue config.yaml snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Continue snippet: config.yaml"><code>models:
   - name: superbot
     provider: openai
     apiBase: https://superbot.gg/v1
     apiKey: sbc_…
     model: superbot
-    useResponsesApi: false
-```
-
-**verify outside Continue**
-
-```
-curl https://superbot.gg/v1/chat/completions \
-  -H "Authorization: Bearer sbc_…" \
-  -H "Content-Type: application/json" \
-  -d '{"model":"superbot","messages":[{"role":"user","content":"ping"}]}'
-```
-
-traps:
-- `config.json` is deprecated. Write `config.yaml` instead.
-- The Anthropic provider entry has no `apiBase` field. Use the openai provider with the same `apiBase`.
-- Without `useResponsesApi: false` Continue may call the Responses API.
-
-source: https://docs.continue.dev/customize/model-providers/top-level/openai, retrieved 2026-09-19
-
-## Cline (full)
-
-Either dialect, three fields to fill in.
-
-routing: Cline -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open Cline and click the settings gear.
-2. Set `API Provider` to `OpenAI Compatible`.
-3. Paste the base URL above into `Base URL`.
-4. Paste your `sbc_` caller key into `API Key`.
-5. Type your model id into `Model`, or pick it from the list.
-6. Send one message and confirm the reply arrives.
-
-**what to paste**
-
-```
-Base URL: https://superbot.gg/v1
+    useResponsesApi: false</code></pre></div><div class="code"><div class="lbl"><span>verify outside Continue</span><button class="cpy" type="button" aria-label="copy the Continue verify outside Continue snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Continue snippet: verify outside Continue"><code>curl https://superbot.gg/v1/chat/completions \
+  -H &quot;Authorization: Bearer sbc_…&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;model&quot;:&quot;superbot&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;ping&quot;}]}&#39;</code></pre></div><h3>traps</h3><ul class="cl-traps"><li><code>config.json</code> is deprecated. Write <code>config.yaml</code> instead.</li><li>The Anthropic provider entry has no <code>apiBase</code> field. Use the openai provider with the same <code>apiBase</code>.</li><li>Without <code>useResponsesApi: false</code> Continue may call the Responses API.</li></ul><p class="cl-src">source: <a href="https://docs.continue.dev/customize/model-providers/top-level/openai">docs.continue.dev</a>, retrieved 2026-09-19</p></section><section class="cl" id="cline"><h2>Cline<span class="badge full">full</span></h2><p class="cl-sum">Either dialect, three fields to fill in.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-cline" viewBox="0 0 320 210" width="100%" role="img" aria-label="Cline routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Cline: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Cline</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open Cline and click the settings gear.</li><li>Set <code>API Provider</code> to <code>OpenAI Compatible</code>.</li><li>Paste the base URL above into <code>Base URL</code>.</li><li>Paste your <code>sbc_</code> caller key into <code>API Key</code>.</li><li>Type your model id into <code>Model</code>, or pick it from the list.</li><li>Send one message and confirm the reply arrives.</li></ol><div class="code"><div class="lbl"><span>what to paste</span><button class="cpy" type="button" aria-label="copy the Cline what to paste snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Cline snippet: what to paste"><code>Base URL: https://superbot.gg/v1
 API Key: sbc_…
-Model: superbot
-```
-
-traps:
-- The base URL is not `https://api.openai.com/v1`. That holds even with the OpenAI Compatible provider selected.
-- A wrong model id answers `Model Not Found`.
-- For the Anthropic provider, tick `Use custom base URL`. Paste the same base URL into that field.
-- One caller key serves both providers.
-
-source: https://docs.cline.bot/provider-config/openai-compatible, retrieved 2026-09-19
-
-## Roo Code (partial)
-
-Two providers; tool calling unverified.
-
-routing: Roo Code -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open Roo Code settings.
-2. Set `API Provider` to `OpenAI Compatible`.
-3. Paste the base URL above into `Base URL`.
-4. Paste your `sbc_` caller key into `API Key`.
-5. Set `Model` to your model id, or pick it from the list.
-6. Send a message and read the reply.
-
-**what to paste**
-
-```
-Base URL: https://superbot.gg/v1
+Model: superbot</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>The base URL is not <code>https://api.openai.com/v1</code>. That holds even with the OpenAI Compatible provider selected.</li><li>A wrong model id answers <code>Model Not Found</code>.</li><li>For the Anthropic provider, tick <code>Use custom base URL</code>. Paste the same base URL into that field.</li><li>One caller key serves both providers.</li></ul><p class="cl-src">source: <a href="https://docs.cline.bot/provider-config/openai-compatible">docs.cline.bot</a>, retrieved 2026-09-19</p></section><section class="cl" id="roo"><h2>Roo Code<span class="badge partial">partial</span></h2><p class="cl-sum">Two providers; tool calling unverified.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-roo" viewBox="0 0 320 210" width="100%" role="img" aria-label="Roo Code routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Roo Code: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Roo Code</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open Roo Code settings.</li><li>Set <code>API Provider</code> to <code>OpenAI Compatible</code>.</li><li>Paste the base URL above into <code>Base URL</code>.</li><li>Paste your <code>sbc_</code> caller key into <code>API Key</code>.</li><li>Set <code>Model</code> to your model id, or pick it from the list.</li><li>Send a message and read the reply.</li></ol><div class="code"><div class="lbl"><span>what to paste</span><button class="cpy" type="button" aria-label="copy the Roo Code what to paste snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Roo Code snippet: what to paste"><code>Base URL: https://superbot.gg/v1
 API Key: sbc_…
-Model: superbot
-```
-
-traps:
-- Roo sends native tool calls on every request.
-- Not verified here: whether the agent lane answers those tool calls.
-- A wrong model id answers `Model Not Found`.
-- The base URL is not `https://api.openai.com/v1`.
-- For the Anthropic provider, tick `Use custom base URL`. Paste the same base URL into that field.
-
-source: https://docs.roocode.com/providers/openai-compatible, retrieved 2026-09-19
-
-## Zed (full)
-
-settings.json plus a key in the keychain.
-
-routing: Zed -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open `settings.json`.
-2. Add a `language_models.openai_compatible` block.
-3. Set its `api_url` to the base URL above.
-4. List the model in `available_models` with `name` and `max_tokens`.
-5. Store your `sbc_` key in Agent Settings, or set `SUPERBOT_API_KEY`.
-6. Pick the model in the assistant panel, then send a message.
-
-**settings.json**
-
-```
-{
-  "language_models": {
-    "openai_compatible": {
-      "superbot": {
-        "api_url": "https://superbot.gg/v1",
-        "available_models": [
+Model: superbot</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>Roo sends native tool calls on every request.</li><li>Not verified here: whether the agent lane answers those tool calls.</li><li>A wrong model id answers <code>Model Not Found</code>.</li><li>The base URL is not <code>https://api.openai.com/v1</code>.</li><li>For the Anthropic provider, tick <code>Use custom base URL</code>. Paste the same base URL into that field.</li></ul><p class="cl-src">source: <a href="https://docs.roocode.com/providers/openai-compatible">docs.roocode.com</a>, retrieved 2026-09-19</p></section><section class="cl" id="zed"><h2>Zed<span class="badge full">full</span></h2><p class="cl-sum">settings.json plus a key in the keychain.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-zed" viewBox="0 0 320 210" width="100%" role="img" aria-label="Zed routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Zed: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Zed</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open <code>settings.json</code>.</li><li>Add a <code>language_models.openai_compatible</code> block.</li><li>Set its <code>api_url</code> to the base URL above.</li><li>List the model in <code>available_models</code> with <code>name</code> and <code>max_tokens</code>.</li><li>Store your <code>sbc_</code> key in Agent Settings, or set <code>SUPERBOT_API_KEY</code>.</li><li>Pick the model in the assistant panel, then send a message.</li></ol><div class="code"><div class="lbl"><span>settings.json</span><button class="cpy" type="button" aria-label="copy the Zed settings.json snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Zed snippet: settings.json"><code>{
+  &quot;language_models&quot;: {
+    &quot;openai_compatible&quot;: {
+      &quot;superbot&quot;: {
+        &quot;api_url&quot;: &quot;https://superbot.gg/v1&quot;,
+        &quot;available_models&quot;: [
           {
-            "name": "superbot",
-            "display_name": "superbot",
-            "max_tokens": 200000
+            &quot;name&quot;: &quot;superbot&quot;,
+            &quot;display_name&quot;: &quot;superbot&quot;,
+            &quot;max_tokens&quot;: 200000
           }
         ]
       }
     }
   }
-}
-```
-
-**api key**
-
-```
-export SUPERBOT_API_KEY="sbc_…"
-```
-
-traps:
-- `max_tokens` is required. The example uses `200000` as a placeholder.
-- The key never goes into `settings.json`. Use Agent Settings or the env var.
-- The env var is the provider id uppercased, plus `_API_KEY`.
-- `chat_completions` already defaults to `true`. No extra field is needed for that.
-- For the Anthropic dialect, use `anthropic_compatible`. Give it the same `api_url`.
-
-source: https://zed.dev/docs/ai/use-api-access, retrieved 2026-09-19
-
-## Aider (full)
-
-Aider via `openai/`: base URL and key.
-
-routing: Aider -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Export `OPENAI_API_BASE` with the base URL above.
-2. Export `OPENAI_API_KEY` with a caller key.
-3. Run `aider --model openai/superbot`.
-4. Use `--openai-api-base` instead of the env var if you prefer flags.
-5. Send one prompt to confirm the route.
-
-**shell setup**
-
-```
-export OPENAI_API_BASE="https://superbot.gg/v1"
-export OPENAI_API_KEY="sbc_…"
-aider --model openai/superbot
-```
-
-traps:
-- The `openai/` prefix on the model id is required. Without it, another provider is picked.
-- An unknown model id still runs, but Aider prints model warnings.
-- `OPENAI_API_BASE` and `--openai-api-base` carry the same value.
-- Aider speaks OpenAI chat, so it dials `/v1/chat/completions`.
-
-source: https://aider.chat/docs/llms/openai-compat.html, retrieved 2026-09-19
-
-## OpenCode (full)
-
-OpenCode: add superbot as a provider.
-
-routing: OpenCode -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Open your `opencode.json`.
-2. Add a `provider.superbot` entry.
-3. Set its `npm` to `@ai-sdk/openai-compatible`.
-4. Set `options.baseURL` to the base URL above, then give it an `options.apiKey`.
-5. List each model id under `models`, keyed by the id itself.
-6. Restart OpenCode and send one message.
-
-**opencode.json**
-
-```
-{
-  "provider": {
-    "superbot": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "superbot",
-      "options": {
-        "baseURL": "https://superbot.gg/v1",
-        "apiKey": "sbc_…"
+}</code></pre></div><div class="code"><div class="lbl"><span>api key</span><button class="cpy" type="button" aria-label="copy the Zed api key snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Zed snippet: api key"><code>export SUPERBOT_API_KEY=&quot;sbc_…&quot;</code></pre></div><h3>traps</h3><ul class="cl-traps"><li><code>max_tokens</code> is required. The example uses <code>200000</code> as a placeholder.</li><li>The key never goes into <code>settings.json</code>. Use Agent Settings or the env var.</li><li>The env var is the provider id uppercased, plus <code>_API_KEY</code>.</li><li><code>chat_completions</code> already defaults to <code>true</code>. No extra field is needed for that.</li><li>For the Anthropic dialect, use <code>anthropic_compatible</code>. Give it the same <code>api_url</code>.</li></ul><p class="cl-src">source: <a href="https://zed.dev/docs/ai/use-api-access">zed.dev</a>, retrieved 2026-09-19</p></section><section class="cl" id="aider"><h2>Aider<span class="badge full">full</span></h2><p class="cl-sum">Aider via <code>openai/</code>: base URL and key.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-aider" viewBox="0 0 320 210" width="100%" role="img" aria-label="Aider routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Aider: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Aider</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Export <code>OPENAI_API_BASE</code> with the base URL above.</li><li>Export <code>OPENAI_API_KEY</code> with a caller key.</li><li>Run <code>aider --model openai/superbot</code>.</li><li>Use <code>--openai-api-base</code> instead of the env var if you prefer flags.</li><li>Send one prompt to confirm the route.</li></ol><div class="code"><div class="lbl"><span>shell setup</span><button class="cpy" type="button" aria-label="copy the Aider shell setup snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Aider snippet: shell setup"><code>export OPENAI_API_BASE=&quot;https://superbot.gg/v1&quot;
+export OPENAI_API_KEY=&quot;sbc_…&quot;
+aider --model openai/superbot</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>The <code>openai/</code> prefix on the model id is required. Without it, another provider is picked.</li><li>An unknown model id still runs, but Aider prints model warnings.</li><li><code>OPENAI_API_BASE</code> and <code>--openai-api-base</code> carry the same value.</li><li>Aider speaks OpenAI chat, so it dials <code>/v1/chat/completions</code>.</li></ul><p class="cl-src">source: <a href="https://aider.chat/docs/llms/openai-compat.html">aider.chat</a>, retrieved 2026-09-19</p></section><section class="cl" id="opencode"><h2>OpenCode<span class="badge full">full</span></h2><p class="cl-sum">OpenCode: add superbot as a provider.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-opencode" viewBox="0 0 320 210" width="100%" role="img" aria-label="OpenCode routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>OpenCode: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">OpenCode</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Open your <code>opencode.json</code>.</li><li>Add a <code>provider.superbot</code> entry.</li><li>Set its <code>npm</code> to <code>@ai-sdk/openai-compatible</code>.</li><li>Set <code>options.baseURL</code> to the base URL above, then give it an <code>options.apiKey</code>.</li><li>List each model id under <code>models</code>, keyed by the id itself.</li><li>Restart OpenCode and send one message.</li></ol><div class="code"><div class="lbl"><span>opencode.json</span><button class="cpy" type="button" aria-label="copy the OpenCode opencode.json snippet">copy</button></div><pre tabindex="0" role="region" aria-label="OpenCode snippet: opencode.json"><code>{
+  &quot;provider&quot;: {
+    &quot;superbot&quot;: {
+      &quot;npm&quot;: &quot;@ai-sdk/openai-compatible&quot;,
+      &quot;name&quot;: &quot;superbot&quot;,
+      &quot;options&quot;: {
+        &quot;baseURL&quot;: &quot;https://superbot.gg/v1&quot;,
+        &quot;apiKey&quot;: &quot;sbc_…&quot;
       },
-      "models": {
-        "superbot": { "name": "superbot" }
+      &quot;models&quot;: {
+        &quot;superbot&quot;: { &quot;name&quot;: &quot;superbot&quot; }
       }
     }
   }
-}
-```
+}</code></pre></div><h3>traps</h3><ul class="cl-traps"><li>Model ids must match an id from <code>GET /v1/models</code>. Use <code>superbot</code>.</li><li>The <code>apiKey</code> in the file is a plain secret. <code>/connect</code> keeps it out of the repo.</li><li>A provider needs <code>@ai-sdk/openai-compatible</code> for the OpenAI wire.</li><li>OpenCode reads providers at start, so restart after every edit.</li></ul><p class="cl-src">source: <a href="https://opencode.ai/docs/providers/">opencode.ai</a>, retrieved 2026-09-19</p></section><section class="cl" id="sdk"><h2>Any OpenAI or Anthropic SDK<span class="badge full">full</span></h2><p class="cl-sum">Any OpenAI or Anthropic SDK, same base URL.</p><figure class="cl-flow-fig"><svg class="cl-flow" data-flow="flow-sdk" viewBox="0 0 320 210" width="100%" role="img" aria-label="Any OpenAI or Anthropic SDK routes to superbot at https://superbot.gg, then to your vendor keys, your previous upstream, the superbot agent / credits"><title>Any OpenAI or Anthropic SDK: how a request reaches superbot</title><rect class="box" x="48" y="8" width="224" height="28" rx="8"/><text class="cl-name" x="160" y="26" text-anchor="middle">Any OpenAI or Anthropic SDK</text><line class="wire" x1="160" y1="36" x2="160" y2="50"/><polygon class="head" points="156,50 164,50 160,56"/><rect class="box" x="68" y="56" width="184" height="40" rx="8"/><text class="node" x="160" y="74" text-anchor="middle">superbot</text><text class="mut" x="160" y="88" text-anchor="middle">superbot.gg</text><path class="wire" d="M160 96 V106 H52 V188" fill="none"/><g class="lane" data-lane="vendor"><rect class="box" x="64" y="114" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="128" x2="58" y2="128"/><polygon class="head" points="58,124 58,132 64,128"/><text class="lbl" x="78" y="132">vendor keys</text><circle class="dot" cx="292" cy="128" r="4"/></g><g class="lane" data-lane="custom"><rect class="box" x="64" y="144" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="158" x2="58" y2="158"/><polygon class="head" points="58,154 58,162 64,158"/><text class="lbl" x="78" y="162">prev upstream</text><circle class="dot" cx="292" cy="158" r="4"/></g><g class="lane" data-lane="credits"><rect class="box" x="64" y="174" width="240" height="28" rx="8"/><line class="wire" x1="52" y1="188" x2="58" y2="188"/><polygon class="head" points="58,184 58,192 64,188"/><text class="lbl" x="78" y="192">superbot agent</text><circle class="dot" cx="292" cy="188" r="4"/></g></svg><figcaption class="cl-flow-cap">sign in to see which lanes you hold</figcaption></figure><ol class="cl-steps"><li>Install the <code>openai</code> or <code>anthropic</code> package for your language.</li><li>Set <code>OPENAI_BASE_URL</code> or <code>ANTHROPIC_BASE_URL</code> in the environment.</li><li>Pass a caller key as the API key, or put it in the matching env var.</li><li>Send a normal request with the model id shown in the env comment.</li><li>Swap that id for the omni one to run the agent on your computer.</li></ol><div class="code"><div class="lbl"><span>env, both dialects</span><button class="cpy" type="button" aria-label="copy the Any OpenAI or Anthropic SDK env, both dialects snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Any OpenAI or Anthropic SDK snippet: env, both dialects"><code>export OPENAI_BASE_URL=&quot;https://superbot.gg/v1&quot;
+export OPENAI_API_KEY=&quot;sbc_…&quot;
+export ANTHROPIC_BASE_URL=&quot;https://superbot.gg/v1&quot;
+export ANTHROPIC_API_KEY=&quot;sbc_…&quot;
+# model: superbot for your agent, superbot-omni to run it on your computer</code></pre></div><div class="code"><div class="lbl"><span>python: openai</span><button class="cpy" type="button" aria-label="copy the Any OpenAI or Anthropic SDK python: openai snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Any OpenAI or Anthropic SDK snippet: python: openai"><code>from openai import OpenAI
 
-traps:
-- Model ids must match an id from `GET /v1/models`. Use `superbot`.
-- The `apiKey` in the file is a plain secret. `/connect` keeps it out of the repo.
-- A provider needs `@ai-sdk/openai-compatible` for the OpenAI wire.
-- OpenCode reads providers at start, so restart after every edit.
+c = OpenAI(base_url=&quot;https://superbot.gg/v1&quot;, api_key=&quot;sbc_…&quot;)
+r = c.chat.completions.create(model=&quot;superbot&quot;, messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;ping&quot;}])
+print(r.choices[0].message.content)</code></pre></div><div class="code"><div class="lbl"><span>python: anthropic</span><button class="cpy" type="button" aria-label="copy the Any OpenAI or Anthropic SDK python: anthropic snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Any OpenAI or Anthropic SDK snippet: python: anthropic"><code>from anthropic import Anthropic
 
-source: https://opencode.ai/docs/providers/, retrieved 2026-09-19
-
-## Any OpenAI or Anthropic SDK (full)
-
-Any OpenAI or Anthropic SDK, same base URL.
-
-routing: Any OpenAI or Anthropic SDK -> superbot (https://superbot.gg) -> your vendor keys | your previous upstream | the superbot agent / credits
-
-1. Install the `openai` or `anthropic` package for your language.
-2. Set `OPENAI_BASE_URL` or `ANTHROPIC_BASE_URL` in the environment.
-3. Pass a caller key as the API key, or put it in the matching env var.
-4. Send a normal request with the model id shown in the env comment.
-5. Swap that id for the omni one to run the agent on your computer.
-
-**env, both dialects**
-
-```
-export OPENAI_BASE_URL="https://superbot.gg/v1"
-export OPENAI_API_KEY="sbc_…"
-export ANTHROPIC_BASE_URL="https://superbot.gg/v1"
-export ANTHROPIC_API_KEY="sbc_…"
-# model: superbot for your agent, superbot-omni to run it on your computer
-```
-
-**python: openai**
-
-```
-from openai import OpenAI
-
-c = OpenAI(base_url="https://superbot.gg/v1", api_key="sbc_…")
-r = c.chat.completions.create(model="superbot", messages=[{"role": "user", "content": "ping"}])
-print(r.choices[0].message.content)
-```
-
-**python: anthropic**
-
-```
-from anthropic import Anthropic
-
-c = Anthropic(base_url="https://superbot.gg/v1", api_key="sbc_…")
-m = c.messages.create(model="superbot", max_tokens=256, messages=[{"role": "user", "content": "ping"}])
-print(m.content[0].text)
-```
-
-**curl**
-
-```
-curl https://superbot.gg/v1/chat/completions \
-  -H "Authorization: Bearer sbc_…" \
-  -H "Content-Type: application/json" \
-  -d '{"model": "superbot", "messages": [{"role": "user", "content": "ping"}]}'
-```
-
-traps:
-- `ANTHROPIC_AUTH_TOKEN` is sent as `Authorization: Bearer`.
-- `ANTHROPIC_API_KEY` is sent as `x-api-key`.
-- One base URL for both SDKs. It ends in `/v1`.
-- Do not repeat `/v1` on the request path.
-- The Node OpenAI client reads `OPENAI_BASE_URL` by default. A `baseURL` you pass wins.
-- Pass `base_url=` to the Anthropic Python constructor.
-
-source: https://developers.openai.com/api/reference/python, retrieved 2026-09-19
+c = Anthropic(base_url=&quot;https://superbot.gg/v1&quot;, api_key=&quot;sbc_…&quot;)
+m = c.messages.create(model=&quot;superbot&quot;, max_tokens=256, messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;ping&quot;}])
+print(m.content[0].text)</code></pre></div><div class="code"><div class="lbl"><span>curl</span><button class="cpy" type="button" aria-label="copy the Any OpenAI or Anthropic SDK curl snippet">copy</button></div><pre tabindex="0" role="region" aria-label="Any OpenAI or Anthropic SDK snippet: curl"><code>curl https://superbot.gg/v1/chat/completions \
+  -H &quot;Authorization: Bearer sbc_…&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;model&quot;: &quot;superbot&quot;, &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;ping&quot;}]}&#39;</code></pre></div><h3>traps</h3><ul class="cl-traps"><li><code>ANTHROPIC_AUTH_TOKEN</code> is sent as <code>Authorization: Bearer</code>.</li><li><code>ANTHROPIC_API_KEY</code> is sent as <code>x-api-key</code>.</li><li>One base URL for both SDKs. It ends in <code>/v1</code>.</li><li>Do not repeat <code>/v1</code> on the request path.</li><li>The Node OpenAI client reads <code>OPENAI_BASE_URL</code> by default. A <code>baseURL</code> you pass wins.</li><li>Pass <code>base_url=</code> to the Anthropic Python constructor.</li></ul><p class="cl-src">source: <a href="https://developers.openai.com/api/reference/python">developers.openai.com</a>, retrieved 2026-09-19</p></section>
+  <div class="sb-visually-hidden" id="copylive" aria-live="polite"></div>
+</main>
+<footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
+<script>
+  // copy per code card: async clipboard, execCommand fallback, feedback only
+  // on a copy that happened (the same ladder as the install widget)
+  (function () {
+    var live = document.getElementById('copylive');
+    var say = function (t) { if (live) { live.textContent = t; setTimeout(function () { live.textContent = ''; }, 1500); } };
+    var copy = function (value, done, blocked) {
+      var fallback = function () {
+        var ta = document.createElement('textarea'); ta.value = value; document.body.appendChild(ta); ta.select();
+        var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } ta.remove();
+        if (ok) done(); else blocked();
+      };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(value).then(done, fallback); else fallback();
+    };
+    document.querySelectorAll('.code').forEach(function (card) {
+      var btn = card.querySelector('.cpy');
+      var pre = card.querySelector('pre');
+      if (!btn || !pre) return;
+      btn.addEventListener('click', function () {
+        copy(pre.textContent, function () {
+          btn.textContent = 'copied'; btn.classList.add('copied'); say('copied to clipboard');
+          setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+        }, function () {
+          var sel = getSelection(); sel.removeAllRanges(); var r = document.createRange(); r.selectNodeContents(pre); sel.addRange(r);
+          say('clipboard blocked: the text is selected, press copy on your keyboard');
+        });
+      });
+    });
+  })();
+</script>
+<!-- the shared phone drawer: every static page loads it, this shell did not, so a
+     narrow phone got a link row with no menu button (2026-09-17). It decorates
+     the nav siteNav() emits; nothing here changes the markup. -->
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body></html>

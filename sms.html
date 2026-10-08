@@ -1,59 +1,192 @@
----
-title: "text superbot"
-canonical_url: "https://superbot.gg/sms"
-last_updated: "2026-10-08"
-summary: "how to get texts from Superbot: text to start. Reply STOP to opt out, HELP for help. Message frequency varies. Message & data rates may apply."
----
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<title>text superbot – superbot.gg</title>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<meta name="keywords" content="superbot SMS, text superbot, SMS opt-in, STOP, HELP"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<style>
+  /* /sms, the SMS opt-in page a 10DLC campaign cites as its CTA location
+     (site/sms.html; served at the /sms route, which substitutes https://superbot.gg
+     and <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script> the same way /features and /enterprise do). No form, no
+     checkbox: Superbot's opt-in is text-to-join, so the visitor's own
+     inbound text to  is the consent this page explains.
+     The number itself is the edge's one provisioned sender (phoneNumber()), which
+     the /sms route in app.ts substitutes, so this page can never advertise a
+     number different from the one the campaign texts from (U6-10).
+     Look plan (design/SKILL.md step 5, this page's own; the six hex values
+     and both radii are the same tokens site.css and every /site page already
+     use, so nothing here is a new choice):
+     - Palette: canvas --bg #000000, card --card #0d0d0d, raised --raised
+       #181818, hairline --line #262626, ink --fg #ececec, muted --muted
+       #9a9a9a. Six site.css tokens; no new hex in this block.
+     - Accent: one hue, --accent #4d8aff, on the crumb's ".gg" and the two
+       Privacy/Terms links (the only inline links on the page). Nowhere else:
+       no button exists here to put it on, because there is nothing to click.
+     - Type: --font-ui for every heading and sentence, --font-mono for the
+       phone number and the reply-keyword chips (STOP, HELP, and the rest),
+       so the two things a reader must copy exactly read as literal strings.
+     - Radius: --r-control (8px) on the keyword chips, --r-surface (16px) on
+       the one card (the CTA). No third radius.
+     - The one bold thing: the CTA card, a single framed surface holding the
+       phone number at display size. Every other section is plain paragraph
+       text on the canvas, so the card is the only thing that reads as an
+       object on the page.
+     No animation is declared, so no reduced-motion guard is owed here;
+     site.css owns the sitewide one. Nothing on this page is a list that can
+     render empty, a loading state, or navigation chrome (that is <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>'s
+     own concern), so those exit-gate lines do not apply to this file. */
+  .sms { max-width: var(--container); margin: 0 auto; padding: var(--sp-10) var(--gutter-r) var(--sp-12) var(--gutter-l); }
+  .sms .crumb { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-4); }
+  .sms .crumb a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: max(24px, var(--target-sm)); border-radius: var(--r-control); }
+  .sms .crumb a:hover { color: var(--fg); }
+  .sms .crumb .gg { color: var(--accent); }
+  .sms h1 { font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem); line-height: 1.15; font-weight: 550; letter-spacing: -0.02em; text-wrap: balance; }
+  .sms .lede { color: var(--muted); max-width: var(--measure); margin-top: var(--sp-3); text-wrap: pretty; }
+  .sms .lede + .lede { margin-top: var(--sp-2); }
+  .sms .lede b { color: var(--fg); font-weight: 550; }
 
-> Markdown twin of https://superbot.gg/sms (the HTML page is canonical).
-> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+  /* the one bold thing: the CTA card, the page's only surface */
+  .sms-cta { margin: var(--sp-8) 0; max-width: var(--measure); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); overflow: hidden; }
+  .sms-cta .in { padding: var(--sp-6); }
+  .sms-cta .k { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-2); }
+  /* the number is a value the reader copies: it stays on ONE line at the
+     narrowest width. At 320 the card's inner box is 240px and the old
+     clamp(1.5rem,…) min rendered the 17-char mono number at 24px = 245px,
+     so it broke to "+1 (415)" / "718-0220" (measured 2026-09-17). The 1.25rem
+     min (20px, 212px wide) fits 240px and still reads at display size; it
+     caps at the same 2rem on wide screens. */
+  .sms-cta .num { font-family: var(--font-mono); font-size: clamp(1.25rem, 1rem + 1.5vw, 2rem); line-height: 1.2; color: var(--fg); letter-spacing: -0.01em; white-space: nowrap; }
+  /* the phone numbers in running prose keep their group intact (text-wrap):
+     a number and its area code never split across a line break. The number is
+     163px at 16px, so it always fits the 288px phone column even set nowrap. */
+  .sms .tel { white-space: nowrap; }
+  .sms-cta p { color: var(--muted); margin-top: var(--sp-3); }
+  /* this is the page's FIRST <footer>, so the safe-area gate reads it, not the
+     .sb-footer at the bottom: it must carry the same notch gutter the shell
+     chrome does, or a notched phone gets a footer flush to both edges
+     (2026-09-17). --gutter-l/-r are site.css's own env()-backed tokens. */
+  .sms-cta footer { padding: var(--sp-3) var(--gutter-r) var(--sp-3) var(--gutter-l); border-top: 1px solid var(--line); color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  /* the same two edges again, as longhands: the shorthand above is invisible
+     to a checker that enumerates style[i] (a var()-bearing shorthand expands
+     to empty longhands), and this footer is the page's first <footer>, so the
+     notch gutter it already had read as absent (2026-09-17). Same values. */
+  @media (pointer: coarse) {
+    .sms-cta footer { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+  }
 
-[superbot.gg](https://superbot.gg/) / text superbot
+  .sms-sec { margin-top: var(--sp-section); padding-top: var(--sp-10); border-top: 1px solid var(--line); max-width: var(--measure); }
+  .sms-sec h2 { font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 550; letter-spacing: -0.01em; margin-bottom: var(--sp-3); text-wrap: balance; }
+  .sms-sec p { color: var(--muted); text-wrap: pretty; }
+  .sms-sec p + p { margin-top: var(--sp-3); }
+  .sms-sec ul { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: grid; gap: var(--sp-2); }
+  .sms-sec li { color: var(--muted); }
+  .sms-sec a { color: var(--accent); text-decoration: underline; text-underline-offset: 0.15em; }
+  .sms-sec a:hover { color: var(--fg); }
+  /* the campaign sample message: the exact first text a new number receives,
+     shown so a carrier reviewer and a prospective texter read the words before
+     opting in (10DLC / toll-free campaign materials). Monospace and boxed like
+     the keyword chips, because it is a literal string to copy, and pre-wrap so
+     each sentence keeps its own line at any width. */
+  .sms-sample { margin: var(--sp-4) 0 0; padding: var(--sp-4); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-surface); color: var(--fg); font-family: var(--font-mono); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: pre-wrap; overflow-wrap: anywhere; }
+  /* phones: the desktop rhythm (48px section gap + 40px rule padding = 88px
+     between sections) made every short section read fat at 320-390. Halve the
+     gaps and give the CTA card 4px back each side so the display number keeps
+     its one line with room to spare. Desktop and 768 are untouched. */
+  @media (max-width: 480px) {
+    .sms { padding-top: var(--sp-8); }
+    .sms-cta { margin: var(--sp-6) 0; }
+    .sms-cta .in { padding: var(--sp-5); }
+    .sms-sec { margin-top: var(--sp-8); padding-top: var(--sp-8); }
+  }
+  .sms code, .sms-cta code { font-family: var(--font-mono); font-size: var(--fs-sm); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-control); padding: 1px 6px; color: var(--fg); }
+</style>
+<meta name="description" content="how to get texts from Superbot: text  to start. Reply STOP to opt out, HELP for help. Message frequency varies. Message & data rates may apply."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="text superbot – superbot.gg"/>
+<meta property="og:description" content="how to get texts from Superbot: text  to start. Reply STOP to opt out, HELP for help. Message frequency varies. Message & data rates may apply."/>
+<meta property="og:url" content="https://superbot.gg/sms"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og/sms.png?v=2"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="superbot.gg text superbot card: questions and tasks, answered by text."/>
+<meta property="og:image:type" content="image/png"/>
+<link rel="canonical" href="sms.html"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="text superbot – superbot.gg"/>
+<meta name="twitter:description" content="how to get texts from Superbot: text  to start. Reply STOP to opt out, HELP for help. Message frequency varies. Message & data rates may apply."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og/sms.png?v=2"/>
+<meta name="twitter:image:alt" content="superbot.gg text superbot card: questions and tasks, answered by text."/>
+<link rel="alternate" type="text/markdown" href="/sms.md">
+</head>
+<body>
+<a class="sb-skip" href="#main">skip to content</a>
+<header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
 
-# Text Superbot
+<main class="sms" id="main" tabindex="-1">
+  <div class="crumb"><a href="index.html">superbot<span class="gg">.gg</span></a> / text superbot</div>
+  <h1>Text Superbot</h1>
+  <p class="lede">Superbot, by <b>EZO Labs Inc.</b>, answers questions and runs tasks over SMS.</p>
+  <p class="lede">There is no signup form and no checkbox on this page. Sending a text to the number below is how you opt in, and that text is itself your consent to receive texts back.</p>
 
-Superbot, by **EZO Labs Inc.**, answers questions and runs tasks over SMS.
+  <section class="sms-cta" aria-labelledby="cta-h">
+    <div class="in">
+      <h2 id="cta-h" class="k">Text this number to start</h2>
+      <p class="num"></p>
+      <p>Send anything, a question, a task, or just say hi, to <b class="tel"></b>. That message is your opt-in: Superbot texts you back.</p>
+    </div>
+    <footer>Program: Superbot, operated by EZO Labs Inc. No purchase or app install is required to text this number.</footer>
+  </section>
 
-There is no signup form and no checkbox on this page. Sending a text to the number below is how you opt in, and that text is itself your consent to receive texts back.
+  <section class="sms-sec" aria-labelledby="get-h">
+    <h2 id="get-h">What you'll get</h2>
+    <p>Once you text in, Superbot replies to what you send: answers to the questions you ask and updates on the tasks you asked it to run, plus a one-time confirmation text when you link a Superbot account by SMS.</p>
+    <p>These are not marketing or promotional messages. Every reply is a direct response to something you asked, or a service message tied to your own request.</p>
+    <p>Replies are generated by an AI and can make mistakes, so check anything important before you act on it.</p>
+  </section>
 
-## Text this number to start
+  <section class="sms-sec" aria-labelledby="terms-h">
+    <h2 id="terms-h">Frequency, cost, and consent</h2>
+    <p>Message frequency varies: it depends on how often you text Superbot and what you ask it to do. Message &amp; data rates may apply.</p>
+    <p>Consent is not a condition of purchase. Texting Superbot is free to use on our end, and nothing sold by EZO Labs Inc. requires it.</p>
+    <p>Reply STOP to opt out. Reply HELP for help. Full terms: the <a href="https://ezolabs.io/privacy">Privacy Policy</a> and the <a href="https://ezolabs.io/terms">Terms of Service</a>.</p>
+  </section>
 
-Send anything, a question, a task, or just say hi, to . That message is your opt-in: Superbot texts you back.
+  <section class="sms-sec" aria-labelledby="stop-h">
+    <h2 id="stop-h">Stop and help, any time</h2>
+    <p>To stop, reply <code>STOP</code>, <code>STOPALL</code>, <code>UNSUBSCRIBE</code>, <code>CANCEL</code>, <code>END</code>, or <code>QUIT</code> to any message from <b class="tel"></b>. A STOP reply is confirmed by a text back and honored right away: no further messages are sent to that number.</p>
+    <p>For help, reply <code>HELP</code> to <b class="tel"></b>, or just text <b class="tel"></b> directly with your question.</p>
+  </section>
 
-Program: Superbot, operated by EZO Labs Inc. No purchase or app install is required to text this number.
+  <section class="sms-sec" aria-labelledby="sample-h">
+    <h2 id="sample-h">The message you'll get</h2>
+    <p>Your first text to <b class="tel"></b> is your opt-in. This is the exact message Superbot sends back to a new number, the campaign's sample message:</p>
+    <p class="sms-sample">Superbot: an AI assistant, by text.
+Replies are AI-generated.
+Message frequency varies.
+Reply STOP to opt out.
+Reply HELP for help.</p>
+    <p>Reply <code>STOP</code> at any time to stop all messages. Reply <code>HELP</code> for help. Standard message &amp; data rates apply.</p>
+  </section>
 
-## What you'll get
+  <section class="sms-sec" aria-labelledby="privacy-h">
+    <h2 id="privacy-h">Your data</h2>
+    <p>Mobile opt-in data and consent collected through this number are not shared with or sold to third parties for marketing or promotional purposes.</p>
+    <p>Full detail: the <a href="https://ezolabs.io/privacy">Privacy Policy</a> and the <a href="https://ezolabs.io/terms">Terms of Service</a>.</p>
+  </section>
+</main>
 
-Once you text in, Superbot replies to what you send: answers to the questions you ask and updates on the tasks you asked it to run, plus a one-time confirmation text when you link a Superbot account by SMS.
-
-These are not marketing or promotional messages. Every reply is a direct response to something you asked, or a service message tied to your own request.
-
-Replies are generated by an AI and can make mistakes, so check anything important before you act on it.
-
-## Frequency, cost, and consent
-
-Message frequency varies: it depends on how often you text Superbot and what you ask it to do. Message & data rates may apply.
-
-Consent is not a condition of purchase. Texting Superbot is free to use on our end, and nothing sold by EZO Labs Inc. requires it.
-
-Reply STOP to opt out. Reply HELP for help. Full terms: the [Privacy Policy](https://ezolabs.io/privacy) and the [Terms of Service](https://ezolabs.io/terms).
-
-## Stop and help, any time
-
-To stop, reply `STOP`, `STOPALL`, `UNSUBSCRIBE`, `CANCEL`, `END`, or `QUIT` to any message from . A STOP reply is confirmed by a text back and honored right away: no further messages are sent to that number.
-
-For help, reply `HELP` to , or just text  directly with your question.
-
-## The message you'll get
-
-Your first text to  is your opt-in. This is the exact message Superbot sends back to a new number, the campaign's sample message:
-
-Superbot: an AI assistant, by text. Replies are AI-generated. Message frequency varies. Reply STOP to opt out. Reply HELP for help.
-
-Reply `STOP` at any time to stop all messages. Reply `HELP` for help. Standard message & data rates apply.
-
-## Your data
-
-Mobile opt-in data and consent collected through this number are not shared with or sold to third parties for marketing or promotional purposes.
-
-Full detail: the [Privacy Policy](https://ezolabs.io/privacy) and the [Terms of Service](https://ezolabs.io/terms).
+<footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body>
+</html>

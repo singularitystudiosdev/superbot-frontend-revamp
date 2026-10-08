@@ -1,433 +1,432 @@
----
-title: "one API for every model you pay for"
-canonical_url: "https://superbot.gg/api"
-last_updated: "2026-10-08"
-summary: "every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."
----
-
-> Markdown twin of https://superbot.gg/api (the HTML page is canonical).
-> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
-
-[superbot.gg](https://superbot.gg/) / api
-
-# One endpoint for every model on your account.
-
-Your subscriptions, API keys and custom endpoints answer at one URL.
-Call them in the OpenAI or Anthropic format.
-Mint and manage scoped keys from the API itself.
-
-[Get an API key](https://superbot.gg/account/api#keys) [Every route](https://superbot.gg/api#routes)
-
-**OpenAI dialect**
-
-```sh
-OPENAI_BASE_URL=https://superbot.gg/v1
-OPENAI_API_KEY=sbc_...
-curl https://superbot.gg/v1/chat/completions -H "Authorization: Bearer $OPENAI_API_KEY" -H "content-type: application/json" -d '{"model":"superbot","stream": true,"messages":[{"role":"user","content":"hi"}]}'
-```
-
-**Anthropic dialect**
-
-```sh
-ANTHROPIC_BASE_URL=https://superbot.gg/v1
-ANTHROPIC_API_KEY=sbc_...
-curl https://superbot.gg/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '{"model":"superbot","max_tokens":256,"stream": true,"messages":[{"role":"user","content":"hi"}]}'
-```
-
-**curl**
-
-```sh
-curl -N https://superbot.gg/v1/chat/completions -H "Authorization: Bearer $OPENAI_API_KEY" -H "content-type: application/json" -d '{"model":"superbot","stream":true,"messages":[{"role":"user","content":"hi"}]}'
-```
-
-## Any model on your account
-
-Connect a subscription, a provider API key or a custom endpoint once.
-Every model it carries answers at this URL.
-Name the model id and the call goes to the provider that holds it.
-
-`GET /v1/models` lists every id your key can name.
-Answers come back in the dialect you called, OpenAI or Anthropic.
-
-Add a provider in the app, or add an endpoint on the [api console](https://superbot.gg/account/api#providers) or with `POST /v1/upstreams`.
-
-## Keys you mint and manage
-
-Mint one scoped key per tool or teammate.
-Give each its own scopes, allowed models and daily or monthly cap.
-Revoke one and only that tool stops.
-
-Do it on the [api console](https://superbot.gg/account/api#keys) or from the API itself.
-`POST /v1/keys` mints, `GET /v1/keys` lists, `PATCH /v1/keys/{id}` edits, `DELETE /v1/keys/{id}` revokes.
-A key needs `keys:write` to do this, and never mints a key wider than itself.
-
-### Scopes
-
-| scope           | what it allows                            |
-| --------------- | ----------------------------------------- |
-| gateway:invoke  | Call models through Superbot              |
-| usage:read      | Read usage and spend                      |
-| billing:read    | Read the credit balance                   |
-| keys:read       | List caller keys                          |
-| keys:write      | Mint, edit and revoke caller keys         |
-| endpoints:read  | Read custom endpoints and aliases         |
-| endpoints:write | Change custom endpoints and aliases       |
-| teams:read      | Read teams and invites                    |
-| teams:write     | Manage teams, members and invites         |
-| devices:read    | List devices                              |
-| devices:write   | Remove devices                            |
-| runs:read       | List and read cloud runs and their events |
-| runs:write      | Start and cancel cloud runs               |
-
-Presets: Gateway calls models, Read-only query reads your account, Full access holds every scope.
-
-## Every route
-
-Each route links to its full reference, with request and response samples.
-
-### Call models
-
-| method | path                                                                                      | what it does             | scope          |
-| ------ | ----------------------------------------------------------------------------------------- | ------------------------ | -------------- |
-| POST   | [/v1/chat/completions](https://superbot.gg/developers/gateway/createChatCompletion)     | Create a chat completion | gateway:invoke |
-| POST   | [/v1/responses](https://superbot.gg/developers/gateway/createResponse)                  | Create a response        | gateway:invoke |
-| POST   | [/v1/messages](https://superbot.gg/developers/gateway/createMessage)                    | Create a message         | gateway:invoke |
-| POST   | [/v1/messages/count_tokens](https://superbot.gg/developers/gateway/countMessageTokens) | Estimate input tokens    | any key        |
-| GET    | [/v1/models](https://superbot.gg/developers/gateway/listModels)                         | List models              | any key        |
-
-### Manage keys
-
-| method | path                                                                   | what it does        | scope      |
-| ------ | ---------------------------------------------------------------------- | ------------------- | ---------- |
-| GET    | [/v1/keys](https://superbot.gg/developers/keys/listKeys)             | List caller keys    | keys:read  |
-| POST   | [/v1/keys](https://superbot.gg/developers/keys/createKey)            | Create a caller key | keys:write |
-| GET    | [/v1/keys/whoami](https://superbot.gg/developers/keys/getCurrentKey) | Get the calling key | any key    |
-| PATCH  | [/v1/keys/{id}](https://superbot.gg/developers/keys/updateKey)       | Update a caller key | keys:write |
-| DELETE | [/v1/keys/{id}](https://superbot.gg/developers/keys/revokeKey)       | Revoke a caller key | keys:write |
-
-### Usage and spend
-
-| method | path                                                                            | what it does                   | scope        |
-| ------ | ------------------------------------------------------------------------------- | ------------------------------ | ------------ |
-| GET    | [/v1/usage](https://superbot.gg/developers/usage/getUsage)                    | Get usage over a window        | usage:read   |
-| GET    | [/v1/usage/requests](https://superbot.gg/developers/usage/listUsageRequests)  | List usage per request         | usage:read   |
-| GET    | [/v1/usage/daily](https://superbot.gg/developers/usage/getUsageDaily)         | Get usage per UTC day          | usage:read   |
-| GET    | [/v1/usage/breakdown](https://superbot.gg/developers/usage/getUsageBreakdown) | Get usage bucketed and grouped | usage:read   |
-| GET    | [/v1/usage/export](https://superbot.gg/developers/usage/exportUsage)          | Export usage rows              | usage:read   |
-| GET    | [/v1/credits](https://superbot.gg/developers/usage/getCredits)                | Get the credit balance         | billing:read |
-| GET    | [/v1/spend](https://superbot.gg/developers/usage/getSpend)                    | Get AI spend across apps       | usage:read   |
-| GET    | [/v1/usage/report](https://superbot.gg/developers/usage/getUsageReport)       | Get a usage report             | usage:read   |
-
-### Custom endpoints
-
-| method | path                                                                                               | what it does                     | scope           |
-| ------ | -------------------------------------------------------------------------------------------------- | -------------------------------- | --------------- |
-| GET    | [/v1/upstreams](https://superbot.gg/developers/endpoints/listUpstreams)                          | List custom endpoints            | endpoints:read  |
-| POST   | [/v1/upstreams](https://superbot.gg/developers/endpoints/createUpstream)                         | Add a custom endpoint            | endpoints:write |
-| PATCH  | [/v1/upstreams/{slug}](https://superbot.gg/developers/endpoints/updateUpstream)                  | Update a custom endpoint         | endpoints:write |
-| DELETE | [/v1/upstreams/{slug}](https://superbot.gg/developers/endpoints/deleteUpstream)                  | Remove a custom endpoint         | endpoints:write |
-| POST   | [/v1/upstreams/{slug}/probe](https://superbot.gg/developers/endpoints/probeUpstream)             | Re-probe a custom endpoint       | endpoints:write |
-| GET    | [/v1/aliases](https://superbot.gg/developers/endpoints/listAliases)                              | List @mention aliases            | endpoints:read  |
-| PUT    | [/v1/aliases/{token}](https://superbot.gg/developers/endpoints/setAlias)                         | Set an @mention alias            | endpoints:write |
-| DELETE | [/v1/aliases/{token}](https://superbot.gg/developers/endpoints/deleteAlias)                      | Delete an @mention alias         | endpoints:write |
-| GET    | [/docs/services/{service_id}.json](https://superbot.gg/developers/endpoints/getServiceDocument) | Get a service’s OpenAPI document | no key          |
-
-### Teams
-
-| method | path                                                                                                  | what it does              | scope       |
-| ------ | ----------------------------------------------------------------------------------------------------- | ------------------------- | ----------- |
-| GET    | [/v1/org/{id}/audit](https://superbot.gg/developers/teams/exportTeamAuditLog)                       | Export a team’s audit log | teams:read  |
-| GET    | [/v1/teams](https://superbot.gg/developers/teams/listTeams)                                         | List teams                | teams:read  |
-| POST   | [/v1/teams](https://superbot.gg/developers/teams/createTeam)                                        | Create a team             | teams:write |
-| GET    | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/getTeam)                                | Get a team                | teams:read  |
-| PATCH  | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/updateTeam)                             | Update a team             | teams:write |
-| DELETE | [/v1/teams/{team_id}](https://superbot.gg/developers/teams/deleteTeam)                             | Delete a team             | teams:write |
-| GET    | [/v1/teams/{team_id}/members](https://superbot.gg/developers/teams/listTeamMembers)                | List team members         | teams:read  |
-| PATCH  | [/v1/teams/{team_id}/members/{user_id}](https://superbot.gg/developers/teams/updateTeamMember)    | Change a member’s role    | teams:write |
-| DELETE | [/v1/teams/{team_id}/members/{user_id}](https://superbot.gg/developers/teams/removeTeamMember)    | Remove a team member      | teams:write |
-| GET    | [/v1/teams/{team_id}/invites](https://superbot.gg/developers/teams/listTeamInvites)                | List pending team invites | teams:read  |
-| POST   | [/v1/teams/{team_id}/invites](https://superbot.gg/developers/teams/createTeamInvite)               | Invite someone to a team  | teams:write |
-| DELETE | [/v1/teams/{team_id}/invites/{code}](https://superbot.gg/developers/teams/revokeTeamInvite)        | Revoke a team invite      | teams:write |
-| POST   | [/v1/teams/{team_id}/invites/{code}/resend](https://superbot.gg/developers/teams/resendTeamInvite) | Resend a team invite      | teams:write |
-| POST   | [/v1/team_invites/{code}/accept](https://superbot.gg/developers/teams/acceptTeamInvite)            | Accept a team invite      | teams:write |
-
-### Devices
-
-| method | path                                                                                                                     | what it does                      | scope         |
-| ------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------- | ------------- |
-| POST   | [/v1/devices/{device_id}/jobs](https://superbot.gg/developers/devices/createAgentJob)                                 | Run a job on an agent computer    | devices:write |
-| GET    | [/v1/devices/{device_id}/jobs/{job_id}](https://superbot.gg/developers/devices/getAgentJob)                          | Read an agent computer job        | devices:read  |
-| GET    | [/v1/devices/{device_id}/terminals/{terminal_id}/stream](https://superbot.gg/developers/devices/streamAgentTerminal) | Stream an agent computer terminal | devices:read  |
-| GET    | [/v1/pair/{user_code}](https://superbot.gg/developers/devices/previewAgentPair)                                       | Preview an agent computer code    | any key       |
-| POST   | [/v1/pair/{user_code}/approve](https://superbot.gg/developers/devices/approveAgentPair)                               | Approve an agent computer code    | any key       |
-| GET    | [/v1/devices](https://superbot.gg/developers/devices/listDevices)                                                      | List devices                      | devices:read  |
-| GET    | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/getDevice)                                           | Get a device                      | devices:read  |
-| PATCH  | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/updateDevice)                                        | Rename a device                   | devices:write |
-| DELETE | [/v1/devices/{device_id}](https://superbot.gg/developers/devices/deleteDevice)                                        | Unlink a device                   | devices:write |
-
-### Runs
-
-| method | path                                                                                | what it does                      | scope      |
-| ------ | ----------------------------------------------------------------------------------- | --------------------------------- | ---------- |
-| GET    | [/v1/runs](https://superbot.gg/developers/runs/listRuns)                          | List cloud runs                   | runs:read  |
-| POST   | [/v1/runs](https://superbot.gg/developers/runs/createRun)                         | Start a cloud run                 | runs:write |
-| GET    | [/v1/runs/projects](https://superbot.gg/developers/runs/listRunProjects)          | Find the project for a repository | runs:read  |
-| GET    | [/v1/runs/{run_id}](https://superbot.gg/developers/runs/getRun)                  | Get a cloud run                   | runs:read  |
-| GET    | [/v1/runs/{run_id}/events](https://superbot.gg/developers/runs/listRunEvents)    | Follow a run’s events             | runs:read  |
-| POST   | [/v1/runs/{run_id}/cancel](https://superbot.gg/developers/runs/cancelRun)        | Cancel a cloud run                | runs:write |
-| POST   | [/v1/runs/{run_id}/messages](https://superbot.gg/developers/runs/sendRunMessage) | Steer a running cloud run         | runs:write |
-
-The whole reference lives at [/developers](https://superbot.gg/developers).
-The machine-readable spec is [/docs/openapi.json](https://superbot.gg/docs/openapi.json).
-
-**house models**plus every model on your account
-
-3
-
-**dialects**OpenAI Chat, Responses, Messages
-
-3
-
-**requests a minute per key**
-
-1,200
-
-## Streaming
-
-Set `stream` to true.
-Read server-sent events.
-
-Chunks arrive in the dialect you called.
-
-`data: {"object":"chat.completion.chunk","choices":[{"delta":{"content":"Hello"}}]}` `data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}`
-
-## Plans for every kind of work
-
-Start free, or try Pro free for 14 days.
-No card needed. Runs on your own accounts are never limited.
-
-[Download](https://superbot.gg/download) [Helper and CLI](https://superbot.gg/download#helper)
-
-### Superbot Free
-
-$0 a month
-
-10,000 credits a month
-
-Runs at once
-
-3
-
-Long runs
-
-No
-
-Scheduled runs
-
-No
-
-Queue
-
-Standard
-
-Support
-
-Community
-
-Every model
-
-Yes
-
-### Superbot Plus
-
-$20 a month$16.67 a month
-
-Billed $200 yearly
-
-22,000 credits a month
-
-Runs at once
-
-6
-
-Long runs
-
-Yes
-
-Scheduled runs
-
-Yes
-
-Queue
-
-Standard
-
-Support
-
-Community
-
-Every model
-
-Yes
-
-14-day Pro trial
-
-### Superbot Pro (recommended)
-
-$100 a month$80 a month
-
-Billed $960 yearly
-
-120,000 credits a month
-
-Runs at once
-
-15
-
-Long runs
-
-Yes
-
-Scheduled runs
-
-Yes
-
-Queue
-
-Priority
-
-Support
-
-Priority
-
-Every model
-
-Yes
-
-### Superbot Max
-
-$200 a month$160 a month
-
-Billed $1,920 yearly
-
-270,000 credits a month
-
-Runs at once
-
-30
-
-Long runs
-
-Yes
-
-Scheduled runs
-
-Yes
-
-Queue
-
-Fastest
-
-Support
-
-Priority
-
-Every model
-
-Yes
-
-### Superbot Teams
-
-$25 a seat a month$25 a seat a month
-
-Billed yearlyBilled $300 a seat yearly
-
-30,000 a seat, pooled
-
-Runs at once
-
-6 per seat
-
-Long runs
-
-Yes
-
-Scheduled runs
-
-Yes
-
-Queue
-
-Priority
-
-Support
-
-Dedicated
-
-Every model
-
-Yes
-
-The 14-day Superbot Pro trial starts with 20,000 trial credits that expire when it ends; one account gets one trial. Past an allowance, credits cost $1 per 1,000. Limits cover hosted cloud runs only. [How billing works](https://superbot.gg/docs/billing).
-
-### Credit packs
-
-| price | credits |
-| ----- | ------- |
-| $5    | 5,000   |
-| $20   | 20,000  |
-| $100  | 100,000 |
-
-Plan credits reset monthly and do not roll over. Pack credits never expire.
-
-## One rate card for every call
-
-1 credit = $0.001. Rates are credits per 1M tokens.
-
-### House models
-
-| model                     | input | output | cache read |
-| ------------------------- | ----- | ------ | ---------- |
-| superbot                  | 200   | 800    | 5          |
-| superbot-fastfree in beta | 100   | 400    | 2.5        |
-
-superbot-fast is free in beta.
-fair use: 500 credits per 5 hours, 2,000 credits per 7 days.
-past that, it bills at the rates above.
-
-### Your own subscriptions and keys
-
-Models on your own subscriptions and keys are free on superbot.
-superbot adds no credits to those calls.
-You pay your provider as usual.
-
-A vendor model dialed on superbot credits, with no account of yours attached, is charged at its own list price.
-That is the same $0.001 per credit.
-
-Every call on superbot credits is priced on this one card.
-Superbot Free carries a monthly 10,000-credit beta pot, refilled on the 1st.
-
-## House models
-
-These always answer, with or without a provider connected.
-Every other model on your account answers by its own id.
-
-| model         | role                                  | context |
-| ------------- | ------------------------------------- | ------- |
-| superbot      | Your Superbot agent.                  | 1M      |
-| superbot-omni | Superbot agent, run on your computer. | 1M      |
-| superbot-fast | Quick and cheap, for small jobs.      | 500k    |
-
-## Status contract
-
-- `401` missing, malformed or unknown key
-- `402` budget spent
-- `403` revoked key or model not allowed
-- `429` over the per-key bucket
-- `499` the caller hung up
-
-Signed in? Mint a key on the [api console](https://superbot.gg/account/api).
-
-Third-party client? [Use superbot from Cursor, Continue, Claude Code and other clients](https://superbot.gg/clients).
-
-[Get an API key](https://superbot.gg/account/api#keys) [Download](https://superbot.gg/download)
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<title>one API for every model you pay for – superbot.gg</title>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<meta name="keywords" content="superbot API, OpenAI-compatible API, Anthropic-compatible API, caller keys, AI models"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="site/assets/bench.css?v=15"/>
+<link rel="stylesheet" href="site/assets/api.css?v=9"/>
+<meta name="description" content="every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="one API for every model you pay for – superbot.gg"/>
+<meta property="og:description" content="every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."/>
+<meta property="og:url" content="https://superbot.gg/api"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og/api.png?v=2"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="superbot.gg api card: every model on your account, from any client."/>
+<meta property="og:image:type" content="image/png"/>
+<link rel="canonical" href="api.html"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="one API for every model you pay for – superbot.gg"/>
+<meta name="twitter:description" content="every model on your account answers at one URL in the OpenAI or Anthropic format: your subscriptions, API keys and custom endpoints, one key."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og/api.png?v=2"/>
+<meta name="twitter:image:alt" content="superbot.gg api card: every model on your account, from any client."/>
+<link rel="alternate" type="text/markdown" href="/api.md">
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
+
+  <main class="bench api" id="main" tabindex="-1">
+    <div class="crumb sb-reveal" style="--i:0"><a href="index.html">superbot<span class="gg">.gg</span></a> / api</div>
+    <h1 class="sb-reveal" style="--i:1">One endpoint for every model on your account.</h1>
+    <p class="lede sb-reveal" style="--i:2">Your subscriptions, API keys and custom endpoints answer at one URL.<br/>Call them in the OpenAI or Anthropic format.<br/>Mint and manage scoped keys from the API itself.</p>
+    <div class="api-cta sb-reveal" style="--i:3">
+      <a class="sb-btn" href="/account/api#keys">Get an API key</a>
+      <a class="sb-btn ghost" href="#routes">Every route</a>
+    </div>
+
+    <!-- the page's one bold thing: the drop-in card. Three dialect tabs, each
+         panel two env lines and one streaming request. Every command lives in
+         its own [data-cmd] host and is mounted by the inline module at the foot,
+         which reads data-base off this section and fills the {base}
+         placeholder. No host is ever hardcoded here. -->
+    <section class="api-drop api-sec" data-base="https://superbot.gg/v1" aria-label="the same streaming request from three clients">
+      <div class="api-tabs" role="tablist" aria-label="client dialect">
+        <button type="button" role="tab" id="api-tab-openai" aria-selected="true" aria-controls="api-panel-openai">OpenAI<span class="api-tab-more"> dialect</span></button>
+        <button type="button" role="tab" id="api-tab-anthropic" aria-selected="false" tabindex="-1" aria-controls="api-panel-anthropic">Anthropic<span class="api-tab-more"> dialect</span></button>
+        <button type="button" role="tab" id="api-tab-curl" aria-selected="false" tabindex="-1" aria-controls="api-panel-curl">curl</button>
+      </div>
+      <div class="api-panel" role="tabpanel" id="api-panel-openai" aria-labelledby="api-tab-openai">
+        <div data-cmd="OPENAI_BASE_URL={base}"></div>
+        <div data-cmd="OPENAI_API_KEY=sbc_..."></div>
+        <div data-cmd="curl {base}/chat/completions -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; -H &quot;content-type: application/json&quot; -d '{&quot;model&quot;:&quot;superbot&quot;,&quot;stream&quot;: true,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;hi&quot;}]}'"></div>
+      </div>
+      <div class="api-panel" role="tabpanel" id="api-panel-anthropic" aria-labelledby="api-tab-anthropic" hidden>
+        <div data-cmd="ANTHROPIC_BASE_URL={base}"></div>
+        <div data-cmd="ANTHROPIC_API_KEY=sbc_..."></div>
+        <div data-cmd="curl {base}/messages -H &quot;x-api-key: $ANTHROPIC_API_KEY&quot; -H &quot;anthropic-version: 2023-06-01&quot; -H &quot;content-type: application/json&quot; -d '{&quot;model&quot;:&quot;superbot&quot;,&quot;max_tokens&quot;:256,&quot;stream&quot;: true,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;hi&quot;}]}'"></div>
+      </div>
+      <div class="api-panel" role="tabpanel" id="api-panel-curl" aria-labelledby="api-tab-curl" hidden>
+        <div data-cmd="curl -N {base}/chat/completions -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; -H &quot;content-type: application/json&quot; -d '{&quot;model&quot;:&quot;superbot&quot;,&quot;stream&quot;:true,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;hi&quot;}]}'"></div>
+      </div>
+    </section>
+
+    <section class="api-sec" aria-labelledby="api-any-h">
+      <h2 id="api-any-h">Any model on your account</h2>
+      <p class="api-p">Connect a subscription, a provider API key or a custom endpoint once.<br/>Every model it carries answers at this URL.<br/>Name the model id and the call goes to the provider that holds it.</p>
+      <p class="api-p"><code>GET /v1/models</code> lists every id your key can name.<br/>Answers come back in the dialect you called, OpenAI or Anthropic.</p>
+      <p class="api-cap">Add a provider in the app, or add an endpoint on the <a href="/account/api#providers">api console</a> or with <code>POST /v1/upstreams</code>.</p>
+    </section>
+
+    <section class="api-sec" aria-labelledby="api-keys-h">
+      <h2 id="api-keys-h">Keys you mint and manage</h2>
+      <p class="api-p">Mint one scoped key per tool or teammate.<br/>Give each its own scopes, allowed models and daily or monthly cap.<br/>Revoke one and only that tool stops.</p>
+      <p class="api-p">Do it on the <a href="/account/api#keys">api console</a> or from the API itself.<br/><code>POST /v1/keys</code> mints, <code>GET /v1/keys</code> lists, <code>PATCH /v1/keys/{id}</code> edits, <code>DELETE /v1/keys/{id}</code> revokes.<br/>A key needs <code>keys:write</code> to do this, and never mints a key wider than itself.</p>
+      <h3 class="api-sub">Scopes</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 1">
+        <table class="api-table">
+          <thead><tr><th>scope</th><th>what it allows</th></tr></thead>
+          <tbody><tr><td class="api-id api-scope">gateway:invoke</td><td class="api-role">Call models through Superbot</td></tr>
+            <tr><td class="api-id api-scope">usage:read</td><td class="api-role">Read usage and spend</td></tr>
+            <tr><td class="api-id api-scope">billing:read</td><td class="api-role">Read the credit balance</td></tr>
+            <tr><td class="api-id api-scope">keys:read</td><td class="api-role">List caller keys</td></tr>
+            <tr><td class="api-id api-scope">keys:write</td><td class="api-role">Mint, edit and revoke caller keys</td></tr>
+            <tr><td class="api-id api-scope">endpoints:read</td><td class="api-role">Read custom endpoints and aliases</td></tr>
+            <tr><td class="api-id api-scope">endpoints:write</td><td class="api-role">Change custom endpoints and aliases</td></tr>
+            <tr><td class="api-id api-scope">teams:read</td><td class="api-role">Read teams and invites</td></tr>
+            <tr><td class="api-id api-scope">teams:write</td><td class="api-role">Manage teams, members and invites</td></tr>
+            <tr><td class="api-id api-scope">devices:read</td><td class="api-role">List devices</td></tr>
+            <tr><td class="api-id api-scope">devices:write</td><td class="api-role">Remove devices</td></tr>
+            <tr><td class="api-id api-scope">runs:read</td><td class="api-role">List and read cloud runs and their events</td></tr>
+            <tr><td class="api-id api-scope">runs:write</td><td class="api-role">Start and cancel cloud runs</td></tr></tbody>
+        </table>
+      </div>
+      <p class="api-cap">Presets: Gateway calls models, Read-only query reads your account, Full access holds every scope.</p>
+    </section>
+
+    <section class="api-sec" id="routes" aria-labelledby="api-routes-h">
+      <h2 id="api-routes-h">Every route</h2>
+      <p class="api-p">Each route links to its full reference, with request and response samples.</p>
+      <h3 class="api-sub" id="routes-gateway">Call models</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 2">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/createChatCompletion"><code>/v1/chat/completions</code></a></td><td class="api-role">Create a chat completion</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/createResponse"><code>/v1/responses</code></a></td><td class="api-role">Create a response</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/createMessage"><code>/v1/messages</code></a></td><td class="api-role">Create a message</td><td class="api-scopecell"><code>gateway:invoke</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/gateway/countMessageTokens"><code>/v1/messages/count_tokens</code></a></td><td class="api-role">Estimate input tokens</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/gateway/listModels"><code>/v1/models</code></a></td><td class="api-role">List models</td><td class="api-scopecell"><code>any key</code></td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="api-sub" id="routes-keys">Manage keys</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 3">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/keys/listKeys"><code>/v1/keys</code></a></td><td class="api-role">List caller keys</td><td class="api-scopecell"><code>keys:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/keys/createKey"><code>/v1/keys</code></a></td><td class="api-role">Create a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/keys/getCurrentKey"><code>/v1/keys/whoami</code></a></td><td class="api-role">Get the calling key</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/keys/updateKey"><code>/v1/keys/{id}</code></a></td><td class="api-role">Update a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/keys/revokeKey"><code>/v1/keys/{id}</code></a></td><td class="api-role">Revoke a caller key</td><td class="api-scopecell"><code>keys:write</code></td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="api-sub" id="routes-usage">Usage and spend</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 4">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsage"><code>/v1/usage</code></a></td><td class="api-role">Get usage over a window</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/listUsageRequests"><code>/v1/usage/requests</code></a></td><td class="api-role">List usage per request</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsageDaily"><code>/v1/usage/daily</code></a></td><td class="api-role">Get usage per UTC day</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsageBreakdown"><code>/v1/usage/breakdown</code></a></td><td class="api-role">Get usage bucketed and grouped</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/exportUsage"><code>/v1/usage/export</code></a></td><td class="api-role">Export usage rows</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getCredits"><code>/v1/credits</code></a></td><td class="api-role">Get the credit balance</td><td class="api-scopecell"><code>billing:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getSpend"><code>/v1/spend</code></a></td><td class="api-role">Get AI spend across apps</td><td class="api-scopecell"><code>usage:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/usage/getUsageReport"><code>/v1/usage/report</code></a></td><td class="api-role">Get a usage report</td><td class="api-scopecell"><code>usage:read</code></td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="api-sub" id="routes-endpoints">Custom endpoints</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 5">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/endpoints/listUpstreams"><code>/v1/upstreams</code></a></td><td class="api-role">List custom endpoints</td><td class="api-scopecell"><code>endpoints:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/endpoints/createUpstream"><code>/v1/upstreams</code></a></td><td class="api-role">Add a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/endpoints/updateUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="api-role">Update a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/endpoints/deleteUpstream"><code>/v1/upstreams/{slug}</code></a></td><td class="api-role">Remove a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/endpoints/probeUpstream"><code>/v1/upstreams/{slug}/probe</code></a></td><td class="api-role">Re-probe a custom endpoint</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/endpoints/listAliases"><code>/v1/aliases</code></a></td><td class="api-role">List @mention aliases</td><td class="api-scopecell"><code>endpoints:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="put">PUT</td><td class="api-path"><a href="/developers/endpoints/setAlias"><code>/v1/aliases/{token}</code></a></td><td class="api-role">Set an @mention alias</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/endpoints/deleteAlias"><code>/v1/aliases/{token}</code></a></td><td class="api-role">Delete an @mention alias</td><td class="api-scopecell"><code>endpoints:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/endpoints/getServiceDocument"><code>/docs/services/{service_id}.json</code></a></td><td class="api-role">Get a service’s OpenAPI document</td><td class="api-scopecell"><code>no key</code></td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="api-sub" id="routes-teams">Teams</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 6">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/exportTeamAuditLog"><code>/v1/org/{id}/audit</code></a></td><td class="api-role">Export a team’s audit log</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/listTeams"><code>/v1/teams</code></a></td><td class="api-role">List teams</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/createTeam"><code>/v1/teams</code></a></td><td class="api-role">Create a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/getTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Get a team</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/teams/updateTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Update a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/teams/deleteTeam"><code>/v1/teams/{team_id}</code></a></td><td class="api-role">Delete a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/listTeamMembers"><code>/v1/teams/{team_id}/members</code></a></td><td class="api-role">List team members</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/teams/updateTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="api-role">Change a member’s role</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/teams/removeTeamMember"><code>/v1/teams/{team_id}/members/{user_id}</code></a></td><td class="api-role">Remove a team member</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/teams/listTeamInvites"><code>/v1/teams/{team_id}/invites</code></a></td><td class="api-role">List pending team invites</td><td class="api-scopecell"><code>teams:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/createTeamInvite"><code>/v1/teams/{team_id}/invites</code></a></td><td class="api-role">Invite someone to a team</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/teams/revokeTeamInvite"><code>/v1/teams/{team_id}/invites/{code}</code></a></td><td class="api-role">Revoke a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/resendTeamInvite"><code>/v1/teams/{team_id}/invites/{code}/resend</code></a></td><td class="api-role">Resend a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/teams/acceptTeamInvite"><code>/v1/team_invites/{code}/accept</code></a></td><td class="api-role">Accept a team invite</td><td class="api-scopecell"><code>teams:write</code></td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="api-sub" id="routes-devices">Devices</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 7">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/devices/createAgentJob"><code>/v1/devices/{device_id}/jobs</code></a></td><td class="api-role">Run a job on an agent computer</td><td class="api-scopecell"><code>devices:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/getAgentJob"><code>/v1/devices/{device_id}/jobs/{job_id}</code></a></td><td class="api-role">Read an agent computer job</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/streamAgentTerminal"><code>/v1/devices/{device_id}/terminals/{terminal_id}/stream</code></a></td><td class="api-role">Stream an agent computer terminal</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/previewAgentPair"><code>/v1/pair/{user_code}</code></a></td><td class="api-role">Preview an agent computer code</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/devices/approveAgentPair"><code>/v1/pair/{user_code}/approve</code></a></td><td class="api-role">Approve an agent computer code</td><td class="api-scopecell"><code>any key</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/listDevices"><code>/v1/devices</code></a></td><td class="api-role">List devices</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/devices/getDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Get a device</td><td class="api-scopecell"><code>devices:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="patch">PATCH</td><td class="api-path"><a href="/developers/devices/updateDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Rename a device</td><td class="api-scopecell"><code>devices:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="delete">DELETE</td><td class="api-path"><a href="/developers/devices/deleteDevice"><code>/v1/devices/{device_id}</code></a></td><td class="api-role">Unlink a device</td><td class="api-scopecell"><code>devices:write</code></td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="api-sub" id="routes-runs">Runs</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 8">
+        <table class="api-table api-routes">
+          <thead><tr><th>method</th><th>path</th><th>what it does</th><th>scope</th></tr></thead>
+          <tbody><tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/listRuns"><code>/v1/runs</code></a></td><td class="api-role">List cloud runs</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/runs/createRun"><code>/v1/runs</code></a></td><td class="api-role">Start a cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/listRunProjects"><code>/v1/runs/projects</code></a></td><td class="api-role">Find the project for a repository</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/getRun"><code>/v1/runs/{run_id}</code></a></td><td class="api-role">Get a cloud run</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="get">GET</td><td class="api-path"><a href="/developers/runs/listRunEvents"><code>/v1/runs/{run_id}/events</code></a></td><td class="api-role">Follow a run’s events</td><td class="api-scopecell"><code>runs:read</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/runs/cancelRun"><code>/v1/runs/{run_id}/cancel</code></a></td><td class="api-role">Cancel a cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr>
+            <tr><td class="api-verb" data-verb="post">POST</td><td class="api-path"><a href="/developers/runs/sendRunMessage"><code>/v1/runs/{run_id}/messages</code></a></td><td class="api-role">Steer a running cloud run</td><td class="api-scopecell"><code>runs:write</code></td></tr></tbody>
+        </table>
+      </div>
+      <p class="api-cap">The whole reference lives at <a href="developers.html">/developers</a>.<br/>The machine-readable spec is <a href="docs/openapi.json">/docs/openapi.json</a>.</p>
+    </section>
+
+    <div class="figs api-sec">
+      <figure class="fig">
+        <figcaption class="cap"><b>house models</b><span>plus every model on your account</span></figcaption>
+        <div class="api-stat">3</div>
+      </figure>
+      <figure class="fig">
+        <figcaption class="cap"><b>dialects</b><span>OpenAI Chat, Responses, Messages</span></figcaption>
+        <div class="api-stat">3</div>
+      </figure>
+      <figure class="fig">
+        <figcaption class="cap"><b>requests a minute per key</b></figcaption>
+        <div class="api-stat">1,200</div>
+      </figure>
+    </div>
+
+    <section class="api-sec" aria-labelledby="api-stream-h">
+      <h2 id="api-stream-h">Streaming</h2>
+      <p class="api-p">Set <code>stream</code> to true.<br/>Read server-sent events.</p>
+      <p class="api-p">Chunks arrive in the dialect you called.</p>
+      <!-- a sample of the wire, not a command: no copy button, no command row.
+           The lines scroll sideways on their own axis at 320, the SC 1.4.10
+           two-dimensional exception for code. -->
+      <div class="api-snippet">
+        <div class="api-sse" tabindex="0" role="region" aria-label="Streaming response lines">
+          <code>data: {&quot;object&quot;:&quot;chat.completion.chunk&quot;,&quot;choices&quot;:[{&quot;delta&quot;:{&quot;content&quot;:&quot;Hello&quot;}}]}</code>
+          <code>data: {&quot;type&quot;:&quot;content_block_delta&quot;,&quot;index&quot;:0,&quot;delta&quot;:{&quot;type&quot;:&quot;text_delta&quot;,&quot;text&quot;:&quot;Hello&quot;}}</code>
+        </div>
+      </div>
+    </section>
+
+    <section class="api-sec api-pricing" id="pricing" aria-labelledby="api-plans-h">
+      <h2 id="api-plans-h">Plans for every kind of work</h2>
+      <p class="api-p">Start free, or try Pro free for 14 days.<br/>No card needed. Runs on your own accounts are never limited.</p>
+      <div class="api-cta">
+        <a class="sb-btn" href="download.html">Download</a>
+        <a class="sb-btn ghost" href="/download#helper">Helper and CLI</a>
+      </div>
+      <div class="api-period" role="group" aria-label="billing period">
+              <button type="button" class="api-period-btn" data-period="month" aria-pressed="true">Monthly</button>
+              <button type="button" class="api-period-btn" data-period="year" aria-pressed="false">Yearly <span class="api-chip">Save up to 20%</span></button>
+            </div>
+      <div class="api-plans"><article class="api-plan" data-plan="free">
+        <p class="api-plan-chip"></p>
+        <h3 class="api-plan-name">Superbot Free</h3>
+        <p class="api-plan-price"><span class="api-price api-price-both"><span class="api-fig api-fig-lg">$0</span><span class="api-price-unit"> a month</span></span></p>
+        
+        <p class="api-plan-allow"><span class="api-fig">10,000</span> credits a month</p>
+        <dl class="api-plan-perks"><div><dt>Runs at once</dt><dd>3</dd></div><div><dt>Long runs</dt><dd>No</dd></div><div><dt>Scheduled runs</dt><dd>No</dd></div><div><dt>Queue</dt><dd>Standard</dd></div><div><dt>Support</dt><dd>Community</dd></div><div><dt>Every model</dt><dd>Yes</dd></div></dl>
+      </article>
+      <article class="api-plan" data-plan="plus">
+        <p class="api-plan-chip"></p>
+        <h3 class="api-plan-name">Superbot Plus</h3>
+        <p class="api-plan-price"><span class="api-price api-price-month"><span class="api-fig api-fig-lg">$20</span><span class="api-price-unit"> a month</span></span><span class="api-price api-price-year"><span class="api-fig api-fig-lg">$16.67</span><span class="api-price-unit"> a month</span></span></p>
+        <p class="api-plan-billed"><span class="api-billed-year">Billed $200 yearly</span></p>
+        <p class="api-plan-allow"><span class="api-fig">22,000</span> credits a month</p>
+        <dl class="api-plan-perks"><div><dt>Runs at once</dt><dd>6</dd></div><div><dt>Long runs</dt><dd>Yes</dd></div><div><dt>Scheduled runs</dt><dd>Yes</dd></div><div><dt>Queue</dt><dd>Standard</dd></div><div><dt>Support</dt><dd>Community</dd></div><div><dt>Every model</dt><dd>Yes</dd></div></dl>
+      </article>
+      <article class="api-plan is-recommended" data-plan="pro">
+        <p class="api-plan-chip"><span class="api-chip">14-day Pro trial</span></p>
+        <h3 class="api-plan-name">Superbot Pro<span class="sb-visually-hidden"> (recommended)</span></h3>
+        <p class="api-plan-price"><span class="api-price api-price-month"><span class="api-fig api-fig-lg">$100</span><span class="api-price-unit"> a month</span></span><span class="api-price api-price-year"><span class="api-fig api-fig-lg">$80</span><span class="api-price-unit"> a month</span></span></p>
+        <p class="api-plan-billed"><span class="api-billed-year">Billed $960 yearly</span></p>
+        <p class="api-plan-allow"><span class="api-fig">120,000</span> credits a month</p>
+        <dl class="api-plan-perks"><div><dt>Runs at once</dt><dd>15</dd></div><div><dt>Long runs</dt><dd>Yes</dd></div><div><dt>Scheduled runs</dt><dd>Yes</dd></div><div><dt>Queue</dt><dd>Priority</dd></div><div><dt>Support</dt><dd>Priority</dd></div><div><dt>Every model</dt><dd>Yes</dd></div></dl>
+      </article>
+      <article class="api-plan" data-plan="max">
+        <p class="api-plan-chip"></p>
+        <h3 class="api-plan-name">Superbot Max</h3>
+        <p class="api-plan-price"><span class="api-price api-price-month"><span class="api-fig api-fig-lg">$200</span><span class="api-price-unit"> a month</span></span><span class="api-price api-price-year"><span class="api-fig api-fig-lg">$160</span><span class="api-price-unit"> a month</span></span></p>
+        <p class="api-plan-billed"><span class="api-billed-year">Billed $1,920 yearly</span></p>
+        <p class="api-plan-allow"><span class="api-fig">270,000</span> credits a month</p>
+        <dl class="api-plan-perks"><div><dt>Runs at once</dt><dd>30</dd></div><div><dt>Long runs</dt><dd>Yes</dd></div><div><dt>Scheduled runs</dt><dd>Yes</dd></div><div><dt>Queue</dt><dd>Fastest</dd></div><div><dt>Support</dt><dd>Priority</dd></div><div><dt>Every model</dt><dd>Yes</dd></div></dl>
+      </article>
+      <article class="api-plan" data-plan="teams" data-yearly-only="true">
+        <p class="api-plan-chip"></p>
+        <h3 class="api-plan-name">Superbot Teams</h3>
+        <p class="api-plan-price"><span class="api-price api-price-month"><span class="api-fig api-fig-lg">$25</span><span class="api-price-unit"> a seat a month</span></span><span class="api-price api-price-year"><span class="api-fig api-fig-lg">$25</span><span class="api-price-unit"> a seat a month</span></span></p>
+        <p class="api-plan-billed"><span class="api-billed-month">Billed yearly</span><span class="api-billed-year">Billed $300 a seat yearly</span></p>
+        <p class="api-plan-allow"><span class="api-fig">30,000</span> a seat, pooled</p>
+        <dl class="api-plan-perks"><div><dt>Runs at once</dt><dd>6 per seat</dd></div><div><dt>Long runs</dt><dd>Yes</dd></div><div><dt>Scheduled runs</dt><dd>Yes</dd></div><div><dt>Queue</dt><dd>Priority</dd></div><div><dt>Support</dt><dd>Dedicated</dd></div><div><dt>Every model</dt><dd>Yes</dd></div></dl>
+      </article></div>
+      <p class="api-cap api-trial-cap">The 14-day Superbot Pro trial starts with 20,000 trial credits that expire when it ends; one account gets one trial. Past an allowance, credits cost $1 per 1,000. Limits cover hosted cloud runs only. <a href="/docs/billing">How billing works</a>.</p>
+      <h3 class="api-sub">Credit packs</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 9">
+        <table class="api-table api-packs">
+          <thead><tr><th class="api-num">price</th><th class="api-num">credits</th></tr></thead>
+          <tbody><tr><td class="api-num"><span class="api-fig">$5</span></td><td class="api-num"><span class="api-fig">5,000</span></td></tr>
+            <tr><td class="api-num"><span class="api-fig">$20</span></td><td class="api-num"><span class="api-fig">20,000</span></td></tr>
+            <tr><td class="api-num"><span class="api-fig">$100</span></td><td class="api-num"><span class="api-fig">100,000</span></td></tr></tbody>
+        </table>
+      </div>
+      <p class="api-cap">Plan credits reset monthly and do not roll over. Pack credits never expire.</p>
+    </section>
+
+    <section class="api-sec" aria-labelledby="api-price-h">
+      <h2 id="api-price-h">One rate card for every call</h2>
+      <p class="api-cap api-unit"><span class="api-fig">1 credit = $0.001</span>. Rates are credits per 1M tokens.</p>
+      <h3 class="api-sub">House models</h3>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 10">
+      <table class="api-table">
+        <thead><tr><th>model</th><th>input</th><th>output</th><th>cache read</th></tr></thead>
+        <tbody>
+        <tr><td class="api-id api-rate">superbot</td><td class="api-num">200</td><td class="api-num">800</td><td class="api-num">5</td></tr>
+        <tr><td class="api-id api-rate">superbot-fast<br/><span class="api-cap">free in beta</span></td><td class="api-num">100</td><td class="api-num">400</td><td class="api-num">2.5</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="api-callout">superbot-fast is free in beta.<br/>fair use: 500 credits per 5 hours, 2,000 credits per 7 days.<br/>past that, it bills at the rates above.</p>
+      <h3 class="api-sub">Your own subscriptions and keys</h3>
+      <p class="api-callout">Models on your own subscriptions and keys are free on superbot.<br/>superbot adds no credits to those calls.<br/>You pay your provider as usual.</p>
+      <p class="api-cap">A vendor model dialed on superbot credits, with no account of yours attached, is charged at its own list price.<br/>That is the same $0.001 per credit.</p>
+      <p class="api-cap">Every call on superbot credits is priced on this one card.<br/>Superbot Free carries a monthly 10,000-credit beta pot, refilled on the 1st.</p>
+    </section>
+
+    <section class="api-sec" aria-labelledby="api-models-h">
+      <h2 id="api-models-h">House models</h2>
+      <p class="api-p">These always answer, with or without a provider connected.<br/>Every other model on your account answers by its own id.</p>
+      <div class="api-tablewrap" tabindex="0" role="region" aria-label="table 11">
+        <table class="api-table">
+          <thead><tr><th>model</th><th>role</th><th>context</th></tr></thead>
+          <tbody><tr><td class="api-id">superbot</td><td class="api-role">Your Superbot agent.</td><td class="api-context">1M</td></tr>
+            <tr><td class="api-id">superbot-omni</td><td class="api-role">Superbot agent, run on your computer.</td><td class="api-context">1M</td></tr>
+            <tr><td class="api-id">superbot-fast</td><td class="api-role">Quick and cheap, for small jobs.</td><td class="api-context">500k</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="api-sec" aria-labelledby="api-status-h">
+      <h2 id="api-status-h">Status contract</h2>
+      <ul class="api-status">
+        <li><code>401</code> missing, malformed or unknown key</li>
+        <li><code>402</code> budget spent</li>
+        <li><code>403</code> revoked key or model not allowed</li>
+        <li><code>429</code> over the per-key bucket</li>
+        <li><code>499</code> the caller hung up</li>
+      </ul>
+    </section>
+
+    <!-- this lander left the header nav 2026-09-18 (owner: "remove api and
+         relay from the topnav bar"): it is reachable by direct link only, so
+         the reader who is already signed in needs its own way back into the
+         product. The /relay cross-link retired with the relay page
+         (2026-09-23); the local address lives at /account/api#local. -->
+    <section class="api-sec">
+      <p class="api-cap api-handoff">Signed in? Mint a key on the <a href="/account/api">api console</a>.</p>
+      <p class="api-cap api-handoff">Third-party client? <a href="clients.html">Use superbot from Cursor, Continue, Claude Code and other clients</a>.</p>
+    </section>
+
+    <section class="api-sec">
+      <div class="api-cta">
+        <a class="sb-btn" href="/account/api#keys">Get an API key</a>
+        <a class="sb-btn ghost" href="download.html">Download</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
+
+<script type="module">
+  import { mountCommandRow } from 'site/assets/install-snippet.js?v=44';
+
+  const drop = document.querySelector('.api-drop');
+  if (drop) {
+    // the one runtime placeholder: {base} is filled from the section's own
+    // data-base (the printed API base the edge fills in), so no host is ever
+    // hardcoded in a command string
+    const base = (drop.dataset.base || `${location.origin}/v1`).replace(/\/+$/, '');
+    for (const el of document.querySelectorAll('[data-cmd]')) {
+      const cmd = (el.dataset.cmd || '').replaceAll('{base}', base);
+      mountCommandRow(el, { cmd });
+    }
+
+    // the dialect tabs: one roving tab stop, panels toggled by hidden. Click
+    // and the arrow keys move the selection.
+    const tabs = [...drop.querySelectorAll('[role="tab"]')];
+    const panelOf = (t) => document.getElementById(t.getAttribute('aria-controls'));
+    const select = (tab) => {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        const p = panelOf(t);
+        if (p) p.hidden = !on;
+      }
+    };
+    for (const t of tabs) {
+      t.addEventListener('click', () => select(t));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        const home = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : -1;
+        if (!d && home < 0) return;
+        e.preventDefault();
+        const n = home >= 0 ? tabs[home] : tabs[(tabs.indexOf(t) + d + tabs.length) % tabs.length];
+        select(n);
+        n.focus();
+      });
+    }
+    select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+  }
+
+  // the pricing period: Monthly | Yearly swaps each card's price line and the
+  // "billed" line under it. A yearly-only plan (teams) keeps its "Billed
+  // yearly" note in both views; api.css reads data-period and data-yearly-only.
+  const pricing = document.querySelector('.api-pricing');
+  if (pricing) {
+    const cards = [...pricing.querySelectorAll('.api-plan')];
+    const buttons = [...pricing.querySelectorAll('.api-period-btn')];
+    const setPeriod = (period) => {
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.period === period));
+      for (const c of cards) c.dataset.period = period;
+    };
+    for (const b of buttons) b.addEventListener('click', () => setPeriod(b.dataset.period));
+    setPeriod('month');
+  }
+</script>
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body>
+</html>

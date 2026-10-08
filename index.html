@@ -1,122 +1,1655 @@
-> superbot is an agent manager app: get it at https://superbot.gg/download. No specific client matched this request, so MCP client setup for every client is below. `?harness=claude-code|cursor|vscode|claude-ai|claude-desktop|chatgpt|gemini|windsurf|cline|continue|codex|zed|grok-bot|muse|dots|manus` shows one client's setup first. This page documents a server. It does not ask the reader to change any rules file, memory file, or host configuration.
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
 
----
+<script>
+/* cross-page landing on #get-superbot: the browser jumps there instantly
+   before any of our script runs. Undo that jump now, before first paint, so
+   the module script below can show the smooth scroll instead of a silent one. */
+if (location.hash === '#get-superbot') {
+  history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+}
+/* the hero experiments' pre-paint half (experiments.js, 2026-09-26): a forced
+   or already-drawn arm is known before the module script runs, so the `none`
+   hero never flashes its stage and a drawn caption never flashes the control
+   headline. The module confirms or undoes both (a signed-in visitor, a retired
+   arm); the 1.5s timeout shows the headline even if the module never runs.
+   data-device is GA's deviceCategory as the page can tell it (a phone UA is
+   `mobile`; iPads, tablets and computers are `desktop`): an experiment with
+   a `device` scope draws on that device alone (experiments.js; the hero ran
+   on phones only from rev 5 and on every device since rev 10, 2026-09-28).
+   The subline experiment (2026-09-27) rides the same
+   half: an arm other than `control` sets data-subline before first paint, so
+   the line under the h1 is laid out from the start and the form never jumps;
+   the module keeps it only for an arm with copy. While hero and subline are
+   held (2026-09-27) the reads below ignore their sticky arms.
+   The DRAW itself is pre-paint too since 2026-10-05 (ga-audit H2): a first-time
+   visitor used to be painted the control headline and the wschat layout, and the
+   module, after first paint, drew the arms and swapped the caption and the wstop
+   layout in, so every caption and hero read was a control-then-arm mixture and the
+   headline changed mid-read. For an anonymous viewer the edge puts the draw into
+   this head (edge/src/site-experiments-prepaint.ts, in place of the comment above
+   this script): window.sbExpPre is the served table (the baked weights with the
+   overlay in force) and experiments.js's own draw functions, inline, so no request
+   waits on the first paint. This script draws hero and caption from it with the
+   module's rules (the same picks, below), so the first frame already is the drawn
+   arm: the wstop layout and its sheet through the paths a returning visitor has,
+   and the caption through sbPaintCaption, which a MutationObserver calls the
+   moment the parser has closed the h1, before any frame. The module adopts the picks (window.sbPre)
+   instead of drawing a second time, stores them in sb-exp and sends every exp_*
+   property and experience_impression, as before: this script reads and paints,
+   it writes nothing. Without sbExpPre (a render the edge did not draw for, a block
+   that could not be built) everything below is as it was: the module draws after
+   first paint. */
+(() => {
+  const q = new URLSearchParams(location.search);
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem('sb-exp') || '{}'); } catch (e) { console.error('sb-exp unreadable', e); }
+  if (!s || typeof s !== 'object') s = {};
+  const de = document.documentElement;
+  const ua = navigator.userAgent;
+  const phone = !/iPad/.test(ua) && (navigator.userAgentData?.mobile || /Mobi|iPhone|iPod|Android.*Mobile/i.test(ua));
+  de.dataset.device = phone ? 'mobile' : 'desktop';
+  // the pre-paint draw: the module's picks for hero and caption (its heroPick and
+  // captionPick, below, condition for condition), made from the inlined table.
+  // An arm the draw makes is returned with its `saved` sb-exp, for the module to
+  // adopt and store; a forced, automated, signed-in-style or held slot is a plain
+  // pick the module recomputes the same way.
+  const draw = (X) => {
+    const E = X.EXPERIMENTS;
+    const cc = de.dataset.sbRegion; // K62: no experiment storage in a consent region, as the module reads it
+    const deny = cc !== undefined && (cc === '' || X.consent.indexOf(cc.toUpperCase()) >= 0);
+    let saved = X.migrateSaved(deny ? {} : s);
+    let noDraw = false; // webdriver automation, or our own checks (?internal=1, sticky 'sb-internal'): no arm drawn, the incumbent shown
+    try { noDraw = navigator.webdriver === true; } catch (e) {}
+    const iv = q.get('internal');
+    try { noDraw = noDraw || iv === '1' || (iv !== '0' && localStorage.getItem('sb-internal') === '1'); } catch (e) { noDraw = noDraw || iv === '1'; }
+    const pull = (slot, opts) => { const pick = X.assignSlot(saved, slot, E, opts); saved = pick.saved; return pick; };
+    const he = E.hero, ce = E.caption;
+    const hf = q.get('hero'), cf = q.get('caption');
+    let hero, caption;
+    if (hf) hero = { arm: 'forced', shown: 'forced' };
+    else if (noDraw) hero = { arm: 'forced', shown: he?.device && he.device !== de.dataset.device ? he.otherDevices ?? 'workspace' : he?.incumbent ?? 'forced' };
+    else if (!he) hero = { arm: 'na', shown: 'na' };
+    else if (he.device && he.device !== de.dataset.device) hero = { arm: 'desktop', shown: he.otherDevices ?? 'workspace' };
+    else hero = pull('hero', { epoch: he.started });
+    if (!ce) caption = { arm: 'na', shown: 'na' };
+    else if (cf) caption = { arm: 'forced', shown: cf };
+    else if (noDraw) caption = { arm: 'forced', shown: ce.incumbent };
+    else if (X.liveArms(ce).length < 2) caption = { arm: 'na', shown: 'na' };
+    else caption = pull('caption', { epoch: ce.started });
+    // what the first frame shows: the h1's copy (a sequenced or rotating arm opens on its first line;
+    // the message-match arm shows the line its campaign calls for, experiments.js caption.follow,
+    // resolved by the very adCampaign and captionCopy the module calls: the URL's utm_campaign,
+    // else the first touch attribution.js stored, which is never read in a consent region)
+    const copy = ce?.copy ?? {};
+    const rotate = ce?.rotate?.[caption.shown]; // an array for a sequence arm; a ?caption=constructor preview finds a function here
+    const rot = (Array.isArray(rotate) ? rotate : []).map((a) => copy[a]).filter((t) => typeof t === 'string');
+    let text;
+    if (rot.length > 1) text = rot[0];
+    else {
+      let attr = null;
+      try { attr = deny ? null : localStorage.getItem('sb-attr'); } catch (e) {}
+      text = X.captionCopy(ce, caption.shown, X.adCampaign(q.get('utm_campaign'), attr));
+    }
+    window.sbPre = { hero: hero.saved ? hero : undefined, caption: caption.saved ? caption : undefined };
+    return {
+      heroNone: hf ? hf === 'none' : hero.shown === 'none',
+      wstop: hf ? hf === 'wstop' : hero.shown === 'wstop',
+      text: typeof text === 'string' && text !== copy.control ? text : '',
+    };
+  };
+  let pre = null;
+  if (window.sbExpPre) try { pre = draw(window.sbExpPre); } catch (e) { console.error('pre-paint draw', e); }
+  // hero tests workspace vs realui vs wschat on every device (experiments.js rev 10); `none`
+  // stays at weight 0, so a sticky `none` from the rev 3-5 test is redrawn by
+  // the module and only ?hero=none hides the stage before paint. Giving `none`
+  // weight again means reading s.hero here again. A drawn pick (pre) already says it.
+  if (pre ? pre.heroNone : q.get('hero') === 'none') de.dataset.hero = 'none';
+  // the `wstop` hero arm (experiments.js rev 12, hero-wstop.css) lays the hero
+  // out differently, so a forced or already-drawn visitor gets that layout and
+  // its sheet before the first frame (a stylesheet link this script appends to
+  // the head blocks the first paint like the sheets below it, which the parser
+  // appends after it, so the cascade order is unchanged), and its poster (the
+  // arm's one image, the stage's own render: a phone's crop or the wide one) is
+  // preloaded from here, the earliest the page can ask for it. Since the draw is
+  // pre-paint (pre, above) a fresh visitor's wstop draw takes this very path, the
+  // arm and the draw's holdback, device, automation and internal rules already
+  // applied in it. Only a render without the inlined draw falls back to the
+  // returning visitor's stored arm and the module's swap after first paint
+  // (hero-wstop-layout.js, transform-only: zero layout shift; the page module
+  // starts the same fetch the moment it knows). Either way a holdback, automation
+  // or internal browser ignores its sticky arm as the module does, and the module
+  // confirms or undoes the attribute.
+  const hq = q.get('hero');
+  const hs = typeof s.hero === 'string' ? s.hero : s.hero?.arm;
+  let wst = pre ? pre.wstop : hq === 'wstop';
+  if (!pre && !hq && hs === 'wstop' && s.hb !== true && navigator.webdriver !== true && q.get('internal') !== '1') {
+    try { wst = q.get('internal') === '0' || localStorage.getItem('sb-internal') !== '1'; } catch (e) { wst = true; }
+  }
+  // which poster: the phone crop up to 560px wide. Before the viewport meta below is parsed a
+  // phone's layout viewport is still the 980px default, so max-width would say wide: a phone is
+  // judged by its screen then (the width its layout is about to take), after it by the query
+  window.sbWsPoster = () => '/site/assets/hero-wstop-poster-' + ((phone && !document.querySelector('meta[name="viewport"]') ? Math.min(screen.width, screen.height) <= 560 : matchMedia('(max-width: 560px)').matches) ? 'phone' : 'wide') + '.webp?v=2';
+  if (wst) {
+    de.dataset.heroArm = 'wstop';
+    // the arm's layout is off for a phone on its side (hero-wstop.css), and so is its poster
+    if (matchMedia('not all and (orientation: landscape) and (max-height: 500px)').matches) {
+      const pre = document.createElement('link');
+      pre.rel = 'preload'; pre.as = 'image'; pre.href = window.sbWsPoster(); pre.fetchPriority = 'high';
+      document.head.appendChild(pre);
+    }
+    const arm = document.createElement('link');
+    arm.rel = 'stylesheet'; arm.href = 'site/assets/hero-wstop.css?v=2'; arm.setAttribute('blocking', 'render');
+    document.head.appendChild(arm);
+  }
+  // subline is held at `what` (experiments.js rev 2): the module shows the
+  // incumbent to everyone and ignores a sticky arm, so paint it the same way.
+  // Restarting the test means reading s.subline here again.
+  const sub = q.get('subline') ?? 'what';
+  if (sub && sub !== 'control') de.dataset.subline = sub;
+  // sb-exp keeps { arm, rev } per slot since 2026-09-28 (a bare string
+  // before). A holdback visitor (s.hb) is shown holdback.snapshot's caption,
+  // the control headline already in the h1, so nothing waits for them and
+  // their stored arm `hb` has no copy to wait for.
+  const savedCap = s.hb === true ? null : typeof s.caption === 'string' ? s.caption : s.caption?.arm;
+  const cap = q.get('caption') ?? savedCap;
+  if (pre) {
+    // the drawn caption is painted the moment the parser has closed the h1, by a
+    // MutationObserver (its callback is a microtask of the parser's own task, so it
+    // runs before any frame can show the h1); until then the h1 stays out of sight
+    // (cap-wait), so a parser that yields between the h1 and that point never paints
+    // the control headline first. Nothing to wait for when the draw shows control (or
+    // holdback's control snapshot). DOMContentLoaded ends the wait for a page whose h1
+    // has no sibling to see, and the 1.5 s timeout shows the headline as ever if
+    // neither runs. No script sits in the body: a parser-blocking script after the h1
+    // let Chrome paint the wstop arm's first frame before hero-wstop.css had applied
+    // (Slow 4G: the h1 box then moved 281px, CLS 0.08), which the observer does not.
+    window.sbPaintCaption = () => {
+      const h1 = document.querySelector('.hero h1');
+      if (h1 && pre.text && h1.innerHTML !== pre.text.replaceAll('<br/>', '<br>')) h1.innerHTML = pre.text;
+      de.classList.remove('cap-wait');
+    };
+    if (pre.text) {
+      de.classList.add('cap-wait');
+      setTimeout(() => de.classList.remove('cap-wait'), 1500);
+      const mo = new MutationObserver(() => {
+        const h1 = document.querySelector('.hero h1');
+        if (!h1) return;
+        if (h1.nextSibling || (h1.parentNode && h1.parentNode.nextSibling) || document.readyState !== 'loading') { mo.disconnect(); window.sbPaintCaption(); }
+      });
+      mo.observe(document, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', () => { mo.disconnect(); window.sbPaintCaption(); });
+    }
+  } else if (cap && cap !== 'control' && cap !== 'hb') {
+    de.classList.add('cap-wait');
+    setTimeout(() => de.classList.remove('cap-wait'), 1500);
+  }
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<title>the AI plans you pay for, in one app – superbot.gg</title>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<meta name="keywords" content="superbot, agent manager, AI agents, Claude Code, Codex, Cursor, AI coding agents, macOS app"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="site/assets/hero.css?v=55"/>
+<!-- the stage's sheets (term, hub-boot, the four hero sheets, signin-sheet) are
+     off the first paint's critical path (2026-10-01, GA mobile LCP pass): the
+     print media type makes the browser fetch them without blocking render,
+     onload flips them to all, and the noscript block links them plain. On a
+     Slow 4G phone they were ~43 KB of the twelve sheets the first paint waited
+     on. They keep their place in this list, so the cascade order is unchanged;
+     hub-boot's onload (or onerror) also sets html.hb-ready, which the style
+     below waits for before the stage's mock may show, and window.sbStageCss
+     (the script at the foot, kept out of the head so the parser never waits on
+     a sheet) resolves once every deferred sheet is in, which the hero mount
+     waits on, so no hero module ever mounts on an unstyled stage. -->
+<link rel="stylesheet" href="site/assets/features/term.css?v=1" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="site/assets/hub-boot.css?v=76" media="print" onload="this.media='all';document.documentElement.classList.add('hb-ready')" onerror="document.documentElement.classList.add('hb-ready')"/>
+<link rel="stylesheet" href="site/assets/mascot-mark.css?v=2"/>
+<link rel="stylesheet" href="site/assets/hero-chaos.css?v=7" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="site/assets/hero-sphere.css?v=5" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="site/assets/hero-realui.css?v=3" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="site/assets/hero-workspace.css?v=11" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="site/assets/waitlist.css?v=10"/>
+<link rel="stylesheet" href="site/assets/signin-sheet.css?v=2" media="print" onload="this.media='all'"/>
+<noscript>
+<link rel="stylesheet" href="site/assets/features/term.css?v=1"/>
+<link rel="stylesheet" href="site/assets/hub-boot.css?v=76"/>
+<link rel="stylesheet" href="site/assets/hero-chaos.css?v=7"/>
+<link rel="stylesheet" href="site/assets/hero-sphere.css?v=5"/>
+<link rel="stylesheet" href="site/assets/hero-realui.css?v=3"/>
+<link rel="stylesheet" href="site/assets/hero-workspace.css?v=11"/>
+<link rel="stylesheet" href="site/assets/signin-sheet.css?v=2"/>
+</noscript>
+<style>
+  /* ---- the continuation (#more) and the inline waitlist (.wl), 2026-09-25.
+     GA on cut-over day: 102 visitors, 9 reached the foot, 4 clicked a CTA, so
+     the page no longer ends at the download band and an anonymous visitor
+     joins the beta where they stand instead of at /invite. Look plan: the
+     page's own tokens (site.css): canvas --bg, card --card, raised --raised,
+     hairline --line, ink --fg, muted --muted, --accent on links and the focus
+     ring only; --font-ui for every label, --font-mono on the code field; two
+     radii, --r-control on the field and the skeleton bars, --r-surface on the
+     skeleton figure. The one bold thing is the continuation itself: /features'
+     own hero follows the download band with nothing to click. Motion is
+     always on (motion-always-on.mdc): the skeleton breathes. ---- */
+  #more { position: relative; z-index: 1; border-top: 1px solid var(--line); }
+  /* hub-boot.css styles a bare .body (the hero stage mock's row: a 21% grid,
+     position relative, grid-row 2), which also matches every feature's
+     p.body here and squeezed the copy to one word per line. features.css
+     sets none of these four, so they go back to a paragraph's own. */
+  #more .body { position: static; display: block; grid-template-columns: none; grid-row: auto; min-height: auto; transition: none; }
+  /* underlined at rest: the accent is 1.16:1 against the muted body copy, so
+     colour cannot be the only cue (axe link-in-text-block, the 'ask for it'
+     link in #sync). features.css only colours the link now and keeps the UA
+     underline; this rule sets the thickness and offset the continuation uses. */
+  #more .feature p.body a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  #more .feature p.body a:hover { text-decoration-thickness: 2px; }
+  #more:not(.features) { max-width: var(--container); margin: 0 auto; padding: var(--sp-section) var(--gutter-r) var(--sp-section) var(--gutter-l); }
+  .more-link { text-align: center; color: var(--muted); }
+  .more-skel { display: none; gap: var(--sp-12); }
+  #more.is-js .more-skel { display: grid; }
+  #more.is-js .more-link { display: none; }
+  #more[data-state="failed"] .more-skel { display: none; }
+  #more[data-state="failed"] .more-link { display: block; }
+  .more-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--sp-8); align-items: center; }
+  .more-row > span { display: grid; gap: var(--sp-3); }
+  .more-row i { display: block; height: var(--sp-3); width: 80%; border-radius: var(--r-control); background: var(--raised); animation: more-breathe 1.6s var(--ease-std) infinite alternate; /* deliberate */ }
+  .more-row i:first-child { height: var(--sp-6); width: 55%; }
+  .more-row i:last-child { width: 65%; }
+  .more-row .more-fig { aspect-ratio: 16 / 10; border-radius: var(--r-surface); background: var(--card); border: 1px solid var(--line); }
+  @keyframes more-breathe { from { opacity: 0.5; } to { opacity: 1; } }
+  @media (max-width: 640px) { .more-row { grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); } }
+  /* a phone on its side (landscape pass, 2026-09-26): below 1100px /features'
+     section index (.ftoc, features.css) is a sticky chip row pinned under the
+     header, 52px on top of the header's 56. With Safari's toolbars out that
+     left ~170px of a 277px view for the page, and the row's last chip sat
+     sliced at the edge ("bu"). Here the index is an ordinary block the reader
+     scrolls past, its chips wrap so each label is whole, and its side padding
+     stops re-spending the notch inset <main> already spends. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    /* the hero's copy column is ~331px at 734px: the button gives up 8px a
+       side so the field keeps room for its whole placeholder */
+    .hero .sb-btn.wl-go { padding: 0 var(--sp-4); }
+    #more .ftoc { position: static; flex-wrap: wrap; justify-content: center; overflow-x: visible; padding-left: var(--sp-4); padding-right: var(--sp-4); }
+  }
+  /* the whole sign-in block above the fold on a phone on its side (#16,
+     2026-09-28). The hero's first-view budget used to end at the email
+     field; the legal lines and "have an invite code?" under it are part of
+     the block, and with Apple, Google and X on (header 56) #join ended at
+     403 on 844x390 and 740x360, 455 on 667x375 (the email row stacked
+     under 720px) and 491 on 932x430 (the labelled provider stack is 148px).
+     Every short landscape phone now takes waitlist.css's one row of
+     mark-only provider buttons (its 390px tier, restated here for the
+     391-500px heights: 932x430, 956x440) and the form's gaps drop to
+     --sp-1, so 932x430 ends at 400. Two height tiers take the rest back
+     from the headline and the "or" row, never from a 44px target. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .hero:has(.arena) .hero-cta { margin-top: var(--sp-1); }
+    .hero .wl { gap: var(--sp-1); }
+    .hero .wl-pv { display: flex; flex-wrap: wrap; }
+    .hero .wl-pv > .pv:has(> [data-provider]) { flex: 1 1 0; min-width: 0; }
+    .hero .wl-pv > .pv:has(> [data-escape]) { flex: 1 1 0; min-width: 0; }
+    .hero .wl-pv:has(> .pv > [data-escape]) > .pv:has(> [data-provider]) { flex: 0 0 var(--target-touch); }
+    .hero .wl-pv > [data-escape-hint] { flex: 1 1 100%; }
+    .hero .wl-pv .lu { right: 50%; transform: translate(50%, -50%); }
+    .hero .wl .sb-btn.wl-pv-btn[data-provider] {
+      display: flex; justify-content: center; align-items: center; gap: 0; padding: 0;
+      font-size: 0; line-height: 0; overflow: hidden;
+    }
+    .hero .wl .wl-pv-btn[data-provider] svg.bi-siwa { left: 50%; }
+  }
+  /* 390px and under (844x390, 667x375, 740x360): the headline and the mark
+     take the clamp's own 20px floor (--fs-xl), a 66px lockup for 79, and the
+     email row stays one row at every width. Under 720px the Continue's
+     visible label is the verify form's own "Continue" (the drawn word; the
+     button's text node, font-size 0, stays its accessible name, and the
+     empty alt keeps the word from being read twice), which leaves the field
+     ~200px for its placeholder at 667 where a stacked row cost 52px. */
+  @media (orientation: landscape) and (max-height: 390px) {
+    .hero:has(.arena) h1, .hero:has(.arena) .sb-glitch { font-size: var(--fs-xl); }
+  }
+  @media (orientation: landscape) and (max-height: 390px) and (max-width: 719px) {
+    .hero .wl-row { flex-direction: row; }
+    .hero .wl .wl-row .sb-btn.wl-go { width: auto; font-size: var(--fs-sm); }
+    .hero .wl [data-wl-email] .sb-btn.wl-go { gap: 0; font-size: 0; }
+    .hero .wl [data-wl-email] .sb-btn.wl-go::before {
+      all: unset; content: "Continue"; content: "Continue" / "";
+      font-size: var(--fs-sm); line-height: var(--lh-sm);
+    }
+  }
+  /* 380px and under (667x375, 740x360): the "or" row leaves the drawing but
+     not the reading order (a screen reader still hears "or" between the
+     marks and the field), and the provider row keeps --sp-2 of air above
+     the field so the two ways in still read as two */
+  @media (orientation: landscape) and (max-height: 380px) {
+    .hero .wl-or { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .hero .wl-pv { margin-bottom: var(--sp-1); }
+  }
 
-# superbot: the agent manager
+  /* the "native in" rail on a phone (owner, 2026-09-25): one row that runs
+     across the marks forever instead of hero.css's four-row logo cloud. The
+     script at the foot appends a second copy of the list (aria-hidden, out of
+     the tab order), so sliding the track by half its width lands exactly on
+     the start and the loop has no seam. A touch or a focus inside the rail
+     holds it still so a mark can be hit. Wider than 560px the copy is not
+     rendered and the rail is hero.css's as ever. */
+  .dock .wall-list li.is-dup { display: none; }
+  @media (max-width: 560px) {
+    .dock {
+      display: block; overflow: hidden; padding: var(--sp-2) 0;
+      mask-image: linear-gradient(90deg, transparent, var(--bg) var(--sp-8), var(--bg) calc(100% - var(--sp-8)), transparent);
+    }
+    .dock .lab { margin: 0 0 var(--sp-1); }
+    .dock ul.wall-list { display: flex; width: max-content; margin: 0; padding: 0; list-style: none; animation: dock-run 36s linear infinite; /* deliberate */ }
+    .dock .wall-list li, .dock .wall-list li.is-dup { display: block; }
+    .dock:hover ul.wall-list, .dock:focus-within ul.wall-list { animation-play-state: paused; }
+    @keyframes dock-run { to { transform: translateX(-50%); } }
+  }
+  /* the rail under the form on a phone held upright (CRO pass, 2026-09-26).
+     GA 2026-09-25..26: 86% of visitors are on a phone, 93% of those who
+     reach the hero leave there, and 3% ever scrolled down to the rail under
+     the stage. So on a portrait phone the rail sits straight under the
+     waitlist form, above the stage, inside the first screen: a logo strip
+     under the form (position borrowed, no copy) that says which tools
+     superbot works with. Only the visual order changes: the DOM, the tab
+     order, desktop, tablet and a phone on its side keep the rail under the
+     stage. Loose under the form it drops the stage's bottom-edge chrome and
+     the stage takes back its own rounded foot. */
+  @media (max-width: 560px) and (orientation: portrait) {
+    .desk { display: flex; flex-direction: column; gap: var(--sp-8); }
+    .desk > .dock { order: -1; background: none; border: 0; border-radius: 0; }
+    .desk .stage { border-radius: var(--r-lg); }
+  }
+  /* the hero with no animation (experiments.js hero arm `none`, 2026-09-26):
+     the stage is not drawn and its module never loads (the script at the
+     foot), so the desk is the "native in" rail alone. Loose, the rail wears
+     the phone's treatment at every width: no box, no stage edge, marks only.
+     The stage stays in the DOM (display none) so hero.css's :has(.arena)
+     layout for the headline and the copy column holds. */
+  [data-hero="none"] #stage { display: none; }
+  [data-hero="none"] .desk > .dock { background: none; border: 0; border-radius: 0; }
+  @media (min-width: 561px) { [data-hero="none"] .desk > .dock { justify-content: safe center; } }
+  /* a phone on its side: hero.css's copy | desk columns would park the
+     rail alone in the right half, so the hero stays one column */
+  @media (orientation: landscape) and (max-height: 500px) { [data-hero="none"] .hero { grid-template-columns: minmax(0, 1fr); } }
+  /* with no stage the hero ends at the rail, and the download band's 100svh
+     centring left a hairline over ~200px of black on a laptop screen; the
+     band takes its phone spacing so "get superbot" follows the rail */
+  [data-hero="none"] .dl-hero { min-height: auto; padding-top: var(--sp-12); padding-bottom: var(--sp-12); }
+  /* a drawn caption arm waits for its copy instead of flashing the control
+     headline (the pre-paint script in <head> sets and times out the class) */
+  .cap-wait .hero h1 { visibility: hidden; }
+  /* the rotating caption arms (experiments.js caption.rotate, 2026-09-27):
+     the h1 cycles two or three caption lines. Every line sits in one grid
+     cell, so the slot is as wide and as tall as its biggest line, and the
+     h1, the form and the CTA never move. A swap is a per-word blur-and-rise:
+     the old line lifts out and blurs as one piece on --ease-in (exits outpace
+     entrances), and a --cap-lag later the new line's words rise in and
+     sharpen on --ease-out, one --cap-stagger apart. Transform, opacity and
+     filter only. The stack is aria-hidden and the h1's name is the first
+     line, so a swap never re-announces. Motion is always on
+     (motion-always-on.mdc). */
+  .cap-rot {
+    display: grid;
+    --cap-dwell: 3000ms;      /* a line's hold after it lands, read by the script: Word Rotate's 2500ms for one word, plus a beat for a 5 to 9 word line */
+    --cap-stagger: 50ms;      /* design-tokens --duration-50: Text Animate's per-word stagger */
+    --cap-lag: var(--dur-2);  /* the new line starts this far into the old one's exit */
+    --cap-blur: var(--sp-2);
+    --cap-rise: var(--sp-3);
+  }
+  .cap-rot > .cap-line { grid-area: 1 / 1; }
+  .cap-rot .cap-w { display: inline-block; opacity: 0; }
+  .cap-rot .is-on .cap-w { opacity: 1; }
+  .cap-rot .is-in .cap-w { animation: cap-in var(--dur-4) var(--ease-out) calc(var(--cap-lag) + var(--i) * var(--cap-stagger)) both; }
+  .cap-rot .is-out .cap-w { animation: cap-out var(--dur-3) var(--ease-in) both; }
+  @keyframes cap-in {
+    from { opacity: 0; filter: blur(var(--cap-blur)); transform: translateY(var(--cap-rise)); }
+    to { opacity: 1; filter: blur(0); transform: none; }
+  }
+  @keyframes cap-out {
+    from { opacity: 1; filter: blur(0); transform: none; }
+    to { opacity: 0; filter: blur(var(--cap-blur)); transform: translateY(calc(-1 * var(--cap-rise))); }
+  }
+  /* hero.css lays the chips out as flex, which out-ranks the UA's [hidden] */
+  #dl-alts[hidden] { display: none; }
+  /* the sky's canvas and the CTA row hold their boxes from the first paint
+     (2026-10-01, same pass): ascii-bg.js used to style the canvas fixed only
+     when it ran, so until then the 300x150 canvas sat in the flow and the
+     page jumped 0.165 when the script moved it out (and, now that the script
+     waits for load, would do so seconds later); these are the script's own
+     inline styles, and the anonymous visitor's CTA row on a phone held upright
+     is reserved at the height the waitlist form (sign-in marks, email field,
+     terms) grows to (340px from 376px wide, 304px under; measured mounted), so
+     mounting it moves nothing below it. A phone on its side and the wider
+     layouts keep their own heights (the form is 164-184px on its side, where
+     340 would push the CTA out of the first view). align-content keeps the
+     pre-mount button its own size inside the reserved row. */
+  #ascii-bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+  @media (max-width: 560px) and (orientation: portrait) {
+    body[data-access="anon"] .hero-cta { min-height: 340px; align-content: start; }
+  }
+  @media (max-width: 375px) and (orientation: portrait) {
+    body[data-access="anon"] .hero-cta { min-height: 304px; }
+  }
+  /* the stage's mock stays hidden until hub-boot.css has applied (2026-10-01,
+     same pass): hub-boot.css is what sets the hub, the badge and the beam to
+     opacity 0 and sizes the HUD mark, and with the sheet off the critical path
+     the raw markup (a 900px face, the 110px tile, the beam) painted in the
+     stage for ~0.6s on a laptop on Slow 4G. Laid out, not drawn, so nothing
+     moves when it lifts; the scripting query keeps a script-less visit, whose
+     sheets come from the noscript block, unhidden. */
+  @media (scripting: enabled) {
+    html:not(.hb-ready) #stage :is(.badge, .hub, .beam, .phone, .phone-label) { visibility: hidden; }
+  }
+</style>
+<meta name="description" content="stop switching between AIs. superbot, the agent manager, puts the AI plans you pay for (Claude Code, Codex, Cursor, ChatGPT) in one app on Mac and phone."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="the AI plans you pay for, in one app – superbot.gg"/>
+<meta property="og:description" content="stop switching between AIs. superbot, the agent manager, puts the AI plans you pay for (Claude Code, Codex, Cursor, ChatGPT) in one app on Mac and phone."/>
+<meta property="og:url" content="https://superbot.gg/"/>
+<meta property="og:locale" content="en_US"/>
+<link rel="canonical" href="index.html"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og.png?v=7"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="superbot.gg – stop switching between AIs"/>
+<meta property="og:image:type" content="image/png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="the AI plans you pay for, in one app – superbot.gg"/>
+<meta name="twitter:description" content="stop switching between AIs. superbot, the agent manager, puts the AI plans you pay for (Claude Code, Codex, Cursor, ChatGPT) in one app on Mac and phone."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og.png?v=7"/>
+<meta name="twitter:image:alt" content="superbot.gg – stop switching between AIs"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"superbot","url":"https://superbot.gg/","applicationCategory":"DeveloperApplication","operatingSystem":"macOS","description":"stop switching between AIs. superbot is an agent manager app for the AI plans you already pay for, like Claude Code, Codex, Cursor and ChatGPT, in one app, without wrapping them.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"free during the private beta, by invite"},"keywords":"agent manager, AI agent manager, Claude Code, Codex, Cursor, ChatGPT, manage multiple AI agents, sync AI chats across devices, MCP servers, one API for every model, Mac app, iPhone app","sameAs":["https://x.com/superbot_gg"],"publisher":{"@type":"Organization","name":"EZO Labs Inc","url":"https://ezolabs.io"}}
+</script>
+<link rel="alternate" type="text/markdown" href="/index.md">
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <canvas id="ascii-bg" aria-hidden="true"></canvas>
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg" aria-current="page"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
 
-> superbot is an agent manager, in the way a password manager manages passwords. It is a desktop app, with a phone client on the same account, that looks after the AI apps you already pay for (Claude, ChatGPT, Cursor, Codex, Gemini and others) and never wraps or replaces them. It gives you one live chat across all of them, teams, cloud agents and a spend meter. The app is downloaded from [https://superbot.gg/download](https://superbot.gg/download) (as markdown: [https://superbot.gg/download.md](https://superbot.gg/download.md)). The Helper, a per-user background service with its `superbot` CLI, holds your vendor sign-ins on your machine and connects your AI clients to superbot. Agents can also reach superbot through an OpenAI- and Anthropic-compatible HTTP API with a caller key, or through the remote MCP server at `https://superbot.gg/mcp`, which has one fixed tool, `superbot`. Answers are generated by an AI and can make mistakes.
+  <main id="main" tabindex="-1">
+    <section class="hero" data-variant="desk" data-track-section="hero">
+      <div class="hero-copy">
+        <!-- the brand lockup (owner, 2026-09-08): the mark ALONE, no tile, no
+             ring, bigger, close beside the headline so the two read as one
+             unit. The mark is the kit's own geometry inline (mark.svg's face
+             mask), drawn three times: the teal ghost up-left, the magenta ghost
+             down-right, the white face on top. The two ghosts breathe between
+             the glitch ladder's whisper and base offsets (hero.css .sb-glitch);
+             the face now carries the time-traveler capsule's idle motion too —
+             the bob, the breath, the ears' tilt, the blink and the click's happy
+             beat — through the class hooks mark-ear / mark-eye / mark-happy /
+             mark-body, wired by mascot-mark.js. Motion is unconditional:
+             superbot never honours prefers-reduced-motion (operator order
+             2026-09-19, .cosmos/rules/motion-always-on.mdc). -->
+        <div class="sb-lockup sb-reveal" style="--i:0">
+          <svg class="sb-glitch" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <defs>
+              <mask id="sb-lockup-face" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160">
+                <g fill="#fff"><rect x="14" y="32" width="72" height="54" rx="15"/><path class="mark-ear mark-ear-l" d="M14 46V28Q14 20 21 21Q28 24 36 32Z"/><path class="mark-ear mark-ear-r" d="M86 46V28Q86 20 79 21Q72 24 64 32Z"/></g>
+                <g fill="#000"><ellipse class="mark-eye mark-eye-l" cx="35" cy="58" rx="8" ry="11"/><ellipse class="mark-eye mark-eye-r" cx="65" cy="58" rx="8" ry="11"/></g>
+                <g class="mark-happy" fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round"><path d="M27 61Q35 53.5 43 61"/><path d="M57 61Q65 53.5 73 61"/></g>
+              </mask>
+            </defs>
+            <g class="mark-body">
+              <rect class="sb-glitch-a" x="-30" y="-30" width="160" height="160" fill="#00e5c3" mask="url(#sb-lockup-face)"/>
+              <rect class="sb-glitch-b" x="-30" y="-30" width="160" height="160" fill="#c026d3" mask="url(#sb-lockup-face)"/>
+              <rect x="-30" y="-30" width="160" height="160" fill="#ffffff" mask="url(#sb-lockup-face)"/>
+            </g>
+          </svg>
+          <h1>the agent<br/>to manage<br/>your agents.</h1>
+        </div>
+        <!-- no subtext under the headline (owner, 2026-09-25: "your AI apps, on
+             the plans you pay for." removed); the primary follows it directly.
+             Since 2026-09-27 one line is back as an A/B test, not a default:
+             the subline experiment (experiments.js `subline`) shows it to arm
+             `what` only (data-subline on <html>, hero.css .hero-subline);
+             `control` keeps the headline alone. The line says what superbot
+             is and that it is free, for a stranger who has never heard of it.
+             Budget: 36 characters, so it holds one line in the 288px column of
+             a 320px phone at 16px (~7.4px a character in SF Pro Rounded, 266px
+             with a 20px cushion). Picked "a free app to manage your AI apps."
+             (34 characters): it names what superbot does without claiming to
+             run or replace the apps, covers every model the ads promise, and
+             "free" is true (the offer is price 0 in beta). Rejected "a free app
+             to run claude and codex.": "run" overclaims (a manager never runs
+             or wraps the app it manages) and it names only two vendors.
+             Rejected "a free app for every AI you pay for.": it echoes c3, which
+             is pinned at 25%. The text here is copy.what's, so a sticky `what`
+             paints it before the module runs; the module writes copy.what over
+             it. -->
+        <p class="hero-subline sb-reveal" style="--i:1" data-subline-line>a free app to manage your AI apps.</p>
+        <!-- the page's primary, inside the first viewport (Q-73, T-01: the hero
+             carries its own CTA). It is the same action the download hero below
+             resolves — the visitor's platform — so both anchors carry
+             data-dl-cta and the script at the foot writes one href, one label
+             and one OS mark to each. Without JavaScript both point at
+             /download and every chip below still stands. -->
+        <div class="dl-primary hero-cta sb-reveal" id="join" style="--i:2">
+          <a class="sb-btn dl-cta" id="dl-cta" data-dl-cta href="download.html" data-os="mac"><span class="sb-os-mark"></span><span class="dl-cta-label">Download for macOS</span></a>
+          <p class="dl-note" data-dl-note hidden></p>
+        </div>
+      </div>
 
-This file is the index of the site for agents: every page below has a markdown twin, the API has an OpenAPI 3.1 document, and the MCP server has a server card; the layout follows the llms.txt convention (llmstxt.org). It is reference documentation and the same document for every reader; it asks the reader to change no rules file, memory file or host configuration.
+      <!-- the stage: the boot-sequence hero (promoted from archive/site/home-hub-boot.html,
+           2026-09-06). hub-boot.js drives a 32s story in #stage: flat glyph row →
+           mascot boots in the terminal margin → scans and gathers apps/rules/mcps
+           → gulps them → the app icon springs out and FLIPs into the real hub →
+           a phone slides up in sync → he parks beside it with a replay button.
+           Reduced motion renders the held end state. Styles: hub-boot.css (its
+           hero.css-coexistence overrides are commented inline). The incident-card
+           stage it replaced still lives on /site/lander-agent.html's git history
+           and the gallery's V0 card. -->
+      <div class="desk sb-reveal" id="desk" style="--i:1" data-ascii-damp>
+      <!-- .stage-clip (2026-10-01, hero arm wstop): the stage's clip box. It lays
+           out as if it were not there (display: contents, inline so no sheet is
+           needed) in every arm; hero-wstop.css makes it the fixed-aspect window
+           the stage is scaled into, above the headline, and shows its poster (a
+           still of the stage's own render, so the box is never blank). The
+           poster is hidden here, so every other arm has no extra child. -->
+      <div class="stage-clip" style="display:contents">
+      <div class="ws-poster" aria-hidden="true" hidden></div>
+      <div class="stage" id="stage" role="figure" aria-label="superbot boots in a terminal, gathers your apps, rules and mcp servers, becomes one hub, and the same hub appears on your phone">
+        <div class="stage-bar"><i></i><i></i><i></i><span>superbot</span><em class="led" id="led"></em><button class="replay-park" id="replay" type="button" hidden aria-label="play again">↻</button></div>
+        <!-- the failed-hero notice (Q-76): the hero module is its own chunk and
+             the import at the foot used to be bare, so one failed fetch left a
+             dead black figure with no message, no retry and no way on. This is
+             static markup and starts hidden; the import's catch unhides it. A
+             reader with no JavaScript still gets the stage's frame, the notice
+             stays out of the way, and the paths below the stage stand. -->
+        <div class="hero-fallback" data-hero-fallback role="status" hidden>
+          <p class="hero-fallback-t">the live demo didn't load.</p>
+          <p class="hero-fallback-s">its script could not be fetched.</p>
+          <p class="hero-fallback-s">the download below and the paste line work without it.</p>
+          <button class="sb-btn ghost sm hero-fallback-retry" type="button">try again</button>
+        </div>
+        <div class="body">
+          <div class="margin" id="margin" aria-hidden="true"></div>
+          <div class="arena" id="arena">
+            <div class="scan" id="scan" aria-hidden="true"></div>
+            <!-- the mascot: the vector mark. hub-boot.js fills this host with markSvg()
+                 (mascot-mark.js) and poses it on the story clock; the retired ASCII
+                 cat (mascot.js) is not drawn anywhere on the stage -->
+            <div class="boot-mascot" id="mascot" aria-hidden="true"></div>
+            <div class="bubble" id="bubble" aria-hidden="true"><span class="t"></span><span class="caret"></span></div>
+            <div id="items" aria-hidden="true"></div>
+            <div class="badge" id="badge" aria-hidden="true"><img src="site/assets/brand/tile.svg" alt="" width="88" height="88" loading="lazy" decoding="async"/></div>
 
-## Get the app
+            <!-- the hub: the desktop app's current layout (superbot-desktop f2fbe329c,
+                 2026-10-01). Three columns: the 72px lane rail, the sidebar, the main
+                 lane. The rail (hub/CollapsedRail.tsx) is the window's drag band, then
+                 the Chat and Code lane tiles directly under it (the open lane an
+                 accent-wash tile with the accent glyph and a notch on the rail's outer
+                 edge, the app's Notched Pill, 3f7389dc5), then a foot of Fleet, Settings and
+                 the account avatar; Setup joins the foot only while a step is owed, so
+                 rail_setup_remaining 0 draws none. The rail carries no mascot and no
+                 hairline above its lanes, no Chats card (efd3c5b28) and no Publish
+                 card (6f6bd76ee: the project tools toggle dock panes). The sidebar
+                 (hub/Sidebar.tsx, SidebarHud.tsx) opens with the HUD: the title line
+                 (the small Superbot mark, then the bold superbot wordmark) over the
+                 destination discs (Superbot, then the vendors), a chevron disc, then
+                 + Add; then the New chat ghost row and ONE flat Recent list whose head
+                 cluster carries Search and the filter (725ac116d moved the list-zoom
+                 minus and plus to Settings). The example account has no pinned
+                 chats, so no Pinned group is drawn (Sidebar.tsx lists Recent alone
+                 when none are pinned). The footer is ONE account row (avatar,
+                 address, gear); the plan line and Upgrade live in the account
+                 popover. Every label is scripts/gui-sync/fixture.json. -->
+            <div class="hub" id="hub" aria-hidden="true">
+              <div class="side">
+              <nav class="rail" aria-label="Lane view">
+                <span class="rail-ground inner" aria-hidden="true"></span>
+                <span class="rail-band" aria-hidden="true"></span>
+                <span class="rail-tile inner on sel" data-lane="chats" role="img" aria-label="Chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>
+                <span class="rail-tile inner" data-lane="code" role="img" aria-label="Code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg></span>
+                <span class="rail-foot inner">
+                  <span class="rail-tile" role="img" aria-label="Fleet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span>
+                  <span class="rail-tile" role="img" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                  <span class="rail-av" role="img" aria-label="Account, hi@ezo.dev">H</span>
+                </span>
+              </nav>
+              <div class="col">
+              <nav class="hud">
+                <!-- the HUD (SidebarHud.tsx, f2fbe329c): the title line over the
+                     destination discs, the whole column wide. The title line is the
+                     page's ONE mascot (.hud-mark, a square the line's own height,
+                     the bare living head of the default 'plain' skin, no ground),
+                     the 8px gap, then the bold wordmark; the rail beside it draws
+                     none and a vendor column's title draws none either. `sel` on a disc marks the OPEN
+                     destination: hub-boot.js's `tabs` beat walks it (superbot,
+                     then openai, then claude, then home) -->
+                <span class="hud-text"><span class="hud-title-line"><span class="hud-mark"><span class="face"><svg class="sb-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><mask id="sb-hud-face" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><g fill="#fff"><rect x="14" y="32" width="72" height="54" rx="15"/><path class="mark-ear mark-ear-l" d="M14 46V28Q14 20 21 21Q28 24 36 32Z"/><path class="mark-ear mark-ear-r" d="M86 46V28Q86 20 79 21Q72 24 64 32Z"/></g><g fill="#000"><ellipse class="mark-eye mark-eye-l" cx="35" cy="58" rx="8" ry="11"/><ellipse class="mark-eye mark-eye-r" cx="65" cy="58" rx="8" ry="11"/></g><g class="mark-happy" fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round"><path d="M27 61Q35 53.5 43 61"/><path d="M57 61Q65 53.5 73 61"/></g></mask></defs><g class="mark-body"><rect class="sb-mark-a" x="-30" y="-30" width="160" height="160" fill="#00e5c3" mask="url(#sb-hud-face)"/><rect class="sb-mark-b" x="-30" y="-30" width="160" height="160" fill="#c026d3" mask="url(#sb-hud-face)"/><rect x="-30" y="-30" width="160" height="160" fill="#ffffff" mask="url(#sb-hud-face)"/></g></svg></span></span><b class="hud-word">superbot</b></span><span class="hud-discs"><span class="hud-disc sb sel"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/></span><span class="hud-disc" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></span><span class="hud-disc" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></span><span class="hud-disc" data-app="cursor"><svg><use href="#sb-ic-cursor"/></svg></span><span class="hud-disc chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span><span class="hud-disc add">+</span></span></span>
+                <!-- the Servers menu the mark opens (ServerSwitcherMenu.tsx):
+                     art, name, one short status in words, a hairline, + Add.
+                     Hidden until .hud.menu-open -->
+                <div class="hud-menu">
+                  <span class="hud-menu-row on"><i class="hud-menu-art sb"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/></i><span class="hud-menu-tx"><b>Superbot</b><small>Current</small></span></span>
+                  <span class="hud-menu-row"><i class="hud-menu-art" data-app="openai"><svg><use href="#sb-ic-openai"/></svg></i><span class="hud-menu-tx"><b>hi@ezo.dev</b><small>ChatGPT, Usage near the limit</small></span></span>
+                  <span class="hud-menu-row"><i class="hud-menu-art" data-app="claude"><svg><use href="#sb-ic-claude"/></svg></i><span class="hud-menu-tx"><b>hi@ezo.dev</b><small>Claude</small></span></span>
+                  <span class="hud-menu-row"><i class="hud-menu-art" data-app="cursor"><svg><use href="#sb-ic-cursor"/></svg></i><span class="hud-menu-tx"><b>Cursor</b></span></span>
+                  <span class="hud-menu-div" aria-hidden="true"></span>
+                  <span class="hud-menu-row add"><i class="hud-menu-art add">+</i><span class="hud-menu-tx"><b>Add</b></span></span>
+                </div>
+              </nav>
+              <div class="chats inner">
+                <!-- New chat is the list's first row, directly under the HUD and
+                     above the Recent section header: a ghost row, no
+                     border or fill, the app's SquarePen on the chats' mark column
+                     (hub.css .hub-side-new-chat-item) -->
+                <span class="row new"><i class="nc-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></i>New chat</span>
+                <!-- the app's list (Group by day off): a 'Recent' label whose
+                     head cluster carries Search and the filter, over flat
+                     one-line rows (tile, title, time). The example
+                     account has no pinned chats, so there is no Pinned label and no
+                     raised card above it. The open chat is the first Recent row. -->
+                <div class="today">Recent<i class="side-ic ic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg></i><i class="side-ic ic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg></i></div>
+                <span class="row chat on"><i class="sp"><img src="site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Release notes draft</span><em>3:27 PM</em></span>
+                <span class="row chat"><i class="sp"><img src="site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Codex lost its MCP servers</span><em>1:11 PM</em></span>
+                <span class="row chat"><i class="sp"><img src="site/assets/brand/mark-clean.svg" alt="" width="11" height="11" loading="lazy" decoding="async"/></i><span class="t">Rules in Cursor and Claude Code</span><em>1:08 PM</em></span>
+                <span class="row chat"><i class="sp app-claude"><svg><use href="#sb-ic-claude"/></svg></i><span class="t">Review the auth middleware</span><em>Sep 23</em></span>
+                <span class="row chat"><i class="sp app-claude"><svg><use href="#sb-ic-claude"/></svg></i><span class="t">Which agent used the most context?</span><em>Sep 23</em></span>
+                <!-- the footer user bar, ONE row (superbot-desktop v00-crisper
+                     .tsx:184-209): the avatar, the address, then the Settings gear.
+                     The plan line and Upgrade live in the account popover. -->
+                <div class="acct">
+                  <span class="avatar" style="--c:var(--raised)">H<i class="dot live"></i></span><b class="acct-email">hi@ezo.dev</b><i class="acct-tool settings"><svg><use href="#sb-gl-gear"/></svg></i>
+                </div>
+              </div>
+              </div>
+              </div>
+              <div class="main inner">
+                <div class="chat-head"><b>Release notes draft</b><span class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>Search<kbd>&#8984;K</kbd></span><span class="head-act"><i role="img" aria-label="Resync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></i><i role="img" aria-label="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg></i><i role="img" aria-label="Move to a project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v5"/><circle cx="13" cy="12" r="2"/><circle cx="20" cy="19" r="2"/><path d="M18 19a5 5 0 0 1-5-5v8"/></svg></i><i role="img" aria-label="Browser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></i></span></div>
+                <!-- the open thread, the fixture's: a date rule, the user's bubble on
+                     the right, then the reply under its one muted activity line and
+                     its one footer caption. The two .msg rows are the story's own
+                     beats: hub-boot.js (feedMsgs) and hub-handoff.js (data-m 1/2)
+                     pop them in, so they stay .msg and keep their data-m. -->
+                <div class="feed thread" id="feed">
+                  <div class="date-div"><span>Today</span></div>
+                  <div class="msg own" data-m="1"><p class="bub">Draft release notes for the context optimizer and rate-limit banner work.</p></div>
+                  <div class="msg reply" data-m="2"><div class="m-main">
+                    <span class="m-act">Thought 3s<i class="chev">&#8250;</i></span>
+                    <p class="m-text">Here&#8217;s a draft for the release notes:</p>
+                    <ul class="m-list"><li><b>Context optimizer</b> trims tool output before it reaches the model.</li><li><b>Rate-limit banner</b> shows the cooldown and the vendor that raised it.</li></ul>
+                    <p class="m-text">Want me to open a PR with this?</p>
+                    <span class="worked">12s &#183; 5 steps</span>
+                  </div></div>
+                </div>
+                <!-- act two's transcript, stacked over the still frame (hub-boot.js fills it) -->
+                <div class="feed tour" id="tour-feed" aria-hidden="true"></div>
+                <!-- the composer, as the build draws it: one bordered box, the
+                     placeholder over a foot of +, the Half SUPER pill (sparkle
+                     cap, the state word Off and a chevron), the mode segment (a
+                     dim cursor and its caret), the model picker, the square
+                     computer-use toggle, the mic and the send. A Superbot chat
+                     draws no footer row: its context reading is a ring at the
+                     right end of the chips row, and the AI disclaimer shows on
+                     the new-chat screen only. -->
+                <div class="composer" aria-hidden="true"><div class="pill">
+                  <div class="line"><span class="ph">How can superbot help you today?</span></div>
+                  <div class="line foot"><span class="plus">+</span><span class="super" aria-label="Super: Off"><span class="super-cap"><svg class="super-spark" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></span><span class="super-tag">Off<svg class="super-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span><span class="mode" aria-label="Mode: Agent"><svg class="mode-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><svg class="mode-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="model"><span class="glitch"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="10" height="10" loading="lazy" decoding="async"/></span>Superbot<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="ctx" aria-label="Context: 31k of 1m"><i class="ring"></i></span><span class="computer" aria-label="Computer use: Off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></span><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span><span class="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></span></div>
+                </div></div>
+              </div>
+            </div>
 
-- [Download](https://superbot.gg/download.md): the desktop app for each OS and the phone app store links; the page itself is [https://superbot.gg/download](https://superbot.gg/download)
+            <!-- the sync beam: a rail that dissolves at both ends, with one light
+                 running it. Both gradients are userSpaceOnUse and their coordinates
+                 are written by hub-boot.js (layout() places the curve, tick() slides
+                 the light), so the run rides the hero's own rAF clock and inherits
+                 its offscreen pause and the `pace` cuts' timing for free. -->
+            <svg class="beam" id="beam" aria-hidden="true">
+              <defs>
+                <linearGradient id="beam-fade" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" class="g-off"/><stop offset="0.2" class="g-rail"/>
+                  <stop offset="0.8" class="g-rail"/><stop offset="1" class="g-off"/>
+                </linearGradient>
+                <linearGradient id="beam-run" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" class="g-off"/><stop offset="0.45" class="g-hot"/>
+                  <stop offset="0.6" class="g-hot"/><stop offset="1" class="g-off"/>
+                </linearGradient>
+              </defs>
+              <path class="rail" id="beam-path" d=""/>
+              <path class="run" id="beam-run-path" d=""/>
+            </svg>
 
-The desktop app and the phone app share one account, so a session started on one continues on the other.
+            <div class="phone" id="phone" aria-hidden="true">
+              <!-- the phone is superbot Mobile's chat screen (ThreadScreen.tsx) as
+                   the app draws it at e66a980de (2026-10-01), in TWO states the beat
+                   switches with the .thread class on #phone (hub-boot.js and
+                   hub-handoff.js toggle it as the first turn lands):
+                   - new chat: the header's leading glyph is the sidebar ("Open
+                     chats"); the transcript area holds the hero alone, the white cat
+                     face centred over a two-line serif greeting, "Good afternoon."
+                     over "Where do we go?". The footer line under the composer is the
+                     AI disclosure alone, centred on one line;
+                   - thread: the hero fades out and the header takes the thread
+                     title; the transcript is the "Today" date divider, the user's
+                     right-aligned elevated bubble and the assistant's reply under
+                     one activity line and one footer caption, anchored at the
+                     bottom; the composer's foot then carries the Context row.
+                   Around both: the iOS status band, ScreenHeader (sidebar glyph,
+                   title + chevron.down, share, search, hairline), the full composer
+                   (one raised r16 box: the placeholder over the controls row: a
+                   round +, the Half SUPER pill, the mode segment, the "superbot"
+                   chip with the cat and no caret, the mic and the white round send)
+                   over the footer line, and the home indicator. The two .msg rows
+                   keep data-m 3/4 (the beats pop them in) and #sync is the chip the
+                   beat fades in on the status band: all stay mounted, the beats
+                   query them. -->
+              <div class="screen">
+                <div class="ph-status"><span>9:41</span><span class="ph-sig"><i class="ph-bars"><b></b><b></b><b></b><b></b></i><svg class="ph-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5a13 13 0 0 1 18 0"/><path d="M6.5 13a8 8 0 0 1 11 0"/><path d="M10 16.5a3 3 0 0 1 4 0"/></svg><i class="ph-batt"><b></b></i></span></div>
+                <div class="ph-head"><i class="ph-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></i><span class="ph-title"><b class="ph-t-new">New chat</b><b class="ph-t-thread">Release notes draft</b><svg class="ph-tcv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><i class="ph-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m8 8 4-4 4 4"/><path d="M5 13v5.6A1.4 1.4 0 0 0 6.4 20h11.2a1.4 1.4 0 0 0 1.4-1.4V13"/></svg></i><i class="ph-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.4"/><path d="m20.4 20.4-4.5-4.5"/></svg></i><span class="sync" id="sync">synced</span></div>
+                <div class="ph-canvas">
+                  <div class="ph-hero">
+                    <div class="ph-greet">
+                      <img class="ph-face" src="site/assets/brand/mono-mark-white.svg" alt="" width="48" height="48" loading="lazy" decoding="async"/>
+                      <b class="ph-where">Good afternoon.<br/>Where do we go?</b>
+                    </div>
+                  </div>
+                  <div class="ph-feed">
+                    <div class="ph-date"><span>Today</span></div>
+                    <div class="msg ph-own" data-m="3"><p class="ph-bub">Draft release notes for the context optimizer and rate-limit banner work.</p></div>
+                    <div class="msg ph-reply" data-m="4"><p class="ph-act">Thought 3s<i class="ph-chev">&#8250;</i></p><p>Here&#8217;s a draft for the release notes:</p><ul><li><b>Context optimizer</b> trims tool output before it reaches the model.</li><li><b>Rate-limit banner</b> shows the cooldown and the vendor that raised it.</li></ul><p>Want me to open a PR with this?</p><p class="ph-worked">12s &#183; 5 steps</p></div>
+                  </div>
+                </div>
+                <div class="ph-composer"><div class="ph-box"><span class="ph-place">How can superbot help you today?</span><span class="ph-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i><span class="ph-super" aria-label="Super: Off"><span class="ph-super-cap"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></span><span class="ph-super-tag">Off<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span><span class="ph-mode" aria-label="Mode: Agent"><svg class="ph-mode-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><svg class="ph-mode-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><b class="ph-chip"><img src="site/assets/brand/mono-mark-white.svg" alt="" width="12" height="12" loading="lazy" decoding="async"/>superbot</b><i class="ph-mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></i><i class="ph-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></i></span></div></div>
+                <div class="ph-foot"><span class="ph-ctx"><span class="ph-ctx-l">Context</span><i><b></b></i>31k of 1m</span><span class="ph-ai">superbot is AI and can make mistakes.</span></div>
+                <div class="ph-home"></div>
+              </div>
+            </div>
+            <div class="phone-label" id="phone-label">synced</div>
+          </div>
+        </div>
+      </div>
+      </div><!-- /.stage-clip -->
 
-## Helper and CLI
+      <!-- the client rail: the stage's own bottom edge. Each mark is a
+           quiet link to its recipe page (no recipe yet: /docs#clients).
+           A static row since the boot hero replaced the incident stage
+           (2026-09-06): nothing lights the marks any more, names open on
+           hover. VS Code Insiders is deliberately absent (same product
+           and mark as the vs code row); the windsurf row keeps that name
+           (the mark and the recipe are both Windsurf's). Ghost surfaces
+           only — the install box stays the page's only primary action.
+           Membership (2026-09-24): every row is a client the helper's
+           install table (superbot-helper src/clients/clients.ts CLIENTS,
+           src/clients/gwclients.ts WIRE_TARGETS) or an edge recipe
+           (install/*.md, edge/src/harness.ts HARNESS_PAGES) or the /clients
+           gateway roster (edge/src/clients, support full) really wires.
+           Long-tail helper rows (pi, omp, zazen, muse) stay off the rail. -->
+      <nav class="dock" id="dock" data-track-section="dock" aria-label="clients superbot installs into">
+        <span class="lab">native in</span>
+        <!-- icon registry: one <symbol> per mark, instantiated below with
+             <use> (it must precede the first one). Everything is drawn in
+             currentColor so the marks track the row colour. Provenance:
+             modelled on simple-icons (CC0): claude, cursor, windsurf, cline,
+             copilot (githubcopilot), gemini (googlegemini), qwen. Hand-drawn
+             originals: openai (one mark shared by codex cli + chatgpt
+             desktop), vs code, zed, opencode, roo code, kilo code, continue,
+             kiro, amazon q, openclaw (a pincer), goose (a neck and bill),
+             hermes agent, devin cli, aider (letter badges, the roo/kilo
+             style; simple-icons carries none of these five). claude.ai
+             reuses the claude mark. -->
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+          <defs>
+            <symbol id="sb-gl-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+                  <symbol id="sb-ic-claude" viewBox="0 0 24 24" fill="currentColor"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></symbol>
+                  <symbol id="sb-ic-cursor" viewBox="0 0 24 24" fill="currentColor"><path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></symbol>
+                  <symbol id="sb-ic-vscode" viewBox="0 0 100 100" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M70.9119 99.3171C72.4869 99.9307 74.2828 99.8914 75.8725 99.1264L96.4608 89.2197C98.6242 88.1787 100 85.9892 100 83.5872V16.4133C100 14.0113 98.6243 11.8218 96.4609 10.7808L75.8725 0.873756C73.7862 -0.130129 71.3446 0.11576 69.5135 1.44695C69.252 1.63711 69.0028 1.84943 68.769 2.08341L29.3551 38.0415L12.1872 25.0096C10.589 23.7965 8.35363 23.8959 6.86933 25.2461L1.36303 30.2549C-0.452552 31.9064 -0.454633 34.7627 1.35853 36.417L16.2471 50.0001L1.35853 63.5832C-0.454633 65.2374 -0.452552 68.0938 1.36303 69.7453L6.86933 74.7541C8.35363 76.1043 10.589 76.2037 12.1872 74.9905L29.3551 61.9587L68.769 97.9167C69.3925 98.5406 70.1246 99.0104 70.9119 99.3171ZM75.0152 27.2989L45.1091 50.0001L75.0152 72.7012V27.2989Z"/></symbol>
+                  <symbol id="sb-ic-openai" viewBox="0 0 2406 2406" fill="currentColor"><path id="sb-oai-petal" d="M1107.3 299.1c-197.999 0-373.9 127.3-435.2 315.3L650 743.5v427.9c0 21.4 11 40.4 29.4 51.4l344.5 198.515V833.3h.1v-27.9L1372.7 604c33.715-19.52 70.44-32.857 108.47-39.828L1447.6 450.3C1361 353.5 1237.1 298.5 1107.3 299.1zm0 117.5-.6.6c79.699 0 156.3 27.5 217.6 78.4-2.5 1.2-7.4 4.3-11 6.1L952.8 709.3c-18.4 10.4-29.4 30-29.4 51.4V1248l-155.1-89.4V755.8c-.1-187.099 151.601-338.9 339-339.2z"/><use href="#sb-oai-petal" transform="rotate(60 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(120 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(180 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(240 1203 1203)"/><use href="#sb-oai-petal" transform="rotate(300 1203 1203)"/></symbol>
+                  <symbol id="sb-ic-gemini" viewBox="0 0 24 24" fill="currentColor"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81"/></symbol>
+                  <symbol id="sb-ic-zed" viewBox="0 0 24 24" fill="currentColor"><path d="M2.25 1.5a.75.75 0 0 0-.75.75v16.5H0V2.25A2.25 2.25 0 0 1 2.25 0h20.095c1.002 0 1.504 1.212.795 1.92L10.764 14.298h3.486V12.75h1.5v1.922a1.125 1.125 0 0 1-1.125 1.125H9.264l-2.578 2.578h11.689V9h1.5v9.375a1.5 1.5 0 0 1-1.5 1.5H5.185L2.562 22.5H21.75a.75.75 0 0 0 .75-.75V5.25H24v16.5A2.25 2.25 0 0 1 21.75 24H1.655C.653 24 .151 22.788.86 22.08L13.19 9.75H9.75v1.5h-1.5V9.375A1.125 1.125 0 0 1 9.375 8.25h5.314l2.625-2.625H5.625V15h-1.5V5.625a1.5 1.5 0 0 1 1.5-1.5h13.19L21.438 1.5z"/></symbol>
+                  <symbol id="sb-ic-windsurf" viewBox="0 0 24 24" fill="currentColor"><path d="M23.55 5.067c-1.2038-.002-2.1806.973-2.1806 2.1765v4.8676c0 .972-.8035 1.7594-1.7597 1.7594-.568 0-1.1352-.286-1.4718-.7659l-4.9713-7.1003c-.4125-.5896-1.0837-.941-1.8103-.941-1.1334 0-2.1533.9635-2.1533 2.153v4.8957c0 .972-.7969 1.7594-1.7596 1.7594-.57 0-1.1363-.286-1.4728-.7658L.4076 5.1598C.2822 4.9798 0 5.0688 0 5.2882v4.2452c0 .2147.0656.4228.1884.599l5.4748 7.8183c.3234.462.8006.8052 1.3509.9298 1.3771.313 2.6446-.747 2.6446-2.0977v-4.893c0-.972.7875-1.7593 1.7596-1.7593h.003a1.798 1.798 0 0 1 1.4718.7658l4.9723 7.0994c.4135.5905 1.05.941 1.8093.941 1.1587 0 2.1515-.9645 2.1515-2.153v-4.8948c0-.972.7875-1.7594 1.7596-1.7594h.194a.22.22 0 0 0 .2204-.2202v-4.622a.22.22 0 0 0-.2203-.2203Z"/></symbol>
+                  <symbol id="sb-ic-cline" viewBox="0 0 24 24" fill="currentColor"><path d="m23.365 13.556-1.442-2.895V8.994c0-2.764-2.218-5.002-4.954-5.002h-2.464c.178-.367.276-.779.276-1.213A2.77 2.77 0 0 0 12.018 0a2.77 2.77 0 0 0-2.763 2.779c0 .434.098.846.276 1.213H7.067c-2.736 0-4.954 2.238-4.954 5.002v1.667L.64 13.549c-.149.29-.149.636 0 .927l1.472 2.855v1.667C2.113 21.762 4.33 24 7.067 24h9.902c2.736 0 4.954-2.238 4.954-5.002V17.33l1.44-2.865c.143-.286.143-.622.002-.91m-12.854 2.36a2.27 2.27 0 0 1-2.261 2.273 2.27 2.27 0 0 1-2.261-2.273v-4.042A2.27 2.27 0 0 1 8.249 9.6a2.267 2.267 0 0 1 2.262 2.274zm7.285 0a2.27 2.27 0 0 1-2.26 2.273 2.27 2.27 0 0 1-2.262-2.273v-4.042A2.267 2.267 0 0 1 15.535 9.6a2.267 2.267 0 0 1 2.261 2.274z"/></symbol>
+                  <symbol id="sb-ic-copilot" viewBox="0 0 24 24" fill="currentColor"><path d="M23.922 16.997C23.061 18.492 18.063 22.02 12 22.02 5.937 22.02.939 18.492.078 16.997A.641.641 0 0 1 0 16.741v-2.869a.883.883 0 0 1 .053-.22c.372-.935 1.347-2.292 2.605-2.656.167-.429.414-1.055.644-1.517a10.098 10.098 0 0 1-.052-1.086c0-1.331.282-2.499 1.132-3.368.397-.406.89-.717 1.474-.952C7.255 2.937 9.248 1.98 11.978 1.98c2.731 0 4.767.957 6.166 2.093.584.235 1.077.546 1.474.952.85.869 1.132 2.037 1.132 3.368 0 .368-.014.733-.052 1.086.23.462.477 1.088.644 1.517 1.258.364 2.233 1.721 2.605 2.656a.841.841 0 0 1 .053.22v2.869a.641.641 0 0 1-.078.256Zm-11.75-5.992h-.344a4.359 4.359 0 0 1-.355.508c-.77.947-1.918 1.492-3.508 1.492-1.725 0-2.989-.359-3.782-1.259a2.137 2.137 0 0 1-.085-.104L4 11.746v6.585c1.435.779 4.514 2.179 8 2.179 3.486 0 6.565-1.4 8-2.179v-6.585l-.098-.104s-.033.045-.085.104c-.793.9-2.057 1.259-3.782 1.259-1.59 0-2.738-.545-3.508-1.492a4.359 4.359 0 0 1-.355-.508Zm2.328 3.25c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm-5 0c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm3.313-6.185c.136 1.057.403 1.913.878 2.497.442.544 1.134.938 2.344.938 1.573 0 2.292-.337 2.657-.751.384-.435.558-1.15.558-2.361 0-1.14-.243-1.847-.705-2.319-.477-.488-1.319-.862-2.824-1.025-1.487-.161-2.192.138-2.533.529-.269.307-.437.808-.438 1.578v.021c0 .265.021.562.063.893Zm-1.626 0c.042-.331.063-.628.063-.894v-.02c-.001-.77-.169-1.271-.438-1.578-.341-.391-1.046-.69-2.533-.529-1.505.163-2.347.537-2.824 1.025-.462.472-.705 1.179-.705 2.319 0 1.211.175 1.926.558 2.361.365.414 1.084.751 2.657.751 1.21 0 1.902-.394 2.344-.938.475-.584.742-1.44.878-2.497Z"/></symbol>
+                  <symbol id="sb-ic-opencode" viewBox="0 0 24 24" fill="currentColor"><path d="M22 24H2V0h20zM17 4.8H7v14.4h10z"/></symbol>
+                  <symbol id="sb-ic-qwen" viewBox="0 0 24 24" fill="currentColor"><path d="M23.919 14.545 20.817 9.17l1.47-2.544a.56.56 0 0 0 0-.566l-1.633-2.83a.57.57 0 0 0-.49-.283h-6.207L12.487.402a.57.57 0 0 0-.49-.284H8.732a.56.56 0 0 0-.49.284L5.139 5.775h-2.94a.56.56 0 0 0-.49.284L.077 8.887a.56.56 0 0 0 0 .567L3.18 14.83l-1.47 2.545a.56.56 0 0 0 0 .566l1.634 2.83a.57.57 0 0 0 .49.283h6.205l1.47 2.545a.57.57 0 0 0 .49.284h3.266a.57.57 0 0 0 .49-.284l3.104-5.375h2.94a.57.57 0 0 0 .49-.283l1.634-2.828a.55.55 0 0 0-.004-.568M8.733.686l1.634 2.828-1.634 2.828H21.8L20.164 9.17H7.425L5.63 6.06Zm1.306 19.801-6.205-.002 1.634-2.83h3.265L2.201 6.344h3.267q3.182 5.517 6.367 11.032zm10.124-5.66L18.53 12l-6.532 11.315-1.634-2.83c2.129-3.673 4.25-7.351 6.373-11.028h3.592l3.102 5.374z"/></symbol>
+                  <symbol id="sb-ic-roo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="4.5"/><path d="M8.5 17V7.5h4a2.75 2.75 0 0 1 0 5.5H8.5m3.5 0 3.5 4"/></symbol>
+                  <symbol id="sb-ic-kilo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="4.5"/><path d="M8.5 7v10M15.5 7l-6.5 5 6.5 5"/></symbol>
+                  <symbol id="sb-ic-continue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.2v7.6l6.2-3.8z" fill="currentColor" stroke="none"/></symbol>
+                  <symbol id="sb-ic-kiro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5v15M17.5 4.5l-8 7.5 8 7.5"/></symbol>
+                  <symbol id="sb-ic-amazonq" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm0 3.2a3.3 3.3 0 1 1 0 6.6 3.3 3.3 0 0 1 0-6.6Z" fill="currentColor" stroke="none"/><path d="m15.2 15.2 3.6 3.6" stroke-width="2.4"/></symbol>
+                  <symbol id="sb-ic-openclaw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.2A7.5 7.5 0 1 0 19.2 15"/><path d="M17 6.2 13 10.6M19.2 15l-5.4-1.9"/></symbol>
+                  <symbol id="sb-ic-goose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 20.5c0-3.6 2.4-5.6 5.4-6.6 2.6-.9 3.6-2.6 3.6-5V7.5a3 3 0 0 0-6 0"/><path d="M14.5 6.5h4l-4 2.5M3.5 20.5h13"/><circle cx="11.6" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+                  <symbol id="sb-ic-hermes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="4.5"/><path d="M8.5 7v10M15.5 7v10M8.5 12h7"/></symbol>
+                  <symbol id="sb-ic-devin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="4.5"/><path d="M9 7.5v9h2.5a4.5 4.5 0 0 0 0-9Z"/></symbol>
+                  <symbol id="sb-ic-aider" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="4.5"/><path d="M8.5 17 12 7l3.5 10M9.7 13.5h4.6"/></symbol>
+                </defs>
+        </svg>
+        <ul class="wall-list">
+        <li><a data-app="claude-code" href="install/claude.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-claude"/></svg><span>claude code</span></a></li>
+        <li><a data-app="cursor" href="install/cursor.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-cursor"/></svg><span>cursor</span></a></li>
+        <li><a data-app="vscode" href="install/vscode.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-vscode"/></svg><span>vs code</span></a></li>
+        <li><a data-app="codex" href="install/codex.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-openai"/></svg><span>codex cli</span></a></li>
+        <li><a data-app="chatgpt" href="install/chatgpt.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-openai"/></svg><span>chatgpt desktop</span></a></li>
+        <li><a data-app="gemini" href="install/gemini.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-gemini"/></svg><span>gemini cli</span></a></li>
+        <li><a data-app="zed" href="install/zed.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-zed"/></svg><span>zed</span></a></li>
+        <li><a data-app="windsurf" href="install/windsurf.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-windsurf"/></svg><span>windsurf</span></a></li>
+        <li><a data-app="claude-desktop" href="install/claude-desktop.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-claude"/></svg><span>claude desktop</span></a></li>
+        <li><a data-app="claude-ai" href="install/claude-ai.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-claude"/></svg><span>claude.ai</span></a></li>
+        <li><a data-app="cline" href="install/cline.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-cline"/></svg><span>cline</span></a></li>
+        <li><a data-app="roo" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-roo"/></svg><span>roo code</span></a></li>
+        <li><a data-app="kilo" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-kilo"/></svg><span>kilo code</span></a></li>
+        <li><a data-app="continue" href="install/continue.md"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-continue"/></svg><span>continue</span></a></li>
+        <li><a data-app="copilot" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-copilot"/></svg><span>copilot cli</span></a></li>
+        <li><a data-app="opencode" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-opencode"/></svg><span>opencode</span></a></li>
+        <li><a data-app="openclaw" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-openclaw"/></svg><span>openclaw</span></a></li>
+        <li><a data-app="hermes" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-hermes"/></svg><span>hermes agent</span></a></li>
+        <li><a data-app="goose" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-goose"/></svg><span>goose</span></a></li>
+        <li><a data-app="devin" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-devin"/></svg><span>devin cli</span></a></li>
+        <li><a data-app="aider" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-aider"/></svg><span>aider</span></a></li>
+        <li><a data-app="qwen" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-qwen"/></svg><span>qwen code</span></a></li>
+        <li><a data-app="kiro" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-kiro"/></svg><span>kiro</span></a></li>
+        <li><a data-app="amazonq" href="docs"><svg width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#sb-ic-amazonq"/></svg><span>amazon q</span></a></li>
+        </ul>
+      </nav>
+      </div>
 
-The one-line install for macOS and Linux is `curl -fsSL https://superbot.gg/bootstrap.sh | sh`. It installs the Helper (`superbot-helper`, under `~/.superbot`, with a user autostart unit), signs you in and connects your AI clients; the app installs for beta members. `--no-signin` and `--no-wire` skip the sign-in and the client wiring, `--no-app` (alias `--helper-only`) installs the Helper only, and `--dry-run` prints every step without downloading anything. The second route, "superbot relay: use your own harness", is `curl -fsSL https://superbot.gg/bootstrap.sh | sh -s -- --helper-app` (alias `--route=helper-app`; `-HelperApp` with `bootstrap.ps1` on Windows): it installs the Helper plus the standalone superbot relay app in place of the desktop app, with the same sign-in and client wiring. Its card is at [https://superbot.gg/download#helper](https://superbot.gg/download#helper) once the app has a release; a computer with no release for it gets the Helper and CLI, with a line saying so. Running the same line again updates both.
+    </section>
 
-`superbot` is the Helper's CLI in a terminal. The Helper keeps your vendor sign-ins on your machine, runs a local MCP relay, and, when asked to connect an AI client, edits that client's config file after making a one-time `.superbot.bak` backup, which `superbot clients unwire` restores. The device-wide consult block that the Helper can write during an opt-in `--prepends` install or an `--update` run is published at [install/claude.md](https://superbot.gg/install/claude.md), between markers that its uninstall removes.
+    <!-- the six pillars: real captures, not icons (owner spec, 2026-09-10).
+         Look plan: palette canvas #000000 / card #0d0d0d / elevated #181818 /
+         line #262626 / ink #ececec / muted #9a9a9a (site.css tokens); accent
+         storm-1 (--accent) stays off every pillar surface and pillar text,
+         reserved for the page's controls; type is --font-ui for titles and
+         sentences, --font-mono for the two terminal figures only; radius is
+         --r-surface (16px) on every cell, --r-control (8px) on the "see all
+         six" link's focus ring only; the one bold thing is the sync cell
+         (#pillar-sync), full width, tallest, the section's only two-image
+         figure. Exemplar: 21st "Feature Bento" (hero card plus tiles, one
+         big cell) and Warp (real terminal output as the figure, no icon). -->
+        <!-- the download hero (owner, 2026-09-08: "make the user scroll past the
+         animation to see it, and then it can be an actual hero section... a
+         proper download hero section that people are used to seeing"). Its own
+         full-height section after the stage: one headline, one sentence, the
+         visitor's platform as the ONE primary (the storm action, the page's
+         bold element), the macOS chip and the installer list as quiet chips,
+         then the Helper/CLI terminal line as the second
+         path (the install widget mounts into #oneliner). The script at
+         the foot picks the platform; without JavaScript the chips stay and the
+         primary points at /download. -->
+    <section class="dl-hero" id="get-superbot" aria-labelledby="dl-title">
+      <div class="dl-hero-in">
+        <h2 id="dl-title">get superbot</h2>
+        <p class="dl-sub">one app for all your agents.<br/>for free.</p>
+        <div class="dl-primary">
+          <!-- the second of the page's two primaries: the same resolved action
+               the hero above carries (data-dl-cta, written by the script at the
+               foot), kept here so the download section still owns its own CTA
+               as the detail. No asset line under it: the button names the
+               platform and /download lists every installer with its file name
+               and sha256 (owner, 2026-09-13 — the mono line read as debug
+               output on the strongest control on the page). -->
+          <a class="sb-btn dl-cta" data-dl-cta href="download.html" data-os="mac"><span class="sb-os-mark"></span><span class="dl-cta-label">Download for macOS</span></a>
+          <p class="dl-note" data-dl-note hidden></p>
+        </div>
+        <ul class="dl-alts" id="dl-alts" aria-label="other platforms">
+          <!-- the edge's /download/asset ladder, the same one /download's rows
+               use: it redirects to the latest release's artifact. macOS is the
+               static chip; the edge adds a Windows or Linux chip after it when
+               the resolved release carries that installer (lander-platform.ts,
+               card #60), so no chip links a 404. No availability line under
+               the row (2026-09-24). -->
+          <li><a class="sb-btn ghost sm pill dl-chip" data-os="mac" href="/download/asset/mac-arm64">macOS</a></li>
+          <li><a class="sb-btn ghost sm pill dl-chip" href="download.html">every installer</a></li>
+        </ul>
+        <!-- the second path, after the app (2026-09-23: superbot is an agent
+             manager app; the MCP server is one surface, never the headline):
+             the Helper/CLI bootstrap lines, the same two /download's #dl-cli
+             and /docs' Start here carry. install-snippet.js mounts them under
+             opts.helper, visitor's OS first, with a fold saying what they
+             install, one quiet "use your own harness? superbot relay" row to
+             /download#helper (the standalone Helper app, second route) and a
+             small "MCP setup" link to /docs#tool, third. Without JS the edge
+             (landerWithFallback, app.ts) renders the same two lines and rows
+             into the mount. -->
+        <div class="dl-or"><span>or from a terminal</span></div>
+        <div id="oneliner" data-ascii-damp><p>macOS and Linux</p><pre tabindex="0" role="region" aria-label="Install line for macOS and Linux"><code>curl -fsSL https://superbot.gg/bootstrap.sh | sh</code></pre><p>Windows, in PowerShell</p><pre tabindex="0" role="region" aria-label="Install line for Windows PowerShell"><code>irm https://superbot.gg/bootstrap.ps1 | iex</code></pre><p>read it first: <a href="/bootstrap.sh">bootstrap.sh</a>, <a href="/bootstrap.ps1">bootstrap.ps1</a>.</p><p>use your own harness? <a href="/download#helper">superbot relay</a></p><p>connecting an agent directly? <a href="docs">MCP setup</a></p></div>
+      </div>
+    </section>
 
-### Agent computers
+    <!-- keep scrolling, keep reading (2026-09-25): the page does not end at the
+         download band. The script at the foot fetches /features on idle and
+         splices its content in here (its sheets, its head <style>, its
+         behaviour via features-page.js), so /features stays the one source.
+         The skeleton rows hold the space while it loads; without JavaScript,
+         or when the fetch fails, the link below is what shows. -->
+    <section id="more" aria-label="features" aria-busy="true">
+      <div class="more-skel" aria-hidden="true">
+        <div class="more-row"><span><i></i><i></i><i></i></span><div class="more-fig"></div></div>
+        <div class="more-row"><span><i></i><i></i><i></i></span><div class="more-fig"></div></div>
+      </div>
+      <p class="more-link">see <a href="features.html">every feature</a>.</p>
+    </section>
 
-An agent that has its own Linux computer (xAI Grok Bot, Meta Muse, OpenAI dots, Manus) installs the Helper on that computer and links it to the user's account; the computer needs outbound HTTPS to this one origin and nothing else.
+  </main>
 
-- [Agent install](https://superbot.gg/agent): prerequisites, the one command, what to show the user, how to verify, troubleshooting; the page behind "Install Superbot from superbot.gg/agent"
-- Vendor notes: [Grok Bot](https://superbot.gg/install/grok-bot.md), [Muse](https://superbot.gg/install/muse.md), [dots](https://superbot.gg/install/dots.md), [Manus](https://superbot.gg/install/manus.md)
+  <footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
 
-Session sandboxes (Codex cloud, Claude Code on the web) are thrown away when the session ends: connect the remote MCP server below there instead of installing a Helper.
+<!-- the sky starts 300ms after the load event (2026-10-01, GA mobile LCP pass): a
+     decorative field has no business on the main thread while the headline and
+     the form are still settling, and at 4x CPU its first frames were the
+     longest tasks of the load. The script reads its options from its own tag's
+     data-* (document.currentScript.dataset), so they are set on the element
+     before it is appended. The canvas and its fixed look are in the head style,
+     so nothing moves when it starts. -->
+<script data-defer="ascii-bg">addEventListener("load", () => setTimeout(() => { const s = document.createElement("script"); s.src = "site/assets/ascii-bg.js?v=6"; s.dataset.bg = "stars"; s.dataset.color = "236,236,236"; s.dataset.fade = "0.32"; document.body.append(s); }, 300));</script>
+<script data-defer="stage-css">window.sbStageCss = Promise.race([Promise.all([...document.querySelectorAll('link[rel=stylesheet][media=print]')].map((l) => new Promise((ok) => { if (l.media === 'all') return ok(); l.addEventListener('load', ok); l.addEventListener('error', ok); }))), new Promise((ok) => setTimeout(ok, 8000))]);</script>
+<script type="module">
+  import { consoleEgg } from 'site/assets/mascot.js?v=14';
+  import { mountMascotMark } from 'site/assets/mascot-mark.js?v=3'; // same URL hub-boot.js imports, so the page loads one copy
+  import { mountInstallSnippet, detectArchEvidence } from 'site/assets/install-snippet.js?v=44';
+  import { detectPlatform, osMark } from 'site/assets/os-detect.js?v=2';
+  import { mountWaitlist } from 'site/assets/waitlist-form.js?v=13';
+  import { mountSignupBar } from 'site/assets/signup-bar.js?v=14';
+  import { EXPERIMENTS, migrateSaved, assignSlot, assignmentEpoch, liveArms, adCampaign, captionCopy } from 'site/assets/experiments.js?v=19';
 
-## Docs
+  // #more loads with the page's script: skeleton rows while it fetches
+  const more = document.getElementById('more');
+  more?.classList.add('is-js');
 
-- [Docs as markdown](https://superbot.gg/docs.md): the whole /docs page as one markdown document
-- [Start here](https://superbot.gg/docs#start): get the apps, install the Helper, call the API, connect an agent over MCP
-- [Install and verify](https://superbot.gg/docs#install): the one-line install, the per-client setup, then a live check of the connection
-- [Features](https://superbot.gg/docs#features): the tool, clients, the Helper, apps, the superbot relay app, super mode, routines, context, sessions, media, voice, publishing, organizations and teams, usage, external APIs
-- [The superbot tool](https://superbot.gg/docs#tool): what the one MCP tool accepts and returns
-- [API authentication](https://superbot.gg/docs#api-auth): caller keys and the two header forms
-- [API models](https://superbot.gg/docs#api-models): the model ids a key may send
-- [API endpoints](https://superbot.gg/docs#api-endpoints): each /v1 route with a request and a response
-- [API limits](https://superbot.gg/docs#api-limits): the per-key rate bucket and budget statuses
-- [Account and billing](https://superbot.gg/docs#account): credits, plans and billing tiers
-- [Help](https://superbot.gg/docs#help): troubleshooting and uninstalling
+  // the hero lockup's live-state motion, ported from the time-traveler capsule
+  // page: the blink/wink timer, the pupils that drift toward the pointer and the
+  // click's 600ms happy beat. The bob, breath and ear tilt are hero.css.
+  mountMascotMark(document.querySelector('.sb-glitch'));
+  // the HUD's Superbot mark: the bare living head, the same living mark
+  // (hub-boot.css .hud-mark, the desktop's default 'plain' skin, no ground)
+  mountMascotMark(document.querySelector('#hub .hud-mark .sb-mark'));
 
-## Pages
+  // an open beta host (the edge's landerForViewer) marks <body data-access>;
+  // a visitor without a grant is served the invite step in both primaries and
+  // the chips, and no terminal block, so neither the one-liner mount nor the
+  // platform pass below touches them. No attribute (a locked host, the public
+  // site) or "granted" runs both as ever.
+  const access = document.body.dataset.access;
 
-- [Home](https://superbot.gg/index.md): what superbot is, in one page
-- [Features](https://superbot.gg/features.md): the features page, one section per pillar
-- [API](https://superbot.gg/api.md): the API landing page: the base URL, prices, plans and packs
-- [Clients](https://superbot.gg/clients.md): per-client setup (Cursor, Continue, Claude Code and others) with the one base URL, the caller key and the model id each expects
-- [Enterprise](https://superbot.gg/enterprise.md): teams and organizations: a signed policy held at the relay for the traffic superbot routes, native managed files for Claude Code and Codex only, enforced where an admin installs them (Claude Code falls back to an advisory user file, Codex to the relay alone), a self-reported receipt per managed install, and agent grants
-- [Request a harness](https://superbot.gg/request-harness.md): the form for asking superbot to support another AI app
-- [SMS](https://superbot.gg/sms.md): texting superbot, with the opt-in and consent terms
+  // the hero experiment (site/assets/experiments.js, driven daily by
+  // scripts/ga/site-optimize.mjs): an anonymous visitor draws an arm from the
+  // live weights once and keeps it (localStorage 'sb-exp'); ?hero= forces an
+  // arm and a signed-in visitor sees the incumbent, both labelled so the loop
+  // leaves them out. content_group rides every later GA event on this page
+  // (a standard dimension, readable with Viewer access), exp_hero is the user
+  // property twin, and experience_impression is Google's exposure contract.
+  // All of it is set here, before any waitlist mount can send an event.
+  // A device outside hero.device, when one is set, is labelled 'desktop' and
+  // sees hero.otherDevices without drawing an arm. hero sets none since rev 10
+  // (2026-09-28; phones only from rev 5): desktops and tablets draw too, and a
+  // returning one's stored 'desktop' (not a live arm) is redrawn by assignSlot.
+  // The evolution loop (2026-09-28): every draw below goes through
+  // experiments.js's assignSlot. sb-exp is { <slot>: { arm, rev }, hb }
+  // (the old one-string-per-slot form is migrated on read, rev 0). The first
+  // slot an anonymous visitor draws also draws the holdback (holdback.share,
+  // sticky `hb`): a holdback visitor sees holdback.snapshot's arms and is
+  // labelled `hb` in content_group, every exp_<slot> and every
+  // experience_impression. exp_rev, set beside each exp_<slot>, is the rev of
+  // the visitor's first stored draw (assignmentEpoch), only once one is stored.
+  // exp_rev_<slot> rides with it (2026-09-27): the rev of THAT slot's stored
+  // draw, so a slot redrawn after a cut is stratified by its own rev, not the
+  // oldest one (the optimizer reads it per slot; exp_rev stays for the
+  // dashboard and the fallback). A slot with no stored draw sends none.
+  let sbExp = {};
+  let sbExpRaw = null;
+  // K62: no experiment storage in a consent region (the edge stamps data-sb-region).
+  const expRegionDeny = (() => {
+    try {
+      const cc = document.documentElement.dataset.sbRegion;
+      return cc === undefined ? false : cc === '' || ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'].indexOf(cc.toUpperCase()) >= 0;
+    } catch (e) { return false; }
+  })();
+  try {
+    sbExpRaw = expRegionDeny ? null : localStorage.getItem('sb-exp');
+    sbExp = migrateSaved(JSON.parse(sbExpRaw || '{}'));
+  } catch (e) { console.error('sb-exp unreadable', e); }
+  // the head's pre-paint draw of a slot (globalThis.sbPre, set by the head script
+  // from the table the edge inlined, with this same assignSlot) is ADOPTED, never
+  // redrawn: the first frame already paints that arm, and a second rand() could
+  // land on another. Its `saved` carries the holdback and the slots drawn so far,
+  // so storing it here stores exactly what the head painted, as a draw made here
+  // would; everything sent about it (below) is still sent from this module.
+  const drawSlot = (slot, opts) => {
+    const pick = globalThis.sbPre?.[slot] ?? assignSlot(sbExp, slot, EXPERIMENTS, opts);
+    sbExp = pick.saved;
+    const next = JSON.stringify(sbExp);
+    if (next !== sbExpRaw) {
+      try { if (!expRegionDeny) localStorage.setItem('sb-exp', next); sbExpRaw = next; } catch (e) { console.error('sb-exp not saved', e); }
+    }
+    return pick;
+  };
+  const expRev = (slot) => {
+    const rev = assignmentEpoch(sbExp);
+    if (rev === null) return {};
+    const entry = sbExp[slot];
+    if (!entry || typeof entry !== 'object' || typeof entry.arm !== 'string') return { exp_rev: rev };
+    return { exp_rev: rev, [`exp_rev_${slot}`]: String(entry.rev ?? 0) };
+  };
+  // automation and our own checks draw no arm (2026-09-28): a browser with
+  // navigator.webdriver, or one carrying the loader's sticky internal marker
+  // (ga4.d4d15ea9.js remember('sb-internal', 'internal'): ?internal=1 sets
+  // localStorage 'sb-internal' = '1', ?internal=0 clears it; mirrored here so
+  // the marker sticks even when the loader runs late or not at all). Camoufox
+  // and CDP-driven browsers never set webdriver, so live checks pass
+  // ?internal=1. Each slot is then labelled 'forced' (the optimizer drops it,
+  // as it drops a ?<slot>= preview) and shows what an undrawn visitor sees;
+  // neither sb-exp nor the holdback is read into the pick or written, so a
+  // real visit later draws fresh. A ?<slot>= preview still wins.
+  const noDraw = (() => {
+    let bot = false;
+    try { bot = navigator.webdriver === true; } catch (e) {}
+    const v = new URLSearchParams(location.search).get('internal');
+    try {
+      if (v === '1') localStorage.setItem('sb-internal', '1');
+      else if (v === '0') localStorage.removeItem('sb-internal');
+      return bot || v === '1' || (v !== '0' && localStorage.getItem('sb-internal') === '1');
+    } catch (e) { return bot || v === '1'; }
+  })();
+  const heroForced = new URLSearchParams(location.search).get('hero');
+  const heroPick = (() => {
+    const exp = EXPERIMENTS.hero;
+    if (heroForced) return { arm: 'forced', shown: 'forced' };
+    if (noDraw) return { arm: 'forced', shown: exp?.device && exp.device !== document.documentElement.dataset.device ? exp.otherDevices ?? 'workspace' : exp?.incumbent ?? 'forced' };
+    if (access !== 'anon' || !exp) return { arm: 'na', shown: 'na' };
+    if (exp.device && exp.device !== document.documentElement.dataset.device) return { arm: 'desktop', shown: exp.otherDevices ?? 'workspace' };
+    // `started` is the hero's draw epoch (experiments.js rev 7, 2026-09-27):
+    // an arm drawn under an earlier start (the entry's `from`, migrated from
+    // the old heroFrom) is redrawn once, so a reopened test is one draw from
+    // its own weights, not the old incumbent's returning visitors
+    return drawSlot('hero', { epoch: exp.started });
+  })();
+  const heroArm = heroPick.arm;
+  window.gtag?.('set', { content_group: `hero-${heroArm}` });
+  window.gtag?.('set', 'user_properties', { exp_hero: heroArm, ...expRev('hero') });
+  window.sbTrack?.('experience_impression', { exp_variant_string: `SBGG-hero-${heroArm}` });
+  // the `none` arm: no stage at all (the style block at the head; playHero
+  // below never runs). The pre-paint script already set it for a forced or
+  // sticky `none`; this confirms it for a fresh draw and clears a stale one.
+  // heroShown is the arm played: the drawn one, a holdback visitor's
+  // snapshot arm, hero.otherDevices on a desktop, or 'forced' / 'na' (both
+  // fall through to the ?hero= module or HERO_DEFAULT below, as before).
+  const heroShown = heroPick.shown;
+  const heroNone = heroForced ? heroForced === 'none' : heroShown === 'none';
+  if (heroNone) document.documentElement.dataset.hero = 'none';
+  else delete document.documentElement.dataset.hero;
 
-## API
+  // the caption experiment (experiments.js `caption`, 2026-09-26): the same
+  // draw and stickiness as the hero, into the h1's inner HTML. ?caption=<arm>
+  // shows that arm's copy and is labelled 'forced'. While the experiment is
+  // held (one arm with weight) nothing new is sent to GA: no exp_caption, no
+  // experience_impression. content_group stays the hero's.
+  const captionForced = new URLSearchParams(location.search).get('caption');
+  const capExp = EXPERIMENTS.caption;
+  const capLive = capExp ? liveArms(capExp) : [];
+  const captionPick = (() => {
+    if (!capExp) return { arm: 'na', shown: 'na' };
+    if (captionForced) return { arm: 'forced', shown: captionForced };
+    if (noDraw) return { arm: 'forced', shown: capExp.incumbent };
+    if (access !== 'anon' || capLive.length < 2) return { arm: 'na', shown: 'na' };
+    return drawSlot('caption', { epoch: capExp.started }); // the test's start day is the draw epoch (experiments.js rev 12): every returning visitor redraws once, so the read sees one draw
+  })();
+  const captionArm = captionPick.arm;
+  const captionShown = captionPick.shown;
+  const h1 = document.querySelector('.hero h1');
+  // the h1's line for the shown arm: copy[arm], or for the message-match arm (experiments.js
+  // caption.follow) the line of the visitor's campaign: the URL's utm_campaign, else the first
+  // touch attribution.js stored in sb-attr (not read in a consent region), the head's own
+  // resolution (adCampaign, captionCopy), so what the first frame painted is what is set here
+  const capAttr = (() => { try { return expRegionDeny ? null : localStorage.getItem('sb-attr'); } catch (e) { return null; } })();
+  const capCopy = captionCopy(capExp, captionShown, adCampaign(new URLSearchParams(location.search).get('utm_campaign'), capAttr));
+  const capRotateArms = capExp?.rotate?.[captionShown]; // an array for a sequence arm; ?caption=constructor finds a function here
+  const capRotate = (Array.isArray(capRotateArms) ? capRotateArms : []).map((a) => capExp.copy[a]).filter(Boolean);
+  // a sequenced arm (experiments.js caption.fx, 2026-09-30) names its
+  // transition; caption-seq.js and .css are fetched only for such an arm, and
+  // cap-wait holds the h1 back until they are in (a failed load plays the
+  // blur-rise rotator instead; the pre-paint timeout still ends the wait)
+  const capFx = capExp?.fx?.[captionShown];
+  if (h1 && capRotate.length > 1 && capFx) {
+    loadCaptionSeq()
+      .then((seq) => { if (!seq.mountCaptionSeq(h1, capRotate, capFx)) rotateCaption(h1, capRotate); })
+      .catch((e) => { console.error('caption-seq', e); rotateCaption(h1, capRotate); })
+      .finally(() => document.documentElement.classList.remove('cap-wait'));
+  } else {
+    if (h1 && capRotate.length > 1) rotateCaption(h1, capRotate);
+    else if (h1 && capCopy && h1.innerHTML !== capCopy.replaceAll('<br/>', '<br>')) h1.innerHTML = capCopy;
+    document.documentElement.classList.remove('cap-wait');
+  }
+  if (capLive.length > 1) {
+    window.gtag?.('set', 'user_properties', { exp_caption: captionArm, ...expRev('caption') });
+    window.sbTrack?.('experience_impression', { exp_variant_string: `SBGG-caption-${captionArm}` });
+  }
+  // the subline experiment (experiments.js `subline`, 2026-09-27): the
+  // caption's draw, stickiness and labels, on every device. `what` shows one
+  // muted line under the h1 (copy.what, the <p data-subline-line> in the
+  // hero), `control` shows nothing. ?subline=<arm> forces an arm, labelled
+  // 'forced'; a signed-in visitor sees the incumbent, labelled 'na'. Held (one
+  // arm with weight), it sends nothing, as caption does.
+  const sublineForced = new URLSearchParams(location.search).get('subline');
+  const subExp = EXPERIMENTS.subline;
+  const subLive = subExp ? liveArms(subExp) : [];
+  const sublinePick = (() => {
+    if (!subExp) return { arm: 'na', shown: undefined };
+    if (sublineForced) return { arm: 'forced', shown: sublineForced };
+    if (noDraw) return { arm: 'forced', shown: subExp.incumbent };
+    if (access !== 'anon' || subLive.length < 2) return { arm: 'na', shown: subExp.incumbent };
+    return drawSlot('subline');
+  })();
+  const sublineArm = sublinePick.arm;
+  const sublineShown = sublinePick.shown;
+  const subCopy = subExp?.copy?.[sublineShown];
+  const subEl = document.querySelector('[data-subline-line]');
+  if (subCopy && subEl) {
+    subEl.textContent = subCopy;
+    document.documentElement.dataset.subline = sublineShown;
+  } else delete document.documentElement.dataset.subline;
+  if (subLive.length > 1) {
+    window.gtag?.('set', 'user_properties', { exp_subline: sublineArm, ...expRev('subline') });
+    window.sbTrack?.('experience_impression', { exp_variant_string: `SBGG-subline-${sublineArm}` });
+  }
+  // the first-party A/B beacon (2026-09-28): the same labels GA gets, sent to
+  // the edge's POST /e/exp (edge/src/site-exp-events.ts) with sendBeacon, so
+  // ClickHouse superbot.site_exp_events has per-arm counts in seconds instead
+  // of after GA's ~2-day processing. Every slot rides every event as
+  // [label, rev]: the label is exactly what exp_<slot> carries (a drawn arm,
+  // 'hb', 'desktop', 'forced', 'na') and rev is exp_rev_<slot>'s value. Three
+  // events: 'exposure' once per load (here, after every arm is applied),
+  // 'engaged' once per session at 10 s of visible time (GA's engaged-session
+  // bar), 'cta' on the primaries (download, invite, the waitlist submit, a
+  // sign-in provider). vid (sb-vid) and sid (sb-sid, rotated after 30 min idle
+  // as GA does) are random ids, no PII. Automation and ?internal=1 loads are
+  // sent too, flagged wd/int, and land clean=0 rather than vanishing. No UI.
+  const sbBeacon = (() => {
+    const rid = () => {
+      const a = new Uint8Array(16);
+      crypto.getRandomValues(a);
+      return btoa(String.fromCharCode(...a)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    };
+    // localStorage blocked (private mode, storage disabled, quota): warn and fall
+    // back to null, which makes vid per-load and the session in-memory (`mem`)
+    // K62: the edge stamps data-sb-region; in a consent region (or an unknown
+    // one) no storage is written — vid is per load and the session in memory.
+    const REGION_DENY = (() => {
+      try {
+        const cc = document.documentElement.dataset.sbRegion;
+        if (cc === undefined) return false;
+        return cc === '' || ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'].indexOf(cc.toUpperCase()) >= 0;
+      } catch (err) { return false; }
+    })();
+    const ls = (k, v) => { try { if (REGION_DENY) return null; if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (err) { console.warn('[sb-exp]', err); } return null; };
+    const ID = /^[A-Za-z0-9_-]{8,40}$/;
+    let vid = ls('sb-vid');
+    if (!vid || !ID.test(vid)) { vid = rid(); ls('sb-vid', vid); }
+    const qs = new URLSearchParams(location.search);
+    const refHost = (() => { try { const h = new URL(document.referrer).hostname; return h && h !== location.hostname ? h : ''; } catch (e) { return ''; } })();
+    const IDLE = 30 * 60 * 1000;
+    let mem = null; // the session when localStorage is unavailable
+    // the session: { id, at, src, eng }; `at` is the last activity, `src` the
+    // source it started with (a new utm_source mid-session wins, as in GA)
+    const session = () => {
+      let s = mem;
+      try { s = JSON.parse(ls('sb-sid') || 'null') || mem; } catch (err) { console.warn('[sb-exp] sb-sid unreadable, starting a new session', err); }
+      const now = Date.now();
+      const utm = qs.get('utm_source') || '';
+      if (!s || typeof s !== 'object' || !ID.test(String(s.id)) || !(now - Number(s.at) < IDLE)) s = { id: rid(), at: now, src: utm || refHost || '(direct)', eng: 0 };
+      else if (utm) s.src = utm;
+      s.at = now;
+      mem = s;
+      ls('sb-sid', JSON.stringify(s));
+      return s;
+    };
+    let wd = 0;
+    try { wd = navigator.webdriver === true ? 1 : 0; } catch (err) { console.warn('[sb-exp] navigator.webdriver unreadable, sent as wd:0', err); }
+    const slot = (label, key) => {
+      const entry = sbExp[key];
+      const rev = entry && typeof entry === 'object' && typeof entry.arm === 'string' ? Number(entry.rev ?? 0) : 0;
+      return [String(label), Number.isInteger(rev) && rev >= 0 ? rev : 0];
+    };
+    const x = { hero: slot(heroArm, 'hero'), caption: slot(captionArm, 'caption'), subline: slot(sublineArm, 'subline') };
+    return (e) => {
+      const s = session();
+      if (e === 'engaged') {
+        if (s.eng) return;
+        s.eng = 1;
+        mem = s;
+        ls('sb-sid', JSON.stringify(s));
+      }
+      const body = JSON.stringify({ v: 1, e, vid, sid: s.id, dev: document.documentElement.dataset.device === 'mobile' ? 'mobile' : 'desktop', src: String(s.src).slice(0, 64), hb: sbExp.hb === true ? 1 : 0, wd, int: noDraw && !wd ? 1 : 0, x });
+      try {
+        if (!navigator.sendBeacon?.('/e/exp', body)) fetch('/e/exp', { method: 'POST', body, keepalive: true, credentials: 'omit' }).catch((err) => console.warn('[sb-exp] beacon fetch failed', err));
+      } catch (err) { console.warn('[sb-exp] beacon not sent', err); }
+    };
+  })();
+  sbBeacon('exposure');
+  // engaged: 10 s of visible time on this load, counted in 1 s ticks that
+  // skip while the tab is hidden; once per session (sb-sid's `eng`)
+  {
+    let seen = 0;
+    const tick = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      if (++seen >= 10) { clearInterval(tick); sbBeacon('engaged'); }
+    }, 1000);
+  }
+  // cta: the primaries, delegated so the waitlist mounts and cloned CTAs
+  // (features_end) are covered wherever they land; at most 5 per load
+  {
+    let ctaLeft = 5;
+    const cta = () => { if (ctaLeft-- > 0) sbBeacon('cta'); };
+    document.addEventListener('click', (ev) => {
+      const t = ev.target instanceof Element ? ev.target.closest('[data-dl-cta], .dl-chip, [data-wl-providers] a, a[href^="/invite"], a[href^="/download"]') : null;
+      if (t) cta();
+    }, true);
+    document.addEventListener('submit', (ev) => {
+      if (ev.target instanceof HTMLFormElement && ev.target.matches('[data-wl-email]')) cta();
+    }, true);
+  }
+  // a rotator arm (caption.rotate, 2026-09-27): every line is stacked in one
+  // grid cell (the .cap-rot style block at the head), the first one shown at
+  // once, and each word carries its stagger index. The next swap is armed a
+  // --cap-dwell after a line lands, only while the h1 is on screen and the tab
+  // is visible; scrolling away or hiding the tab pauses it, and coming back
+  // starts a fresh dwell. The visible stack is aria-hidden: the h1's
+  // accessible name stays the first line.
+  function rotateCaption(el, lines) {
+    const text = (html) => html.replaceAll('<br/>', ' ');
+    const words = (html) => {
+      let i = 0;
+      return html.split('<br/>').map((row) => row.split(' ').map((w) => `<span class="cap-w" style="--i:${i++}">${w}</span>`).join(' ')).join('<br/>');
+    };
+    el.innerHTML = `<span class="sb-visually-hidden">${text(lines[0])}</span><span class="cap-rot" aria-hidden="true">${lines.map((l, k) => `<span class="cap-line${k ? '' : ' is-on'}">${words(l)}</span>`).join('')}</span>`;
+    const stack = el.querySelector('.cap-rot');
+    const slots = [...stack.children];
+    const dwell = parseFloat(getComputedStyle(stack).getPropertyValue('--cap-dwell'));
+    let at = 0, timer = 0, inView = false, landing = false;
+    const arm = () => {
+      clearTimeout(timer);
+      timer = inView && !document.hidden && !landing ? setTimeout(swap, dwell) : 0;
+    };
+    function swap() {
+      const out = slots[at];
+      at = (at + 1) % slots.length;
+      const next = slots[at];
+      out.className = 'cap-line is-out';
+      next.className = 'cap-line is-in';
+      landing = true;
+      next.lastElementChild.addEventListener('animationend', () => { landing = false; arm(); }, { once: true });
+    }
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; arm(); }).observe(el);
+    document.addEventListener('visibilitychange', arm);
+  }
+  // the sequenced caption arms' code (caption-seq.js, the module, and
+  // caption-seq.css, its stylesheet): both requested at once, resolved with the
+  // module once the sheet has applied, so the first caption never paints
+  // unstyled. Called only for a drawn arm with an fx.
+  function loadCaptionSeq() {
+    const sheet = new Promise((ok, no) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'site/assets/caption-seq.css?v=1';
+      link.onload = ok;
+      link.onerror = () => no(new Error('caption-seq.css'));
+      document.head.append(link);
+    });
+    return Promise.all([import('site/assets/caption-seq.js?v=1'), sheet]).then(([seq]) => seq);
+  }
+  const installOpen = !access || access === 'granted';
 
-- [API index](https://superbot.gg/docs/llms.txt): every public operation, each linked to its reference as markdown, with the headers, scopes and status codes
-- [OpenAPI 3.1](https://superbot.gg/docs/openapi.json): the canonical machine description of every public operation, with its scopes, parameters and error shapes
-- [API catalog](https://superbot.gg/.well-known/api-catalog): the RFC 9727 linkset naming the OpenAPI 3.1 and 3.2 documents and the developer docs
-- [Developer overview](https://superbot.gg/developers.md): the base URL, keys and scopes, rate limits and the error codes
+  if (installOpen) mountInstallSnippet(document.getElementById('oneliner'), { helper: true }); // the Helper/CLI lines; the hero above owns the download, the divider the label
 
-Base URL: `https://superbot.gg/v1` for OpenAI- and Anthropic-compatible clients alike. The dialect is read from each request, and answers come back in the caller's dialect.
+  // an anonymous visitor joins the beta where they stand (2026-09-25; the
+  // account is made right here since 2026-09-27, waitlist-form.js): each
+  // primary the edge turned into "Get early access" becomes the inline
+  // sign-up instead, and the download band's chips, which only pointed at
+  // that same page, step aside. A signed-in
+  // visitor without a grant keeps "Enter invite code": they need a code, not
+  // the list. The code link is waitlist-form.js's and signup-bar.js's default
+  // inviteHref, the one the nav pill would take; it is not spelled here, so a
+  // granted viewer's markup carries no invite step.
+  const waitlistAt = (anchor, placement) => {
+    if (!anchor) return;
+    const slot = document.createElement('div');
+    anchor.replaceWith(slot);
+    mountWaitlist(slot, { placement });
+    return slot;
+  };
+  if (access === 'anon') {
+    const heroSlot = waitlistAt(document.querySelector('.hero-cta [data-dl-cta]'), 'hero');
+    waitlistAt(document.querySelector('.dl-hero [data-dl-cta]'), 'download_band');
+    document.getElementById('dl-alts')?.setAttribute('hidden', '');
+    // the phone's sign-in CTA (signup-bar.js, signin-sheet.css): its sheet
+    // is a fourth mount, 'sticky', on the same shared state; the CTA is up
+    // once the hero's form has scrolled away and no other form is in view
+    if (heroSlot) mountSignupBar({ placement: 'sticky', anchor: heroSlot });
+    // every signed-out CTA on the site points here (edge site-nav
+    // betaInviteHref: /?cta_id=<id>#join; #join is the hero's form row): a
+    // landing on it, or a tap on one on this page, brings the hero's form
+    // into view and puts the reader in its field, with no reload
+    const toJoin = () => {
+      if (!heroSlot) return;
+      heroSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      heroSlot.querySelector('.wl-row:not([hidden]) .wl-in')?.focus({ preventScroll: true });
+    };
+    if (location.hash === '#join') requestAnimationFrame(toJoin);
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest?.('a[href]');
+      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const u = new URL(a.href, location.href);
+      if (u.origin !== location.origin || u.pathname !== '/' || u.hash !== '#join') return;
+      e.preventDefault();
+      toJoin();
+    });
+  }
 
-Auth: caller keys start `sbc_` and go in `Authorization: Bearer sbc_…` (or `x-api-key: sbc_…`); they are minted and revoked from the account API page.
+  // the visitor's platform, computed once: the terminal one-liner below, the
+  // CTA and the chips all key off it. os-detect.js owns the sniff; this page
+  // reads only detectPlatform and osMark from it. The edge already wrote the
+  // primaries' label, href and data-os from the request (lander-platform.ts,
+  // card #60): a platform is named only when its installer ships, anything
+  // else keeps the neutral "Download the desktop app" and /download. This
+  // script refines that: the mac arch probe and the OS mark. No store badge,
+  // no store mark (there is no App Store or Play listing yet).
+  const P = detectPlatform(); // { os, mobile, label }
+  const DESKTOP = { mac: 'macOS', windows: 'Windows', linux: 'Linux' };
+  const onDesktop = P.os in DESKTOP;
+  // the page's two primaries (the hero's, in the first viewport, and the
+  // download hero's): one resolved action, written to every anchor that
+  // carries data-dl-cta.
+  const ctas = [...document.querySelectorAll('[data-dl-cta]')];
+  const setCtas = (label, mark, href) => {
+    for (const a of ctas) {
+      if (href) a.href = href;
+      const lab = a.querySelector('.dl-cta-label'), mk = a.querySelector('.sb-os-mark');
+      if (lab) lab.textContent = label;
+      if (mk) mk.innerHTML = mark;
+    }
+  };
 
-## MCP server
+  // the download hero's primary: the visitor's own platform, when it has a build.
+  const notes = [...document.querySelectorAll('[data-dl-note]')];
+  const say = (text, where = notes) => { for (const n of where) { n.textContent = text; n.hidden = false; } };
+  if (!installOpen) {
+    // served as the invite step: no platform label, mark or asset href
+  } else if (P.os === 'mac') {
+    const chip = document.querySelector('#dl-alts .dl-chip[data-os="mac"]');
+    let href = (chip && chip.href) || '/download';
+    // the dmg is arch-pinned to apple silicon; when the live probe says
+    // intel, send the reader to the chooser instead of a wrong download
+    const { arch } = await detectArchEvidence('mac');
+    if (arch === 'x64') href = '/download';
+    for (const a of ctas) a.dataset.os = 'mac';
+    setCtas('Download for macOS', osMark('mac'), href);
+  } else if (onDesktop) {
+    // windows or linux: the edge named the platform only when its installer
+    // ships (data-os on the anchor), and linked it; add the mark. Otherwise
+    // the neutral label and /download stand, which lists every installer.
+    // No availability line (product, 2026-09-24).
+    if (ctas.some((a) => a.dataset.os === P.os)) {
+      for (const a of ctas) { const mk = a.querySelector('.sb-os-mark'); if (mk) mk.innerHTML = osMark(P.os); }
+    } else {
+      setCtas('Download the desktop app', '', '/download');
+    }
+  } else if (P.mobile) {
+    setCtas('Download the desktop app', '', '/download');
+    // the desktop chips stay, recaptioned: on a phone they are the paths for
+    // the computer, not "other platforms"
+    const alts = document.getElementById('dl-alts');
+    alts.setAttribute('aria-label', 'install on your computer');
+    alts.insertAdjacentHTML('beforebegin', '<p class="alt-cap">on your computer</p>');
+  } else {
+    setCtas('Download the desktop app', '', '/download');
+  }
+  consoleEgg({ lines: ['still here. still fixing things.'] });
 
-The MCP server is one of the ways an agent connects to superbot; the app and the Helper do not need it.
+  // keep scrolling, keep reading (2026-09-25): /features follows the download
+  // band (#more above); the GA client's section_view reports #more and each
+  // feature as a reader reaches it (ga4.d4d15ea9.js, "where readers stop").
+  // The continuation itself:
+  // band (#more above). Fetched once the page is idle, or as soon as the
+  // reader heads for the foot, so the content is in place before they arrive.
+  // /features stays the one source: its markup, its sheets, its head <style>
+  // and its behaviour (features-page.js, scoped to #more) all come from it.
+  const loadMore = async () => {
+    if (!more || more.dataset.state) return;
+    more.dataset.state = 'loading';
+    try {
+      const res = await fetch('/features', { credentials: 'same-origin', headers: { accept: 'text/html' } });
+      if (!res.ok) throw new Error(`/features answered ${res.status}`);
+      const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      const main = doc.querySelector('main.features');
+      if (!main) throw new Error('/features carries no main.features');
+      // its sheets and page-local style land before its markup, so nothing
+      // paints unstyled
+      const have = new Set([...document.querySelectorAll('link[rel="stylesheet"]')].map((l) => l.getAttribute('href')));
+      const sheets = [...doc.head.querySelectorAll('link[rel="stylesheet"]')]
+        .filter((l) => !have.has(l.getAttribute('href')))
+        .map((l) => new Promise((ok, fail) => {
+          const n = document.createElement('link');
+          n.rel = 'stylesheet';
+          n.href = l.getAttribute('href');
+          n.onload = ok;
+          n.onerror = () => fail(new Error(`${n.href} did not load`));
+          document.head.append(n);
+        }));
+      for (const s of doc.head.querySelectorAll('style')) {
+        const n = document.createElement('style');
+        n.textContent = s.textContent;
+        document.head.append(n);
+      }
+      await Promise.all(sheets);
+      // on this page it is a section, not a page: no breadcrumb, and its
+      // headline sits under this page's h1
+      main.querySelector('.crumb')?.remove();
+      main.querySelector('h1')?.setAttribute('aria-level', '2');
+      // its closing "Install now" pointed back up here: this page ends on the
+      // same action its download band carries instead
+      const foot = main.querySelector('.foot');
+      if (foot) {
+        foot.replaceChildren();
+        if (access === 'anon') {
+          const slot = document.createElement('div');
+          foot.append(slot);
+          mountWaitlist(slot, { placement: 'features_end' });
+        } else {
+          const cta = document.querySelector('.dl-hero [data-dl-cta]')?.cloneNode(true);
+          if (cta) { cta.removeAttribute('id'); foot.append(cta); }
+        }
+      }
+      more.className = main.className;
+      more.replaceChildren(...main.childNodes);
+      more.removeAttribute('aria-busy');
+      more.dataset.state = 'ready';
+      const { initFeatures } = await import('site/assets/features-page.js?v=8');
+      initFeatures(more);
+    } catch (e) {
+      more.dataset.state = 'failed';
+      more.removeAttribute('aria-busy');
+      console.error('the /features continuation did not load', e);
+    }
+  };
+  if (more) {
+    const idle = window.requestIdleCallback ?? ((f) => setTimeout(f, 1200));
+    if (document.readyState === 'complete') idle(loadMore);
+    else addEventListener('load', () => idle(loadMore), { once: true });
+    if ('IntersectionObserver' in window) {
+      const near = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { near.disconnect(); loadMore(); }
+      }, { rootMargin: '0px 0px 150% 0px' });
+      near.observe(more);
+    }
+  }
 
-- [MCP endpoint](https://superbot.gg/mcp): Streamable HTTP, POST JSON-RPC; on a host with a sign-in wall an anonymous call is refused with an OAuth challenge (see Accounts)
-- [Server card](https://superbot.gg/.well-known/mcp/server-card.json): name, endpoint, transport and the live tool list as JSON; behind the same sign-in wall as the endpoint on a host that has one
-- [Catalog match without a client](https://superbot.gg/advise?intent=example): `GET /advise?intent=<text>` returns the adapter match as markdown
+  // cross-page landing on #get-superbot: the inline script in <head> already
+  // snapped back to the top before paint, so show the scroll for real. Two
+  // rAFs let this section's layout settle first.
+  if (location.hash === '#get-superbot') {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.getElementById('get-superbot')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+  }
 
-The tool list is fixed at one tool, `superbot`, for every connection. It takes a request as plain text (`intent`), or a task description (`use_case`) to search the catalog, and either runs a matching adapter from the server catalog (not arbitrary code) or answers through the backend LLM. A JSON-RPC `tools/list` against the endpoint returns the live schema once the call is admitted.
+  // (the "one MCP for your coding apps" works-anywhere line that used to tuck
+  // into the widget's fold left with the MCP paste row, 2026-09-23: the MCP
+  // server is one surface, never the headline)
 
-What a call sends: the `intent` or `use_case` text of that call, logged with request metadata so that tasks with no matching adapter are recorded. Nothing is read from the machine except what a tool call passes as an argument. The server holds no credentials for a user unless that user signs in (OAuth, or the `account` adapter's device login).
+  // the client rail (nav.dock): a static row of marks under the stage. It runs
+  // in .live mode (marks only, a name opens on hover).
+  const dockEl = document.getElementById('dock');
+  const items = [...dockEl.querySelectorAll('a')];
+  // a hovered name near the rail's right end opens past its edge and under the
+  // fade; once the track has opened, nudge the rail so the whole pill shows
+  // (only the rail scrolls, for the same reason as above).
+  items.forEach((a) => a.addEventListener('transitionend', (e) => {
+    if (e.propertyName !== 'grid-template-columns' || !a.matches(':hover, :focus-visible')) return;
+    const over = Math.ceil(a.getBoundingClientRect().right + 18 - dockEl.getBoundingClientRect().right);
+    if (over > 0) dockEl.scrollBy({ left: over, behavior: 'smooth' });
+  }));
 
-Accounts: on beta.superbot.gg and superbot.gg `/mcp` is not keyless: the host you called answers an anonymous call with 401 `{"error":"unauthorized"}` and a `WWW-Authenticate: Bearer resource_metadata="..."` header naming its own `/.well-known/oauth-protected-resource`, whose `resource` is the `/mcp` URL you dialed. A standards MCP client follows that challenge into OAuth: the same host serves the authorization server document at `/.well-known/oauth-authorization-server` (authorization code with PKCE S256 and dynamic client registration at `/oauth/register`, or the RFC 8628 device login at `/oauth/device/code`). A client with no browser sign-in (Continue over streamable-http, a headless setup) uses a key a signed-in person copies at `https://superbot.gg/download#mcp` ("No browser sign-in? Copy a key."): a connector token for `/mcp` and the `superbot` tool only, good for 90 days, revocable in `/account/devices`, sent as `Authorization: Bearer <key>`. A signed-in account that holds no beta grant is refused 403 `no_beta_grant`. An origin with no sign-in wall (a self-hosted or overlay origin) leaves `tools/list` open to an anonymous caller. The `account` adapter runs an RFC 8628 device login and returns a `verification_uri_complete` for the user to open once. A host that refuses to navigate account links can fetch `GET /answer?intent=...` with `Authorization: Bearer sbk_…`: free adapters only, answered as markdown. `/answer` and `/answer/stream` are not keyless on a public origin that is closed to beta accounts: a call that carries no account token answers 401 `{"error":"unauthorized"}` with `WWW-Authenticate: Bearer`.
+  dockEl.classList.add('live');
 
-To add it in Claude Code, run this in a terminal:
+  // the phone marquee's second lap (the style block at the head): the same
+  // marks again, hidden from assistive tech and the tab order, rendered only
+  // at phone widths
+  const wall = dockEl.querySelector('.wall-list');
+  for (const li of [...(wall?.children ?? [])]) {
+    const dup = li.cloneNode(true);
+    dup.classList.add('is-dup');
+    dup.setAttribute('aria-hidden', 'true');
+    dup.querySelector('a')?.setAttribute('tabindex', '-1');
+    wall.append(dup);
+  }
 
-```
-claude mcp add --transport http superbot https://superbot.gg/mcp -s user
-```
-
-The lines a person gives a coding agent to install the server and the `/superbot` skill:
-
-```
-install the superbot MCP server globally: https://superbot.gg/mcp
-install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md
-```
-
-`claude mcp add` defaults to `local` scope, which ties the server to one directory. `-s user` (long form `--scope user`) makes it available in every project, and the word "globally" in the first line is what gets an agent to pass that flag. A client picks up the change when it restarts. Sharing only the bare origin is a request to read the site, not to install anything.
-
-The skill is an Agent Skills file (the agentskills.io format: YAML frontmatter, then markdown) served keyless at `https://superbot.gg/skills/superbot/SKILL.md`, `GET` or `HEAD`, `text/markdown`. It describes the one `superbot` tool: `use_case` searches the catalog, `slug` returns one adapter's inputs, `intent` runs a request. It also says what to tell the user when the tool is not connected. An installed copy adds the `/superbot <request>` command in Claude Code and Cursor; Codex lists it as `$superbot`. The MCP server install above does not add that command by itself.
-
-Per-client setup, one static page each:
-
-- [Claude Code](https://superbot.gg/install/claude.md): `claude mcp add --transport http superbot https://superbot.gg/mcp -s user`; also the Remote Omni recipe for a device with no agent engine (model `superbot-omni`, a caller key)
-- [Cursor](https://superbot.gg/install/cursor.md): `url` entry in `~/.cursor/mcp.json` (user-level)
-- [VS Code / Copilot](https://superbot.gg/install/vscode.md): `servers` + `"type":"http"`, in the user-profile `mcp.json`
-- [Claude.ai](https://superbot.gg/install/claude-ai.md): Settings → Connectors → custom connector; leave Authentication as Claude detects it (OAuth), since this origin publishes OAuth metadata and the connector registers itself
-- [Claude Desktop](https://superbot.gg/install/claude-desktop.md): Connectors, or `mcp-remote` in `claude_desktop_config.json`
-- [ChatGPT](https://superbot.gg/install/chatgpt.md): desktop app/Work → `[mcp_servers.superbot]` in `~/.codex/config.toml`; web Connectors where allowed, else `/advise`
-- [Gemini CLI](https://superbot.gg/install/gemini.md): `gemini mcp add … -s user`, or `mcpServers.httpUrl` in `~/.gemini/settings.json`; this CLI defaults to `project` scope
-- [Windsurf](https://superbot.gg/install/windsurf.md): `mcp_config.json` `serverUrl`
-- [Cline](https://superbot.gg/install/cline.md): `mcpServers` + `"type":"streamableHttp"`
-- [Continue](https://superbot.gg/install/continue.md): `mcpServers` in `~/.continue/config.yaml` (global); `.continue/mcpServers/*.yaml` is workspace-only. Over streamable-http it has no browser sign-in, so it sends a key a signed-in person copies at `https://superbot.gg/download#mcp` ("No browser sign-in? Copy a key."): a connector token for `/mcp` and the `superbot` tool only, 90 days, revocable in `/account/devices`, sent as `Authorization: Bearer <key>`
-- [Codex CLI](https://superbot.gg/install/codex.md): `[mcp_servers.superbot]` in `~/.codex/config.toml`
-- [Zed](https://superbot.gg/install/zed.md): `context_servers` in `~/.config/zed/settings.json`
-- [No MCP client](https://superbot.gg/install/advise.md): `GET /advise?intent=...`
-- [stdio](https://superbot.gg/install/stdio.md): the `mcp-remote` bridge (`npx -y mcp-remote https://superbot.gg/mcp`), same one tool
-- [Use superbot from other clients](https://superbot.gg/clients.md): the one base URL, the caller key and the model ids per client
-
-Removing it: one client at a time, `claude mcp remove superbot`, or delete the `superbot` entry from that client's config file. A manual client install adds nothing outside that entry. Pairing lives on the server: removing the local entry does not revoke a paired account; [the account page](https://superbot.gg/account) does.
-
-## Optional
-
-- [Enterprise](https://superbot.gg/enterprise.md): organizations, policy and agent grants in depth, with what each harness gets
-- [Gateway routes as text](https://superbot.gg/docs/llms.txt): the API section above in one plain-text file
-- [Sitemap](https://superbot.gg/sitemap.xml): every public HTML page, for crawlers
+  // the hero animation, picked with `?hero=<name>` (2026-09-09, variants under
+  // review): `boot` is the 32s boot-sequence story hub-boot.js self-boots in
+  // #stage (its own clock, offscreen pause, reduced-motion still, replay
+  // button); `chaos` is variant A (hero-chaos.js: skill chips and app tiles
+  // bounce like a screensaver, superbot slams in, pulls them into lists, then
+  // hands the stage to the real app). The chaos variant mounts INSIDE #stage
+  // and hands off through the shared hub-handoff.js (prepStage, the hub
+  // reveal, the inner fades, the rebased phone beat, the perched hold); its
+  // stylesheet is linked in <head> beside hub-boot.css. The old `xdxd`
+  // variant drew the retired bloom sphere and was deleted (2026-09-23), so
+  // `?hero=xdxd` now falls back like any other unknown name. No parameter, or
+  // an unknown name, plays HERO_DEFAULT: `workspace` since 2026-09-25 (the
+  // owner picked it after the beta preview). `chaos`, the default from
+  // 2026-09-09 (`sphere` held it for a few hours on 2026-09-24), `boot`,
+  // `sphere` and `realui` stay one parameter away.
+  // `sphere` (2026-09-24, hero-sphere.js + .css) ports the opening of the ad
+  // gallery's "I can do that too" spot (scenes/tabs.js) up to the frontend
+  // reveal: the app tiles lift onto a Fibonacci sphere spinning up to 21
+  // rad/s, collapse into the superbot tile, which shrinks onto the HUD's mark
+  // as the wordmark and discs drop in, and the hub reveals, then hub-handoff.js plays.
+  // `realui` (2026-09-24, hero-realui.js + .css) is the ad gallery's "I can
+  // do that too" spot cut from real UI without its bait: your apps flash by,
+  // collapse into the superbot tile and the stage's own HUD, then one
+  // superbot thread takes ask after ask (Claude answers, superbot answers, a
+  // swarm's real usage panel lands), and it ends on the same hub-handoff.js
+  // handoff.
+  // `workspace` (2026-09-25, hero-workspace.js + .css, the default) plays the ad's tab-strip act in front of `sphere` (imported hosted
+  // at the same ?v=5 URL as below), swaps in the ad's HUD discs at mount, and cuts to
+  // the "Your all in one agent workspace" card once the frontend is up.
+  // `wschat` (2026-09-28, hero-wschat*.js + .css, experiments.js hero rev 9) is
+  // the rebuilt workspace hero from singularitystudiosdev/superbot-hero-animation:
+  // the "All the agents in one" card lifts onto the app's new chat, one chat
+  // plays (hero-wschat-chat.js), and it ends on hero-wschat-end.js's card. Its
+  // sheets (HERO_SHEETS) restyle .hero-sphere and .stage too, so they are
+  // linked only when it plays, and hero-workspace.css is switched off once
+  // they have loaded, which is the fork's own page: its sheets in place of ours.
+  const HERO_DEFAULT = EXPERIMENTS.hero?.incumbent ?? 'workspace'; // the loop's incumbent (experiments.js)
+  const HEROES = {
+    boot: 'site/assets/hub-boot.js?v=48',
+    chaos: 'site/assets/hero-chaos.js?v=14',
+    sphere: 'site/assets/hero-sphere.js?v=7',
+    realui: 'site/assets/hero-realui.js?v=7',
+    workspace: 'site/assets/hero-workspace.js?v=17',
+    wschat: 'site/assets/hero-wschat.js?v=24',
+    // wstop (2026-10-01, experiments.js hero rev 12): the live stage on top. A
+    // thin placement around the wschat module (hero-wstop.js imports it at the
+    // same ?v=), so it adds the wschat sheets plus its own layout sheet
+    wstop: 'site/assets/hero-wstop.js?v=15',
+  };
+  const HERO_SHEETS = {
+    wschat: { add: ['site/assets/hero-wschat.css?v=13', 'site/assets/hero-wschat-chat.css?v=7', 'site/assets/hero-wschat-end.css?v=2'], off: 'site/assets/hero-workspace.css' },
+    wstop: { add: ['site/assets/hero-wschat.css?v=13', 'site/assets/hero-wschat-chat.css?v=7', 'site/assets/hero-wschat-end.css?v=2', 'site/assets/hero-wstop.css?v=2'], off: 'site/assets/hero-workspace.css' },
+  };
+  const heroName = new URLSearchParams(location.search).get('hero');
+  const stageEl = document.getElementById('stage');
+  const failEl = document.querySelector('#stage [data-hero-fallback]');
+  // hero_failed (2026-09-27) names the module that was actually played (the
+  // arm drawn, or the ?hero= one when forced; the same pick as playHero), and
+  // splits a failed fetch from a module that threw while evaluating: err_name
+  // is the error's class (TypeError for a fetch, anything for an eval) and
+  // err_msg its message, 100 characters at most, every URL in it cut to its
+  // path (no host, no query), as js_error scrubs its source.
+  const heroPlayed = heroName in HEROES ? heroName : heroShown in HEROES ? heroShown : HERO_DEFAULT;
+  // the wstop layout is the wstop arm's alone: the pre-paint script's guess
+  // (a sticky arm) that this visit does not confirm (a signed-in visitor, a
+  // retired arm, ?hero=none) is undone, with the same transform-only swap
+  if (document.documentElement.dataset.heroArm && (heroNone || heroPlayed !== 'wstop')) {
+    import('site/assets/hero-wstop-layout.js?v=1').then((m) => m.applyLayout(false)).catch((e) => console.error('wstop layout', e));
+  } else if (!document.documentElement.dataset.heroArm && !heroNone && heroPlayed === 'wstop' && matchMedia('not all and (orientation: landscape) and (max-height: 500px)').matches) {
+    // a fresh wstop draw: the arm is known only now, after the first paint, so its
+    // poster's fetch starts here, a sheets' round trip ahead of the module that swaps,
+    // and so do the module and its layout import (hero-wstop.js statically imports
+    // hero-wstop-layout.js): fetched one after the other they were two more round trips
+    // on the swap's way (Slow 4G: the poster painted at 4.2 s, 3.4 s with these), in the
+    // module map beside the sheets they are not
+    const pre = document.createElement('link');
+    pre.rel = 'preload'; pre.as = 'image'; pre.href = window.sbWsPoster(); pre.fetchPriority = 'high';
+    document.head.append(pre);
+    for (const href of [HEROES.wstop, 'site/assets/hero-wstop-layout.js?v=1']) {
+      const mp = document.createElement('link');
+      mp.rel = 'modulepreload'; mp.href = href;
+      document.head.append(mp);
+    }
+  }
+  const scrubMsg = (m) => String(m).replace(/\bhttps?:\/\/[^\s"'<>()]+/g, (u) => { try { return new URL(u).pathname; } catch { return '(url)'; } }).slice(0, 100);
+  const heroFail = (e) => {
+    console.error('the hero module did not load', e);
+    window.sbTrack?.('hero_failed', { hero: heroPlayed, err_name: String(e?.name ?? typeof e).slice(0, 40), err_msg: scrubMsg(e?.message ?? e) });
+    if (stageEl) stageEl.classList.add('hero-failed');
+    if (failEl) failEl.hidden = false;
+  };
+  // the played hero's own sheets (HERO_SHEETS), loaded before its module so
+  // it never mounts unstyled; a failed sheet is a hero_failed like a failed
+  // module, and the retry links the sheets again.
+  const loadSheet = (href) => new Promise((resolve, reject) => {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = href;
+    l.onload = resolve;
+    l.onerror = () => reject(new Error(`stylesheet failed: ${href}`));
+    document.head.append(l);
+  });
+  const heroSheets = () => {
+    const s = HERO_SHEETS[heroPlayed];
+    if (!s) return Promise.resolve();
+    return Promise.all(s.add.map(loadSheet)).then(() => {
+      for (const l of document.querySelectorAll(`link[rel="stylesheet"][href^="${s.off}"]`)) l.disabled = true;
+    });
+  };
+  // a failed module fetch is memoised by the module map, so re-importing the
+  // same specifier rejects at once: the retry busts the URL instead.
+  const playHero = (attempt = 0) => {
+    const src = HEROES[heroName] ?? HEROES[heroShown] ?? HEROES[HERO_DEFAULT];
+    const bust = attempt ? `${src}${src.includes('?') ? '&' : '?'}retry=${attempt}` : src;
+    Promise.all([window.sbStageCss, heroSheets()]).then(() => import(bust)).catch(heroFail); // the stage's deferred sheets (head) are in before any hero module mounts, as when they blocked the first paint
+  };
+  failEl?.querySelector('button')?.addEventListener('click', () => {
+    failEl.hidden = true;
+    if (stageEl) stageEl.classList.remove('hero-failed');
+    playHero(1);
+  });
+  if (!heroNone) playHero();
+</script>
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body>
+</html>

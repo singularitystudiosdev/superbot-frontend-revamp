@@ -1,86 +1,1234 @@
----
-title: "download"
-canonical_url: "https://superbot.gg/download"
-last_updated: "2026-10-08"
-summary: "download superbot for macOS and Windows, join the iPhone and Android test builds, and manage every AI agent you already pay for from one place."
----
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#000000"/>
+<link rel="apple-touch-icon" href="site/assets/apple-touch-icon.png"/>
+<link rel="manifest" href="site/assets/site.webmanifest"/>
+<title>download – superbot.gg</title>
+<link rel="icon" href="favicon.ico" sizes="32x32"/>
+<link rel="icon" href="site/assets/favicon.svg" type="image/svg+xml"/>
+<meta name="keywords" content="download superbot, superbot macOS app, superbot Windows app, superbot iPhone, superbot Android, agent manager"/>
+<script type="module" src="site/assets/console-hi.js"></script>
+<link rel="stylesheet" href="site/assets/site.css?v=22"/>
+<link rel="stylesheet" href="site/assets/hero.css?v=55"/>
+<meta name="description" content="download superbot for macOS and Windows, join the iPhone and Android test builds, and manage every AI agent you already pay for from one place."/>
+<!-- link-preview card, hand-written. The /download route (edge/src/app.ts,
+     app.get('/download')) substitutes the nav include and the origin token
+     (og:url, og:image, canonical), then renderDownloadPage fills the release
+     tokens between the release-links:auto markers. -->
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="download – superbot.gg"/>
+<meta property="og:description" content="download superbot for macOS and Windows, join the iPhone and Android test builds, and manage every AI agent you already pay for from one place."/>
+<meta property="og:url" content="https://superbot.gg/download"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:image" content="https://superbot.gg/site/assets/og/download.png?v=2"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="superbot.gg download card: superbot for your computer and your phone."/>
+<meta property="og:image:type" content="image/png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@superbot_gg"/>
+<meta name="twitter:title" content="download – superbot.gg"/>
+<meta name="twitter:description" content="download superbot for macOS and Windows, join the iPhone and Android test builds, and manage every AI agent you already pay for from one place."/>
+<meta name="twitter:image" content="https://superbot.gg/site/assets/og/download.png?v=2"/>
+<meta name="twitter:image:alt" content="superbot.gg download card: superbot for your computer and your phone."/>
+<link rel="canonical" href="download.html"/>
+<style>
+  /* the download page, centred (mockup download-page-centred-20261005-1325):
+     under the heading, three route tiles (the app, your own harness, an API),
+     one card for the picked route (the app card ends in the terminal install
+     block). Each card
+     holds ONE bold control, the visitor's primary on the storm action
+     (site.css .sb-btn, sized up here), a quiet "Other platforms" chip under
+     it, and the chip's menu: every other installer row. Page-local rules only
+     (hero.css's .dl-hero, .dl-primary and .dl-cta are the lander's Get
+     Superbot recipe, linked above). Every value is a site.css token; the two
+     radii are --r-surface (tiles, cards, the menu) and
+     --r-control (buttons, the chip, menu rows, command boxes); --r-md, its
+     legacy 8px alias, is the chat-note's, as it was. */
+  .dl-hero { min-height: auto; border-top: none; padding-top: var(--sp-10); }
+  .dl-hero h1 { font-size: var(--fs-h1); line-height: 1.1; letter-spacing: var(--tracking-tight); max-width: 16ch; }
 
-> Markdown twin of https://superbot.gg/download (the HTML page is canonical).
-> The site index for agents is /llms.txt; every content page has a twin at its path plus `.md`.
+  /* the visitor's platform primary: built by the page script from a
+     matching installer row (detectPlatform needs the client), so a no-JS
+     visit renders no app primary at all and the menu, open, lists every
+     installer instead. */
+  .dl-primary { display: grid; justify-items: center; gap: var(--sp-2); width: 100%; margin-top: 0; }
+  .dl-primary[hidden] { display: none; }
+  /* the one bold thing: taller and larger than the lander's CTA (hero.css
+     .dl-cta, 52px and 18px), about half the card's width, centred; a phone
+     gets it full width at the body size, so the longest label ("Download
+     beta for Windows") stays on one line at 320 */
+  .dl-hero .dl-cta { min-height: var(--sp-16); padding: 0 var(--sp-4); gap: var(--sp-3); font-size: var(--fs-xl); width: calc(var(--content) / 2); max-width: 100%; }
+  /* the label over the exact file it downloads: the file name is the small
+     subtext line, same ink at caption size and regular weight, never wrapped */
+  .dl-cta-text { display: grid; justify-items: start; text-align: left; min-width: 0; }
+  .dl-cta-file { font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 400; white-space: nowrap; }
 
-# download superbot
+  .note { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--muted); }
+  .note a { color: var(--accent); min-height: max(24px, var(--target-sm)); display: inline-flex; align-items: center; }
+  /* the /chat redirect landing (?from=chat): the one card left on the page,
+     the why-am-here sentence the edge's redirect cannot carry (Q-27) */
+  .chat-note {
+    width: 100%; text-align: left;
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: var(--r-md); background: var(--card); color: var(--fg);
+    font-size: var(--fs-sm); line-height: var(--lh-sm);
+    padding: var(--sp-3) var(--sp-4);
+  }
 
-[ I want the app ](https://superbot.gg/download#route-app) [ I use my harness ](https://superbot.gg/download#helper) [ I only call an API ](https://superbot.gg/download#api) [ I use MCP ](https://superbot.gg/download#mcp)
+  /* installer rows (the menus' and the developer disclosure's) are one quiet
+     row list: no card, no shadow. The Download word at a row's end is the
+     row's own affordance in the developer list; the menus hide it. */
+  .dl-hero .group { width: 100%; text-align: left; }
+  .dl-hero .group h2 { font-size: var(--fs-sm); font-weight: 600; color: var(--secondary); margin-bottom: var(--sp-1); }
+  .dl-hero .group ul { list-style: none; margin: 0; padding: 0; }
+  .dl {
+    display: flex; align-items: center; gap: var(--sp-3);
+    min-height: var(--target); padding: var(--sp-2);
+    text-decoration: none; color: var(--fg);
+    border-bottom: 1px solid var(--line);
+    transition: background-color var(--dur-2) var(--ease-std);
+  }
+  .dl-hero .group li:last-child .dl { border-bottom: none; }
+  .dl:hover, .dl:focus-visible { background: var(--raised); border-radius: var(--r-control); }
+  /* one line per installer row: the label, then its size, muted, on the
+     same baseline. Only the developer rows (renderHelperRows' detail rows)
+     print a file name and a hash, and each of those takes a line of its own */
+  .dl-text { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-2); row-gap: var(--sp-1); min-width: 0; flex: 1; }
+  .main { font-weight: 400; }
+  .asset, .sha { flex-basis: 100%; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); overflow-wrap: anywhere; }
+  /* site.css's code,kbd step (0.94em) renders a 12px .sha's <code> at 11.3px,
+     under the iOS 12px floor (measured 2026-09-17: two such nodes, the
+     helper.js and protocol-tarball sha lines). The chip keeps its own 12px. */
+  .sha code { font-family: var(--font-mono); color: var(--muted); font-size: 1em; }
+  /* the hash is one token, never a bordered chip: site.css's li code pill
+     wrapped a 64-char hash into two boxed lines at 390 (2026-09-27 deploy5),
+     so the pill comes off and the mono hash flows after its label, breaking
+     at any character, as one muted run */
+  .sha code { background: none; border: 0; border-radius: 0; padding: 0; word-break: break-all; }
+  /* the release meta line: each clause (build, commit, built) is one
+     nowrap span, so a narrow screen wraps between clauses, never inside the
+     timestamp (desktop-release.ts metaLine) */
+  #release-meta .clause { white-space: nowrap; }
+  /* the real download size, beside the label, when the release publishes one */
+  .size { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* the row's Download control (Perplexity's row anatomy): the site's quiet
+     .sb-btn.ghost.sm recipe, right of the asset column. The whole row is the
+     link, so the control is aria-hidden; its label brightens with the row. */
+  .dl-go { flex: none; }
+  .dl .dl-go.sb-btn.ghost { color: var(--secondary); }
+  .dl:hover .dl-go.sb-btn.ghost, .dl:focus-visible .dl-go.sb-btn.ghost { color: var(--fg); }
+  .helper-sub { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); margin-bottom: var(--sp-2); text-wrap: pretty; }
+  /* the developer disclosure: the raw helper files, closed by default,
+     since the desktop app installs the helper itself. The summary is a
+     quiet muted line with a full target box, the same row scale as .dl.
+     The box bleeds var(--sp-2) out each side so its text sits on the group
+     headings' left edge while the hover fill keeps its inset. */
+  .dev-files { width: 100%; text-align: left; }
+  .dev-files summary {
+    display: flex; align-items: center; min-height: var(--target);
+    margin-inline: calc(-1 * var(--sp-2));
+    padding: 0 var(--sp-2); cursor: pointer; color: var(--muted);
+    font-size: var(--fs-sm); line-height: var(--lh-sm);
+    border-radius: var(--r-control);
+  }
+  .dev-files summary:hover, .dev-files summary:focus-visible { color: var(--fg); background: var(--raised); }
+  .dev-files[open] summary { margin-bottom: var(--sp-2); }
+  /* hero.css caps every .dl-hero h2 at 16ch (the lander's display h2); this
+     one is a group label, so it takes the full row */
+  .dl-hero .group h2#dl-cli-h { font-size: var(--fs-base); line-height: var(--lh-base); color: var(--fg); margin-bottom: var(--sp-1); max-width: none; }
+  .helper-sub code, .dl-hero .group .note code, .route-mcp .note code { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--fg); white-space: nowrap; }
+  .dl-hero ul.cmds { list-style: none; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); margin: 0 0 var(--sp-3); }
+  .cmds li { min-width: 0; }
+  .cmd-os { display: block; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); margin-bottom: var(--sp-1); }
+  /* the OS label over each command names the reader's platform, a label a
+     phone reader reads, so on a finger it is running copy at 14px
+     (mobile-web-design.mdc); pointer, not width, so a landscape phone is
+     covered too. The mouse keeps the 12px caption. */
+  @media (pointer: coarse) {
+    .cmd-os { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  }
+  /* a command: a label over a hairline box holding ONE line, never wrapped
+     (owner, 2026-09-06: never wrap the command) and never scrolled with a bar
+     (owner, 2026-10-05: "no scroll bars, they look terrible"; mockup
+     download-token-one-liner-20261005-1710, variant 3, "Fade"). A line wider
+     than its box is clipped, and its last --sp-8 fade out into the box, so the
+     cut reads as a soft end, not an error; a line that fits shows no fade (the
+     script at the foot sets data-fits on the box when scrollWidth fits
+     clientWidth; with no script the box clips with the fade, which is safe).
+     The whole box is the copy control: ONE button holds the muted "click to
+     copy" label and a copy glyph at the box's end, and its ::after stretches
+     over the box, so a press anywhere copies. What it copies is the code's
+     whole text (the token included), never the clipped part on screen. The
+     code is not scrollable, so it is not focusable: the button is the one stop,
+     and its ring is the box's. The line and the control are two flex items of
+     one row, so the line's box ENDS exactly where the control's begins: the
+     code is flex: 1 with min-width: 0 and overflow: hidden, the control
+     flex: none, and the mask is on the code's own box. The fade is solid until
+     --dl-fade from the box's end and is fully clear --sp-1 BEFORE it, so a
+     letter cut by the edge is never a ghost against the control: the last
+     --sp-1 of the line is empty air and no letter, faded or not, is ever
+     under the glyph or the label (the label's own text is right-aligned in its
+     box, so the real air is a little more) */
+  .cmd {
+    --dl-fade: var(--sp-8);
+    position: relative; display: flex; align-items: center; gap: 0;
+    min-height: var(--target); padding: var(--sp-1) var(--sp-3);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-control);
+    transition: border-color var(--dur-2) var(--ease-std);
+  }
+  .cmd code {
+    flex: 1; min-width: 0; overflow: hidden; white-space: nowrap;
+    font-family: var(--font-mono); font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--fg);
+    background: none; border: 0; padding: var(--sp-1) 0;
+    -webkit-mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--dl-fade)), transparent calc(100% - var(--sp-1)));
+    mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--dl-fade)), transparent calc(100% - var(--sp-1)));
+  }
+  .cmd[data-fits] code { -webkit-mask-image: none; mask-image: none; }
+  .cpy {
+    flex: none; display: inline-flex; align-items: center; gap: var(--sp-2);
+    min-height: var(--target-sm); padding: 0; background: none; border: 0;
+    color: var(--muted); font: inherit; font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-2) var(--ease-std);
+  }
+  .cpy::after { content: ''; position: absolute; inset: 0; border-radius: var(--r-control); }
+  .cpy-label { min-width: calc(var(--sp-16) + var(--sp-2)); text-align: right; } /* "copied" does not pull the line sideways */
+  .cpy-ico { flex: none; width: var(--sp-4); height: var(--sp-4); }
+  .cpy-ico .cpy-g-ok, .cpy-ico .cpy-g-no { display: none; }
+  .cpy.copied .cpy-g-ok, .cpy.blocked .cpy-g-no { display: inline; }
+  .cpy.copied .cpy-g-copy, .cpy.blocked .cpy-g-copy { display: none; }
+  @media (hover: hover) { .cpy:hover { color: var(--fg); } .cmd:has(.cpy:hover) { border-color: var(--line-strong); } }
+  .cpy:active { color: var(--fg); }
+  .cpy.copied { color: var(--accent); }
+  .cpy.blocked { color: var(--fg); }
+  /* the ring is the whole box's, drawn on the stretched ::after (the button's own would hug the label) */
+  .cpy:focus-visible { outline-color: transparent; }
+  .cpy:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dl-hero .group .note + .note { margin-top: var(--sp-2); }
+  .dl-hero .group .note { text-wrap: pretty; }
 
-## Superbot app
+  /* the MCP card's multi-line boxes (#mcp): the paste-to-agent prompt, three lines, and the mcpServers JSON. They are the
+     command box's anatomy (a hairline on the canvas, --r-control, ONE button whose ::after stretches over the box, every
+     line clipped with the fade, never wrapped and never scrolled with a bar) around a code element that holds several
+     lines, and they are NOT .cmd: that is the one-line box, and every rule about it (one line, the line's box ends where the
+     control begins, the phone's glyph-alone row) stays as strict for the boxes that are one line, the server URL's among
+     them. The page script measures them for the fade the way it measures a .cmd. What a press copies is the code's whole
+     text, line breaks included (the prompt's <br/> is followed by a real line break, so its text is the three lines). */
+  .cmd-lines {
+    --dl-fade: var(--sp-8);
+    position: relative; display: flex; align-items: flex-start; gap: 0; min-width: 0;
+    min-height: var(--target); padding: var(--sp-1) var(--sp-3);
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-control);
+    transition: border-color var(--dur-2) var(--ease-std);
+  }
+  .cmd-lines code {
+    flex: 1; min-width: 0; overflow: hidden; white-space: nowrap;
+    font-family: var(--font-mono); font-size: var(--fs-xs); line-height: var(--lh-sm); color: var(--fg);
+    background: none; border: 0; padding: var(--sp-1) 0;
+    -webkit-mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--dl-fade)), transparent calc(100% - var(--sp-1)));
+    mask-image: linear-gradient(to right, var(--fg) calc(100% - var(--dl-fade)), transparent calc(100% - var(--sp-1)));
+  }
+  .cmd-lines[data-fits] code { -webkit-mask-image: none; mask-image: none; }
+  @media (hover: hover) { .cmd-lines:has(.cpy:hover) { border-color: var(--line-strong); } }
+  /* the prompt, the card's one bold thing: on the strong hairline, its copy control on a row of its own under the lines (so
+     a line has the box's whole width: the longest of the three, the skill URL on the beta host, is 619px at the caption
+     size where the card's column leaves the box 653px). The grid's one track is minmax(0, 1fr): a line wider than the box
+     is clipped, it never widens the box past the card */
+  .cmd-lead { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-1); padding: var(--sp-3) var(--sp-4) var(--sp-2); border-color: var(--line-strong); }
+  .cmd-lead .cpy { justify-self: end; }
+  /* the JSON is the quiet by-hand copy: laid out as written (indent kept, a line break per line), at the caption size in the
+     secondary ink, its copy control beside the first line */
+  .cmd-json code { white-space: pre; line-height: var(--lh-xs); color: var(--secondary); }
 
-Other platforms
+  /* the route picker: the /docs "How do you work?" picker's anatomy with
+     this page's four routes. Four outlined tiles, a line icon over a
+     one-line label; the picked tile wears the accent ring (the one place the
+     accent sits at rest), the others are a hairline on --card. The four tiles
+     are ONE control, a tablist (one is picked, the card under them is its
+     answer), not four sibling cards. A tap only swaps which card shows:
+     nothing moves, nothing animates. */
+  /* four across when the column has room for each label on one line (the
+     content column holds four at this basis); a narrower column is two and two,
+     and a phone stacks them (480px, below) */
+  .route-tiles { width: 100%; display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-6) 0 var(--sp-2); }
+  .route-tiles > .route-tile { flex: 1 1 calc(var(--sp-16) * 2 + var(--sp-8)); min-width: 0; }
+  @media (max-width: 768px) { .route-tiles > .route-tile { flex-basis: calc(50% - var(--sp-3)); } }
+  .route-tile {
+    display: grid; justify-items: center; align-content: center; gap: var(--sp-4);
+    min-height: calc(var(--sp-16) + var(--sp-12)); padding: var(--sp-8) var(--sp-2);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface);
+    color: var(--muted); text-align: center; text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std), box-shadow var(--dur-2) var(--ease-std);
+  }
+  .route-tile-ico { width: var(--sp-16); height: var(--sp-16); }
+  .route-tile-label { font-size: var(--fs-base); line-height: var(--lh-base); text-wrap: balance; }
+  @media (hover: hover) { .route-tile:hover { background: var(--raised); color: var(--fg); } }
+  .route-tile:active { background: var(--raised); }
+  /* picked: a 2px accent ring (the 1px border plus 1px inset, so the tile never changes size) */
+  .route-tile[aria-selected='true'], .route-tile[aria-current='true'] { color: var(--fg); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  /* a link to a card or its tile (/download#helper, /download#api, the phone
+     app's link) lands at the top of the page, heading first: the picker sits
+     right under the heading, so the heading, the picked tile and the top of
+     its card are all in view. The browser's own jump would scroll the heading
+     under the sticky header; a scroll margin of a viewport's height plus its
+     width is always more than the way down to the card, so that jump clamps
+     to the top, nothing scrolls and no script has to race it. Only once the
+     script has made the row a tablist: with no script the cards stack and a
+     tile link jumps to its card. A row's own id inside a card keeps the
+     browser's jump to that row. */
+  .route-tiles[role='tablist'] .route-tile, .route-tiles[role='tablist'] ~ .route-panel { scroll-margin-top: calc(100vh + 100vw); scroll-margin-top: calc(100dvh + 100vw); }
 
-### macOS
+  /* a route card: one anatomy for the app, the Helper and the API. A
+     one-line title (with its one muted caption) at the left edge, then the
+     centred primary, then the centred chip. No shadow, no entrance, no hover
+     on the card itself. */
+  .dl-hero .route {
+    width: 100%; text-align: left;
+    display: grid; justify-items: center; gap: var(--sp-4);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface);
+    padding: var(--sp-6) var(--sp-4);
+  }
+  .route > * { min-width: 0; max-width: 100%; }
+  .dl-hero .route-panel[hidden] { display: none; }
+  /* a card's head is ONE row: the title, then its muted caption on the same
+     line, baseline-aligned, a token gap apart, so the app, Helper and API
+     cards all open with a head of the title's own height (the app has no
+     caption and is the one-line floor). A caption that cannot share the line
+     (a phone, or a Helper caption in a card narrower than title plus caption)
+     drops whole to one line under the title; nothing is cut and no type
+     shrinks. The Helper's second sentence is one .sb-nowrap run (site.css), so
+     a narrow card breaks between its two sentences, never inside the list. */
+  .route-head { justify-self: start; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3); }
+  .route-head .helper-sub { margin: 0; }
+  .dl-hero .route h2 {
+    font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600;
+    color: var(--fg); letter-spacing: normal; max-width: none; margin: 0;
+  }
+  .route .note { text-align: center; }
+  /* the app card's body keeps the card's own rhythm: one centred column */
+  .dl-app-main { width: 100%; display: grid; justify-items: center; gap: var(--sp-4); }
+  .dl-app-main > * { min-width: 0; max-width: 100%; }
 
-- [Apple Silicon](https://superbot.gg/download/asset/mac-arm64)
-- [Apple Silicon (zip)](https://superbot.gg/download/asset/mac-arm64-zip)
+  /* the phone tile, quiet beside the one bold primary: a hairline tile on the
+     card face (the route tiles' anatomy, --r-surface) holding the QR on its own
+     white square (--r-control; white is the one place a scanner needs it, and
+     the code carries its 4-module quiet zone), then two short lines under it.
+     A figure, not a link: nothing here is pressed. */
+  .route-app { --dl-qr: calc(var(--sp-16) + var(--sp-12)); --dl-phone-w: calc(var(--dl-qr) + var(--sp-4) + var(--sp-2)); }
+  .dl-phone { margin: 0; display: grid; justify-items: center; gap: var(--sp-2); text-align: center; }
+  .dl-phone[hidden] { display: none; }
+  .dl-phone-qr { padding: var(--sp-2); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-surface); }
+  .dl-phone-qr svg { display: block; width: var(--dl-qr); height: var(--dl-qr); border-radius: var(--r-control); }
+  .dl-phone-cap { display: grid; font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap; }
+  .dl-phone-title { color: var(--fg); }
+  .dl-phone-sub { color: var(--muted); }
+  /* no script and a finger: a phone or tablet cannot scan its own screen, so the
+     tile is a desktop's (the page script hides it on any phone or tablet too) */
+  @media (pointer: coarse) { .dl-phone { display: none; } }
+  /* a window wide enough for three columns (the primary's half-width centre, a
+     tile's width either side so the primary stays centred): the tile sits at the
+     card's right edge, level with the heading. Narrower, and at 480px and under,
+     it stays a quiet centred row under the chip. */
+  @media (min-width: 768px) and (pointer: fine) {
+    .dl-hero .route-app:has(> .dl-phone:not([hidden])) {
+      grid-template-columns: minmax(var(--dl-phone-w), 1fr) minmax(0, calc(var(--content) / 2)) minmax(var(--dl-phone-w), 1fr);
+      grid-template-rows: auto 1fr auto;
+    }
+    .route-app:has(> .dl-phone:not([hidden])) > .route-head { grid-column: 1 / 3; grid-row: 1; }
+    /* top of its row, never centred: the tile stretches rows 1-2, and a centred
+       body dropped the primary below where the Helper and API cards hold theirs,
+       so switching tabs moved it. Every card's primary sits one gap under its head */
+    .route-app:has(> .dl-phone:not([hidden])) > .dl-app-main { grid-column: 2; grid-row: 2; align-self: start; }
+    .route-app > .dl-phone:not([hidden]) { grid-column: 3; grid-row: 1 / 3; justify-self: end; align-self: start; }
+    /* the terminal block spans the card's whole width under all three columns,
+       so the primary keeps the centre column and the tile keeps the card's right */
+    .route-app:has(> .dl-phone:not([hidden])) > .dl-term { grid-column: 1 / -1; grid-row: 3; }
+  }
+  /* the twin badges, a phone's path in the app card (phone-link.ts
+     phoneBadgesHtml): two equal links side by side, one per phone, under the
+     card title and above the menu's chip. Neutral on purpose, no accent and no
+     storm: a --raised fill on the card, the --line-strong hairline a control
+     drawn on --raised takes (site.css, the chip under them wears it too; the
+     quiet --line is for surfaces), --r-control, the main line in --fg over a
+     small --muted line, the OS mark at the left. A
+     phone has no Download primary, and these are not store badges, so nothing
+     here is bold. Each is a --target tall hit box. Hidden for a computer (its
+     path is the tile's QR); the page script reveals them to a phone, and with
+     no script a coarse pointer does (the mirror of the tile's rule above).
+     Width, measured (Chromium, the system UI font, 2026-10-05): the widest
+     badge ("Android APK" at the body size, with its mark, gap, padding and
+     border) is 150px, so its minimum is 152px (--dl-badge-min) and two fit
+     side by side once the card is 316px wide inside (a 375px phone and up: 390
+     measured 160px each). A narrower card (a 360px or a 320px phone) stacks
+     them on their own full-width rows, every line still on one line: the grid
+     wraps by the badge's minimum, the type never shrinks. One badge alone sits
+     centred at the width it has beside the other (never narrower than that
+     minimum). */
+  .dl-badges {
+    --dl-badge-gap: var(--sp-3); --dl-badge-min: calc(var(--sp-16) * 2 + var(--sp-6));
+    display: none; width: 100%; gap: var(--dl-badge-gap);
+    grid-template-columns: repeat(auto-fit, minmax(var(--dl-badge-min), 1fr));
+  }
+  .dl-badges[data-on] { display: grid; }
+  @media (pointer: coarse) { .dl-badges { display: grid; } }
+  .dl-badges[data-count='1'] { grid-template-columns: min(100%, max(calc((100% - var(--dl-badge-gap)) / 2), var(--dl-badge-min))); justify-content: center; }
+  .dl-badge {
+    display: flex; align-items: center; justify-content: center; gap: var(--sp-3);
+    min-height: var(--target); padding: var(--sp-1) var(--sp-3);
+    background: var(--raised); border: 1px solid var(--line-strong); border-radius: var(--r-control);
+    color: var(--fg); text-decoration: none; -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--dur-2) var(--ease-std);
+  }
+  .dl-badge-mark { display: inline-flex; flex: none; }
+  .dl-badge-mark svg { display: block; }
+  .dl-badge-text { display: grid; min-width: 0; }
+  .dl-badge-small { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); white-space: nowrap; }
+  .dl-badge-main { color: var(--fg); font-size: var(--fs-base); line-height: var(--lh-base); white-space: nowrap; }
+  @media (hover: hover) { .dl-badge:hover { background: var(--line); } }
+  .dl-badge:active { background: var(--line); }
 
-Install from a terminal
+  /* a command box on the card face drops to the canvas, so it reads as
+     recessed rather than as card on card */
+  .route .cmd, .dl-term .cmd { background: var(--bg); }
+  .dl-hero .route ul.cmds { width: 100%; margin-bottom: 0; }
+  /* the quiet link under the API card's primary: muted ink, underlined, a
+     full-height target; the accent stays on the tile ring and focus rings */
+  .route-link { display: inline-flex; align-items: center; min-height: var(--target-sm); color: var(--secondary); text-decoration: underline; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .route-link:hover, .route-link:focus-visible { color: var(--fg); }
 
-- macOS and Linux
-`curl -fsSL https://superbot.gg/bootstrap.sh | sh`
-- Windows, in PowerShell
-`irm https://superbot.gg/bootstrap.ps1 | iex`
+  /* the MCP card (#mcp): the prompt a person pastes to their agent leads, then
+     the by-hand path (the server URL, the mcpServers JSON, the two client
+     install links). The prompt box is the card's one bold thing: a multi-line
+     command box (.cmd-lines, above with the command boxes), with its label in
+     ink. The boxes are the page's command anatomy, not cards. */
+  .mcp-block { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }
+  .mcp-label { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--fg); }
+  .route-mcp .note { text-align: left; }
+  /* the two client install links: a quiet link and its copy-the-link control
+     on one row, the control at the row's end; each is a --target tall box, and
+     the link keeps its own press: the control is its own positioning box, so the
+     page's stretched ring (.cpy::after) goes round the control alone */
+  .mcp-links { display: grid; }
+  .mcp-link-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); min-height: var(--target); }
+  .mcp-link-row .cpy { position: relative; min-height: var(--target); padding-left: var(--sp-2); }
+  .mcp-link-row .cpy-label { min-width: 0; }
+  /* the key row's label is a sentence, so a card too narrow for it and its control drops the control to a line of its own
+     at the row's end; the label never wraps and the control's word never does */
+  .mcp-key-row { flex-wrap: wrap; row-gap: 0; }
+  .mcp-key-row .cpy { margin-left: auto; }
 
-read it first: [bootstrap.sh](https://superbot.gg/bootstrap.sh), [bootstrap.ps1](https://superbot.gg/bootstrap.ps1).
+  /* "Other platforms": one quiet outlined chip under the primary, and its
+     menu, a disclosure (<details>), not an ARIA menu. Open, it is an overlay
+     under the chip (the page script sets data-js and closes it), so opening
+     it never moves the page; with no script it is simply open, in the flow, a
+     plain list of every installer. Nothing animates and nothing else moves. */
+  .dl-menu { width: 100%; display: grid; justify-items: center; }
+  .dl-menu[data-js] { position: relative; }
+  .dl-chip {
+    list-style: none; display: inline-flex; align-items: center; gap: var(--sp-2);
+    min-height: var(--target); padding: 0 var(--sp-4);
+    background: none; border: 1px solid var(--line-strong); border-radius: var(--r-control);
+    color: var(--secondary); font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: nowrap;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std);
+  }
+  .dl-chip::-webkit-details-marker { display: none; }
+  .dl-chip-ico, .dl-term-ico { flex: none; width: var(--sp-4); height: var(--sp-4); }
+  @media (hover: hover) { .dl-chip:hover { color: var(--fg); background: var(--raised); } }
+  .dl-chip:active { background: var(--raised); }
+  .dl-menu[open] > .dl-chip { color: var(--fg); background: var(--raised); }
+  .dl-menu-list { width: 100%; margin-top: var(--sp-2); padding: var(--sp-1); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-surface); }
+  .dl-menu[data-js] .dl-menu-list {
+    position: absolute; z-index: 1; top: 100%; left: 0; right: 0; margin: var(--sp-1) auto 0;
+    width: max-content; min-width: calc(var(--sp-16) * 3); max-width: calc(100vw - var(--gutter-l) - var(--gutter-r));
+  }
+  /* a menu row: the OS mark, the label, the size muted at the end; one line
+     each (the labels are short, so the longest row fits a 320px menu with its
+     size). The OS group's heading is for screen readers and the markdown twin. */
+  .dl-menu .dl { border-bottom: 0; border-radius: var(--r-control); padding: var(--sp-2) var(--sp-3); }
+  .dl-menu .dl:hover, .dl-menu .dl:focus-visible { background: var(--line); }
+  .dl-menu .dl-go { display: none; }
+  .dl-menu .dl-text { flex-wrap: nowrap; justify-content: space-between; }
+  .dl-menu .main { white-space: nowrap; }
+  .dl-menu .helper-sub { margin: 0 0 var(--sp-1); padding: 0 var(--sp-3); font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .dl-menu .group[hidden] { display: none; }
 
-`superbot update` updates the Helper.
-`superbot uninstall` [removes it all](https://superbot.gg/docs#uninstall).
+  /* the terminal path, the last thing in the app card (variant 4 of the
+     terminal-row mockups): under a hairline, a muted header with a chevron at
+     its end, and under that ONE line, the install line for the visitor's OS,
+     in an outlined mono box that scrolls sideways rather than wrapping. The
+     chevron (a native <details>, so the keyboard and no-script cases are the
+     browser's) opens every platform's line, the update note and the raw
+     developer files; open, the one line above steps aside, so no line shows
+     twice. Nothing here animates: the chevron just turns. */
+  .dl-term { width: 100%; text-align: left; display: grid; gap: var(--sp-2); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+  .dl-term > * { min-width: 0; }
+  .dl-term-head {
+    list-style: none; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+    min-height: var(--target); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm);
+    border-radius: var(--r-control); cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .dl-term-head::-webkit-details-marker { display: none; }
+  @media (hover: hover) { .dl-term-head:hover { color: var(--fg); } }
+  .dl-term-more[open] > .dl-term-head { color: var(--fg); }
+  .dl-term-more[open] .dl-term-ico { transform: rotate(180deg); }
+  .dl-term-more[open] ~ .dl-term-line { display: none; }
+  .dl-term-body { display: grid; gap: var(--sp-2); padding-top: var(--sp-2); }
+  .dl-term-body > * { min-width: 0; }
+  /* the card centres its notes (.route .note); the block's own are left-aligned, the same edge as the lines */
+  .dl-term .note { text-align: left; }
+  .dl-term .dl-term-body ul.cmds { margin: 0 0 var(--sp-1); }
+  .dl-term .dl-term-body .note + .note { margin-top: 0; }
 
-wiring a client by hand? [recipes](https://superbot.gg/docs#clients)
+  @media (max-width: 480px) {
+    .dl-hero .route { padding: var(--sp-4) var(--sp-3); position: relative; }
+    /* the menu spans its card, edge to edge: a sheet under the chip, not a
+       narrow popover (nothing it lies over stays half-covered) */
+    .dl-menu[data-js] { position: static; }
+    .dl-menu[data-js] .dl-menu-list { left: 0; right: 0; width: auto; min-width: 0; max-width: none; margin: var(--sp-1) 0 0; }
+    /* a phone: the three tiles stack, each a compact row (the icon left of its
+       label, a --target tall hit box), so the heading, the three rows and the
+       card's primary all sit in the first screen of a 320x568 phone, and "I
+       keep my own harness" stays on one line (side by side it would wrap) */
+    .route-tiles { flex-direction: column; flex-wrap: nowrap; gap: var(--sp-2); }
+    .route-tiles > .route-tile { flex: none; }
+    .route-tile { display: flex; justify-content: flex-start; align-items: center; gap: var(--sp-3); min-height: var(--target); padding: var(--sp-2) var(--sp-4); }
+    .route-tile-ico { flex: none; width: var(--sp-6); height: var(--sp-6); }
+    .dl-hero .dl-cta { width: 100%; padding: 0 var(--sp-2); gap: var(--sp-2); font-size: var(--fs-base); }
+    /* the command boxes on a phone: the line is what the box is for, and the
+       "click to copy" label would take 72px of a 262px box (measured at 320: 15
+       characters of the line left, 11 of them before the fade). So the box
+       holds the copy glyph alone at its end: the label stays in the markup as
+       the button's name and as the text the script flips to "copied" (the
+       page's visually-hidden recipe, site.css .sb-visually-hidden, which a
+       class in the markup could not apply to the phone alone), the "copied"
+       answer is the glyph turning to a check and the live region saying it, the
+       hit area is still the whole box and the ring still goes around it. The
+       padding steps in a --sp-1 each side and the fade narrows to --sp-4; the
+       line's box ends where the glyph begins and the fade is clear --sp-1
+       before that, so the faded end is never against it. Measured with the
+       token line: 25 characters solid at 320 (26 shown) and 33 at 390 (34
+       shown) */
+    .cmd { --dl-fade: var(--sp-4); padding-inline: var(--sp-2); }
+    .cpy-label { position: absolute; width: 1px; height: 1px; min-width: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    /* the label already names the OS, so on a phone the mark steps aside and
+       the file name under it gets the button's whole width ("Superbot-Helper-
+       0.1.0-dev.12-arm64.dmg" clipped at 320 beside the mark); a longer name
+       still breaks inside the button rather than being cut */
+    .dl-hero .dl-cta .sb-os-mark { display: none; }
+    .dl-cta-text { justify-items: center; text-align: center; }
+    .dl-cta-file { white-space: normal; overflow-wrap: anywhere; }
+    /* the MCP card's multi-line boxes on a phone: the same steps the one-line box takes (the fade narrows to end at the
+       glyph, the padding gives way), and the prompt has the one row every box has, the glyph at the end of its first line;
+       its lines are 14px here, clipped. The two install links and the key row keep their word (a control with no box
+       around it needs it), which the rule above hides on every other control */
+    .cmd-lines { --dl-fade: var(--sp-4); padding-inline: var(--sp-2); }
+    .cmd-lead { display: flex; padding-block: var(--sp-1); }
+    .cmd-lead code { font-size: var(--fs-sm); }
+    .mcp-link-row .cpy-label { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+  }
+  /* the page-local header wrap (a @media (max-width:400px) block that let
+     .sb-header-in wrap below 400px, measuring the 320px header 112px tall)
+     was removed 2026-09-17: a wrapping header is the defect, and the shared
+     header's own narrow tiers (site.css, plus the nav drawer this page now
+     loads) own that width. This page carries no header rule at all. */
+</style>
+<noscript><style>
+  /* no JS: every card stacks under the tiles, no tile claims to be picked,
+     each tile is a plain link to its card, and the menus stay open (the
+     server ships them open), so every installer is on the page */
+  .dl-hero .route-panel[hidden] { display: grid; }
+  .route-tile[aria-current='true'] { color: var(--muted); border-color: var(--line); box-shadow: none; }
+  /* the rows' OS marks are the script's, so each OS group names itself in text */
+  .dl-menu .group > h3.sb-visually-hidden {
+    position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal;
+    padding: var(--sp-2) var(--sp-3) var(--sp-1); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; color: var(--secondary);
+  }
+</style></noscript>
+<link rel="alternate" type="text/markdown" href="/download.md">
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <header class="sb-header"><div class="sb-header-in"><a class="sb-word" href="index.html" aria-label="superbot.gg"><img class="sb-word-mark" src="site/assets/brand/mark-duo-sm.svg" alt="" width="24" height="24"/><span class="sb-word-txt">superbot<span class="gg">.gg</span></span></a><nav class="sb-nav" aria-label="site"><a href="features.html">features</a><a href="enterprise.html">for teams</a><a href="docs.html">docs</a><a href="developers.html">api</a><a href="/account">log in</a><a class="sb-nav-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sb-nav-x-txt">@superbot_gg</span></a><a class="sb-btn pill sm" href="download.html" aria-current="page">Install Now</a></nav></div></header><script type="module" src="site/assets/nav-store.js?v=2"></script>
 
-[install on an agent computer](https://superbot.gg/agent)
+  <main id="main" tabindex="-1">
+    <section class="dl-hero" aria-labelledby="dl-title">
+      <div class="dl-hero-in">
+        <h1 id="dl-title">download superbot</h1>
+        <p class="chat-note" id="chat-note" hidden></p>
 
-for developers: the raw helper files
+        <!-- the route picker, the /docs "How do you work?" picker's anatomy:
+             four routes as four tiles, a link each, always all four. The
+             server ships the picked state (the app tile current, the other
+             three cards hidden) and the script after the cards adds the tab
+             roles; with no script the noscript rule in the head shows every
+             card stacked under the tiles and each tile is a plain link to its
+             card. Icons: the /docs picker's own four (lucide monitor-smartphone,
+             square-terminal, braces and plug, ISC), outlines on the 24 grid, the same
+             path data on both pages so one choice looks like itself (the
+             test in desktop-release.test.ts holds the two equal). -->
+        <div class="route-tiles" data-route-tiles>
+          <a class="route-tile" id="tab-route-app" href="#route-app" aria-current="true">
+            <svg class="route-tile-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8m-2 4v-3.96v3.15M7 19h5"/><rect width="6" height="10" x="16" y="12" rx="2"/></svg>
+            <span class="route-tile-label">I want the app</span>
+          </a>
+          <a class="route-tile" id="tab-route-helper" href="#helper">
+            <svg class="route-tile-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m7 11l2-2l-2-2m4 6h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
+            <span class="route-tile-label">I use my harness</span>
+          </a>
+          <a class="route-tile" id="tab-route-api" href="#api">
+            <svg class="route-tile-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1m8 0h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>
+            <span class="route-tile-label">I only call an API</span>
+          </a>
+          <a class="route-tile" id="tab-route-mcp" href="#mcp">
+            <svg class="route-tile-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 22v-5m3-9V2m2 6a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1zM9 8V2"/></svg>
+            <span class="route-tile-label">I use MCP</span>
+          </a>
+        </div>
 
-## superbot helper
+        <!-- the first card: the desktop app. The storm-action primary is
+             JS-only (detectPlatform needs the client to know the visitor's
+             OS), filled by the script at the foot from the matching installer
+             row, which then leaves the menu. Empty and hidden until then, so a
+             no-JS visit shows the open menu, every installer, instead. -->
+        <section class="route route-app route-panel" id="route-app" role="tabpanel" aria-labelledby="route-app-h">
+          <div class="route-head"><h2 id="route-app-h">Superbot app</h2></div>
+          <!-- the card's body, one centred column: the primary, its notes and the
+               menu. The phone tile (below it, drawn by renderDownloadPage only
+               when a phone has something real to open) sits at the card's right
+               on a desktop-width window and under the chip on a narrow one. -->
+          <div class="dl-app-main">
+          <div class="dl-primary" id="dl-primary" hidden></div>
 
-- the helper build is not downloadable yet.
-the [bootstrap one-liner](https://superbot.gg/download#dl-cli) installs it.
+          <!-- no always-on platform note: the menu lists exactly the
+               builds the release ships, and the hidden notes here answer only
+               the visitor whose device has none -->
+          <p class="note" id="dl-device-note" hidden>there is no build for this device yet.<br/>the beta runs on macOS with apple silicon.</p>
+          <!-- a Windows or Linux visitor: the ladder carries no row for their OS
+               (desktop-release.ts drops rows a release does not publish), so the
+               script says so here instead of leaving the card without an answer -->
+          <p class="note" id="dl-os-note" hidden></p>
+          <p class="note" id="dl-phone-note" hidden>the phone apps are in internal testing.<br/>for now, superbot runs on a mac.</p>
+          <!-- the twin badges: the token below becomes a group of links, one per
+               phone that has something real to open (edge/src/phone-link.ts
+               phoneBadgesHtml; iPhone first, then Android; the same rule as the
+               phone tile), under the card title and above the menu. They are for
+               a phone: a computer has the tile's QR code. Hidden here by the
+               page's rules, shown to a phone by the script or, with no script, by
+               a coarse pointer. A card that draws them drops the phone note above,
+               since the badges' own lines say the same; with none, the note
+               stays. Empty on the markdown twin. -->
+          
 
-`curl -fsSL https://superbot.gg/bootstrap.sh | sh`
+          <!-- release-links:auto:start -->
+          <!-- server-rendered per request by edge/src/desktop-release.ts
+               renderDownloadPage(): the slot below fills with the
+               "Other platforms" menu, a disclosure over the per-OS
+               ladder (mac arm64 dmg/zip, windows exe, linux AppImage/deb/rpm,
+               plus an 'on this phone' group of iPhone/Android rows when the
+               resolved release carries them); the meta slot fills at the very
+               end with the build provenance line (build, commit, builtAt), or
+               the 'no release yet' state over the static v0.1.0 ladder when
+               the resolver has nothing. The former generator
+               scripts/site-release-links.mjs was removed 2026-09-09; nothing
+               regenerates this region into git any more. -->
+          <details class="dl-menu" id="dl-menu" open>
+        <summary class="dl-chip"><span class="dl-chip-label">Other platforms</span><svg class="dl-chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="dl-menu-list">
+          <section class="group" id="dl-mac" data-os="mac" aria-labelledby="dl-mac-h">
+            <h3 id="dl-mac-h" class="sb-visually-hidden">macOS</h3>
+            <ul>
+              <li><a class="dl" href="/download/asset/mac-arm64" data-file="Superbot-0.1.0-arm64.dmg"><span class="dl-mark" aria-hidden="true"></span><span class="dl-text"><span class="main">Apple Silicon</span></span><span class="dl-go sb-btn ghost sm" aria-hidden="true">Download</span></a></li>
+              <li><a class="dl" href="/download/asset/mac-arm64-zip" data-file="Superbot-0.1.0-arm64.zip"><span class="dl-mark" aria-hidden="true"></span><span class="dl-text"><span class="main">Apple Silicon (zip)</span></span><span class="dl-go sb-btn ghost sm" aria-hidden="true">Download</span></a></li>
+            </ul>
+          </section>
+        </div>
+      </details>
+          </div>
+          <!-- the phone tile: the token below becomes a figure (edge/src/phone-link.ts
+               phoneTileHtml) holding a QR code for this origin's /download/store/phone,
+               the one link that sends an iPhone to its row (/download/store/ios) and an
+               Android phone to its own. It is empty when no phone target is real, and on the
+               markdown twin. The script below hides it from a phone or tablet. -->
+          
 
-## superbot relay
+          <!-- the terminal path, in this card under a hairline (mockup
+               download-terminal-row-20261005-1556, variant 4): a muted header
+               with a chevron, and under it ONE line, the install line for the
+               visitor's OS, in an outlined mono box with its copy button. The
+               server ships the unix line; the page script swaps in the
+               PowerShell line on Windows, read from the list below so each line
+               has one source. The chevron is a native <details>: open, it shows
+               every platform's line, the update note and the developer's raw
+               helper files, and the one line above steps aside (a sibling rule,
+               so it needs no script). The lines are the only monospace on the
+               page and never wrap: a long one scrolls inside its box. The note
+               a granted beta viewer gets (noteTerminalRow) lands at the foot of
+               this section, so it reads under both states. app.ts
+               withoutTerminalInstall strips the whole block on a beta host
+               (desktop-release.ts stripTerminalRow finds it by its class and counts
+               the nested sections to its close, the developer files' own group
+               among them). -->
+          <section class="dl-term" id="dl-term" aria-labelledby="dl-term-h">
+            <details class="dl-term-more">
+              <summary class="dl-term-head"><span id="dl-term-h">Install from a terminal</span><svg class="dl-term-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <div class="group dl-term-body" id="dl-cli">
+                <ul class="cmds">
+                  <li>
+                    <span class="cmd-os" id="cmd-sh-l">macOS and Linux</span>
+                    <div class="cmd"><code id="cmd-sh">curl -fsSL https://superbot.gg/bootstrap.sh | sh</code><button class="cpy" type="button" data-copy-from="cmd-sh" aria-label="click to copy the Helper and CLI install line for macOS and Linux"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+                  </li>
+                  <li>
+                    <span class="cmd-os" id="cmd-ps-l">Windows, in PowerShell</span>
+                    <div class="cmd"><code id="cmd-ps">irm https://superbot.gg/bootstrap.ps1 | iex</code><button class="cpy" type="button" data-copy-from="cmd-ps" aria-label="click to copy the Helper and CLI install line for Windows PowerShell"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+                  </li>
+                </ul>
+                <p class="note">read it first: <a href="/bootstrap.sh">bootstrap.sh</a>, <a href="/bootstrap.ps1">bootstrap.ps1</a>.</p>
+                <p class="note"><code>superbot update</code> updates the Helper.<br/><code>superbot uninstall</code> <a href="docs">removes it all</a>.</p>
+                <p class="note">wiring a client by hand? <a href="docs">recipes</a></p>
+                <p class="note"><a href="agent.html">install on an agent computer</a></p>
 
-use your own harness. Claude Code, Agent SDK, Cursor.
+                <!-- the desktop app installs the Helper itself, so the raw files sit
+                     behind a closed disclosure for developers only -->
+                <details class="dev-files">
+                <summary>for developers: the raw helper files</summary>
+                <section class="group" aria-labelledby="dl-helper-h">
+                  <h2 id="dl-helper-h" class="sb-visually-hidden">superbot helper</h2>
+                  <!-- resolved per request from the helper repo's newest qualifying
+                       release (renderHelperRows in edge/src/desktop-release.ts), the
+                       same ladder /download/helper/latest.json answers from. -->
+                  <ul>
+                    <li><p class="note">the helper build is not downloadable yet.<br/>the <a href="#dl-cli">bootstrap one-liner</a> installs it.</p></li>
+                  </ul>
+                </section>
+                </details>
+              </div>
+            </details>
+            <div class="dl-term-line">
+              <div class="cmd"><code id="cmd-term">curl -fsSL https://superbot.gg/bootstrap.sh | sh</code><button class="cpy" type="button" data-copy-from="cmd-term" aria-label="click to copy the Helper and CLI install line for macOS and Linux"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            </div>
+          </section>
+        </section>
 
-- macOS and Linux
-`curl -fsSL https://superbot.gg/bootstrap.sh | sh`
-- Windows, in PowerShell
-`irm https://superbot.gg/bootstrap.ps1 | iex`
+        <!-- the second card: the Helper, for people who keep their own harness
+             (the Claude Code CLI, Agent SDK apps, Cursor). Its id is the anchor
+             the mobile app links (/download#helper) and the second tile links
+             it; it ships hidden, the picker shows it (a tabpanel in the
+             markup, so the page's markdown twin keeps it with no script).
+             renderDownloadPage keeps the fork region only when the Helper app
+             has a release: the same card as the app's (a primary for the
+             visitor's OS, the menu, then the two Helper app commands), the
+             rows from the same resolver /download/helper-app serves. With none
+             the no-fork region carries the Helper and CLI one-liners instead. -->
+        <section class="route route-helper route-panel" id="helper" role="tabpanel" aria-labelledby="route-helper-h" hidden>
+          <div class="route-head">
+            <h2 id="route-helper-h">superbot relay</h2>
+            <p class="helper-sub">use your own harness. <span class="sb-nowrap">Claude Code, Agent SDK, Cursor.</span></p>
+          </div>
+          <ul class="cmds" data-terminal>
+            <li>
+              <span class="cmd-os" id="cmd-hc-sh-l">macOS and Linux</span>
+              <div class="cmd"><code id="cmd-hc-sh">curl -fsSL https://superbot.gg/bootstrap.sh | sh</code><button class="cpy" type="button" data-copy-from="cmd-hc-sh" aria-label="click to copy the Helper and CLI install line for macOS and Linux"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            </li>
+            <li>
+              <span class="cmd-os" id="cmd-hc-ps-l">Windows, in PowerShell</span>
+              <div class="cmd"><code id="cmd-hc-ps">irm https://superbot.gg/bootstrap.ps1 | iex</code><button class="cpy" type="button" data-copy-from="cmd-hc-ps" aria-label="click to copy the Helper and CLI install line for Windows PowerShell"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            </li>
+          </ul>
+        </section>
 
-## Superbot API
+        <!-- the third card: the API, for people who call the models directly.
+             One sentence, the primary into the account's keys, one quiet link
+             to the docs. The primary is plain markup (no OS to detect) in the
+             same anatomy fillPrimary builds for the app and Helper cards: a mark,
+             the label, and a small line under it (here the base URL a client
+             points at, where theirs name the file). That line is aria-hidden so
+             the button's name and the markdown twin's link stay "Get an API key". -->
+        <section class="route route-api route-panel" id="api" role="tabpanel" aria-labelledby="route-api-h" hidden>
+          <div class="route-head">
+            <h2 id="route-api-h">Superbot API</h2>
+            <p class="helper-sub">Any OpenAI or Anthropic client works.</p>
+          </div>
+          <div class="dl-primary"><a class="sb-btn dl-cta" href="/account/api"><span class="sb-os-mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg></span><span class="dl-cta-text"><span class="dl-cta-label">Get an API key</span><span class="dl-cta-file" aria-hidden="true">base URL https://superbot.gg/v1</span></span></a></div>
+          <a class="route-link" href="docs">Keys and authentication</a>
+        </section>
 
-Any OpenAI or Anthropic client works.
+        <!-- the fourth card: MCP, for people whose agent speaks the protocol. The
+             prompt is what a person pastes to their agent so it installs the
+             server and the /superbot skill itself, in whatever harness it runs
+             in: the card's one bold thing, a command box (the same whole-box copy
+             control the other lines use) of three lines, each shown whole or
+             clipped with the fade, never wrapped, and copied whole. Under it one
+             muted line about the skill. Then the by-hand path: the server URL, the
+             mcpServers JSON, and (for the page a person reads, never the markdown
+             twin) the two client install links, each with its copy-the-link
+             fallback for a desk without that editor. It is the last card, hidden
+             like the Helper and API cards (a tabpanel in the markup, so the
+             markdown twin keeps it). The paste line lives only in this card,
+             never in the app card or before the app download. No token is ever
+             rendered here: /mcp answers a first connect with 401 and the OAuth
+             sign-in. For a signed-in person who can use it, one more row closes
+             the card (the key region, drawn by edge/src/desktop-release.ts
+             applyMcpKey and never on the markdown twin): a click on it mints a
+             key into the clipboard alone, never into the page. -->
+        <section class="route route-mcp route-panel" id="mcp" role="tabpanel" aria-labelledby="route-mcp-h" hidden>
+          <div class="route-head">
+            <h2 id="route-mcp-h">superbot MCP</h2>
+            <p class="helper-sub">Any MCP client works.</p>
+          </div>
+          <div class="mcp-block">
+            <span class="mcp-label" id="mcp-prompt-l">Paste this into your agent.</span>
+            <div class="cmd-lines cmd-lead"><code id="mcp-prompt">install the superbot MCP server globally: https://superbot.gg/mcp<br/>
+install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md<br/>
+Tell me if I need to sign in.</code><button class="cpy" type="button" data-copy-from="mcp-prompt" aria-label="click to copy the prompt that installs superbot in your agent"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <p class="note">Then type <code>/superbot</code> in your agent.</p>
+            <p class="note">In Codex, type <code>$superbot</code>.</p>
+          </div>
+          <div class="mcp-block">
+            <span class="mcp-label" id="mcp-url-l">Or add the server URL yourself.</span>
+            <div class="cmd"><code id="mcp-url">https://superbot.gg/mcp</code><button class="cpy" type="button" data-copy-from="mcp-url" aria-label="click to copy the superbot MCP server URL"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <div class="cmd-lines cmd-json"><code id="mcp-json">{
+  "mcpServers": {
+    "superbot": {
+      "type": "http",
+      "url": "https://superbot.gg/mcp"
+    }
+  }
+}</code><button class="cpy" type="button" data-copy-from="mcp-json" aria-label="click to copy the mcpServers JSON for the superbot MCP server"><span class="cpy-label">click to copy</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <div class="mcp-links">
+              <div class="mcp-link-row"><a class="route-link" href="cursor://anysphere.cursor-deeplink/mcp/install?name=superbot&amp;config=eyJ1cmwiOiJodHRwOi8vbG9jYWxob3N0OjgwOTMvbWNwIn0%3D">Add to Cursor</a><button class="cpy" type="button" data-copy-text="cursor://anysphere.cursor-deeplink/mcp/install?name=superbot&amp;config=eyJ1cmwiOiJodHRwOi8vbG9jYWxob3N0OjgwOTMvbWNwIn0%3D" aria-label="copy the link that adds superbot to Cursor"><span class="cpy-label">copy link</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+              <div class="mcp-link-row"><a class="route-link" href="vscode:mcp/install?%7B%22name%22%3A%22superbot%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fsuperbot.gg%2Fmcp%22%7D">Add to VS Code</a><button class="cpy" type="button" data-copy-text="vscode:mcp/install?%7B%22name%22%3A%22superbot%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fsuperbot.gg%2Fmcp%22%7D" aria-label="copy the link that adds superbot to VS Code"><span class="cpy-label">copy link</span><svg class="cpy-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="cpy-g-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g><path class="cpy-g-ok" d="M20 6 9 17l-5-5"/><path class="cpy-g-no" d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            </div>
+          </div>
+        </section>
 
-[Get an API key](https://superbot.gg/account/api)
+        <!-- the picker's script, inline and right after the cards it swaps so a
+             visit to /download#helper (the phone app's link) or /download#api
+             shows its card on the first paint, before the page's module script
+             below has fetched anything. WAI-ARIA tabs with automatic
+             activation, the /docs picker's behaviour: the server shipped the
+             picked state and a link per tile, so this adds the roles, the
+             roving tab stop and the arrow keys. A tap only swaps aria-selected
+             and hidden: no fetch, no animation, no scroll, nothing else moves;
+             the script never scrolls (the card's scroll margin, in the head,
+             keeps the browser from jumping past the heading). A link into a
+             card (#helper, #api, #route-app, a row's own id) shows that card
+             first, and a link into a fold opens the fold. The same script
+             turns each "Other platforms" disclosure from the open list the
+             server ships (what a no-script visit gets) into the overlay menu,
+             closed, and closes it on Escape, a press outside it, focus leaving
+             it and a pick. -->
+        <script>
+          (function () {
+            var list = document.querySelector('[data-route-tiles]');
+            var tabs = list ? Array.prototype.slice.call(list.querySelectorAll('.route-tile')) : [];
+            var panels = Array.prototype.slice.call(document.querySelectorAll('.route-panel'));
+            if (!tabs.length || tabs.length !== panels.length) return;
+            function pick(i, focus) {
+              tabs.forEach(function (tab, n) {
+                tab.setAttribute('aria-selected', n === i ? 'true' : 'false');
+                tab.tabIndex = n === i ? 0 : -1;
+              });
+              panels.forEach(function (panel, n) { panel.hidden = n !== i; });
+              // preventScroll: the tile is in view and a tap must not move the page
+              if (focus) tabs[i].focus({ preventScroll: true });
+            }
+            // the element a hash names, if the page has it
+            function named() {
+              var id = location.hash.slice(1);
+              try { id = decodeURIComponent(id); } catch (e) { return null; }
+              return id ? document.getElementById(id) : null;
+            }
+            // the card a hash names: the card itself, its tile, or a row inside it
+            function ofHash() {
+              var target = named();
+              for (var n = 0; target && n < panels.length; n++) {
+                if (panels[n].contains(target) || tabs[n] === target) return n;
+              }
+              return -1;
+            }
+            // a hash target inside a closed fold (the terminal block's list, the developer files, a menu) opens it
+            function openFolds(target) {
+              for (var d = target && target.closest('details'); d; d = d.parentElement && d.parentElement.closest('details')) d.open = true;
+            }
+            list.setAttribute('role', 'tablist');
+            list.setAttribute('aria-labelledby', 'dl-title');
+            tabs.forEach(function (tab, i) {
+              tab.setAttribute('role', 'tab');
+              tab.setAttribute('aria-controls', panels[i].id);
+              tab.removeAttribute('aria-current');
+              panels[i].setAttribute('aria-labelledby', tab.id);
+              tab.addEventListener('click', function (e) {
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                e.preventDefault();
+                pick(i, false);
+              });
+              tab.addEventListener('keydown', function (e) {
+                var last = tabs.length - 1;
+                var to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i === last ? 0 : i + 1)
+                  : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i === 0 ? last : i - 1)
+                    : e.key === 'Home' ? 0
+                      : e.key === 'End' ? last
+                        : e.key === ' ' ? i : -1;
+                if (to < 0) return;
+                e.preventDefault();
+                pick(to, true);
+              });
+            });
+            pick(Math.max(0, ofHash()), false);
+            openFolds(named());
+            window.addEventListener('hashchange', function () {
+              var at = ofHash();
+              if (at >= 0) pick(at, false);
+              openFolds(named());
+            });
 
-[Keys and authentication](https://superbot.gg/docs#api-auth)
+            // the "Other platforms" menus: closed overlays under a script, an open list without one
+            var menus = Array.prototype.slice.call(document.querySelectorAll('details.dl-menu'));
+            function close(menu, focus) {
+              menu.open = false;
+              if (focus) menu.querySelector('summary').focus({ preventScroll: true });
+            }
+            menus.forEach(function (menu) {
+              menu.setAttribute('data-js', '');
+              menu.open = false;
+              menu.addEventListener('focusout', function (e) {
+                if (menu.open && e.relatedTarget && !menu.contains(e.relatedTarget)) close(menu, false);
+              });
+              menu.querySelector('.dl-menu-list').addEventListener('click', function (e) {
+                if (e.target.closest('a.dl')) close(menu, false);
+              });
+            });
+            document.addEventListener('pointerdown', function (e) {
+              menus.forEach(function (menu) { if (menu.open && !menu.contains(e.target)) close(menu, false); });
+            });
+            document.addEventListener('keydown', function (e) {
+              if (e.key !== 'Escape') return;
+              menus.forEach(function (menu) { if (menu.open) close(menu, true); });
+            });
+          })();
+        </script>
 
-## superbot MCP
+        <div class="sb-visually-hidden" id="copylive" aria-live="polite"></div>
+        <!-- release-links:auto:end -->
 
-Any MCP client works.
+        <!-- the phone path has no footnote here: a phone visitor gets
+             #dl-phone-note, and a release with phone builds draws its own
+             "on this phone" group in the menu -->
+        <p class="note" id="release-meta"><span class="clause">no release yet: showing v0.1.0</span></p>
+      </div>
+    </section>
+  </main>
 
-Paste this into your agent.
+  <footer class="sb-footer"><div class="sb-footer-in"><span class="creed">always learning.</span><nav class="links" aria-label="footer"><a href="index.html">home</a><a href="docs.html">quickstart</a><a href="request-harness.html">request a harness</a><a href="https://status.superbot.gg">status</a><a href="legal-terms.html">terms</a><a href="legal-privacy.html">privacy</a><a class="sb-x" href="https://x.com/superbot_gg" rel="me noopener" aria-label="@superbot_gg on X"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@superbot_gg</a><a href="https://ezolabs.io">created by EZO Labs Inc</a></nav><p class="tm">names and marks belong to their owners.</p></div></footer>
 
-`install the superbot MCP server globally: https://superbot.gg/mcp
-install the superbot skill globally: https://superbot.gg/skills/superbot/SKILL.md
-Tell me if I need to sign in.`
+<script type="module">
+  // the page's one bold element: the visitor's platform, built into the
+  // storm-action primary (#dl-primary in the app card, #ha-primary in the
+  // Helper card, a.sb-btn.dl-cta, the same anatomy the lander's Get Superbot
+  // section uses) from the matching installer row in the card's menu, which
+  // then leaves the menu (hidden, still in the page). The OS comes from the
+  // one shared ladder (site/assets/os-detect.js, also behind the header's
+  // nav-store.js, the onboarding widget and chat.js's gate): a UA string
+  // alone cannot tell (Safari on Apple Silicon still reports MacIntel, an
+  // Android browser reports Linux, iPadOS desktop mode reports a Mac). With
+  // no JS, or an unrecognised platform, the primary stays empty and hidden
+  // and the open menu lists every installer — the sane default.
+  import { detectPlatform, osMark } from 'site/assets/os-detect.js?v=2';
 
-Then type `/superbot` in your agent.
+  var DESKTOP = { mac: 'macOS', windows: 'Windows', linux: 'Linux' };
 
-In Codex, type `$superbot`.
+  // builds the primary CTA from plain data (never innerHTML on visitor- or
+  // wire-derived text: the label and the file name go through textContent).
+  // Under the label sits the exact file the button downloads (the promoted
+  // row's data-file), one small line; the hash stays off it, on the row's
+  // data-sha256
+  function fillPrimary(container, opts) {
+    container.textContent = '';
+    var a = document.createElement('a');
+    a.className = 'sb-btn dl-cta';
+    a.href = opts.href;
+    var mark = document.createElement('span');
+    mark.className = 'sb-os-mark';
+    if (opts.markSvg) mark.innerHTML = opts.markSvg; // our own osMark() output, trusted
+    var text = document.createElement('span');
+    text.className = 'dl-cta-text';
+    var label = document.createElement('span');
+    label.className = 'dl-cta-label';
+    label.textContent = opts.label;
+    text.appendChild(label);
+    if (opts.file) {
+      var file = document.createElement('span');
+      file.className = 'dl-cta-file';
+      file.textContent = opts.file;
+      text.appendChild(file);
+    }
+    a.appendChild(mark);
+    a.appendChild(text);
+    container.appendChild(a);
+    container.hidden = false;
+  }
 
-Or add the server URL yourself.
+  // the helper ladder's no-release fallback (renderHelperRows) links the
+  // private helper repo on github, which answers a public visitor 404: drop
+  // those rows, and the developer disclosure with them when nothing is left
+  (function () {
+    var dev = document.querySelector('details.dev-files');
+    if (!dev) return;
+    dev.querySelectorAll('a.dl[href^="https://github.com/"]').forEach(function (a) {
+      var li = a.closest('li');
+      if (li) li.remove();
+    });
+    if (!dev.querySelector('a.dl, .cmd')) dev.remove();
+  })();
 
-`https://superbot.gg/mcp`
+  (function () {
+    // every row carries ITS OWN platform's mark, left of its label (the
+    // shared .dl-mark recipe in site.css; an empty span renders nothing).
+    // The mark is a property of the row, not of the visitor: the mac rows
+    // show the apple mark to every visitor. Filled before the detection
+    // branch so the rows keep their logos even when the visitor's OS is unknown.
+    document.querySelectorAll('.group[data-os]').forEach(function (g) {
+      var rowMark = osMark(g.getAttribute('data-os'), 20);
+      if (!rowMark) return;
+      g.querySelectorAll('a.dl .dl-mark').forEach(function (m) { m.innerHTML = rowMark; });
+    });
+    // the phone group mixes platforms, so each of its rows names its own
+    // mark (data-mark, desktop-release.ts rowHtml) instead of a group data-os
+    document.querySelectorAll('a.dl .dl-mark[data-mark]').forEach(function (m) {
+      var own = osMark(m.getAttribute('data-mark'), 20);
+      if (own) m.innerHTML = own;
+    });
 
-`{ "mcpServers": { "superbot": { "type": "http", "url": "https://superbot.gg/mcp" } } }`
+    var p = detectPlatform();
+    var os = p.os;
 
-no release yet: showing v0.1.0
+    // the terminal block's one line is the visitor's OS: the server ships the
+    // unix line (every other system, and a visit with no script), a Windows
+    // visitor gets the PowerShell line, taken from the list under the chevron
+    // so each line has one source (and a granted viewer's token is already in
+    // it). The copy button reads this element, so it copies what is shown.
+    var termLine = document.getElementById('cmd-term');
+    var termPs = document.getElementById('cmd-ps');
+    if (os === 'windows' && termLine && termPs) {
+      termLine.textContent = termPs.textContent;
+      termLine.setAttribute('aria-label', termPs.getAttribute('aria-label'));
+    }
+
+    // the phone tile (the QR in the app card) is for a desktop: a phone or a
+    // tablet cannot scan its own screen, and a phone has the phone builds below
+    var phoneTile = document.getElementById('dl-phone');
+    if (phoneTile && p.mobile) phoneTile.hidden = true;
+
+    // the two route cards share one pattern: the visitor's own build is the
+    // primary, the rest are the "Other platforms" menu, own platform first.
+    // A group whose rows are all promoted or absent leaves the menu; a card
+    // with nothing promoted calls the chip "All platforms", since nothing is
+    // "other" then. A phone has no store to link, so it gets no primary: its
+    // own phone build, when the release carries one, leads the menu.
+    function arrange(cardId, primaryId, verb) {
+      var card = document.getElementById(cardId);
+      var menu = card && card.querySelector('.dl-menu');
+      var list = menu && menu.querySelector('.dl-menu-list');
+      if (!list) return false;
+      var groups = Array.prototype.slice.call(list.querySelectorAll('.group'));
+      var primary = document.getElementById(primaryId);
+      var promoted = false;
+      var lead = null;
+      if (p.mobile) {
+        lead = groups.filter(function (g) { return g.querySelector('.dl-mark[data-mark="' + os + '"]'); })[0] || null;
+      } else if (DESKTOP[os]) {
+        // the matching group's first (primary) row becomes the storm-action
+        // CTA and sits out of the menu: one bold element, not two copies of it
+        lead = groups.filter(function (g) { return g.getAttribute('data-os') === os; })[0] || null;
+        var row = lead && lead.querySelector('a.dl');
+        if (row && primary) {
+          fillPrimary(primary, {
+            href: row.getAttribute('href'),
+            markSvg: osMark(os, 24),
+            label: verb + DESKTOP[os],
+            file: row.getAttribute('data-file') || '',
+          });
+          row.closest('li').hidden = true;
+          promoted = true;
+        }
+      }
+      if (lead) list.insertBefore(lead, list.firstChild);
+      groups.forEach(function (g) { if (!g.querySelector('li:not([hidden])')) g.hidden = true; });
+      var label = menu.querySelector('.dl-chip-label');
+      if (!promoted && label) label.textContent = 'All platforms';
+      if (!list.querySelector('.group:not([hidden])')) menu.hidden = true;
+      return promoted;
+    }
+
+    var appPromoted = arrange('route-app', 'dl-primary', 'Download beta for ');
+    arrange('helper', 'ha-primary', 'Download for ');
+
+    // a phone or tablet: no store lists superbot yet, so no store button. The
+    // server drew the twin badges when a phone has something real to open
+    // (phoneBadgesHtml), and the phone sees them now; their own lines say what
+    // the plain note says, so that note is only for a card with no badge. The
+    // menu below is the path for a computer
+    if (p.mobile) {
+      var phoneBadges = document.getElementById('dl-badges');
+      var phoneNote = document.getElementById('dl-phone-note');
+      if (phoneBadges) phoneBadges.setAttribute('data-on', '');
+      else if (phoneNote) phoneNote.hidden = false;
+      return;
+    }
+
+    if (!os || !DESKTOP[os]) {
+      var deviceNote = document.getElementById('dl-device-note');
+      if (deviceNote) deviceNote.hidden = false;
+      return;
+    }
+
+    if (!appPromoted && !document.getElementById('dl-' + os)) {
+      // the release publishes no build for this OS yet (today: mac only)
+      var osNote = document.getElementById('dl-os-note');
+      if (osNote) {
+        osNote.textContent = 'there is no ' + DESKTOP[os] + ' build.';
+        osNote.hidden = false;
+      }
+    }
+  })();
+
+  // every installer row's size, right after its label, when the release
+  // publishes one: the Helper app's rows carry their own (data-size, in
+  // bytes), the desktop rows read theirs off /download/latest.json. The group
+  // heading names the OS and the label the arch, so a row says nothing else.
+  (function () {
+    function keyOf(a) {
+      var href = a.getAttribute('href') || '';
+      return href.indexOf('/download/asset/') === 0 ? href.slice('/download/asset/'.length) : '';
+    }
+    function addSize(a, bytes) {
+      var main = a.querySelector('.dl-text .main');
+      if (!main || !(bytes > 0) || a.querySelector('.size')) return;
+      var size = document.createElement('span');
+      size.className = 'size';
+      size.textContent = (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      main.insertAdjacentElement('afterend', size);
+    }
+    // the store badges' marks, the same osMark recipe the rows use
+    document.querySelectorAll('.sb-os-mark[data-mark]').forEach(function (m) {
+      var mark = osMark(m.getAttribute('data-mark'), 20);
+      if (mark) m.innerHTML = mark;
+    });
+    document.querySelectorAll('a.dl[data-size]').forEach(function (a) {
+      addSize(a, Number(a.getAttribute('data-size')));
+    });
+    fetch('/download/latest.json', { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var assets = (j && j.assets) || null;
+        if (!assets) return;
+        document.querySelectorAll('a.dl').forEach(function (a) {
+          var asset = assets[keyOf(a)];
+          addSize(a, asset && asset.size);
+        });
+      })
+      .catch(function () {});
+  })();
+
+  // the commands' copy buttons (the whole box is one button): the clipboard
+  // API where the context allows it, the execCommand fallback where it does
+  // not, and a visible "copy failed" on the button itself when both refuse.
+  // What is copied is the command's whole text (the code element's textContent,
+  // the token included), never what the clipped box shows. The button's label
+  // is its .cpy-label: "click to copy", then "copied" (or "copy failed") for a
+  // moment, the glyph turning to a check with it
+  (function () {
+    var live = document.getElementById('copylive');
+    function say(t) { if (live) { live.textContent = t; setTimeout(function () { live.textContent = ''; }, 1500); } }
+    function flash(btn, text, cls) {
+      var label = btn.querySelector('.cpy-label');
+      // a control outside the one-line boxes (the MCP card's multi-line boxes, its install links and its key row) goes
+      // back to its own word, read before its first flip; a one-line box goes back to "click to copy"
+      var idle = '';
+      if (!btn.closest('.cmd')) {
+        if (!label.hasAttribute('data-idle')) label.setAttribute('data-idle', label.textContent);
+        idle = label.getAttribute('data-idle');
+      }
+      label.textContent = text; btn.classList.add(cls);
+      setTimeout(function () { label.textContent = 'click to copy'; btn.classList.remove(cls); if (idle) label.textContent = idle; }, 1500);
+    }
+    // the clipboard ladder, one for every copy button: the async API in a secure context, the execCommand fallback
+    function copy(btn, value) {
+      var done = function () { flash(btn, 'copied', 'copied'); say('copied to clipboard'); };
+      var fallback = function () {
+        var ta = document.createElement('textarea'); ta.value = value; document.body.appendChild(ta); ta.select();
+        var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } ta.remove();
+        if (ok) done(); else { flash(btn, 'copy failed', 'blocked'); say('clipboard blocked: select the command and copy it by hand'); }
+      };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(value).then(done, fallback); else fallback();
+    }
+    document.querySelectorAll('.cpy[data-copy-from]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var src = document.getElementById(btn.getAttribute('data-copy-from'));
+        var value = src ? src.textContent : '';
+        if (!value) return;
+        copy(btn, value);
+      });
+    });
+    // an install link's control carries the link itself (the MCP card, the page a person reads), beside the link
+    document.querySelectorAll('.cpy[data-copy-text]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var value = btn.getAttribute('data-copy-text');
+        if (value) copy(btn, value);
+      });
+    });
+
+  })();
+
+  // the fade: a command that fits its box shows no fade, one that overflows
+  // fades out at the box's end (the stylesheet's default, which is also what a
+  // visit with no script gets). A box inside a closed fold, or in a card that is
+  // not showing, has no width yet, so each is watched: it is measured whenever
+  // it gains or changes its size, and whenever its text is swapped (the
+  // PowerShell line the page script puts in the terminal block on Windows)
+  (function () {
+    function measure(code) {
+      var box = code.parentElement;
+      if (!box || !code.clientWidth) return;
+      if (code.scrollWidth > code.clientWidth) box.removeAttribute('data-fits'); else box.setAttribute('data-fits', '');
+    }
+    function watch(code) {
+      measure(code);
+      if (window.ResizeObserver) new ResizeObserver(function () { measure(code); }).observe(code);
+      if (window.MutationObserver) new MutationObserver(function () { measure(code); }).observe(code, { childList: true, characterData: true, subtree: true });
+    }
+    document.querySelectorAll('.cmd > code').forEach(watch);
+    // the MCP card's multi-line boxes fade the same way (the fade is theirs: .cmd-lines[data-fits])
+    document.querySelectorAll('.cmd-lines > code').forEach(watch);
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.cmd > code, .cmd-lines > code').forEach(measure);
+    });
+  })();
+
+  // /chat redirects here with ?from=chat while the web chat is flag-gated
+  // off (edge/src/app.ts): say why a chat deep link landed on a download
+  // page (Q-27). q rides along from the old deep links; echo it so the
+  // sentence still answers their ask. textContent only, so a crafted q
+  // cannot write markup.
+  (function () {
+    var params = new URLSearchParams(location.search);
+    if (params.get('from') !== 'chat') return;
+    var el = document.getElementById('chat-note');
+    if (!el) return;
+    var q = (params.get('q') || '').trim().slice(0, 120);
+    el.textContent = q
+      ? 'chat moved to the desktop app: download it below, then ask "' + q + '" there.'
+      : 'chat moved to the desktop app: download it below and sign in to keep going.';
+    el.hidden = false;
+  })();
+</script>
+<script src="site/assets/nav-drawer.js?v=3" defer></script>
+</body>
+</html>
