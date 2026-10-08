@@ -1,0 +1,136 @@
+/* hero-live.css: the `live` hero arm (hero-live.js, experiments.js hero rev 13,
+   2026-10-07). The desktop app's live chat surface remade as the landing hero:
+   the thinking bubble (mascot avatar, raised bubble, Thinking and its clock over
+   the newest thought's lines), the composer (model chip, provider switch pill,
+   the ask field), and the apps superbot manages as toggles that flip on as the
+   band scrolls into view. Tokens are the page's own (site.css: --fg, --muted,
+   --line, --raised, --accent) and hero.css's --stage; the switch pill's anatomy
+   is hero-wschat-chat.css's .hwc-pill (provider-switch.tsx). Motion is
+   unconditional (motion-always-on.mdc): no reduced-motion guard. No em-dashes. */
+
+/* the arm draws its own hero: the boot stage and its poster stay in the DOM
+   (idempotent retry, the fallback notice) but take no box, and the dock rail
+   below stays the page's own install list */
+.hero[data-hero-live] #stage { display: none; }
+.hero[data-hero-live] .dock { margin-top: var(--sp-8); }
+
+.live {
+  width: 100%; max-width: var(--content); margin: 0 auto var(--sp-8);
+  display: flex; flex-direction: column; gap: var(--sp-5);
+  text-align: left; color: var(--fg); font-family: var(--font-ui);
+}
+
+/* ---- the thinking row: avatar, the two trailing dots, the bubble ---- */
+.live-think { display: flex; align-items: flex-start; gap: var(--sp-2); }
+.live-avatar {
+  flex: none; width: 38px; height: 38px; display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: var(--r-md);
+  background: var(--raised);
+}
+.live-avatar img { width: 24px; height: 24px; display: block; }
+/* two dots trailing toward the thinker, as hero.css's .thought draws them */
+.live-tail {
+  flex: none; align-self: center; width: 12px; height: 6px; margin-top: 2px;
+  background: radial-gradient(circle, var(--muted) 1.5px, transparent 2px) 0 50% / 6px 6px repeat-x;
+}
+.live-bubble {
+  flex: 1 1 auto; min-width: 0;
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--raised); padding: 8px 12px;
+}
+.live-head { display: flex; align-items: baseline; min-width: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.live-label { font-weight: 500; color: var(--muted); }
+.live-sep { margin-inline: 5px; color: var(--muted); }
+.live-clock { font-family: var(--font-mono); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+.live-win { margin-top: var(--sp-1); height: 60px; overflow: hidden; }
+.live-text { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--fg); overflow-wrap: anywhere; }
+.live-w { opacity: .14; }
+
+/* ---- the composer: the switch pill, then the box ---- */
+.live-composer { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-3); }
+.live-sw {
+  display: inline-flex; align-items: center; gap: var(--sp-2); height: 32px; padding: 0 12px 0 6px;
+  border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--raised);
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; max-width: 100%;
+}
+.live-sw-mark { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; color: var(--fg); }
+.live-sw-mark img { width: 20px; height: 20px; border-radius: 6px; display: block; }
+.live-sw-ink { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
+/* while switching, the label's ink travels (the pill's shimmer) */
+.live-sw:not([data-check="true"]) .live-sw-ink {
+  background: linear-gradient(100deg, var(--muted) 30%, var(--fg) 50%, var(--muted) 70%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: live-sweep 1.4s linear infinite;
+}
+@keyframes live-sweep { from { background-position: 135% 0; } to { background-position: -135% 0; } }
+.live-sw-status { position: relative; flex: none; width: 15px; height: 15px; }
+.live-sw-status svg { position: absolute; inset: 0; width: 15px; height: 15px; }
+.live-spin { color: var(--muted); animation: live-spin .9s linear infinite; }
+@keyframes live-spin { to { transform: rotate(360deg); } }
+.live-check { color: var(--accent); opacity: 0; }
+.live-sw[data-check="true"] .live-spin { opacity: 0; }
+.live-sw[data-check="true"] .live-check { opacity: 1; }
+
+.live-box {
+  width: 100%; display: flex; flex-direction: column; gap: var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--stage);
+  padding: 12px 14px;
+}
+.live-field { color: var(--muted); font-size: var(--fs-sm); }
+.live-foot { display: flex; align-items: center; gap: var(--sp-3); }
+.live-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: var(--r-pill);
+  font-size: var(--fs-xs); line-height: 1; color: var(--fg);
+}
+.live-chip-mark { display: grid; place-items: center; width: 14px; height: 14px; color: var(--fg); }
+.live-chip-img { display: block; width: 12px; height: 12px; }
+.live-chip-name { font-weight: 600; }
+.live-cv { width: 12px; height: 12px; color: var(--muted); }
+.live-super {
+  height: 22px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: var(--r-pill);
+  border: 1px solid var(--line); color: var(--muted); font-size: var(--fs-xs);
+}
+.live-send { margin-left: auto; width: 26px; height: 26px; padding: 5px; box-sizing: border-box; border-radius: var(--r-pill); background: var(--accent); color: var(--accent-ink); }
+
+/* ---- the apps: every toggle OFF until the band scrolls in ---- */
+.live-apps { display: flex; flex-direction: column; gap: var(--sp-4); border-top: 1px solid var(--line); padding-top: var(--sp-5); }
+.live-apps-lab { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: .02em; color: var(--muted); }
+.live-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); }
+.live-app {
+  display: flex; align-items: center; gap: var(--sp-2); min-width: 0;
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--raised) 45%, transparent);
+  transition: border-color 220ms var(--ease-std); transition-delay: var(--d, 0ms);
+}
+.live-mark { flex: none; display: grid; place-items: center; width: 20px; height: 20px; color: var(--muted);
+  transition: color 220ms var(--ease-std); transition-delay: var(--d, 0ms); }
+.live-mark svg { display: block; }
+.live-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--fs-xs); color: var(--muted); transition: color 220ms var(--ease-std); transition-delay: var(--d, 0ms); }
+.live-toggle {
+  position: relative; flex: none; width: 36px; height: 20px; border-radius: var(--r-pill);
+  border: 1px solid var(--line); background: #232323;
+  transition: background-color 220ms var(--ease-std), border-color 220ms var(--ease-std); transition-delay: var(--d, 0ms);
+}
+.live-toggle i {
+  position: absolute; top: 50%; left: 3px; width: 14px; height: 14px; border-radius: 50%;
+  background: #cfcfcf; transform: translateY(-50%);
+  transition: transform 220ms cubic-bezier(.3, .85, .3, 1.04), background-color 220ms var(--ease-std);
+  transition-delay: var(--d, 0ms);
+}
+.live-app.on { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.live-app.on .live-mark, .live-app.on .live-name { color: var(--fg); }
+.live-app.on .live-toggle { background: var(--accent); border-color: var(--accent); }
+.live-app.on .live-toggle i { background: #fff; transform: translateY(-50%) translateX(16px); }
+.live-power {
+  font-size: var(--fs-lg); color: var(--fg); opacity: 0; transform: translateY(6px);
+  transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+}
+.live-power.on { opacity: 1; transform: none; }
+
+@media (max-width: 560px) {
+  .live-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .live-bubble { padding: 8px 10px; }
+}

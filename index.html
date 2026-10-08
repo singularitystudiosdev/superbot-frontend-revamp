@@ -955,7 +955,7 @@ if (location.hash === '#get-superbot') {
   import { detectPlatform, osMark } from 'site/assets/os-detect.js?v=2';
   import { mountWaitlist } from 'site/assets/waitlist-form.js?v=13';
   import { mountSignupBar } from 'site/assets/signup-bar.js?v=14';
-  import { EXPERIMENTS, migrateSaved, assignSlot, assignmentEpoch, liveArms, adCampaign, captionCopy } from 'site/assets/experiments.js?v=19';
+  import { EXPERIMENTS, migrateSaved, assignSlot, assignmentEpoch, liveArms, adCampaign, captionCopy } from 'site/assets/experiments.js?v=20';
 
   // #more loads with the page's script: skeleton rows while it fetches
   const more = document.getElementById('more');
@@ -1575,10 +1575,22 @@ if (location.hash === '#get-superbot') {
     // thin placement around the wschat module (hero-wstop.js imports it at the
     // same ?v=), so it adds the wschat sheets plus its own layout sheet
     wstop: 'site/assets/hero-wstop.js?v=15',
+    // live (2026-10-07, experiments.js hero rev 13): the owner's hero remake.
+    // One module draws the whole surface: the desktop thinking bubble (mascot
+    // avatar, raised bubble, "Thinking" and its clock over the newest thought's
+    // lines, thoughts cycling fast and streaming word by word), the composer
+    // with the model chip and the desktop provider-switch pill ("Switching to
+    // X" then "Switched to X"), and every app superbot manages as a toggle that
+    // flips ON one by one as its band scrolls into view, over the line
+    // "Powering superbot." (site/assets/hero-live.js and hero-live.css). It
+    // links no other arm's sheet, and #stage stays in the DOM but takes no box
+    // (hero-live.css), so the arm is a one-attribute change to undo.
+    live: 'site/assets/hero-live.js?v=1',
   };
   const HERO_SHEETS = {
     wschat: { add: ['site/assets/hero-wschat.css?v=13', 'site/assets/hero-wschat-chat.css?v=7', 'site/assets/hero-wschat-end.css?v=2'], off: 'site/assets/hero-workspace.css' },
     wstop: { add: ['site/assets/hero-wschat.css?v=13', 'site/assets/hero-wschat-chat.css?v=7', 'site/assets/hero-wschat-end.css?v=2', 'site/assets/hero-wstop.css?v=2'], off: 'site/assets/hero-workspace.css' },
+    live: { add: ['site/assets/hero-live.css?v=2'], off: 'site/assets/hero-workspace.css' },
   };
   const heroName = new URLSearchParams(location.search).get('hero');
   const stageEl = document.getElementById('stage');
