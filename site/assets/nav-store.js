@@ -16,7 +16,7 @@
 // (.sb-btn .sb-os-mark), left of the label with the button's own
 // var(--sp-2) gap.
 
-import { detectPlatform, osMark } from '/site/assets/os-detect.js?v=2';
+import { detectPlatform, osMark } from '../../site/assets/os-detect.js?v=2';
 
 (function () {
   try {

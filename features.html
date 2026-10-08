@@ -2215,7 +2215,7 @@ fixed the compare; the test passes now.
   <script type="module">
   // the index, the #sync phone's handoff and its living tile: one module the
   // home page also runs over the copy of this page it splices in (#more)
-  import { initFeatures } from 'site/assets/features-page.js?v=8';
+  import { initFeatures } from './site/assets/features-page.js?v=8';
   // the waitlist (2026-09-26): /features had no signup form at all, and GA
   // read 10 phone readers in 28 days. An anonymous reader (the server's
   // data-access on the body tag, the same marker the home page reads) joins the
@@ -2226,8 +2226,8 @@ fixed the compare; the test passes now.
   // on /features only: the home page takes <main> alone, never this script.
   // Same module URLs as the home page, so a reader who came from / reuses
   // them from cache, and every mount here shares one state.
-  import { mountWaitlist } from 'site/assets/waitlist-form.js?v=13';
-  import { mountSignupBar } from 'site/assets/signup-bar.js?v=14';
+  import { mountWaitlist } from './site/assets/waitlist-form.js?v=13';
+  import { mountSignupBar } from './site/assets/signup-bar.js?v=14';
   initFeatures(document);
   if (document.body.dataset.access === 'anon') {
     // the code link is the modules' default inviteHref, the one the nav pill

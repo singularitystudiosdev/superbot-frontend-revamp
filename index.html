@@ -949,13 +949,13 @@ if (location.hash === '#get-superbot') {
 <script data-defer="ascii-bg">addEventListener("load", () => setTimeout(() => { const s = document.createElement("script"); s.src = "site/assets/ascii-bg.js?v=6"; s.dataset.bg = "stars"; s.dataset.color = "236,236,236"; s.dataset.fade = "0.32"; document.body.append(s); }, 300));</script>
 <script data-defer="stage-css">window.sbStageCss = Promise.race([Promise.all([...document.querySelectorAll('link[rel=stylesheet][media=print]')].map((l) => new Promise((ok) => { if (l.media === 'all') return ok(); l.addEventListener('load', ok); l.addEventListener('error', ok); }))), new Promise((ok) => setTimeout(ok, 8000))]);</script>
 <script type="module">
-  import { consoleEgg } from 'site/assets/mascot.js?v=14';
-  import { mountMascotMark } from 'site/assets/mascot-mark.js?v=3'; // same URL hub-boot.js imports, so the page loads one copy
-  import { mountInstallSnippet, detectArchEvidence } from 'site/assets/install-snippet.js?v=44';
-  import { detectPlatform, osMark } from 'site/assets/os-detect.js?v=2';
-  import { mountWaitlist } from 'site/assets/waitlist-form.js?v=13';
-  import { mountSignupBar } from 'site/assets/signup-bar.js?v=14';
-  import { EXPERIMENTS, migrateSaved, assignSlot, assignmentEpoch, liveArms, adCampaign, captionCopy } from 'site/assets/experiments.js?v=20';
+  import { consoleEgg } from './site/assets/mascot.js?v=14';
+  import { mountMascotMark } from './site/assets/mascot-mark.js?v=3'; // same URL hub-boot.js imports, so the page loads one copy
+  import { mountInstallSnippet, detectArchEvidence } from './site/assets/install-snippet.js?v=44';
+  import { detectPlatform, osMark } from './site/assets/os-detect.js?v=2';
+  import { mountWaitlist } from './site/assets/waitlist-form.js?v=13';
+  import { mountSignupBar } from './site/assets/signup-bar.js?v=14';
+  import { EXPERIMENTS, migrateSaved, assignSlot, assignmentEpoch, liveArms, adCampaign, captionCopy } from './site/assets/experiments.js?v=20';
 
   // #more loads with the page's script: skeleton rows while it fetches
   const more = document.getElementById('more');
@@ -1299,7 +1299,7 @@ if (location.hash === '#get-superbot') {
       link.onerror = () => no(new Error('caption-seq.css'));
       document.head.append(link);
     });
-    return Promise.all([import('site/assets/caption-seq.js?v=1'), sheet]).then(([seq]) => seq);
+    return Promise.all([import('./site/assets/caption-seq.js?v=1'), sheet]).then(([seq]) => seq);
   }
   const installOpen = !access || access === 'granted';
 
@@ -1467,7 +1467,7 @@ if (location.hash === '#get-superbot') {
       more.replaceChildren(...main.childNodes);
       more.removeAttribute('aria-busy');
       more.dataset.state = 'ready';
-      const { initFeatures } = await import('site/assets/features-page.js?v=8');
+      const { initFeatures } = await import('./site/assets/features-page.js?v=8');
       initFeatures(more);
     } catch (e) {
       more.dataset.state = 'failed';
@@ -1606,7 +1606,7 @@ if (location.hash === '#get-superbot') {
   // (a sticky arm) that this visit does not confirm (a signed-in visitor, a
   // retired arm, ?hero=none) is undone, with the same transform-only swap
   if (document.documentElement.dataset.heroArm && (heroNone || heroPlayed !== 'wstop')) {
-    import('site/assets/hero-wstop-layout.js?v=1').then((m) => m.applyLayout(false)).catch((e) => console.error('wstop layout', e));
+    import('./site/assets/hero-wstop-layout.js?v=1').then((m) => m.applyLayout(false)).catch((e) => console.error('wstop layout', e));
   } else if (!document.documentElement.dataset.heroArm && !heroNone && heroPlayed === 'wstop' && matchMedia('not all and (orientation: landscape) and (max-height: 500px)').matches) {
     // a fresh wstop draw: the arm is known only now, after the first paint, so its
     // poster's fetch starts here, a sheets' round trip ahead of the module that swaps,

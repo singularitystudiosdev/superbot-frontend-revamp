@@ -9,7 +9,7 @@
 // between are an example of what fills that time, never a recording of
 // either side. Usage:
 //
-//   import { mountRace } from '/site/assets/hero-race.js';
+//   import { mountRace } from '../../site/assets/hero-race.js';
 //   mountRace(sectionEl, { scripts: { plain: [...], super: [...] }, targets: { super: 8551, plain: 24057 } });
 //
 // A script line is { k: 'p'|'t'|'ok'|'wait', text, ms }: 'p' is the typed

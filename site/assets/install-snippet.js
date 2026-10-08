@@ -1,5 +1,5 @@
 // Install snippet with OS detection. Shared by the landers:
-//   import { mountInstallSnippet } from '/site/assets/install-snippet.js?v=44';
+//   import { mountInstallSnippet } from '../../site/assets/install-snippet.js?v=44';
 //   mountInstallSnippet(document.getElementById('oneliner'));
 // Two shapes. With { helper: true } (the landing page, 2026-09-23) it renders
 // the Helper/CLI bootstrap lines (bootstrap.sh / bootstrap.ps1, visitor's OS
@@ -21,7 +21,7 @@
 // Fires `superbot:copied` on window with { source } after a copy that
 // actually happened (the mascot celebrates; /docs advances its step rail).
 
-import { detectPlatform } from '/site/assets/os-detect.js?v=2';
+import { detectPlatform } from '../../site/assets/os-detect.js?v=2';
 
 // The desktop OS for the widget's own purposes, mapped off the one shared
 // ladder (os-detect.js, also behind download.html, the header's nav-store.js

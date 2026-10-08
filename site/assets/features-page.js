@@ -4,8 +4,8 @@
 // On the home page an id such as "sync" also names a hero node that comes
 // first in document order, so nothing here resolves through
 // document.getElementById: every lookup starts at the root.
-import { mountAllMarks } from '/site/assets/mascot-mark.js?v=3';
-import { armMockJoins } from '/site/assets/mock-join.js?v=2';
+import { mountAllMarks } from '../../site/assets/mascot-mark.js?v=3';
+import { armMockJoins } from '../../site/assets/mock-join.js?v=2';
 
 const byId = (root, id) => root.querySelector(`#${CSS.escape(id)}`);
 

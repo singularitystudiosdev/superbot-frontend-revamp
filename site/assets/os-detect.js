@@ -1,6 +1,6 @@
 // OS detection for the whole site: one module every page imports as
 //   import { detectPlatform, storeLink, storeLabel, osMark, OS_MARK_PATHS }
-//     from '/site/assets/os-detect.js?v=1';
+//     from '../../site/assets/os-detect.js?v=1';
 // No dependencies. No DOM access at import time (only inside the functions,
 // guarded). Every function is sync, catches its own probes and never throws.
 //

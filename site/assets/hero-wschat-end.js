@@ -26,7 +26,7 @@
 // one copy of the module. Motion is unconditional: no reduced-motion guard
 // (.cursor/rules/motion-always-on.mdc).
 
-import { markSvg, mountMascotMark } from '/site/assets/mascot-mark.js?v=3';
+import { markSvg, mountMascotMark } from '../../site/assets/mascot-mark.js?v=3';
 
 const E = {
   CARD_IN: 0.4,                          // hw-card's black (HW.CARD_IN)

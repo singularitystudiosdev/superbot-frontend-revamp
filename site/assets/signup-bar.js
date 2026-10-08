@@ -41,8 +41,8 @@
 // dialog is still built on every device, so a phone turned on its side with
 // the sheet open keeps a fitting sheet; mountSignupBar returns { open } for
 // any other entry point a page wants to wire.
-import { mountWaitlist } from '/site/assets/waitlist-form.js?v=13';
-import { provideJoin } from '/site/assets/mock-join.js?v=2';
+import { mountWaitlist } from '../../site/assets/waitlist-form.js?v=13';
+import { provideJoin } from '../../site/assets/mock-join.js?v=2';
 
 // a mount's live control: its step's field, or the download button of "you're in."
 const fieldOf = (s) => s.querySelector('.wl-row:not([hidden]) .wl-in, .wl-dl:not([hidden])');

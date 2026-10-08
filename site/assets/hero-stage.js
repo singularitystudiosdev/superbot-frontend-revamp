@@ -5,7 +5,7 @@
 // cycle, sonner's stack math: 3 visible, 14px gap, 5% scale per depth,
 // Material 3 durations). Usage:
 //
-//   import { mountStage } from '/site/assets/hero-stage.js';
+//   import { mountStage } from '../../site/assets/hero-stage.js';
 //   mountStage(stageEl, { mascot, incidents, stacked: () => bool, onIncident, onResolve });
 //
 // onIncident fires the moment an incident card lands on the stage (before its

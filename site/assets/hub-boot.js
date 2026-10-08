@@ -18,9 +18,9 @@
 // with `?v=<name>` (no param = the shipped story). They are this same story with
 // different behaviour after the reveal, so there are no forked files.
 
-import { markSvg, mountMascotMark } from '/site/assets/mascot-mark.js?v=3';
-import { mountKeys } from '/site/assets/hub-keys.js?v=2';
-import { CUTS, cutByName } from '/site/assets/hub-boot-cuts.js?v=7';
+import { markSvg, mountMascotMark } from '../../site/assets/mascot-mark.js?v=3';
+import { mountKeys } from '../../site/assets/hub-keys.js?v=2';
+import { CUTS, cutByName } from '../../site/assets/hub-boot-cuts.js?v=7';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage'), arena = $('arena'), margin = $('margin'), mascotEl = $('mascot');
