@@ -15,12 +15,6 @@
 // carry weight, so a held experiment sends nothing. hero.arms.wstop (2026-10-01,
 // rev 12) is the live stage on top: a compact live wschat stage inside the first
 // 390x664 (site/assets/hero-wstop.js and .css), 80/20 against wschat.
-// hero.arms.live (2026-10-07, rev 13) is the owner's hero remake at 100% on
-// every device: the desktop thinking bubble, the composer's model chip with the
-// provider-switch pill, and every app superbot manages as a toggle that flips
-// ON as its band scrolls into view (site/assets/hero-live.js and .css). wschat
-// and wstop go to 0 so one arm draws; their definitions stay, so restoring the
-// old 80/20 is a one weight edit. holdback.snapshot.hero follows the incumbent.
 // `device` (optional, per experiment) scopes an experiment to one GA
 // deviceCategory: only that device draws an arm; every other one sees
 // `otherDevices`, is labelled exp_<slot> 'desktop' and stays out of the
@@ -113,13 +107,12 @@ export const EXPERIMENTS = {
       "chaos": 0,
       "boot": 0,
       "none": 0,
-      "wschat": 0,
-      "wstop": 0,
-      "live": 1
+      "wschat": 0.8,
+      "wstop": 0.2
     },
-    "incumbent": "live",
+    "incumbent": "wschat",
     "floor": 0.05,
-    "started": "2026-10-07",
+    "started": "2026-10-02",
     "proxyPlacement": "hero",
     "metric": "hook",
     "userProp": "exp_hero",
@@ -127,7 +120,7 @@ export const EXPERIMENTS = {
     "maxLive": 6,
     "cutPct": 0.5,
     "cutMinN": 30,
-    "rev": 13,
+    "rev": 12,
     "log": [
       {
         "rev": 2,
@@ -247,14 +240,6 @@ export const EXPERIMENTS = {
           "wschat": 0.8,
           "wstop": 0.2
         }
-      },
-      {
-        "rev": 13,
-        "date": "2026-10-07",
-        "action": "add-arm",
-        "arm": "live",
-        "started": "2026-10-07",
-        "why": "user: remake the hero. The brief: the thinking bubble at the top of the page (the desktop live thought row, the v11 bubble line), the thoughts cycling fast and streaming word by word, the composer's model chip changing with the desktop provider-switch pill (Switching to X, then Switched to X), and every app superbot manages as an OFF toggle that flips ON one by one as the band scrolls into view, over the line Powering superbot. It ships as site/assets/hero-live.js and hero-live.css, drawn by the new live arm. live takes all the weight and wschat and wstop go to 0, so one arm draws on every device; both arms stay defined, so restoring the 80/20 is a one weight edit. started moves to 2026-10-07, the day the arm ships, and it is the hero draw epoch, so every stored draw from an earlier start (wschat, wstop, anything) is redrawn once to live and the slot's reads restart on one draw. holdback.snapshot.hero follows the incumbent to live: a holdback visitor sees the snapshot arm, and wschat at weight 0 is still defined and un-held, so the snapshot had to move or 10% of visitors would keep the old hero. Unchanged: incumbent label rules, floor 0.05, maxLive 6, cutPct 0.5 from cutMinN 30, metric hook, userProp exp_hero; sphere, chaos and boot stay held, workspace, realui and none stay retired at 0. No read is lost: live is a new surface with no GA-served predecessor of its own, so the slot reopens at this rev with one live arm and the optimizer holds it until 2026-10-07 is GA-processed."
       }
     ],
     "done": null
@@ -511,7 +496,7 @@ export const EXPERIMENTS = {
     "share": 0.1,
     "since": "2026-09-28",
     "snapshot": {
-      "hero": "live",
+      "hero": "wschat",
       "subline": "what",
       "caption": "control"
     }
